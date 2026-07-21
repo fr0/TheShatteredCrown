@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>The Shattered Crown</name>
+  <author>cfrolik</author>
+  <packageId>cfrolik.theshatteredcrown</packageId>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+      <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+  </loadAfter>
+  <description>A medieval-themed epic quest chain. The Wayfarers' Guild, a roving band of adventurers, recruits you into the hunt for the Shattered Crown: finding companions, and delving into bespoke dungeons and ruins across the rim.
+
+Features:
+- A multi-part quest chain with an overarching story
+- Hand-crafted dungeon and ruin locations to explore
+- Medieval flavor: swords, bows, plate armor, and ancient secrets
+
+Requires the Odyssey expansion (uses its structure-generation content).</description>
+</ModMetaData>

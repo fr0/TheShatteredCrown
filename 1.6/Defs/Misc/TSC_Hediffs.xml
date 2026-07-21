@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <HediffDef Name="TSC_TimedBuffBase" Abstract="True">
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <initialSeverity>1</initialSeverity>
+    <defaultLabelColor>(0.6, 0.9, 0.6)</defaultLabelColor>
+  </HediffDef>
+
+  <!-- Party progression: visible level tracker, severity = level -->
+  <HediffDef>
+    <defName>TSC_Hediff_AdventurerLevel</defName>
+    <label>adventurer</label>
+    <description>Experience earned on the long road. Levels are gained by completing the party's quests; companions with a class unlock new abilities as they rise.</description>
+    <hediffClass>TheShatteredCrown.Hediff_AdventurerLevel</hediffClass>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <initialSeverity>1</initialSeverity>
+    <maxSeverity>99</maxSeverity>
+    <defaultLabelColor>(0.85, 0.75, 0.4)</defaultLabelColor>
+    <stages>
+      <li>
+        <minSeverity>0</minSeverity>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Cleric: Blessing -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Blessing</defName>
+    <label>blessed</label>
+    <description>Steadied by a cleric's blessing: clearer of mind and surer of hand.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>60000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <capMods>
+          <li>
+            <capacity>Consciousness</capacity>
+            <offset>0.10</offset>
+          </li>
+        </capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Bard: Battle Hymn -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_BattleHymn</defName>
+    <label>battle hymn</label>
+    <description>Carried by the bard's war-song: faster feet and a surer blade.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>7500</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <MoveSpeed>0.40</MoveSpeed>
+          <MeleeHitChance>0.08</MeleeHitChance>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Bard: Inspiring Verse -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_InspiredVerse</defName>
+    <label>inspired verse</label>
+    <description>A bard's verse still ringing in the ears. Work comes easier.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>30000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <WorkSpeedGlobal>0.20</WorkSpeedGlobal>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Bard: Song of Rest -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_SongOfRest</defName>
+    <label>song of rest</label>
+    <description>A slow song for the end of the day. Sleep runs deeper and wounds knit faster.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>30000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <RestRateMultiplier>0.25</RestRateMultiplier>
+        </statOffsets>
+        <statFactors>
+          <InjuryHealingFactor>1.5</InjuryHealingFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Warden: Stand Fast -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_StandFast</defName>
+    <label>standing fast</label>
+    <description>Braced behind the warden's line: harder to hurt, slower to move.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>2500</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <MoveSpeed>-1.0</MoveSpeed>
+        </statOffsets>
+        <statFactors>
+          <IncomingDamageFactor>0.75</IncomingDamageFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Warden: Challenge (enemy debuff) -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Shaken</defName>
+    <label>shaken</label>
+    <description>Rattled by a warden's challenge: slower and less sure.</description>
+    <isBad>true</isBad>
+    <defaultLabelColor>(0.9, 0.5, 0.5)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>2500</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <capMods>
+          <li>
+            <capacity>Consciousness</capacity>
+            <offset>-0.10</offset>
+          </li>
+          <li>
+            <capacity>Moving</capacity>
+            <offset>-0.10</offset>
+          </li>
+        </capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Rogue/Paladin/Ranger: the mark (shared) -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Marked</defName>
+    <label>marked</label>
+    <description>Singled out. Blows land harder on the marked.</description>
+    <isBad>true</isBad>
+    <defaultLabelColor>(0.9, 0.5, 0.4)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>5000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statFactors>
+          <IncomingDamageFactor>1.30</IncomingDamageFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Wizard: Arcane Ward -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_ArcaneWard</defName>
+    <label>arcane ward</label>
+    <description>A humming lattice of old sigils turns aside blade and bolt alike.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>7500</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statFactors>
+          <IncomingDamageFactor>0.65</IncomingDamageFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Wizard: Leaden Curse -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Leaden</defName>
+    <label>leaden</label>
+    <description>Limbs like poured lead. Everything is slow and far away.</description>
+    <isBad>true</isBad>
+    <defaultLabelColor>(0.9, 0.5, 0.4)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>3750</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>0.5</MoveSpeed>
+        </statFactors>
+        <capMods>
+          <li>
+            <capacity>Manipulation</capacity>
+            <offset>-0.20</offset>
+          </li>
+        </capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Barbarian: Rage -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Rage</defName>
+    <label>raging</label>
+    <description>Fury with a heartbeat. Hits harder, feels less, aims worse.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>3750</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <painFactor>0.5</painFactor>
+        <statFactors>
+          <MeleeDamageFactor>1.30</MeleeDamageFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>-4</ShootingAccuracyPawn>
+          <MoveSpeed>0.3</MoveSpeed>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Barbarian: Unbreakable -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Unbreakable</defName>
+    <label>unbreakable</label>
+    <description>Too stubborn to fall. Pain is a rumor; wounds are a later problem.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>2500</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <painFactor>0.1</painFactor>
+        <statFactors>
+          <IncomingDamageFactor>0.75</IncomingDamageFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Druid: Bramble Snare -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Snared</defName>
+    <label>snared</label>
+    <description>Brambles from nowhere, with opinions about leaving.</description>
+    <isBad>true</isBad>
+    <defaultLabelColor>(0.9, 0.5, 0.4)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>1875</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>0.15</MoveSpeed>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Druid: Barkskin -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Barkskin</defName>
+    <label>barkskin</label>
+    <description>Skin like old oak. Cuts land shallow.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>7500</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <ArmorRating_Sharp>0.25</ArmorRating_Sharp>
+          <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Monk: Flurry -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Flurry</defName>
+    <label>flurry</label>
+    <description>Stillness spent; speed purchased. Strikes come like rain.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>2500</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statFactors>
+          <MeleeCooldownFactor>0.6</MeleeCooldownFactor>
+        </statFactors>
+        <statOffsets>
+          <MeleeDodgeChance>10</MeleeDodgeChance>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Paladin: Aura of Courage -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Courage</defName>
+    <label>heartened</label>
+    <description>A paladin's certainty is contagious. Fear finds no purchase.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>30000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <MentalBreakThreshold>-0.12</MentalBreakThreshold>
+        </statOffsets>
+        <capMods>
+          <li>
+            <capacity>Consciousness</capacity>
+            <offset>0.05</offset>
+          </li>
+        </capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Performance cooldown marker (fireside tales) -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Performed</defName>
+    <label>performed recently</label>
+    <description>Told a tale by the fire not long ago. Even the best voice needs new material.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>60000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <minSeverity>0</minSeverity>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Ranger: Swift Quiver -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_SwiftQuiver</defName>
+    <label>swift quiver</label>
+    <description>The bow becomes a heartbeat: draw, loose, draw.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>3750</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statFactors>
+          <RangedCooldownFactor>0.65</RangedCooldownFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>4</ShootingAccuracyPawn>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+</Defs>

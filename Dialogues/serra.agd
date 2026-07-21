@@ -1,0 +1,206 @@
+# Serra Voss - leader of the Wayfarer party (Act 1 campsite). Reveals the
+# ettersnap hunt, gives the main quest and two sidequests.
+# Compile with:  scripts\Compile-Dialogue.ps1
+
+dialogue TSC_Dialogue_Serra
+
+entry hub if flag(TSC_MetParty)
+# Bran walked himself back to camp (left unrecruited at the ruin); Serra already
+# knows he's alive, so no challenge and no "alive?!" relief. Checked BEFORE
+# bran_intro so recruiting him afterwards doesn't rewrite how he got here.
+entry bran_walked if flag(TSC_BranAtCamp) and not dead(TSC_Npc_Bran)
+# Bran is in the party and standing right here: she sees her scout first, you second.
+entry bran_intro if in_party(TSC_Npc_Bran) and nearby(TSC_Npc_Bran)
+
+== bran_intro ==
+The woman by the firepit is on her feet with the greatbow half-raised before you've cleared the treeline. Then she sees who's walking beside you, and the tension eases.
+
+"*Underhill.*"
+
+She crosses the camp in five strides. What happens next is not a hug (Serra Voss does not hug), but she takes Bran by the gambeson straps and shakes him once, the way you'd test a gate you were sure had blown down.
+
+"Twelve days. *Twelve.*" Then, over her shoulder, to you: "And you'd be the rider the guild finally sent. You pulled my scout out of the pass and walked him home. That buys you the whole story."
+
+* "Then tell it. What's the guild's best company doing hiding in a pass?" -> reveal
+* "He walked himself, mostly. I supplied the destination." -> bran_credit
+
+== bran_credit ==
+Bran snorts. "Don't listen. I was holed up talking to a wall I'd named Gerald."
+
+Something happens to Serra's face that, on anyone else, you'd call a smile.
+
+"A wall named Gerald. Aye, that's my scout." She jerks her chin at the fire. "Sit, both of you. If the guild's courier is modest AND useful, this pass may finally owe us something."
+
+* "I'm listening." -> reveal
+
+== bran_walked ==
+The woman by the firepit watches you come with a hunter's patience, and no challenge. By the woodpile, Bran lifts two fingers off his knee in greeting.
+
+"So. The guild's rider." She nods at her scout. "Bran came over the ridgeline ahead of you, wearing your name out. Found in a ruin by the first courier the guild's sent in a year, and the courier rode on instead of collecting the thanks." She moves over on the log. "Sit. Anyone my scout vouches for gets the whole story."
+
+* "I'm listening." -> reveal
+
+== start ==
+The woman by the firepit has a hunter's eyes, and she's aimed them at you since you arrived. A greatbow leans against the log beside her.
+
+"Close enough. Name and business."
+
+* "The guild sent me. And I found Bran, alive, in the border ruin." -> relief
+    if not dead(TSC_Npc_Bran)
+* "The guild sent me. About your scout, Bran... I'm sorry, captain. He's dead." -> bran_dead
+    if dead(TSC_Npc_Bran)
+* "Serra Voss, I presume. You're eight weeks overdue." -> overdue
+
+== bran_dead ==
+The stillness goes total. For three heartbeats, Serra Voss is a statue holding a bow.
+
+"...Where." Not how. *Where.* You tell her, and she looks east toward the border ruin for a long moment, jaw setting once.
+
+"He was the best watch I ever posted. The pass knew it too; it took eight weeks to catch him." She turns back to you, and the captain is back on duty. Whatever else there is will happen later, on her own watch, alone. "You rode through the thing that killed my scout to bring me a straight answer. That buys you the story, courier. All of it."
+
+* "Then tell it." -> reveal
+
+== relief ==
+Something unclenches in her shoulders. It's the first honest movement she's made.
+
+"Alive. *Alive.* Twelve days I've had a knot where that scout should be." She recovers the stillness fast, but not fast enough. "Good. That's... good. Then you've earned the explanation the guild's letter didn't have room for."
+
+* "I'm listening." -> reveal
+
+== overdue ==
+"Overdue." She says the word like she's testing its edge. "The guild counts weeks. Out here we count raiders dodged and rations remaining. Sit down, courier, and I'll show you what eight weeks buys."
+
+* "The guild doesn't doubt you, captain. It sent one rider, not an auditor." -> overdue_thaw
+    check Persuasion 8 -> overdue_thaw | overdue_frost
+* "Then show me." -> reveal
+* "First: I found Bran. Alive, in the border ruin." -> relief
+    if not dead(TSC_Npc_Bran)
+* "First, your scout: I found Bran's trail, and then the pass found him. He's dead, captain." -> bran_dead
+    if dead(TSC_Npc_Bran)
+
+== overdue_thaw ==
+Serra holds your gaze a moment longer. Then the frost breaks, just slightly, at the corners.
+
+"One rider, not an auditor. Hm. Whoever taught you to talk earned their fee." She moves over on the log, which from Serra Voss is an embrace. "Sit, then. You've a company's worth of news to hear."
+
+* "I'm listening." -> reveal
+    do grant_xp(25)
+
+== overdue_frost ==
+"Pretty words. The guild teaches those instead of map-reading now, does it." She turns back to the fire. "Sit down anyway, courier. Frost or no, you've earned the explanation by getting here."
+
+* "Then explain." -> reveal
+
+== reveal ==
+"We came into this pass chasing a shard of the shattered crown, the strongest lead the guild's had in a generation. What we found was better and worse: the shard's long gone, but something *fed* where it was lost."
+
+She lets that sit, then continues:
+
+"An ettersnap. They drink the memories of the dead, and the right rites can pour those memories back out. That creature has the shard's trail in its blood: where it was carried, who carried it, maybe where it lies now. We've stalked it for a season. Three days ago we finally cornered it, in a cave in the deep hills."
+
+* "Then let's go get your memory-drinker." -> accept
+* "Ettersnaps are a fireside story." -> skeptic
+
+== skeptic ==
+Serra doesn't argue. She reaches into her coat and sets something on the log: a tuft of silver-grey quill-fur, faintly luminous, cold to look at.
+
+"Pulled that off a thornbush at the cave mouth."
+
+* "...Point me at the cave." -> accept
+
+== accept ==
+Serra unrolls her map, soft with wear and annotated in three hands, and marks the cave.
+
+"The company's spent, courier. Half-starved and out of tricks. Fresh legs and a fresh blade might be exactly what finishes this hunt. Bring the ettersnap back alive. Oswin has the rites, and I have questions for that creature."
+
+She glances up.
+
+"And talk to me before you ride. The pass has... complications you should hear about. Work, if you'll take it."
+
+* "I'll take the hunt. And I'll hear the rest." -> end
+    do flag(TSC_MetParty); signal(TSC_Act1_Camp, TSC_MetParty); give_quest(TSC_Act1_Ettersnap)
+
+== hub ==
+Serra looks up from her map, marking your approach the way she marks everything: range first, intent second.
+
+"Courier. The hunt stands. What do you need?"
+
+* "You mentioned complications. Start with the worst of them." -> raiders
+    if not flag(TSC_GaveRaiders)
+* "Bran mentioned you lost your raven." -> raven
+    if flag(TSC_BranStory) and not flag(TSC_GaveDruid)
+* "Eight weeks and no word out. How do you reach the guild?" -> raven
+    if not flag(TSC_BranStory) and not flag(TSC_GaveDruid)
+* "Teach me to hunt the way you do, Serra." -> ranger_teaching
+    if quest_succeeded(TSC_Side_Raiders) and not flag(TSC_SerraTaught)
+* "Storm's coming off the peaks by tomorrow night. The high route will ice over." -> weather_read
+    if not flag(TSC_SerraWeather)
+    check Survival 7 -> weather_read | weather_miss
+* "Remind me of the mission." -> remind
+* "Just checking in." -> end
+
+== raiders ==
+Serra's jaw tightens.
+
+"A raider band works this pass, and has since before we arrived. Every supply run's a gamble; they took two of our caches and half of Oswin's patience. We've played cat and mouse for weeks because the hunt mattered more."
+
+She looks at you squarely.
+
+"You're fresh, armed, and expendable in ways my company isn't. Find their camp and end it. Consider it a personal favor with the guild's coin behind it."
+
+* "Expendable?" -> apologize
+* "Consider them ended." -> hub
+    do flag(TSC_GaveRaiders); give_quest(TSC_Side_Raiders)
+* "I'll think on it." -> hub
+
+== apologize ==
+
+"Sorry, no offense intended. I'm sure you're more than capable. It's just... I don't *know* you."
+
+* "Consider them ended." -> hub
+    do flag(TSC_GaveRaiders); give_quest(TSC_Side_Raiders)
+* "I'll think on it." -> hub
+
+== raven ==
+"We had a raven for that. A hawk had *her*, three weeks back. Since then the guild's had silence and we've had no way to break it. Which is how you ended up riding out here, so perhaps the hawk did us a favor."
+
+She scratches a name in charcoal on a bark strip.
+
+"There's a druid in the hills, Maewyn Ashvale. Keeps ravens. Prickly as a thornhedge, but I'm betting she'll talk to you. Ask her to carry word to the guild that we're alive and on the hunt."
+
+* "I'll find her grove." -> hub
+    do flag(TSC_GaveDruid); give_quest(TSC_Side_Druid)
+* "Maybe later." -> hub
+
+== weather_read ==
+Serra glances at the peaks, reads the same signs, and gives you a look she usually reserves for well-fletched arrows.
+
+"...It will, at that. High route ices, low route floods three days after." She adjusts two pins on her map without another word.
+
+* "Just keeping us dry, captain." -> hub
+    do flag(TSC_SerraWeather); grant_xp(25)
+
+== weather_miss ==
+Serra follows your gaze to the peaks, then back to you, unimpressed.
+
+"That's woodsmoke off the raiders' ridge, courier, not stormcloud. Stick to riding; the pass and I have an understanding."
+
+* "Noted, captain." -> hub
+    do flag(TSC_SerraWeather)
+
+== ranger_teaching ==
+Serra studies you for a long moment. It's the same measuring look she gave you at first meeting, but the arithmetic has changed.
+
+"You ended the raider band my whole company couldn't shake. That buys you the thing I don't sell." She picks up the greatbow. "Walk with me. First lesson: the pass has been talking about you for days, and you haven't heard a word of it. We'll fix your ears, then your feet, then your draw."
+
+Two days of tracking, stillness, wind-reading, and loosing arrows at distances you'd have called impossible. Serra teaches the way she does everything: precisely, and without wasting a syllable.
+
+* [Learn the Ranger's craft] "Understood, captain." -> hub
+    if not flag(TSC_SerraTaught)
+    do flag(TSC_SerraTaught); learn_class(TSC_Class_Ranger); grant_xp(25)
+* "Another time. The hunt first." -> hub
+
+== remind ==
+"The ettersnap. The cave. Alive." She counts them off on three fingers, then adds a fourth: "And talk to Oswin before you go. He knows what the creature can't resist, and where to find it. His books are insufferable and correct."
+
+* "Understood." -> hub

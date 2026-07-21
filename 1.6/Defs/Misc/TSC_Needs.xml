@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Needs-tab display of the spell energy pool. Which pawns get it is decided
+       by a Harmony postfix on Pawn_NeedsTracker.ShouldHaveNeed (player casters
+       in this mod's scenario only); the value mirrors TSC_ProgressionManager. -->
+  <NeedDef>
+    <defName>TSC_Need_Energy</defName>
+    <needClass>TheShatteredCrown.Need_TSC_Energy</needClass>
+    <label>energy</label>
+    <description>Spell energy fuels class abilities. Casting drains it; sleep restores it (a full night refills the pool), and a bard's song of rest returns a measure to everyone nearby.</description>
+    <listPriority>600</listPriority>
+  </NeedDef>
+
+</Defs>

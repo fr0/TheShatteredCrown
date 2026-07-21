@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Act 1 quest set. All given through dialogue (never randomly):
+       - TSC_Act1_Camp: given by Bran; meet the party at their campsite.
+       - TSC_Side_Moss: given by Oswin; fetch remembrance moss from a barrow.
+       - TSC_Side_Raiders: given by Serra; wipe out the local raider camp.
+       - TSC_Side_Druid: given by Serra; find the druid who can send a message.
+       - TSC_Act1_Ettersnap: given by Serra; capture the ettersnap in its cave.
+       ================================================================ -->
+
+  <QuestScriptDef Name="TSC_Act1Base" Abstract="True">
+    <isRootSpecial>true</isRootSpecial>
+    <randomlySelectable>false</randomlySelectable>
+    <rootMinPoints>0</rootMinPoints>
+    <autoAccept>true</autoAccept>
+  </QuestScriptDef>
+
+  <!-- ============ The Wayfarers' Camp ============ -->
+
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Act1_Camp</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Wayfarers' Camp</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Bran has marked his company's campsite in the pass. Serra Voss and the party's scholar, Oswin Pell, should still be holding it; they've been camped on a quarry they refuse to abandon.\n\nTravel to the Wayfarers' camp and speak with Serra Voss.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_GetFaction">
+          <storeAs>friendFaction</storeAs>
+          <allowNeutral>true</allowNeutral>
+          <allowAlly>true</allowAlly>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>4~10</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_PartyCamp</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_SpawnNpcAtSite">
+          <inSignal>site.MapGenerated</inSignal>
+          <npc>TSC_Npc_Serra</npc>
+          <site>$site</site>
+          <faction>$friendFaction</faction>
+          <tag>serra</tag>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_SpawnNpcAtSite">
+          <inSignal>site.MapGenerated</inSignal>
+          <npc>TSC_Npc_Oswin</npc>
+          <site>$site</site>
+          <faction>$friendFaction</faction>
+        </li>
+        <!-- If Bran was left at the ruin (not recruited), he made his own way
+             back: the node self-skips when he's dead, still spawned, or in the
+             player faction. The flag routes his dialogue to the camp greeting. -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_SpawnNpcAtSite">
+          <inSignal>site.MapGenerated</inSignal>
+          <npc>TSC_Npc_Bran</npc>
+          <site>$site</site>
+          <faction>$friendFaction</faction>
+          <setFlagOnSpawn>TSC_BranAtCamp</setFlagOnSpawn>
+        </li>
+
+        <!-- Death fail-safe: if Serra is killed before her reveal, the quest
+             fails but her hunt notes carry the story on to the ettersnap. -->
+        <li Class="QuestNode_Signal">
+          <inSignal>serra.Killed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NegativeEvent</letterDef>
+                <label TKey="LetterLabelSerraDead">Serra Voss is dead</label>
+                <text TKey="LetterTextSerraDead">Serra Voss, captain of the Wayfarer party, is dead. Eight weeks the pass failed to kill her; it only needed one bad day.\n\nAmong her effects: a hunt-log in a captain's terse hand. Eight weeks of notes on a creature most people call a fireside story: an ettersnap, tracked to a cave nearby. The last page reads only "ALIVE. It matters."\n\nThe hunt is yours now.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                <questDef>TSC_Act1_Ettersnap</questDef>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- Serra's reveal conversation completes this quest and gives the hunt -->
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MetParty</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelPartyFound">The party, found</label>
+                <text TKey="LetterTextPartyFound">Serra Voss's company is alive: dug in, half-starved on patience, and eight weeks deep into stalking a creature most people think is a fireside story: an ettersnap.\n\nSpeak with Serra and Oswin at the camp for the full picture, and for work. They have plenty.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>200</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Sidequest: the lure supplies ============ -->
+
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Side_Moss</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Remembrance Moss</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Oswin's books are unanimous: ettersnaps cannot resist remembrance moss, a pale growth found only where the dead lie long undisturbed. The old kingdom's mosskeepers stored it in cold-sealed chests, and their barrow stands not far from the camp.\n\nRecover remembrance moss from the mosskeepers' barrow. Expect the barrow's tenants to object.\n\n(With moss in hand, the ettersnap can simply be lured: right-click it with a colonist selected. Without it, taming is brutally hard.)</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript">
+          <def>Util_RandomizePointsChallengeRating</def>
+        </li>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>4~10</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_MossBarrowSite</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+          <item>TSC_RemembranceMoss</item>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelMossFound">Remembrance moss</label>
+                <text TKey="LetterTextMossFound">The mosskeepers' chest gives up its silver-veined harvest, smelling of rain on old stone. With this, the ettersnap can be lured instead of chased.\n\n(Right-click the ettersnap with a colonist selected, carrying the moss, to lure it.)</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>150</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Sidequest: the raiders ============ -->
+
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Side_Raiders</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Cat and Mouse</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Serra's company has spent weeks dodging a raider band that works the pass: every supply run a gamble, every campfire a risk. She wants them gone before the hunt closes.\n\nFind the raiders' camp and wipe it out.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript">
+          <def>Util_RandomizePointsChallengeRating</def>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_AdjustPointsForDistantFight</def>
+        </li>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>4~12</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>BanditCamp</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelRaidersEscaped">Quest failed: [resolvedQuestName]</label>
+                <text TKey="LetterTextRaidersEscaped">The raiders scattered before the job was done. They'll be back on the pass roads within the season. The quest [resolvedQuestName] has ended.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Notify_PlayerRaidedSomeone">
+                <getRaidersFromMapParent>$site</getRaidersFromMapParent>
+              </li>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelRaidersDone">The pass, cleared</label>
+                <text TKey="LetterTextRaidersDone">The raider band is finished. The pass roads belong to honest traffic again, and Serra's company can stop sleeping in shifts.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>250</xp>
+              </li>
+            </nodes>
+          </node>
+        </li>
+        <li Class="QuestNode_End">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <outcome>Success</outcome>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Sidequest: the druid ============ -->
+
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Side_Druid</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->A Message for the Guild</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Eight weeks of silence has the guild fearing the worst, and Serra's company lost their last raven to a hawk. There's a druid in the hills, Maewyn Ashvale, who keeps ravens and might be persuaded to send word.\n\nFind the druid's grove and ask her to carry a message to the Wayfarers' Guild.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>4~10</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_DruidGrove</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <!-- Death fail-safe: no druid, no raven, no message -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_OnNpcDeath">
+          <npc>TSC_Npc_Maewyn</npc>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NegativeEvent</letterDef>
+                <label TKey="LetterLabelMaewynDead">Maewyn Ashvale is dead</label>
+                <text TKey="LetterTextMaewynDead">The druid Maewyn Ashvale is dead, and her ravens have scattered to the hills. The guild's message will have to wait for a slower road.\n\nThe grove-cat will hunt for herself. The bees, as ever, answer to nobody.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MessageSent</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelMessageSent">A raven flies</label>
+                <text TKey="LetterTextMessageSent">Maewyn's raven takes the message and the sky. The guild will know the party lives, and who found them.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>150</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Act 1 main: the ettersnap ============ -->
+
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Act1_Ettersnap</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Ettersnap</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->After months of cat-and-mouse, Serra's company has finally cornered their quarry: the ettersnap has denned in a cave in the deep hills. The creature drinks the memories of the dead, and this one has fed where a crown shard was lost. The right rites can bring what it holds into the light.\n\nGo to the cave and acquire the ettersnap, alive.\n\nWith remembrance moss in hand it can simply be lured (right-click it with a colonist selected). Without moss... it is a very patient creature, and you will need to be more patient still.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>5~12</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+          <selectLandmarkChance>1</selectLandmarkChance>
+          <allowedLandmarks>
+            <li>Cavern</li>
+            <li>Hollow</li>
+            <li>Chasm</li>
+            <li>Cliffs</li>
+          </allowedLandmarks>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_EttersnapCave</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_SpawnAnimalAtSite">
+          <inSignal>site.MapGenerated</inSignal>
+          <kind>TSC_Ettersnap</kind>
+          <count>1</count>
+          <site>$site</site>
+          <tag>ettersnap</tag>
+        </li>
+
+        <!-- Death fail-safe: the hunt needed it ALIVE -->
+        <li Class="QuestNode_Signal">
+          <inSignal>ettersnap.Killed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NegativeEvent</letterDef>
+                <label TKey="LetterLabelEttersnapDead">The ettersnap is dead</label>
+                <text TKey="LetterTextEttersnapDead">The ettersnap is dead, and everything it drank near the crown shard died with it. Eight weeks of the company's patience, spent in one bad moment; whatever it held slips back into the dark, and no rite of Oswin's calls memory out of a cold corpse.\n\nThe hunt is over. The search for the shattered crown will need another door.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectPawnAcquired">
+          <kind>TSC_Ettersnap</kind>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelEttersnapCaught">The ettersnap, yours</label>
+                <text TKey="LetterTextEttersnapCaught">The ettersnap is yours: pale-eyed, silver-flecked, and heavier with memory than any living thing has a right to be.\n\nBring it back to Serra's company. Oswin will want to begin the rites at once; whatever the creature drank near the shard, it is about to speak.\n\n(Act 1 concludes here for now; the story continues in the next act of this mod.)</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_UpdateDescription">
+                <description>The ettersnap is acquired: alive, intact, and full of someone else's memories. Return to the Wayfarers' camp; Oswin's rites will bring what it holds into the light.\n\n(Act 1 concludes here for now; the story continues in the next act.)</description>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>400</xp>
+              </li>
+              <li Class="QuestNode_Delay">
+                <delayTicks>60000</delayTicks>
+                <node Class="QuestNode_End">
+                  <outcome>Success</outcome>
+                </node>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

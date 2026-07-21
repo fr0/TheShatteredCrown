@@ -1,0 +1,132 @@
+# Maewyn Ashvale - druid of the deep hills (Act 1 sidequest). Sends the guild
+# message; recruitable companion.
+# Compile with:  scripts\Compile-Dialogue.ps1
+
+dialogue TSC_Dialogue_Maewyn
+
+entry joined if in_party()
+entry sent if flag(TSC_MaewynSent)
+
+== start ==
+The cottage door opens before you knock. The woman in it has grey-green eyes, a raven on her shoulder, and the expression of someone who knew you were coming and expected better.
+
+"Boots on my moss. Steel on your hip. And the smell of the guild's ink about you." The raven clicks its beak. "Well. The wind said someone was coming. Speak your business, rider, and mind the beds."
+
+* "Serra Voss's company needs a message carried to the Wayfarers' Guild." -> message
+* "Your bees are wintering early. That's a hard-cold sign, this far from frost." -> bees
+    if not flag(TSC_MaewynBees)
+    check Nature 7 -> bees | bees_miss
+* "How did you know I was coming?" -> hills
+
+== bees ==
+Maewyn stops. Actually stops, hand on the doorframe, and looks at you properly for the first time.
+
+"...They are. Six weeks early, and the hills won't say why." Something in her posture unknots: not trust yet, but the shape trust would take. "A rider who reads bees. Well. Come in, then, properly, and wipe your boots. Whatever your business is, it just got easier to hear."
+
+* "The business is a message for the guild." -> message
+    do flag(TSC_MaewynBees); grant_xp(25)
+
+== bees_miss ==
+Maewyn follows your gesture to the hives and snorts.
+
+"That's not wintering, rider, that's *sulking*. I moved their south board on Tuesday. Kind of you to notice bees exist, though. Most of your sort only notice the honey."
+
+* "Then I'll get to my business: a message for the guild." -> message
+
+== hills ==
+"The hills talk, if you've the patience to be quiet longer than they are. Eight weeks they've muttered about the crownhunters in the pass, and three days about the new rider poking the old places awake."
+
+She steps back from the door, which is as close to an invitation as you suspect she gives.
+
+"You're the rider. So: the crownhunters finally need something. Out with it."
+
+* "A message to the guild. They lost their raven." -> message
+
+== message ==
+"Lost their raven." The one on her shoulder clicks its beak, and Maewyn's mouth twitches; on anyone else it would be a smile. "Corvus heard. He's insufferable about hawks."
+
+She considers you for a long, unhurried moment.
+
+"I'll send your message, rider. Not for the guild (guilds are just villages that learned to walk) but because Serra Voss once turned her whole company sideways to keep a fire off my grove, and debts between neighbors matter."
+
+She holds out a hand for the letter.
+
+* "Here. The guild will know the party lives." -> agreed
+* [Insight] "This grove is lonely, Maewyn. Even with the ravens." -> lonely
+    if passive(Insight, 8)
+
+== agreed ==
+Maewyn ties the message with a strip of bark-cord, murmurs something to the raven that is definitely not any language you know, and casts it into the sky.
+
+"Done. My birds fly faster than any rider; the guild will read it inside a week."
+
+She watches the bird shrink to a speck.
+
+"If you'd take some advice: when the ettersnap speaks, listen to what it *doesn't* say."
+
+* "How did you know about the ettersnap?" -> ettersnap
+    do flag(TSC_MaewynSent); signal(TSC_Side_Druid, TSC_MessageSent)
+* "Come with me. We could use your help." -> recruit
+    do flag(TSC_MaewynSent); signal(TSC_Side_Druid, TSC_MessageSent)
+* "Thank you, Maewyn. And the advice is noted." -> end
+    do flag(TSC_MaewynSent); signal(TSC_Side_Druid, TSC_MessageSent)
+
+== ettersnap ==
+
+"My birds are smarter than they look, and they watch and listen."
+
+* "Come with me. We could use your help." -> recruit
+* "Thank you, Maewyn. I'll leave you to your bees and birds." -> end
+
+== lonely ==
+The raven goes very still. So does Maewyn.
+
+"...The hills talk," she says at last, quieter. "But they don't *answer*. You've a sharp eye, rider." She takes the letter from your hand without ceremony. "I'll send your message. And I'll think about the other thing you didn't quite ask."
+
+* "Then ask it plainly I shall: ride with me, Maewyn." -> recruit
+    do flag(TSC_MaewynSent); signal(TSC_Side_Druid, TSC_MessageSent)
+* "Thank you, Maewyn." -> end
+    do flag(TSC_MaewynSent); signal(TSC_Side_Druid, TSC_MessageSent)
+
+== recruit ==
+Maewyn looks at her grove (the beds, the hives, the mossy quiet) for the space of ten heartbeats.
+
+"Thirty years I've kept this hollow. The hills will keep it thirty more without me." She whistles; the second raven drops from the eaves to her shoulder. "Very well, rider. The grove-cat hunts for herself, the bees answer to nobody, and I... apparently answer to you. Try to deserve it."
+
+* "Welcome to the company, Maewyn." -> welcomed
+    do join_party()
+* "Take a day to be sure. I'll return." -> end
+
+== welcomed ==
+She pulls the door shut behind her without locking it and falls in beside you.
+
+"Now. Tell me about this hunt of Serra's."
+
+* "This way, Maewyn."
+
+== sent ==
+Maewyn is in her garden, unsurprised as ever.
+
+"Corvus is away with your message, rider. Was there something else? Or has the road finally taught you to visit without wanting?"
+
+* "The offer stands: ride with me." -> recruit
+* "Just passing. Peace on your grove." -> end
+
+== joined ==
+Maewyn is watching the horizon the way other people read.
+
+"The hills are quieter here. I don't trust it. What do you need, rider?"
+
+* "I wouldn't mind learning a thing or two from you." -> druid_teaching
+    if not flag(TSC_MaewynTaught)
+* "Carry on, Maewyn."
+
+== druid_teaching ==
+"I'm glad you realized I have something to teach." She settles onto a stone as if she'd picked it out an hour ago. "Good. Sit. The first lesson is sitting."
+
+That evening, and for several after, she teaches: how to sit until the birds forget you; which silences mean weather and which mean wolves; what the green things trade with each other under the soil, and what they'll trade with you.
+
+* [Learn the Druid's way] "I hear it now. Faintly." -> end
+    if not flag(TSC_MaewynTaught)
+    do flag(TSC_MaewynTaught); learn_class(TSC_Class_Druid); grant_xp(25)
+* "This is... a lot of sitting, Maewyn." -> end

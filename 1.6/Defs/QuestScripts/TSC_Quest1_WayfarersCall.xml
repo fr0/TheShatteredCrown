@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Act 1, quest 1: find the missing party. Given at game start by the
+       scenario. The trail leads to a border ruin where Bran, the party's scout,
+       is holed up. Talking to him (dialogue signal TSC_BranFound) completes this
+       quest; his dialogue also gives TSC_Act1_Camp and offers his recruitment. -->
+  <QuestScriptDef>
+    <defName>TSC_Quest1_WayfarersCall</defName>
+    <isRootSpecial>true</isRootSpecial>
+    <randomlySelectable>false</randomlySelectable>
+    <rootMinPoints>0</rootMinPoints>
+    <autoAccept>true</autoAccept>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Wayfarers' Call</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Serra Voss and her Wayfarer company went into the pass eight weeks ago, chasing the strongest lead on the shattered crown in a generation. No word since.\n\nThe guild's contract is plain: locate the party's camp and find them, alive or dead. The last confirmed sighting places one of them near an old border ruin, now marked on your world map.\n\nTravel to the ruin and search it. Mind the walls; ruins in the pass are rarely as empty as they look.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript">
+          <def>Util_RandomizePointsChallengeRating</def>
+          <parms>
+            <pointsFactorTwoStar>1.5</pointsFactorTwoStar>
+            <pointsFactorThreeStar>2</pointsFactorThreeStar>
+          </parms>
+        </li>
+
+        <li Class="QuestNode_SubScript">
+          <def>Util_AdjustPointsForDistantFight</def>
+        </li>
+
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+
+        <li Class="QuestNode_GetFaction">
+          <storeAs>friendFaction</storeAs>
+          <allowNeutral>true</allowNeutral>
+          <allowAlly>true</allowAlly>
+        </li>
+
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>5~12</value>
+        </li>
+
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+
+        <li Class="QuestNode_ViolentQuestsAllowed">
+          <node Class="QuestNode_Set">
+            <name>siteThreatChance</name>
+            <value>0.75</value>
+          </node>
+          <elseNode Class="QuestNode_Set">
+            <name>siteThreatChance</name>
+            <value>0</value>
+          </elseNode>
+        </li>
+
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_BranRuin</tag>
+            </li>
+            <li>
+              <tag>ItemStashQuestThreat</tag>
+              <chance>$siteThreatChance</chance>
+            </li>
+          </sitePartsTags>
+        </li>
+
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+          <parms>
+            <hiddenSitePartsPossible>true</hiddenSitePartsPossible>
+          </parms>
+        </li>
+
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <!-- Bran waits in the ruin -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_SpawnNpcAtSite">
+          <inSignal>site.MapGenerated</inSignal>
+          <npc>TSC_Npc_Bran</npc>
+          <site>$site</site>
+          <faction>$friendFaction</faction>
+          <tag>bran</tag>
+        </li>
+
+        <!-- Death fail-safe: if Bran is killed before he can point the way, the
+             quest fails but his scout-marks are recovered from his effects, so
+             Act 1 still continues to the camp. -->
+        <li Class="QuestNode_Signal">
+          <inSignal>bran.Killed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NegativeEvent</letterDef>
+                <label TKey="LetterLabelBranDead">Bran Underhill is dead</label>
+                <text TKey="LetterTextBranDead">Bran Underhill, scout of the Wayfarer party, is dead. The guild contract asked for the party alive or dead; this is the second kind of answer.\n\nAmong his effects: a strip of bark scratched over with a scout's shorthand, marking the company's campsite deeper in the pass. His last work, and it still points the way.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                <questDef>TSC_Act1_Camp</questDef>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_WorldObjectTimeout">
+          <worldObject>$site</worldObject>
+          <isQuestTimeout>true</isQuestTimeout>
+          <delayTicks>$(45*60000)</delayTicks>
+          <inSignalDisable>site.MapGenerated</inSignalDisable>
+          <destroyOnCleanup>true</destroyOnCleanup>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelQuestExpired">Quest expired: [resolvedQuestName]</label>
+                <text TKey="LetterTextQuestExpired">The trail has gone fully cold. Whatever happened to the Wayfarer party, the pass has kept it. The quest [resolvedQuestName] has expired.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- Bran found and talked to (his dialogue sends TSC_BranFound and gives TSC_Act1_Camp) -->
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_BranFound</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelBranFound">One found: Bran Underhill</label>
+                <text TKey="LetterTextBranFound">The party's scout, alive: Bran Underhill, holed up in the border ruin. The rest of the company is camped deeper in the pass; he's marked the site on your maps.\n\nOne found. Now for the others.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_UpdateDescription">
+                <description>You found Bran Underhill, the party's scout, alive in the border ruin, and he's marked the company's campsite on your maps.\n\nTravel to the Wayfarers' camp and find the rest of Serra Voss's party.</description>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>200</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

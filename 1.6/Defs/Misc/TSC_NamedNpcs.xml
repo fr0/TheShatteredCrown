@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Recurring story characters. Each is one specific pawn, generated once with
+       a fixed name and kept in the save; every appearance reuses the same pawn. -->
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Bran</defName>
+    <label>Bran Underhill</label>
+    <description>Scout of the missing Wayfarer party, found holed up in a border ruin. The first companion.</description>
+    <firstName>Bran</firstName>
+    <lastName>Underhill</lastName>
+    <kind>TSC_Companion_Bran</kind>
+    <gender>Male</gender>
+    <classDef>TSC_Class_Warden</classDef>
+    <plotArmor>true</plotArmor>
+    <!-- Always the longsword and patched gambeson his dialogue describes -->
+    <forcedWeapon>MeleeWeapon_LongSword</forcedWeapon>
+    <forcedWeaponStuff>Steel</forcedWeaponStuff>
+    <forcedApparel>
+      <li>
+        <def>TSC_Apparel_Gambeson</def>
+        <stuff>Cloth</stuff>
+      </li>
+    </forcedApparel>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <!-- Act 1: the Wayfarer party at the campsite -->
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Serra</defName>
+    <label>Serra Voss</label>
+    <description>Leader of the Wayfarer party hunting the ettersnap.</description>
+    <firstName>Serra</firstName>
+    <lastName>Voss</lastName>
+    <kind>TSC_Wayfarer_Serra</kind>
+    <gender>Female</gender>
+    <classDef>TSC_Class_Ranger</classDef>
+    <plotArmor>true</plotArmor>
+    <!-- Always the greatbow her dialogue describes (the kind's tag could roll Pila) -->
+    <forcedWeapon>Bow_Great</forcedWeapon>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Oswin</defName>
+    <label>Oswin Pell</label>
+    <description>The party's scholar: ettersnap lore, memory rites, and complaints about fieldwork.</description>
+    <firstName>Oswin</firstName>
+    <lastName>Pell</lastName>
+    <kind>TSC_Wayfarer_Oswin</kind>
+    <gender>Male</gender>
+    <classDef>TSC_Class_Wizard</classDef>
+    <plotArmor>true</plotArmor>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <!-- Act 1: the druid (recruitable companion) -->
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Maewyn</defName>
+    <label>Maewyn Ashvale</label>
+    <description>A druid of the deep hills. Keeps ravens; joins worthy causes.</description>
+    <firstName>Maewyn</firstName>
+    <lastName>Ashvale</lastName>
+    <kind>TSC_Companion_Maewyn</kind>
+    <gender>Female</gender>
+    <classDef>TSC_Class_Druid</classDef>
+    <plotArmor>true</plotArmor>
+  </TheShatteredCrown.NamedNpcDef>
+
+</Defs>

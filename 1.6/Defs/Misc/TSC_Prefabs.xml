@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Medieval furniture set-pieces used by our dungeon rooms. All vanilla things,
+       stuffed in wood and stone for the medieval look. -->
+
+  <PrefabDef>
+    <defName>TSC_DiningSet</defName>
+    <size>(4,4)</size>
+    <things>
+      <DiningChair>
+        <positions>
+          <li>(0, 0, 1)</li>
+          <li>(0, 0, 2)</li>
+        </positions>
+        <chance>0.65</chance>
+        <relativeRotation>Clockwise</relativeRotation>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <DiningChair>
+        <positions>
+          <li>(3, 0, 1)</li>
+          <li>(3, 0, 2)</li>
+        </positions>
+        <chance>0.65</chance>
+        <relativeRotation>Counterclockwise</relativeRotation>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <Table2x2c>
+        <position>(1,0,1)</position>
+        <stuff>WoodLog</stuff>
+      </Table2x2c>
+    </things>
+  </PrefabDef>
+
+  <PrefabDef>
+    <defName>TSC_Shelf_Wood</defName>
+    <edgeOnly>true</edgeOnly>
+    <size>(3,2)</size>
+    <things>
+      <Shelf>
+        <position>(1,0,1)</position>
+        <relativeRotation>Opposite</relativeRotation>
+        <stuff>WoodLog</stuff>
+      </Shelf>
+    </things>
+  </PrefabDef>
+
+  <PrefabDef>
+    <defName>TSC_Bunk</defName>
+    <edgeOnly>true</edgeOnly>
+    <size>(1,2)</size>
+    <things>
+      <Bed>
+        <position>(0,0,1)</position>
+        <relativeRotation>Opposite</relativeRotation>
+        <stuff>WoodLog</stuff>
+      </Bed>
+    </things>
+  </PrefabDef>
+
+  <PrefabDef>
+    <defName>TSC_Torch</defName>
+    <size>(1,1)</size>
+    <things>
+      <TorchLamp>
+      </TorchLamp>
+    </things>
+  </PrefabDef>
+
+  <!-- The vault: an iron-bound chest flanked by torches -->
+  <PrefabDef>
+    <defName>TSC_VaultChest</defName>
+    <size>(3,3)</size>
+    <things>
+      <TSC_IronboundChest>
+        <position>(1,0,1)</position>
+      </TSC_IronboundChest>
+      <TorchLamp>
+        <positions>
+          <li>(0,0,2)</li>
+          <li>(2,0,2)</li>
+        </positions>
+        <chance>0.7</chance>
+      </TorchLamp>
+    </things>
+  </PrefabDef>
+
+  <!-- The reliquary: the Kingsblade chest on a marble dais with columns -->
+  <PrefabDef>
+    <defName>TSC_Reliquary</defName>
+    <size>(5,5)</size>
+    <things>
+      <TSC_IronboundChest_Kingsblade>
+        <position>(2,0,2)</position>
+      </TSC_IronboundChest_Kingsblade>
+      <Column>
+        <positions>
+          <li>(0,0,0)</li>
+          <li>(4,0,0)</li>
+          <li>(0,0,4)</li>
+          <li>(4,0,4)</li>
+        </positions>
+        <chance>0.85</chance>
+        <stuff>BlocksMarble</stuff>
+      </Column>
+      <TorchLamp>
+        <positions>
+          <li>(1,0,3)</li>
+          <li>(3,0,3)</li>
+        </positions>
+        <chance>0.7</chance>
+      </TorchLamp>
+    </things>
+  </PrefabDef>
+
+  <!-- Moss cache for the barrow sidequest -->
+  <PrefabDef>
+    <defName>TSC_MossCachePrefab</defName>
+    <size>(3,3)</size>
+    <things>
+      <TSC_MossCache>
+        <position>(1,0,1)</position>
+      </TSC_MossCache>
+      <TorchLamp>
+        <position>(0,0,2)</position>
+        <chance>0.5</chance>
+      </TorchLamp>
+    </things>
+  </PrefabDef>
+
+  <!-- Supply cache crate for storerooms -->
+  <PrefabDef>
+    <defName>TSC_SupplyCachePrefab</defName>
+    <size>(1,1)</size>
+    <things>
+      <TSC_SupplyCache>
+      </TSC_SupplyCache>
+    </things>
+  </PrefabDef>
+
+  <!-- A pair of stone sarcophagi for the catacombs -->
+  <PrefabDef>
+    <defName>TSC_SarcophagusPair</defName>
+    <size>(4,2)</size>
+    <things>
+      <Sarcophagus>
+        <position>(0,0,1)</position>
+        <relativeRotation>Opposite</relativeRotation>
+        <stuff>BlocksGranite</stuff>
+      </Sarcophagus>
+      <Sarcophagus>
+        <position>(3,0,1)</position>
+        <relativeRotation>Opposite</relativeRotation>
+        <stuff>BlocksGranite</stuff>
+      </Sarcophagus>
+    </things>
+  </PrefabDef>
+
+</Defs>

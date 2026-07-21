@@ -1,0 +1,136 @@
+# Oswin Pell - the Wayfarer party's scholar (Act 1 campsite). Ettersnap lore,
+# the memory rites, and the remembrance moss sidequest.
+# Compile with:  scripts\Compile-Dialogue.ps1
+
+dialogue TSC_Dialogue_Oswin
+
+== start ==
+A reedy man sits cross-legged by a crate-desk, three books open at once, writing in a fourth. He doesn't look up.
+
+"If you're a raider, the valuables are in the second crate and I'm busy. If you're the guild's courier: took you long enough, sit down, mind the inkwell."
+
+* "Tell me about ettersnaps." -> lore
+    if flag(TSC_MetParty)
+* "Serra says you know how to catch this thing." -> moss
+    if flag(TSC_MetParty) and not flag(TSC_GaveMoss)
+* "What are these rites she mentioned?" -> rites
+    if flag(TSC_MetParty)
+* "What is your company hunting out here?" -> hunt_deflect
+    if not flag(TSC_MetParty)
+* "Teach me the Binder's school properly, Oswin." -> wizard_teaching
+    if flag(TSC_OswinRespect) and not flag(TSC_OswinTaught)
+* "Just introducing myself." -> intro
+
+# Pre-reveal: the hunt is Serra's story to tell, and Oswin knows it
+== hunt_deflect ==
+"Ah. No." He holds up one ink-stained finger without lifting his eyes from the page. "That story has an owner, and the owner is the woman by the firepit with the greatbow and the eight-week glare. Chain of command applies here, courier. It's the only discipline this company has left."
+
+He dips the quill and keeps writing.
+
+"Talk to Serra. Then come back, and I'll correct the parts she undersells. There will be several."
+
+* "Fair enough. I'll ask the captain." -> end
+* "Then tell me about yourself instead." -> intro
+
+== wizard_teaching ==
+Oswin sets down his quill with care.
+
+"I have refused to teach eleven people, courier. Ten were fools and one was a warlord, which is a fool with a budget." He pulls a slim, hand-copied volume from the bottom of the crate-desk. "You quoted doctrine correctly in the field. That makes you the twelfth applicant and the first student."
+
+Three evenings by the fire follow: sigil grammar, ward geometry, and the Binder's first exercise, which is holding a shape in the mind while distractions try their best to erase it.
+
+* [Learn the Wizard's art] "I'll mind the inkwell, scholar." -> end
+    if not flag(TSC_OswinTaught)
+    do flag(TSC_OswinTaught); learn_class(TSC_Class_Wizard); grant_xp(25)
+* "Another time. The hunt first." -> end
+
+== intro ==
+He finally looks up: ink-stained fingers, sharp eyes, the particular squint of a man who has read by firelight for eight weeks.
+
+"Oswin Pell. Party scholar, rite-keeper, and the only member of this company who thinks 'evidence' is a full sentence. Now you know me. The books are better company, but you'll do."
+
+* "Tell me about ettersnaps." -> lore
+    if flag(TSC_MetParty)
+* "How do we catch it?" -> moss
+    if flag(TSC_MetParty) and not flag(TSC_GaveMoss)
+* "What is it you're all hunting?" -> hunt_deflect
+    if not flag(TSC_MetParty)
+* "Good talk, Oswin." -> end
+
+== lore ==
+"Ettersnaps." He says the word the way other men say a lover's name. "The old kingdom called them grave-drinkers. They feed on the residue of memory, the stuff that soaks into ground and bone where the dead lie. Harmless to the living, priceless to scholarship, and nearly extinct because every warlord for eight centuries wanted one as an oracle."
+
+He taps the open book: a woodcut of a spindly, quilled creature with too-knowing eyes.
+
+"We're pretty sure ours has fed where the shard was lost. Everything the dead of that place saw (the shard, the hands that carried it) is in that creature like wine in a skin."
+
+* "Pretty sure?" -> pretty_sure
+* "And the rites pour the wine out." -> rites
+* "How do we catch it?" -> moss
+    if not flag(TSC_GaveMoss)
+* [Arcana] "Memory as residue: that's Bindery doctrine. Aldruin's own school of magic." -> arcana_deep
+    check Arcana 7 -> arcana_deep | arcana_shallow
+* "The Chronicle of the Nine Passes mentions grave-drinkers. Twice, in the burial cantos." -> lore_deep
+    if not flag(TSC_OswinRespect)
+    check Lore 7 -> lore_deep | lore_shallow
+
+== pretty_sure ==
+
+"For now, it's our only lead."
+
+* "And you know the rites to recover what it knows?" -> rites
+* "How do we catch it?" -> moss
+    if not flag(TSC_GaveMoss)
+* [Arcana] "Memory as residue: that's Bindery doctrine. Aldruin's own school of magic." -> arcana_deep
+    check Arcana 7 -> arcana_deep | arcana_shallow
+* "The Chronicle of the Nine Passes mentions grave-drinkers. Twice, in the burial cantos." -> lore_deep
+    if not flag(TSC_OswinRespect)
+    check Lore 7 -> lore_deep | lore_shallow
+
+== lore_deep ==
+Oswin's quill stops mid-word.
+
+"The burial cantos. Which nobody reads, because the Chronicle's a doorstop and the cantos are in the old meter." He leans forward, delighted despite himself. "Yes: twice. Once as omen, once as *inventory*. You've actually read it. Courier, I take back a full third of what I assumed about you."
+
+* "Only a third, scholar?" -> end
+    do flag(TSC_OswinRespect); grant_xp(25)
+
+== lore_shallow ==
+"The Chronicle of the Nine Passes." Oswin's eyes narrow. "Which canto, courier? Because the Chronicle has no burial cantos; you're thinking of the Lay of the Cold Hearth, and misquoting it at that. Points for ambition. None for scholarship."
+
+* "Worth a try. Tell me more about the creature, then." -> lore
+
+== arcana_deep ==
+Oswin's quill stops. He looks at you the way he looks at a rare book.
+
+"*Somebody* reads. Yes, the Binder's school held that memory outlives the mind that made it, the way heat outlives the fire. The crown itself was built on that doctrine: nine shards, each one holding... hm." He catches himself, glances toward Serra's fire, lowers his voice. "Each one holding more than metal. Ask me again when the ettersnap has spoken. I dislike being wrong in front of the well-read."
+
+* "I'll hold you to it, scholar." -> end
+    do flag(TSC_OswinRespect); grant_xp(25)
+
+== arcana_shallow ==
+"Bindery doctrine! Everyone's a scholar." He snorts and returns to his writing. "The Binder's school is a century of corrupted copies and wishful marginalia. Mind the rites, courier, and leave the doctrine to people with reference libraries."
+
+* "As you say, Oswin." -> end
+
+== rites ==
+"The Rite of the Poured Cup. Three nights, a circle of grave-iron, and a very patient singer, which will be me, as Serra's singing frightens horses. Done right, the creature dreams aloud and we transcribe. Done wrong, the memories curdle and we learn nothing."
+
+He fixes you with the squint.
+
+"Which is why the creature must come back ALIVE and CALM. No nets, no clubs, no heroics."
+
+* "Then tell me about the moss." -> moss
+    if not flag(TSC_GaveMoss)
+* "Alive and calm. Understood." -> end
+
+== moss ==
+"Remembrance moss." He pulls a sketch: pale fronds, silver veins. "Grows only where the dead lie long undisturbed, and to an ettersnap it is a lit feast in a dark room. They cannot resist it. The mosskeepers of the old kingdom farmed it in cold barrows, and one of their barrows stands not a day from this fire."
+
+He marks your map with an ink-stained thumb.
+
+"Bring back a chest of it and the creature will follow you home like a lamb. Go without it and you can try patience against a thing that has outwaited kingdoms. The barrow *will* be tenanted. They always are."
+
+* "I'll fetch your moss, scholar." -> end
+    do flag(TSC_GaveMoss); give_quest(TSC_Side_Moss)
+* "We'll see if it's needed." -> end

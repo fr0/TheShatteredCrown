@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Class manuals: hand-copied training books of the old kingdom. Studying
+       one (right-click, "Study") teaches its class at level 1 and consumes the
+       book; a pawn who already knows the class cannot study it, so duplicates
+       go to another colonist. Looted from Act 1 chests (watchtower vault,
+       mosskeeper's barrow); scenario-gated like all class learning. -->
+
+  <ThingCategoryDef>
+    <defName>TSC_ClassBooks</defName>
+    <label>class manuals</label>
+    <parent>Manufactured</parent>
+  </ThingCategoryDef>
+
+  <ThingDef Name="TSC_ClassBookBase" ParentName="ResourceBase" Abstract="True">
+    <graphicData>
+      <texPath>Things/Item/Book/Textbook/Textbook</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.85</drawSize>
+    </graphicData>
+    <techLevel>Medieval</techLevel>
+    <stackLimit>1</stackLimit>
+    <statBases>
+      <MaxHitPoints>60</MaxHitPoints>
+      <Mass>0.6</Mass>
+      <MarketValue>350</MarketValue>
+      <Flammability>1.0</Flammability>
+      <DeteriorationRate>2.0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>TSC_ClassBooks</li>
+    </thingCategories>
+    <tradeability>Sellable</tradeability>
+    <comps>
+      <li Class="CompProperties_Usable">
+        <useJob>UseItem</useJob>
+        <useLabel>Study {0_label}</useLabel>
+        <useDuration>1200</useDuration>
+        <showUseGizmo>true</showUseGizmo>
+      </li>
+      <li Class="CompProperties_UseEffectDestroySelf" />
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_ClassBookBase">
+    <defName>TSC_Book_Warden</defName>
+    <label>warden's manual</label>
+    <description>"The Standing Watch": a drill-book of the old border garrisons, sweat-stained and re-sewn twice. Footwork and the trade of standing still when everything says run. Studying it teaches the Warden's art.</description>
+    <graphicData><color>(0.55,0.57,0.62)</color></graphicData>
+    <comps><li Class="TheShatteredCrown.CompProperties_TSC_LearnClassUse"><classDef>TSC_Class_Warden</classDef></li></comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_ClassBookBase">
+    <defName>TSC_Book_Cleric</defName>
+    <label>cleric's manual</label>
+    <description>"The Poured Cup": rites of the old faith, copied in a careful reverent hand. Blessings and the long prayers for the dying and the dead. Studying it teaches the Cleric's art.</description>
+    <graphicData><color>(0.85,0.8,0.6)</color></graphicData>
+    <comps><li Class="TheShatteredCrown.CompProperties_TSC_LearnClassUse"><classDef>TSC_Class_Cleric</classDef></li></comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_ClassBookBase">
+    <defName>TSC_Book_Bard</defName>
+    <label>bard's manual</label>
+    <description>"The Nine Passes Songbook": marching songs, dirges, and three pages of jokes someone tried to scratch out. Music as a weapon, a bandage, and a bed. Studying it teaches the Bard's art.</description>
+    <graphicData><color>(0.6,0.3,0.4)</color></graphicData>
+    <comps><li Class="TheShatteredCrown.CompProperties_TSC_LearnClassUse"><classDef>TSC_Class_Bard</classDef></li></comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_ClassBookBase">
+    <defName>TSC_Book_Rogue</defName>
+    <label>rogue's manual</label>
+    <description>"Quiet Hands": an unsigned treatise on locks, shadows, and leaving no story behind. The margins correct the author, in a second unsigned hand. Studying it teaches the Rogue's art.</description>
+    <graphicData><color>(0.3,0.3,0.32)</color></graphicData>
+    <comps><li Class="TheShatteredCrown.CompProperties_TSC_LearnClassUse"><classDef>TSC_Class_Rogue</classDef></li></comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_ClassBookBase">
+    <defName>TSC_Book_Wizard</defName>
+    <label>wizard's manual</label>
+    <description>"The Binder's Primer": sigil grammar and ward geometry, hand-copied with obsessive exactness. The first exercise is holding a shape in the mind while the world argues with it. Studying it teaches the Wizard's art.</description>
+    <graphicData><color>(0.3,0.4,0.7)</color></graphicData>
+    <comps><li Class="TheShatteredCrown.CompProperties_TSC_LearnClassUse"><classDef>TSC_Class_Wizard</classDef></li></comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_ClassBookBase">
+    <defName>TSC_Book_Barbarian</defName>
+    <label>barbarian's manual</label>
+    <description>"The Red Breath": less a book than a rant with a spine, dictated by a hill-chief to a terrified scribe. How to let anger carry what armor cannot. Studying it teaches the Barbarian's art.</description>
+    <graphicData><color>(0.7,0.25,0.2)</color></graphicData>
+    <comps><li Class="TheShatteredCrown.CompProperties_TSC_LearnClassUse"><classDef>TSC_Class_Barbarian</classDef></li></comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_ClassBookBase">
+    <defName>TSC_Book_Druid</defName>
+    <label>druid's manual</label>
+    <description>"What the Hills Say": pressed leaves, weather-signs, and instructions that read like riddles. Studying it teaches the Druid's art.</description>
+    <graphicData><color>(0.35,0.55,0.3)</color></graphicData>
+    <comps><li Class="TheShatteredCrown.CompProperties_TSC_LearnClassUse"><classDef>TSC_Class_Druid</classDef></li></comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_ClassBookBase">
+    <defName>TSC_Book_Monk</defName>
+    <label>monk's manual</label>
+    <description>"The Empty Fist": a thin volume, mostly blank pages. The few written ones concern breathing, patience, and where exactly to hit. Studying it teaches the Monk's art.</description>
+    <graphicData><color>(0.85,0.6,0.25)</color></graphicData>
+    <comps><li Class="TheShatteredCrown.CompProperties_TSC_LearnClassUse"><classDef>TSC_Class_Monk</classDef></li></comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_ClassBookBase">
+    <defName>TSC_Book_Paladin</defName>
+    <label>paladin's manual</label>
+    <description>"Oaths of the Broken Kingdom": the vows of Aldruin's sworn knights, with commentary by survivors of the breaking. What an oath is worth after the king who received it is dust. Studying it teaches the Paladin's art.</description>
+    <graphicData><color>(0.8,0.8,0.85)</color></graphicData>
+    <comps><li Class="TheShatteredCrown.CompProperties_TSC_LearnClassUse"><classDef>TSC_Class_Paladin</classDef></li></comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_ClassBookBase">
+    <defName>TSC_Book_Ranger</defName>
+    <label>ranger's manual</label>
+    <description>"The Long Trail": tracks drawn from life, wind-craft, and the discipline of the unhurried shot. The back cover has tally marks nobody explains. Studying it teaches the Ranger's art.</description>
+    <graphicData><color>(0.5,0.4,0.28)</color></graphicData>
+    <comps><li Class="TheShatteredCrown.CompProperties_TSC_LearnClassUse"><classDef>TSC_Class_Ranger</classDef></li></comps>
+  </ThingDef>
+
+</Defs>

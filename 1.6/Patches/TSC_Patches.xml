@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+  <!-- Add the Adventurer character-sheet tab to all pawns (it only shows itself
+       for free colonists). BasePawn is the shared abstract parent, so patching
+       it once covers every race. -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[@Name="BasePawn"]/inspectorTabs</xpath>
+    <value>
+      <li>TheShatteredCrown.ITab_TSC_CharacterSheet</li>
+    </value>
+  </Operation>
+
+</Patch>

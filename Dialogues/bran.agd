@@ -1,0 +1,164 @@
+# Bran Underhill - scout of the missing Wayfarer party, found holed up in the
+# border ruin (Act 1, quest 1). Points the player to the campsite; optionally
+# joins the party.
+# Compile with:  scripts\Compile-Dialogue.ps1
+
+dialogue TSC_Dialogue_Bran
+
+entry joined if in_party()
+entry camp_return if flag(TSC_BranAtCamp)
+entry pointed if flag(TSC_BranPointedCamp)
+
+== start ==
+A voice from the rubble, first: "That's far enough, friend."
+
+Then a broad-shouldered man steps out from behind a fallen beam, longsword raised, gambeson patched in six places. He looks you over, taking in the road dust and the guild seal on your letter, and lowers the blade with something like relief.
+
+"The Guild sent you? Eight weeks, and they finally send somebody. Bran Underhill, Serra Voss's scout. Before you ask: the company's alive. Or was, twelve days ago, when the raiders cut me off from camp."
+
+* "Twelve days? What happened out here?" -> story
+* "The rubble tells a story. Rationed fires and a single bedroll. You're here alone." -> read_ruin
+    if not flag(TSC_BranRead)
+    check Investigation 6 -> read_ruin | read_miss
+* "The guild wants you found. Where's the rest of your company?" -> point_camp
+* "You look like you could use a road partner, Bran." -> offer
+
+== read_ruin ==
+Bran's eyebrows climb. It's the first thing about you that's genuinely surprised him.
+
+"Aye." He looks at the ruin with new eyes, seeing what you saw. "Twelve days holed up and the first person I see reads my whole camp like a ledger. The guild sent the right rider."
+
+* "Then give me the short version: where's your company?" -> point_camp
+    do flag(TSC_BranRead); grant_xp(25)
+* "Habit. What happened out here?" -> story
+    do flag(TSC_BranRead); grant_xp(25)
+
+== read_miss ==
+"...Rationed fires?" Bran glances at the fire-blackened corner where he has plainly been burning whole logs at once. "Friend, I've been cooking rats over a bonfire for twelve days. Good instinct, wrong ruin."
+
+* "Fair enough. What DID happen out here?" -> story
+
+== story ==
+"Same thing that happens to everything out here. We cornered the thing we've been hunting, and the pass decided to make it interesting. Raiders on the roads and our last raven eaten by a hawk."
+
+He sits on a fallen block, suddenly tired.
+
+"I was scouting a route to the cave when the raiders pushed between me and camp. Been living in this ruin since, eating what the walls catch, as my old sergeant used to say."
+
+* "Cornered WHAT, exactly?" -> quarry
+    do flag(TSC_BranStory)
+* "Where's the rest of the company?" -> point_camp
+    do flag(TSC_BranStory)
+* "Come with me. We'll sort it together." -> offer
+    do flag(TSC_BranStory)
+
+== quarry ==
+Bran glances around the ruin out of pure habit (there's nobody for kilometers) and lowers his voice anyway.
+
+"Serra will want to tell it proper. But you've earned a taste: we've been stalking an ettersnap. Yes, they're real. Ask at the camp."
+
+* "Then point me at the camp." -> point_camp
+* "You're coming too, surely." -> offer
+
+== point_camp ==
+Bran pulls a strip of bark from his sleeve, scratched over with a scout's shorthand, and marks your map with a burnt twig.
+
+"The camp's here. Half a day, if the raiders let you keep your boots. Serra and Oswin will be there, gods willing. Tell them Bran's alive and the eastern route is watched."
+
+* "Marked. Now, come with me, Bran." -> offer
+    do flag(TSC_BranPointedCamp); signal(TSC_Quest1_WayfarersCall, TSC_BranFound); give_quest(TSC_Act1_Camp)
+* "I'll carry the word. Hold fast, Bran." -> held_fast
+    do flag(TSC_BranPointedCamp); signal(TSC_Quest1_WayfarersCall, TSC_BranFound); give_quest(TSC_Act1_Camp)
+
+== held_fast ==
+Bran nods slowly and settles back against the stones, sword across his knees.
+
+"Held fast is what I do. I'll give the raiders a few days to find something else worth robbing, then work my way back to camp the long way around. If I'm there before you, I'll tell Serra you're coming."
+
+He tips his chin at the road you rode in on.
+
+"And you watch yourself, courier. The bandits hold the low road now. If you see smoke bigger than a cookfire, ride wide of it."
+
+* "I'll keep my eyes open. Stay safe." -> end
+* "Save the warning. I'm the thing on that road worth fearing." -> end
+
+== offer ==
+"With you?" He looks at the ruin, then at the notched edge of his sword, then at you.
+
+"I've eaten rat and nettle soup for twelve days and named a wall Gerald. You know what? Yes. Point me at the road. Serra can shout at me for getting cut off when we're all around the same fire."
+
+* "Welcome aboard, Bran." -> welcomed
+    do join_party()
+* "Actually, hold the ruin a while longer." -> held_fast
+
+== welcomed ==
+Bran shoulders his pack like it weighs nothing, whistles once through his teeth, and spits on the ruin's threshold.
+
+"Kept your watch, Gerald. Somebody else's turn."
+
+He falls in beside you, and for the first time, grins.
+
+"Right. Camp's half a day out. I'll show you the best route. If we run into the raiders, we'll have better odds together."
+
+* "Let's move." -> end
+    if flag(TSC_BranPointedCamp)
+* "First, mark the camp for me." -> point_camp
+    if not flag(TSC_BranPointedCamp)
+
+== pointed ==
+Bran looks up from running a whetstone along his sword.
+
+"Still here. The low road's still crawling, so camp will have to wait a few days more. You know where it is: half a day out, and mind the bandits on the way. Standing ready if you've changed your mind about company."
+
+* "I have. Come with me, Bran." -> welcomed
+* "Just passing through." -> end
+
+# He kept his word: left at the ruin, he slipped past the raiders and walked
+# back to camp on his own. Still recruitable here, with camp-appropriate lines.
+== camp_return ==
+Bran sits mending the firepit's stack, gambeson over his knees and the longsword within reach out of pure habit. He grins when he sees you.
+
+"Told you I'd manage. Gave the low road two nights to get bored of me, then came over the ridgeline. Serra shouted for a while. It was almost good to hear."
+
+* "Glad you made it, Bran. Come with me; the road's not done with us." -> camp_join
+* "Any trouble on the way in?" -> camp_road
+* "Good to see you by a proper fire."
+
+== camp_road ==
+"Some. The bandits have pushed pickets right up the low road, like they're waiting for something worth stealing to come along." He looks at you meaningfully.
+
+"That's you, courier. Whatever you're carrying out of these hills by the end, they'll want it. Worth remembering."
+
+* "Then I could use a sword that knows the area. Join me." -> camp_join
+* "I'll remember. Rest easy, Bran."
+
+== camp_join ==
+Bran looks over at Serra's tent, then back at you, and there's no twelve days of rat in the decision this time.
+
+"Aye. The company's fed and back on its feet; it's you walking into the dark places alone. Point me at the road."
+
+He takes up the longsword and falls in beside you.
+
+* "Welcome aboard, Bran."
+    do join_party()
+
+== joined ==
+Bran checks the edge on his knife with a thumb.
+
+"Standing ready. Where's the road taking us?"
+
+* "Teach me to hold a line the way you do, Bran." -> warden_teaching
+    if flag(TSC_BranLoyal) and not flag(TSC_BranTaught)
+* "Carry on, Bran."
+
+== warden_teaching ==
+Bran looks you over the way he looked over the ruin's walls, checking for the weak courses.
+
+"The watch had a saying: anyone can swing steel, but standing still when everything around you says run, that's a trade." He unbuckles his gambeson and tosses it to you. "Put that on. We start with how to take a hit."
+
+The rest of the day is bruises, footwork, and the particular arithmetic of shields. By nightfall, something has settled into your stance that wasn't there this morning.
+
+* [Learn the Warden's trade] "Again tomorrow, Bran." -> end
+    if not flag(TSC_BranTaught)
+    do flag(TSC_BranTaught); learn_class(TSC_Class_Warden); grant_xp(25)
+* "Another time. The road beckons." -> end

@@ -1,0 +1,71 @@
+# Bran's first camp conversation - he seeks out the player about a day after
+# joining (initiated dialogue, wired in TSC_PawnKinds.xml).
+# Compile with:  scripts\Compile-Dialogue.ps1
+
+dialogue TSC_Dialogue_Bran_CampTalk
+
+== start ==
+Bran finds you at a quiet moment, turning something small over in his hands. It's a copper watch-badge, green with age.
+
+"Got a minute, {PLAYER}? Been meaning to say something since the ruin."
+
+He holds up the badge.
+
+"Before the guild, I stood watch on a border tower. Forty years my family held that post: my father, his father. When the pay stopped, the others called it a dead kingdom's chore and walked. I stayed until there was nothing left to stay for. Then Serra found me, and gave me something to walk *toward* instead."
+
+* "The crown matters, Bran. The old kingdom isn't done." -> believer
+* "You held your watch. Now we look out for each other." -> together
+* "Honestly? I'm mostly in it for the guild's coin." -> honest
+* "Maybe this was all a waste of time. Have you considered that?" -> waste
+
+== believer ==
+Bran closes his fist around the badge, and for a moment the tiredness drops off his face entirely.
+
+"Then say the word and I'll carry your banner up whatever stairs this road ends at. But hear me: if the stories about Aldruin's crown are true, it's not treasure. It's an opportunity to patch this broken world back together."
+
+He pins the badge inside his gambeson, over the heart.
+
+"Glad Serra sent me scouting. Glad you came."
+
+* "Rest up. The hunt's not over." -> end
+    do flag(TSC_BranLoyal); grant_xp(50)
+
+== together ==
+Bran nods slowly.
+
+"I got used to just watching my own back. A full night's sleep hasn't happened in a while."
+
+* "Rest up. The hunt's not over." -> end
+    do flag(TSC_BranLoyal); grant_xp(50)
+
+== honest ==
+Bran barks a laugh, sudden and rusty.
+
+"Coin! Ha. At least you're honest about it. The ones who dress it up in destiny are the ones who get you killed."
+
+He pockets the badge.
+
+"Fine. Silver spends, and dead kings don't need it. But when the shine wears off and you find out what the crown really is (and you will) remember old Bran said so."
+
+* "Noted. Rest up. The hunt's not over." -> end
+
+== waste ==
+"Of course I have. Maybe the only thing I'll get from this journey is a few more scars."
+
+He lightly rubs a scar on his neck before continuing.
+
+"To be honest, I'm not sure if we'll ever find the crown. But the chance to be part of a group again... that's really why I'm here. I miss it."
+
+* "Then why did I find you out in a ruin by yourself?" -> social
+* "I just assumed you were a loner." -> loner
+* "Let's get some rest." -> end
+
+== social ==
+"Because Serra knows I can hold up on my own, better than most. Enough talk, let's get some rest."
+
+* "Sleep well, Bran." -> end
+
+== loner ==
+"I was. Maybe I still am. But as I get older, I find the idea of being alone with my thoughts less and less compelling."
+
+* "Let's get some rest." -> end

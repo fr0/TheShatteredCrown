@@ -1,0 +1,33 @@
+# Maewyn's road conversation - she seeks out the player about a day after
+# joining (initiated dialogue, wired in TSC_PawnKinds.xml) and offers the
+# Druid's teaching.
+# Compile with:  scripts\Compile-Dialogue.ps1
+
+dialogue TSC_Dialogue_Maewyn_RoadTalk
+
+== start ==
+Maewyn falls into step beside you on the road, Corvus riding her shoulder. For a while she says nothing.
+
+"Thirty years in one hollow, rider, and I'd forgotten how loud the world is when you walk through it. The hills out here are... chatty. Anxious, even." She glances sideways at you. "You can't hear them at all, can you. Walking through all this talk, deaf as a boot."
+
+* "Then teach me to listen, Maewyn." -> druid_teaching
+* "The hills and I get along fine." -> decline
+
+== druid_teaching ==
+"Hm. Bold, asking. Boldness isn't the qualification, though; patience is, and you found me by walking into the hills and *asking* instead of demanding. That'll do."
+
+That evening, and for several after, she teaches: how to sit until the birds forget you; which silences mean weather and which mean wolves; what the green things trade with each other under the soil, and what they'll trade with you.
+
+Corvus supervises, insufferably.
+
+* [Learn the Druid's way] "I hear it now. Faintly." -> end
+    if not flag(TSC_MaewynTaught)
+    do flag(TSC_MaewynTaught); learn_class(TSC_Class_Druid); grant_xp(25)
+* "This is... a lot of sitting, Maewyn." -> end
+
+== decline ==
+Maewyn snorts, and Corvus makes a sound suspiciously like agreement.
+
+"Well. When the hills start shouting (and on this road of yours, rider, they will) the offer stands. Ask, and I'll teach you to listen."
+
+* "Noted, Maewyn."

@@ -1,0 +1,101 @@
+<Window x:Class="DialogueTester.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="The Shattered Crown - Dialogue Tester"
+        Width="1180" Height="760"
+        WindowStartupLocation="CenterScreen">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="230"/>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="320"/>
+    </Grid.ColumnDefinitions>
+
+    <!-- Left: dialogue list -->
+    <DockPanel Grid.Column="0" Margin="8">
+      <TextBlock DockPanel.Dock="Top" Text="Dialogues" FontWeight="Bold" Margin="0,0,0,4"/>
+      <StackPanel DockPanel.Dock="Bottom" Margin="0,6,0,0">
+        <TextBox x:Name="FolderBox" Margin="0,0,0,4" ToolTip="Folder containing compiled dialogue XML"/>
+        <Button x:Name="ReloadButton" Content="Reload" Click="ReloadButton_Click" Margin="0,0,0,4"/>
+        <Button x:Name="RecompileButton" Content="Recompile .agd + Reload" Click="RecompileButton_Click"/>
+      </StackPanel>
+      <ListBox x:Name="DialogueList" SelectionChanged="DialogueList_SelectionChanged"/>
+    </DockPanel>
+
+    <!-- Center: transcript + options -->
+    <DockPanel Grid.Column="1" Margin="0,8,0,8">
+      <Border DockPanel.Dock="Top" Background="#2B2B33" Padding="8" CornerRadius="4" Margin="0,0,0,6">
+        <DockPanel>
+          <Button x:Name="RestartButton" DockPanel.Dock="Right" Content="Restart conversation" Click="RestartButton_Click" Padding="8,2"/>
+          <CheckBox x:Name="ShowHiddenBox" DockPanel.Dock="Right" Content="Show hidden options" Foreground="White"
+                    VerticalAlignment="Center" Margin="0,0,12,0" Checked="ShowHiddenBox_Changed" Unchecked="ShowHiddenBox_Changed"/>
+          <TextBlock x:Name="HeaderText" Text="Select a dialogue" Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
+        </DockPanel>
+      </Border>
+      <Border DockPanel.Dock="Bottom" BorderBrush="#CCC" BorderThickness="0,1,0,0" Padding="0,6,0,0">
+        <ScrollViewer MaxHeight="230" VerticalScrollBarVisibility="Auto">
+          <StackPanel x:Name="OptionsPanel"/>
+        </ScrollViewer>
+      </Border>
+      <ScrollViewer x:Name="TranscriptScroll" VerticalScrollBarVisibility="Auto" Background="#F5F2EA" Padding="10">
+        <StackPanel x:Name="TranscriptPanel"/>
+      </ScrollViewer>
+    </DockPanel>
+
+    <!-- Right: simulated world state -->
+    <TabControl Grid.Column="2" Margin="8">
+      <TabItem Header="State">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <StackPanel Margin="6">
+            <TextBlock Text="Flags" FontWeight="Bold"/>
+            <StackPanel x:Name="FlagsPanel" Margin="0,2,0,6"/>
+            <DockPanel Margin="0,0,0,10">
+              <Button DockPanel.Dock="Right" Content="Add" Click="AddFlagButton_Click" Padding="8,0"/>
+              <TextBox x:Name="NewFlagBox" Margin="0,0,4,0"/>
+            </DockPanel>
+            <TextBlock Text="Quests" FontWeight="Bold"/>
+            <StackPanel x:Name="QuestsPanel" Margin="0,2,0,10"/>
+            <TextBlock Text="This NPC" FontWeight="Bold"/>
+            <CheckBox x:Name="NpcInPartyBox" Content="in the party (in_party())" Margin="0,2,0,10"
+                      Checked="NpcInPartyBox_Changed" Unchecked="NpcInPartyBox_Changed"/>
+            <TextBlock Text="Named characters" FontWeight="Bold"/>
+            <TextBlock Text="party / nearby / dead" Foreground="Gray" FontSize="11"/>
+            <StackPanel x:Name="NpcsPanel" Margin="0,2,0,6"/>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+      <TabItem Header="Checks">
+        <StackPanel Margin="6">
+          <TextBlock Text="Roll mode" FontWeight="Bold"/>
+          <ComboBox x:Name="RollModeBox" Margin="0,2,0,10" SelectionChanged="RollModeBox_Changed">
+            <ComboBoxItem Content="Random d10" IsSelected="True"/>
+            <ComboBoxItem Content="Always succeed"/>
+            <ComboBoxItem Content="Always fail"/>
+          </ComboBox>
+          <TextBlock Text="Party-best proficiencies" FontWeight="Bold"/>
+          <TextBlock Text="Effective value used for checks and passives" Foreground="Gray" FontSize="11" Margin="0,0,0,4"/>
+          <StackPanel x:Name="ProfsPanel"/>
+        </StackPanel>
+      </TabItem>
+      <TabItem Header="Session">
+        <StackPanel Margin="6">
+          <TextBlock Text="Names" FontWeight="Bold"/>
+          <DockPanel Margin="0,2,0,2">
+            <TextBlock Text="{}{PLAYER} " Width="70" VerticalAlignment="Center"/>
+            <TextBox x:Name="PlayerNameBox" Text="Rider" TextChanged="Names_Changed"/>
+          </DockPanel>
+          <DockPanel Margin="0,0,0,10">
+            <TextBlock Text="{}{NPC} " Width="70" VerticalAlignment="Center"/>
+            <TextBox x:Name="NpcNameBox" Text="NPC" TextChanged="Names_Changed"/>
+          </DockPanel>
+          <TextBlock x:Name="XpText" Text="Party XP gained: 0" FontWeight="Bold" Margin="0,0,0,10"/>
+          <Button Content="Reset ALL state" Click="ResetStateButton_Click" Margin="0,0,0,10"/>
+          <TextBlock Text="Effect log" FontWeight="Bold"/>
+          <ScrollViewer Height="360" VerticalScrollBarVisibility="Auto">
+            <TextBlock x:Name="LogText" TextWrapping="Wrap" FontFamily="Consolas" FontSize="11"/>
+          </ScrollViewer>
+        </StackPanel>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</Window>

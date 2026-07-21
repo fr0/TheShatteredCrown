@@ -1,0 +1,881 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Class abilities. Plain cooldown-based abilities (no psylink/psyfocus) so
+       they fit the medieval fiction; icons reuse Royalty's ability art. -->
+
+  <AbilityDef Name="TSC_AbilityBase" Abstract="True">
+    <casterMustBeCapableOfViolence>false</casterMustBeCapableOfViolence>
+    <writeCombatLog>true</writeCombatLog>
+    <aiCanUse>false</aiCanUse>
+    <!-- Without an explicit verb class the game tries to instantiate the
+         abstract Verse.Verb and every ability breaks at gain time. Inherited
+         (merged) into every child's verbProperties. -->
+    <verbProperties>
+      <verbClass>Verb_CastAbility</verbClass>
+    </verbProperties>
+  </AbilityDef>
+
+  <!-- ============ Cleric ============ -->
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_HealingTouch</defName>
+    <label>healing touch</label>
+    <description>Close wounds with practiced hands and old prayers. Heals a moderate amount of injury.</description>
+    <iconPath>UI/Abilities/Painblock</iconPath>
+    <cooldownTicksRange>15000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>1.5</warmupTime>
+      <range>3.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Heal">
+        <healAmount>25</healAmount>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Cleanse</defName>
+    <label>cleanse</label>
+    <description>Drive out sickness, infection, and poison with rite and remedy.</description>
+    <iconPath>UI/Abilities/WordOfSerenity</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>2</warmupTime>
+      <range>3.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Cleanse" />
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Blessing</defName>
+    <label>blessing</label>
+    <description>A spoken blessing that steadies the mind and hand for a day.</description>
+    <iconPath>UI/Abilities/WordOfTrust</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>1000</Ability_Duration>
+    </statBases>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>23.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_Blessing</hediffDef>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <!-- ============ Bard ============ -->
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_BattleHymn</defName>
+    <label>battle hymn</label>
+    <description>Raise a war-song. Nearby allies move faster and strike truer while it rings.</description>
+    <iconPath>UI/Abilities/WordOfJoy</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>6.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetLocations>true</canTargetLocations>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_AreaHediff">
+        <hediff>TSC_Hediff_BattleHymn</hediff>
+        <radius>9.9</radius>
+        <alliesOnly>true</alliesOnly>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_InspiringVerse</defName>
+    <label>inspiring verse</label>
+    <description>A verse for one listener. Their work comes easier for half a day.</description>
+    <iconPath>UI/Abilities/WordOfInspiration</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>500</Ability_Duration>
+    </statBases>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>23.9</range>
+      <targetParams>
+        <canTargetSelf>false</canTargetSelf>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_InspiredVerse</hediffDef>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Dirge</defName>
+    <label>dirge</label>
+    <description>A grave-song aimed at the foe. Enemies near the target point are shaken: slower, duller, easier to break.</description>
+    <iconPath>UI/Abilities/Burden</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <hostile>true</hostile>
+    <verbProperties>
+      <warmupTime>1.5</warmupTime>
+      <range>23.9</range>
+      <targetParams>
+        <canTargetLocations>true</canTargetLocations>
+        <canTargetPawns>true</canTargetPawns>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_AreaHediff">
+        <hediff>TSC_Hediff_Shaken</hediff>
+        <radius>6.9</radius>
+        <alliesOnly>false</alliesOnly>
+        <enemiesOnly>true</enemiesOnly>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_SongOfRest</defName>
+    <label>song of rest</label>
+    <description>A slow song for the camp. Nearby allies sleep deeper and heal faster for half a day, and the song returns a measure of spell energy to everyone who hears it, except the singer.</description>
+    <iconPath>UI/Abilities/WordOfLove</iconPath>
+    <cooldownTicksRange>120000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>2</warmupTime>
+      <range>6.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetLocations>true</canTargetLocations>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_AreaHediff">
+        <hediff>TSC_Hediff_SongOfRest</hediff>
+        <radius>9.9</radius>
+        <alliesOnly>true</alliesOnly>
+        <energyRestore>15</energyRestore>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <!-- ============ Warden ============ -->
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_StandFast</defName>
+    <label>stand fast</label>
+    <description>A shouted order to brace. Nearby allies take less damage but move slowly while they hold the line.</description>
+    <iconPath>UI/Abilities/BulletShield</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>0.5</warmupTime>
+      <range>6.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetLocations>true</canTargetLocations>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_AreaHediff">
+        <hediff>TSC_Hediff_StandFast</hediff>
+        <radius>6.9</radius>
+        <alliesOnly>true</alliesOnly>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_SecondWind</defName>
+    <label>second wind</label>
+    <description>Grit teeth, set bones, keep fighting. Heals some of the warden's own wounds.</description>
+    <iconPath>UI/Abilities/EntropyDump</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>0.5</warmupTime>
+      <range>0.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Heal">
+        <healAmount>15</healAmount>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Challenge</defName>
+    <label>challenge</label>
+    <description>A ringing challenge across the field. Enemies near the target point are shaken.</description>
+    <iconPath>UI/Abilities/Stun</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <hostile>true</hostile>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>18.9</range>
+      <targetParams>
+        <canTargetLocations>true</canTargetLocations>
+        <canTargetPawns>true</canTargetPawns>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_AreaHediff">
+        <hediff>TSC_Hediff_Shaken</hediff>
+        <radius>4.9</radius>
+        <alliesOnly>false</alliesOnly>
+        <enemiesOnly>true</enemiesOnly>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <!-- ============ Rogue ============ -->
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Shadowstep</defName>
+    <label>shadowstep</label>
+    <description>Step through shadow to a nearby spot. Best done where nobody is looking, which is the point.</description>
+    <iconPath>UI/Abilities/Skip</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>0.5</warmupTime>
+      <range>19.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetLocations>true</canTargetLocations>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="CompProperties_AbilityTeleport">
+        <compClass>CompAbilityEffect_Teleport</compClass>
+        <destination>Selected</destination>
+        <requiresLineOfSight>true</requiresLineOfSight>
+        <range>19.9</range>
+        <clamorType>Ability</clamorType>
+        <clamorRadius>5</clamorRadius>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_MarkedForDeath</defName>
+    <label>marked for death</label>
+    <description>Point out exactly where the armor gaps. The marked target takes considerably more damage for a while.</description>
+    <iconPath>UI/Abilities/Beckon</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <hostile>true</hostile>
+    <verbProperties>
+      <warmupTime>0.5</warmupTime>
+      <range>23.9</range>
+      <targetParams>
+        <canTargetSelf>false</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_Marked</hediffDef>
+        <psychic>false</psychic>
+        <applicableToMechs>true</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Vanish</defName>
+    <label>vanish</label>
+    <description>Be somewhere else, as far as anyone watching can tell. Brief invisibility.</description>
+    <iconPath>UI/Abilities/Invisibility</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>15</Ability_Duration>
+    </statBases>
+    <verbProperties>
+      <warmupTime>0.5</warmupTime>
+      <range>0.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>PsychicInvisibility</hediffDef>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <!-- ============ Wizard ============ -->
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_ArcaneWard</defName>
+    <label>arcane ward</label>
+    <description>Raise a lattice of old sigils around one person. Incoming harm is substantially dampened while it holds.</description>
+    <iconPath>UI/Abilities/EntropyLink</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>23.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_ArcaneWard</hediffDef>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_LeadenCurse</defName>
+    <label>leaden curse</label>
+    <description>Old words that make flesh remember it is mostly water and regret. The target slows badly.</description>
+    <iconPath>UI/Abilities/Burden</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <hostile>true</hostile>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>23.9</range>
+      <targetParams>
+        <canTargetSelf>false</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_Leaden</hediffDef>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Blink</defName>
+    <label>blink</label>
+    <description>The distance between here and there, briefly persuaded otherwise. Teleport a short way.</description>
+    <iconPath>UI/Abilities/SkipChaos</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>27.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetLocations>true</canTargetLocations>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="CompProperties_AbilityTeleport">
+        <compClass>CompAbilityEffect_Teleport</compClass>
+        <destination>Selected</destination>
+        <requiresLineOfSight>true</requiresLineOfSight>
+        <range>27.9</range>
+        <clamorType>Ability</clamorType>
+        <clamorRadius>10</clamorRadius>
+        <stunTicks>30~60</stunTicks>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <!-- ============ Barbarian ============ -->
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Rage</defName>
+    <label>rage</label>
+    <description>Let it out. Hit much harder, ignore half the pain, and shoot like an insulted bear.</description>
+    <iconPath>UI/Abilities/Berserk</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
+    <verbProperties>
+      <warmupTime>0.25</warmupTime>
+      <range>0.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_Rage</hediffDef>
+        <onlyApplyToSelf>true</onlyApplyToSelf>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_WarCry</defName>
+    <label>war cry</label>
+    <description>A bellow with ancestry. Enemies near the target point are shaken.</description>
+    <iconPath>UI/Abilities/BerserkPulse</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <hostile>true</hostile>
+    <verbProperties>
+      <warmupTime>0.5</warmupTime>
+      <range>18.9</range>
+      <targetParams>
+        <canTargetLocations>true</canTargetLocations>
+        <canTargetPawns>true</canTargetPawns>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_AreaHediff">
+        <hediff>TSC_Hediff_Shaken</hediff>
+        <radius>6.9</radius>
+        <alliesOnly>false</alliesOnly>
+        <enemiesOnly>true</enemiesOnly>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Unbreakable</defName>
+    <label>unbreakable</label>
+    <description>Refuse, loudly, to fall down. For a short while, pain is a rumor and damage lands soft.</description>
+    <iconPath>UI/Abilities/BulletShield</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>0.25</warmupTime>
+      <range>0.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>25</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_Unbreakable</hediffDef>
+        <onlyApplyToSelf>true</onlyApplyToSelf>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <!-- ============ Druid ============ -->
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_NaturesBalm</defName>
+    <label>nature's balm</label>
+    <description>Moss, sap, and a murmured request. Heals a fair amount of injury.</description>
+    <iconPath>UI/Abilities/WordOfLove</iconPath>
+    <cooldownTicksRange>15000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>1.5</warmupTime>
+      <range>3.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Heal">
+        <healAmount>20</healAmount>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_BrambleSnare</defName>
+    <label>bramble snare</label>
+    <description>The ground grows sudden opinions. The target is rooted nearly in place.</description>
+    <iconPath>UI/Abilities/Burden</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <hostile>true</hostile>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>23.9</range>
+      <targetParams>
+        <canTargetSelf>false</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_Snared</hediffDef>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Barkskin</defName>
+    <label>barkskin</label>
+    <description>Ask the oaks for a favor. Nearby allies gain tough, bark-like skin for a while.</description>
+    <iconPath>UI/Abilities/BulletShield</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>1.5</warmupTime>
+      <range>6.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetLocations>true</canTargetLocations>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_AreaHediff">
+        <hediff>TSC_Hediff_Barkskin</hediff>
+        <radius>6.9</radius>
+        <alliesOnly>true</alliesOnly>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <!-- ============ Monk ============ -->
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Flurry</defName>
+    <label>flurry</label>
+    <description>Spend stillness, buy speed. Melee strikes come much faster and feet find the gaps.</description>
+    <iconPath>UI/Abilities/Focus</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
+    <verbProperties>
+      <warmupTime>0.25</warmupTime>
+      <range>0.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_Flurry</hediffDef>
+        <onlyApplyToSelf>true</onlyApplyToSelf>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_InnerCalm</defName>
+    <label>inner calm</label>
+    <description>Breathe the sickness out. Cleanses disease, infection, and poison from a touched ally.</description>
+    <iconPath>UI/Abilities/WordOfSerenity</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>2</warmupTime>
+      <range>3.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Cleanse" />
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_StunningPalm</defName>
+    <label>stunning palm</label>
+    <description>One precise touch and the body forgets its appointments. Drops the target senseless for a time.</description>
+    <iconPath>UI/Abilities/Stun</iconPath>
+    <cooldownTicksRange>120000</cooldownTicksRange>
+    <hostile>true</hostile>
+    <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>1.9</range>
+      <targetParams>
+        <canTargetSelf>false</canTargetSelf>
+        <canTargetAnimals>false</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>PsychicShock</hediffDef>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <!-- ============ Paladin ============ -->
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_LayOnHands</defName>
+    <label>lay on hands</label>
+    <description>The oath, spent as medicine. Heals a large amount of injury by touch.</description>
+    <iconPath>UI/Abilities/Painblock</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>1.5</warmupTime>
+      <range>1.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>25</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Heal">
+        <healAmount>35</healAmount>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_RighteousBrand</defName>
+    <label>righteous brand</label>
+    <description>Name the wicked for what they are. The branded target takes considerably more damage for a while.</description>
+    <iconPath>UI/Abilities/SolarPinhole</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <hostile>true</hostile>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>23.9</range>
+      <targetParams>
+        <canTargetSelf>false</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_Marked</hediffDef>
+        <psychic>false</psychic>
+        <applicableToMechs>true</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_AuraOfCourage</defName>
+    <label>aura of courage</label>
+    <description>Certainty, out loud. Nearby allies are heartened for half a day: steadier minds, further from breaking.</description>
+    <iconPath>UI/Abilities/WordOfTrust</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>6.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetLocations>true</canTargetLocations>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_AreaHediff">
+        <hediff>TSC_Hediff_Courage</hediff>
+        <radius>9.9</radius>
+        <alliesOnly>true</alliesOnly>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <!-- ============ Ranger ============ -->
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_FieldDressing</defName>
+    <label>field dressing</label>
+    <description>Clean, pack, bind, move. Heals a modest amount of injury, fast.</description>
+    <iconPath>UI/Abilities/Painblock</iconPath>
+    <cooldownTicksRange>15000</cooldownTicksRange>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>3.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Heal">
+        <healAmount>15</healAmount>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_HuntersMark</defName>
+    <label>hunter's mark</label>
+    <description>Choose the quarry. The marked target takes considerably more damage for a while.</description>
+    <iconPath>UI/Abilities/Beckon</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <hostile>true</hostile>
+    <verbProperties>
+      <warmupTime>0.5</warmupTime>
+      <range>28.9</range>
+      <targetParams>
+        <canTargetSelf>false</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>10</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_Marked</hediffDef>
+        <psychic>false</psychic>
+        <applicableToMechs>true</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_SwiftQuiver</defName>
+    <label>swift quiver</label>
+    <description>Breath and bowstring in one rhythm. Shots come much faster and truer for a while.</description>
+    <iconPath>UI/Abilities/Focus</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
+    <verbProperties>
+      <warmupTime>0.25</warmupTime>
+      <range>0.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>CompAbilityEffect_GiveHediff</compClass>
+        <hediffDef>TSC_Hediff_SwiftQuiver</hediffDef>
+        <onlyApplyToSelf>true</onlyApplyToSelf>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+    </comps>
+  </AbilityDef>
+
+</Defs>

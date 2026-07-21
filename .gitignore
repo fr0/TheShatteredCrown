@@ -1,0 +1,8 @@
+Source/**/obj/
+Source/**/bin/
+tools/**/obj/
+tools/**/bin/
+*.bak
+.idea/
+1.6/Defs/Dialogues/*.xml
+*.dll

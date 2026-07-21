@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Side quest: Bram's home village. Given only through Bram's dialogue
+       (give_quest effect); spawns the Underhill site immediately and succeeds
+       shortly after the player visits. -->
+  <QuestScriptDef>
+    <defName>TSC_SideQuest_Underhill</defName>
+    <isRootSpecial>true</isRootSpecial>
+    <randomlySelectable>false</randomlySelectable>
+    <rootMinPoints>0</rootMinPoints>
+    <autoAccept>true</autoAccept>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Road to Underhill</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Bram has marked his home village on your maps: Underhill, a huddle of stone cottages and an inn called the Crossed Swords, half a day off the old road.\n\n"Good people. Terrible ale. Best fire on the rim," he says. "If we're taking the long road, let's start where roads used to end."\n\nVisit the village of Underhill.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>4~12</value>
+        </li>
+
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_UnderhillVillage</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.MapGenerated</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelUnderhill">Underhill</label>
+                <text TKey="LetterTextUnderhill">Underhill, at last. Smoke over the chimneys, the ring of Tam's hammer, and the Crossed Swords' fire burning like Bram promised.\n\nThe villagers will talk, if you take the time. (Select a colonist and right-click a villager to speak with them.)</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>150</xp>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Delay">
+          <inSignalEnable>site.MapGenerated</inSignalEnable>
+          <delayTicks>60000</delayTicks>
+          <node Class="QuestNode_End">
+            <outcome>Success</outcome>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ============ Act 1 sites ============ -->
+
+  <!-- Bran's ruin: where the missing party's scout is holed up -->
+  <SitePartDef>
+    <defName>TSC_BranRuin</defName>
+    <label>old border ruin</label>
+    <description>A crumbling ruin of the dead kingdom's border works. The missing party's trail ends here.</description>
+    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
+    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <approachOrderString>Search {0}</approachOrderString>
+    <approachingReportString>Searching {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_BranRuin</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_BranRuin</defName>
+    <linkWithSite>TSC_BranRuin</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Watchtower</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The Wayfarers' campsite -->
+  <SitePartDef>
+    <defName>TSC_PartyCamp</defName>
+    <label>wayfarers' camp</label>
+    <description>The missing party's campsite: a firepit, bedrolls, and months of stubborn patience aimed at an ettersnap.</description>
+    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
+    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <approachOrderString>Visit {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_PartyCamp</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_PartyCamp</defName>
+    <linkWithSite>TSC_PartyCamp</linkWithSite>
+    <order>470</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Village">
+      <innPrefab>TSC_CampSite</innPrefab>
+    </genStep>
+  </GenStepDef>
+
+  <!-- Moss barrow (sidequest: the lure supplies) -->
+  <SitePartDef>
+    <defName>TSC_MossBarrowSite</defName>
+    <label>mosskeepers' barrow</label>
+    <description>A low barrow of the old kingdom's mosskeepers. Remembrance moss grows in its cold cellars, and things nest among the sarcophagi.</description>
+    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
+    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <approachOrderString>Explore {0}</approachOrderString>
+    <approachingReportString>Exploring {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>150</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_MossBarrowSite</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_MossBarrowSite</defName>
+    <linkWithSite>TSC_MossBarrowSite</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_MossBarrow</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <!-- Druid grove (sidequest: the message) -->
+  <SitePartDef>
+    <defName>TSC_DruidGrove</defName>
+    <label>druid's grove</label>
+    <description>A quiet hollow with a single stone cottage. The local druid keeps ravens, and opinions.</description>
+    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
+    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <approachOrderString>Visit {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_DruidGrove</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_DruidGrove</defName>
+    <linkWithSite>TSC_DruidGrove</linkWithSite>
+    <order>470</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Village">
+      <innPrefab>TSC_CottageSmall</innPrefab>
+      <innkeeper>TSC_Npc_Maewyn</innkeeper>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The ettersnap's cave: no built structure, a wild place -->
+  <SitePartDef>
+    <defName>TSC_EttersnapCave</defName>
+    <label>ettersnap cave</label>
+    <description>A cave in the deep hills where the party finally cornered their quarry. Quiet, cold, and full of old bones.</description>
+    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
+    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <approachOrderString>Enter {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_EttersnapCave</li>
+    </tags>
+  </SitePartDef>
+
+  <!-- Side site: the village of Underhill, Bram's home -->
+  <SitePartDef>
+    <defName>TSC_UnderhillVillage</defName>
+    <label>village of Underhill</label>
+    <description>A small farming village under the hills: a handful of stone cottages, a smithy, and an inn whose fire never quite goes out.</description>
+    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
+    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <approachOrderString>Visit {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_UnderhillVillage</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_UnderhillVillage</defName>
+    <linkWithSite>TSC_UnderhillVillage</linkWithSite>
+    <order>470</order>
+    <!-- Residents were cut with the old design's NPCs; the geography remains
+         for future acts, and new NamedNpcDefs can slot into these fields. -->
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Village">
+      <innPrefab>TSC_Inn</innPrefab>
+      <buildings>
+        <li>
+          <prefab>TSC_Cottage</prefab>
+        </li>
+        <li>
+          <prefab>TSC_Smithy</prefab>
+        </li>
+        <li>
+          <prefab>TSC_CottageSmall</prefab>
+        </li>
+      </buildings>
+    </genStep>
+  </GenStepDef>
+
+  <!-- Chapter 2 site: the sunken cellars -->
+  <SitePartDef>
+    <defName>TSC_SunkenCellars</defName>
+    <label>sunken cellars</label>
+    <description>The catacombs beneath a village lost to war. The guild's map marks a reliquary in its depths, and warns that something nests in the dark.</description>
+    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
+    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <approachOrderString>Explore {0}</approachOrderString>
+    <approachingReportString>Exploring {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>200</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_SunkenCellars</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_SunkenCellars</defName>
+    <linkWithSite>TSC_SunkenCellars</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Catacombs</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+</Defs>

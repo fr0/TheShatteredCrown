@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Chapter 1: the watchtower vault chest. Guild payment plus a taste of treasure. -->
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_WatchtowerVault</defName>
+    <root Class="ThingSetMaker_Sum">
+      <options>
+        <!-- Always: the weathered map case (the intro quest objective) -->
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>TSC_WeatheredMapCase</li>
+                </thingDefs>
+              </filter>
+              <countRange>1</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <!-- Always: a purse of silver -->
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Silver</li>
+                </thingDefs>
+              </filter>
+              <countRange>250~450</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <!-- Always: something martial from the old garrison -->
+        <li>
+          <thingSetMaker Class="ThingSetMaker_RandomOption">
+            <options>
+              <li>
+                <weight>1</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>MeleeWeapon_LongSword</li>
+                        <li>MeleeWeapon_Mace</li>
+                        <li>Bow_Recurve</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>1</countRange>
+                  </fixedParams>
+                </thingSetMaker>
+              </li>
+              <li>
+                <weight>0.5</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>Apparel_PlateArmor</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>1</countRange>
+                  </fixedParams>
+                </thingSetMaker>
+              </li>
+            </options>
+          </thingSetMaker>
+        </li>
+        <!-- Always: one training manual from the old garrison's shelf (random class) -->
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <categories>
+                  <li>TSC_ClassBooks</li>
+                </categories>
+              </filter>
+              <countRange>1</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <!-- Sometimes: a little gold or jade -->
+        <li>
+          <chance>0.6</chance>
+          <thingSetMaker Class="ThingSetMaker_RandomOption">
+            <options>
+              <li>
+                <weight>1</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>Gold</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>10~25</countRange>
+                  </fixedParams>
+                </thingSetMaker>
+              </li>
+              <li>
+                <weight>1</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter>
+                      <thingDefs>
+                        <li>Jade</li>
+                      </thingDefs>
+                    </filter>
+                    <countRange>15~35</countRange>
+                  </fixedParams>
+                </thingSetMaker>
+              </li>
+            </options>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+  <!-- Chapter 2: the Kingsblade chest in the catacomb reliquary -->
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_Kingsblade</defName>
+    <root Class="ThingSetMaker_Sum">
+      <options>
+        <!-- The Kingsblade itself -->
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>MeleeWeapon_LongSword</li>
+                </thingDefs>
+              </filter>
+              <countRange>1</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <!-- Grave gold -->
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Gold</li>
+                </thingDefs>
+              </filter>
+              <countRange>40~80</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <chance>0.5</chance>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Silver</li>
+                </thingDefs>
+              </filter>
+              <countRange>200~400</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+  <!-- Small caches found in storerooms along the way -->
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_CommonCache</defName>
+    <root Class="ThingSetMaker_RandomOption">
+      <options>
+        <li>
+          <weight>1</weight>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Silver</li>
+                </thingDefs>
+              </filter>
+              <countRange>40~120</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <weight>1</weight>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Pemmican</li>
+                </thingDefs>
+              </filter>
+              <countRange>30~80</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <weight>1</weight>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>MedicineHerbal</li>
+                </thingDefs>
+              </filter>
+              <countRange>4~10</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <weight>0.7</weight>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Cloth</li>
+                </thingDefs>
+              </filter>
+              <countRange>30~60</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+</Defs>

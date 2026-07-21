@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Chapter 1: the ruined watchtower. A small stone garrison, partly collapsed. -->
+  <StructureLayoutDef>
+    <defName>TSC_Watchtower</defName>
+    <workerClass>LayoutWorker_AncientRuins</workerClass>
+    <canHaveMultipleLayoutsInRoom>true</canHaveMultipleLayoutsInRoom>
+    <shouldDamage>true</shouldDamage>
+    <areaPrunePercent>0.05</areaPrunePercent>
+    <minRoomWidth>7</minRoomWidth>
+    <minRoomHeight>7</minRoomHeight>
+    <wallDef>Wall</wallDef>
+    <wallStuffDef>BlocksGranite</wallStuffDef>
+    <doorStuffDef>WoodLog</doorStuffDef>
+    <wallLampChancePerPosition>0</wallLampChancePerPosition>
+    <ensureOneDoorUnlocked>true</ensureOneDoorUnlocked>
+    <roomDefs>
+      <!-- Objective -->
+      <TSC_Vault>
+        <countRange>1~1</countRange>
+      </TSC_Vault>
+
+      <!-- Flavor -->
+      <TSC_GreatRoom>2</TSC_GreatRoom>
+      <TSC_Barracks>2</TSC_Barracks>
+      <TSC_Storeroom>1</TSC_Storeroom>
+      <TSC_RubbleChamber>3</TSC_RubbleChamber>
+    </roomDefs>
+    <junkScaterrers>
+      <RubblePile>
+        <groupsPerHundredCells>1~3</groupsPerHundredCells>
+        <itemsPerGroup>2~4</itemsPerGroup>
+        <groupDistRange>3~5</groupDistRange>
+      </RubblePile>
+      <Filth_RubbleRock>
+        <groupsPerHundredCells>1~3</groupsPerHundredCells>
+        <itemsPerGroup>3~8</itemsPerGroup>
+        <groupDistRange>3~5</groupDistRange>
+      </Filth_RubbleRock>
+    </junkScaterrers>
+    <parts>
+      <Breached>0.1</Breached>
+      <Gore>0.05</Gore>
+    </parts>
+  </StructureLayoutDef>
+
+  <!-- Act 1 sidequest: a small barrow holding remembrance moss caches -->
+  <StructureLayoutDef>
+    <defName>TSC_MossBarrow</defName>
+    <workerClass>LayoutWorker_AncientRuins</workerClass>
+    <canHaveMultipleLayoutsInRoom>true</canHaveMultipleLayoutsInRoom>
+    <minRoomWidth>7</minRoomWidth>
+    <minRoomHeight>7</minRoomHeight>
+    <wallDef>Wall</wallDef>
+    <wallStuffDef>BlocksGranite</wallStuffDef>
+    <doorStuffDef>WoodLog</doorStuffDef>
+    <wallLampChancePerPosition>0</wallLampChancePerPosition>
+    <ensureOneDoorUnlocked>true</ensureOneDoorUnlocked>
+    <canDisconnectRooms>false</canDisconnectRooms>
+    <roomDefs>
+      <TSC_MossCellar>
+        <countRange>1~1</countRange>
+      </TSC_MossCellar>
+      <TSC_Crypt>3</TSC_Crypt>
+      <TSC_RubbleChamber>2</TSC_RubbleChamber>
+    </roomDefs>
+    <junkScaterrers>
+      <Filth_RubbleRock>
+        <groupsPerHundredCells>2~4</groupsPerHundredCells>
+        <itemsPerGroup>3~8</itemsPerGroup>
+        <groupDistRange>3~5</groupDistRange>
+      </Filth_RubbleRock>
+    </junkScaterrers>
+    <parts>
+      <Gore>0.1</Gore>
+    </parts>
+  </StructureLayoutDef>
+
+  <!-- Chapter 2: the sunken cellars. Intact stone catacombs under a dead village. -->
+  <StructureLayoutDef>
+    <defName>TSC_Catacombs</defName>
+    <workerClass>LayoutWorker_AncientRuins</workerClass>
+    <canHaveMultipleLayoutsInRoom>true</canHaveMultipleLayoutsInRoom>
+    <minRoomWidth>7</minRoomWidth>
+    <minRoomHeight>7</minRoomHeight>
+    <wallDef>Wall</wallDef>
+    <wallStuffDef>BlocksGranite</wallStuffDef>
+    <doorStuffDef>WoodLog</doorStuffDef>
+    <wallLampChancePerPosition>0</wallLampChancePerPosition>
+    <ensureOneDoorUnlocked>true</ensureOneDoorUnlocked>
+    <canDisconnectRooms>false</canDisconnectRooms>
+    <corridorShapes>Cross, T</corridorShapes>
+    <roomDefs>
+      <!-- Objective -->
+      <TSC_CryptReliquary>
+        <countRange>1~1</countRange>
+      </TSC_CryptReliquary>
+
+      <!-- Flavor and danger -->
+      <TSC_Crypt>4</TSC_Crypt>
+      <TSC_Storeroom>1</TSC_Storeroom>
+      <TSC_RubbleChamber>2</TSC_RubbleChamber>
+    </roomDefs>
+    <junkScaterrers>
+      <Filth_RubbleRock>
+        <groupsPerHundredCells>2~4</groupsPerHundredCells>
+        <itemsPerGroup>3~8</itemsPerGroup>
+        <groupDistRange>3~5</groupDistRange>
+      </Filth_RubbleRock>
+    </junkScaterrers>
+    <parts>
+      <Gore>0.15</Gore>
+    </parts>
+  </StructureLayoutDef>
+
+</Defs>

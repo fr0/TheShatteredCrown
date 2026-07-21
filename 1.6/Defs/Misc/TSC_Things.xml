@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Padded cloth armor, medieval style. Reuses the vanilla jacket art (like
+       the Ettersnap reuses spelopede art); a unique apparel tag and no trade
+       tags keep it off random pawns and trader stock, so outside this mod's
+       content it never appears. Worn by Bran, whose dialogue describes it. -->
+  <ThingDef ParentName="ApparelBase">
+    <defName>TSC_Apparel_Gambeson</defName>
+    <label>gambeson</label>
+    <description>A quilted coat of layered cloth, sewn in ridges and stuffed with wool. The armor of the common soldier for a thousand years: cheap to make, warm on watch, and surprisingly stubborn about arrowheads. This one has seen honest service.</description>
+    <techLevel>Medieval</techLevel>
+    <possessionCount>1</possessionCount>
+    <graphicData>
+      <texPath>Things/Pawn/Humanlike/Apparel/Jacket/Jacket</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.85</drawSize>
+    </graphicData>
+    <costStuffCount>80</costStuffCount>
+    <stuffCategories>
+      <li>Fabric</li>
+      <li>Leathery</li>
+    </stuffCategories>
+    <thingCategories>
+      <li>ApparelMisc</li>
+    </thingCategories>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <WorkToMake>9000</WorkToMake>
+      <Mass>3.0</Mass>
+      <StuffEffectMultiplierArmor>0.55</StuffEffectMultiplierArmor>
+      <StuffEffectMultiplierInsulation_Cold>0.75</StuffEffectMultiplierInsulation_Cold>
+      <StuffEffectMultiplierInsulation_Heat>0.20</StuffEffectMultiplierInsulation_Heat>
+      <EquipDelay>2</EquipDelay>
+    </statBases>
+    <apparel>
+      <bodyPartGroups>
+        <li>Torso</li>
+        <li>Neck</li>
+        <li>Shoulders</li>
+        <li>Arms</li>
+      </bodyPartGroups>
+      <wornGraphicPath>Things/Pawn/Humanlike/Apparel/Jacket/Jacket</wornGraphicPath>
+      <layers>
+        <li>Shell</li>
+      </layers>
+      <tags>
+        <li>TSC_Gambeson</li>
+      </tags>
+      <canBeDesiredForIdeo>false</canBeDesiredForIdeo>
+    </apparel>
+    <colorGenerator Class="ColorGenerator_Options">
+      <options>
+        <li>
+          <weight>10</weight>
+          <only>(0.45,0.38,0.28)</only>
+        </li>
+        <li>
+          <weight>10</weight>
+          <only>(0.4,0.4,0.42)</only>
+        </li>
+        <li>
+          <weight>10</weight>
+          <min>(0.3,0.28,0.22)</min>
+          <max>(0.55,0.5,0.4)</max>
+        </li>
+      </options>
+    </colorGenerator>
+  </ThingDef>
+
+  <!-- Sealed loot chests. Inherit the Odyssey openable-crate base so we get the
+       open/close graphics and the "open" interaction for free; each variant just
+       binds its own loot table. -->
+
+  <!-- The intro quest's objective: found in the watchtower vault chest -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_WeatheredMapCase</defName>
+    <label>weathered map case</label>
+    <description>A leather map case, cracked with age and sealed with the sigil of the old kingdom's border guard. The map inside marks Aldwick, a village lost to war, and the catacombs beneath it. Every version of the Shattered Crown story begins with this map.</description>
+    <graphicData>
+      <texPath>Things/Item/Book/Schematic/Schematic</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.8</drawSize>
+    </graphicData>
+    <stackLimit>1</stackLimit>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Mass>0.3</Mass>
+      <MarketValue>200</MarketValue>
+      <Flammability>1.0</Flammability>
+      <DeteriorationRate>1.0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+  </ThingDef>
+
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_IronboundChest</defName>
+    <label>iron-bound chest</label>
+    <description>A heavy wooden chest bound in iron bands, sealed against the years. Whatever the old garrison locked away is still inside.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_WatchtowerVault</contents>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_IronboundChest_Kingsblade</defName>
+    <label>reliquary chest</label>
+    <description>An ornate chest of dark wood and tarnished gold fittings. The guild's chronicle spoke of a blade laid to rest with honors.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_Kingsblade</contents>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_SupplyCache</defName>
+    <label>old supply cache</label>
+    <description>A dusty crate of provisions and sundries, abandoned by whoever lived here long ago.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_CommonCache</contents>
+      </li>
+    </comps>
+  </ThingDef>
+
+</Defs>

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Companion classes: abilities unlocked at CLASS level thresholds, plus
+       three trained proficiencies per class (bonus: 1 + classLevel/4 on checks).
+       XP comes from quest completions and dialogue; multiclass pawns assign
+       levels via the "Assign class level" gizmo. -->
+
+  <TheShatteredCrown.TSC_ClassDef>
+    <defName>TSC_Class_Cleric</defName>
+    <label>cleric</label>
+    <description>A healer of the old faith: mends wounds, drives out sickness, and steadies the party with blessings.</description>
+    <proficiencies>
+      <li>TSC_Prof_Lore</li>
+      <li>TSC_Prof_Insight</li>
+      <li>TSC_Prof_Persuasion</li>
+    </proficiencies>
+    <unlocks>
+      <li>
+        <ability>TSC_Ability_HealingTouch</ability>
+        <level>1</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_Blessing</ability>
+        <level>2</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_Cleanse</ability>
+        <level>4</level>
+      </li>
+    </unlocks>
+  </TheShatteredCrown.TSC_ClassDef>
+
+  <TheShatteredCrown.TSC_ClassDef>
+    <defName>TSC_Class_Bard</defName>
+    <label>bard</label>
+    <description>A singer of the old songs: war-hymns for battle, verses for work, dirges for the enemy, and rest-songs for camp.</description>
+    <proficiencies>
+      <li>TSC_Prof_Performance</li>
+      <li>TSC_Prof_Persuasion</li>
+      <li>TSC_Prof_Lore</li>
+    </proficiencies>
+    <unlocks>
+      <li>
+        <ability>TSC_Ability_BattleHymn</ability>
+        <level>1</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_InspiringVerse</ability>
+        <level>2</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_Dirge</ability>
+        <level>3</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_SongOfRest</ability>
+        <level>5</level>
+      </li>
+    </unlocks>
+  </TheShatteredCrown.TSC_ClassDef>
+
+  <TheShatteredCrown.TSC_ClassDef>
+    <defName>TSC_Class_Warden</defName>
+    <label>warden</label>
+    <description>A soldier of the old watch: holds the line, shrugs off wounds, and dares the enemy to come and try.</description>
+    <proficiencies>
+      <li>TSC_Prof_Athletics</li>
+      <li>TSC_Prof_Perception</li>
+      <li>TSC_Prof_Survival</li>
+    </proficiencies>
+    <unlocks>
+      <li>
+        <ability>TSC_Ability_StandFast</ability>
+        <level>1</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_SecondWind</ability>
+        <level>2</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_Challenge</ability>
+        <level>4</level>
+      </li>
+    </unlocks>
+  </TheShatteredCrown.TSC_ClassDef>
+
+  <TheShatteredCrown.TSC_ClassDef>
+    <defName>TSC_Class_Rogue</defName>
+    <label>rogue</label>
+    <description>Locks, shadows, and knives in that order. Rogues go where they aren't invited and leave with what isn't theirs.</description>
+    <proficiencies>
+      <li>TSC_Prof_Thievery</li>
+      <li>TSC_Prof_Investigation</li>
+      <li>TSC_Prof_Perception</li>
+    </proficiencies>
+    <unlocks>
+      <li>
+        <ability>TSC_Ability_Shadowstep</ability>
+        <level>1</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_MarkedForDeath</ability>
+        <level>2</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_Vanish</ability>
+        <level>4</level>
+      </li>
+    </unlocks>
+  </TheShatteredCrown.TSC_ClassDef>
+
+  <TheShatteredCrown.TSC_ClassDef>
+    <defName>TSC_Class_Wizard</defName>
+    <label>wizard</label>
+    <description>A student of the old sigils. What the ignorant call magic, the wizard calls unfinished homework.</description>
+    <proficiencies>
+      <li>TSC_Prof_Arcana</li>
+      <li>TSC_Prof_Lore</li>
+      <li>TSC_Prof_Investigation</li>
+    </proficiencies>
+    <unlocks>
+      <li>
+        <ability>TSC_Ability_ArcaneWard</ability>
+        <level>1</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_LeadenCurse</ability>
+        <level>2</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_Blink</ability>
+        <level>4</level>
+      </li>
+    </unlocks>
+  </TheShatteredCrown.TSC_ClassDef>
+
+  <TheShatteredCrown.TSC_ClassDef>
+    <defName>TSC_Class_Barbarian</defName>
+    <label>barbarian</label>
+    <description>Fury as a fighting style. Hits harder, hurts less, and apologizes to nobody.</description>
+    <proficiencies>
+      <li>TSC_Prof_Athletics</li>
+      <li>TSC_Prof_Survival</li>
+      <li>TSC_Prof_Nature</li>
+    </proficiencies>
+    <unlocks>
+      <li>
+        <ability>TSC_Ability_Rage</ability>
+        <level>1</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_WarCry</ability>
+        <level>2</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_Unbreakable</ability>
+        <level>4</level>
+      </li>
+    </unlocks>
+  </TheShatteredCrown.TSC_ClassDef>
+
+  <TheShatteredCrown.TSC_ClassDef>
+    <defName>TSC_Class_Druid</defName>
+    <label>druid</label>
+    <description>The hills' own healer. Speaks for the green things, and occasionally lets the green things speak back.</description>
+    <proficiencies>
+      <li>TSC_Prof_Nature</li>
+      <li>TSC_Prof_Insight</li>
+      <li>TSC_Prof_Perception</li>
+    </proficiencies>
+    <unlocks>
+      <li>
+        <ability>TSC_Ability_NaturesBalm</ability>
+        <level>1</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_BrambleSnare</ability>
+        <level>2</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_Barkskin</ability>
+        <level>4</level>
+      </li>
+    </unlocks>
+  </TheShatteredCrown.TSC_ClassDef>
+
+  <TheShatteredCrown.TSC_ClassDef>
+    <defName>TSC_Class_Monk</defName>
+    <label>monk</label>
+    <description>Discipline made flesh. The monk's weapon is the monk, kept sharp by stillness.</description>
+    <proficiencies>
+      <li>TSC_Prof_Athletics</li>
+      <li>TSC_Prof_Insight</li>
+      <li>TSC_Prof_Perception</li>
+    </proficiencies>
+    <unlocks>
+      <li>
+        <ability>TSC_Ability_Flurry</ability>
+        <level>1</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_InnerCalm</ability>
+        <level>2</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_StunningPalm</ability>
+        <level>4</level>
+      </li>
+    </unlocks>
+  </TheShatteredCrown.TSC_ClassDef>
+
+  <TheShatteredCrown.TSC_ClassDef>
+    <defName>TSC_Class_Paladin</defName>
+    <label>paladin</label>
+    <description>An oath with legs. Heals the fallen, heartens the fearful, and brands the wicked for what they are.</description>
+    <proficiencies>
+      <li>TSC_Prof_Athletics</li>
+      <li>TSC_Prof_Persuasion</li>
+      <li>TSC_Prof_Insight</li>
+    </proficiencies>
+    <unlocks>
+      <li>
+        <ability>TSC_Ability_LayOnHands</ability>
+        <level>1</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_RighteousBrand</ability>
+        <level>2</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_AuraOfCourage</ability>
+        <level>4</level>
+      </li>
+    </unlocks>
+  </TheShatteredCrown.TSC_ClassDef>
+
+  <TheShatteredCrown.TSC_ClassDef>
+    <defName>TSC_Class_Ranger</defName>
+    <label>ranger</label>
+    <description>The road's own child: tracker, archer, and field surgeon of last resort.</description>
+    <proficiencies>
+      <li>TSC_Prof_Nature</li>
+      <li>TSC_Prof_Survival</li>
+      <li>TSC_Prof_Perception</li>
+    </proficiencies>
+    <unlocks>
+      <li>
+        <ability>TSC_Ability_FieldDressing</ability>
+        <level>1</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_HuntersMark</ability>
+        <level>2</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_SwiftQuiver</ability>
+        <level>4</level>
+      </li>
+    </unlocks>
+  </TheShatteredCrown.TSC_ClassDef>
+
+</Defs>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Chain-link incidents. baseChance 0 means the storyteller never fires these
+       randomly; they are triggered by QuestNode_CreateIncidents from the previous
+       chapter. (Chapter 1 needs no incident: it enters the random quest pool via
+       its rootSelectionWeight, and a quest cannot be both randomly-selectable and
+       incident-given.) -->
+
+  <IncidentDef ParentName="GiveQuestBase">
+    <defName>TSC_GiveQuest_Chapter2</defName>
+    <label>guild quest: the sunken cellars</label>
+    <questScriptDef>TSC_Quest2_SunkenCellars</questScriptDef>
+    <baseChance>0</baseChance>
+  </IncidentDef>
+
+</Defs>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Chapter 2 of the Shattered Crown arc. Never fires randomly; it is given by
+       the TSC_GiveQuest_Chapter2 incident triggered from Chapter 1's success. -->
+  <QuestScriptDef>
+    <defName>TSC_Quest2_SunkenCellars</defName>
+    <isRootSpecial>true</isRootSpecial>
+    <randomlySelectable>false</randomlySelectable>
+    <rootMinPoints>0</rootMinPoints>
+    <autoAccept>true</autoAccept>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Sunken Cellars</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->The Wayfarers' Guild has read your map by candlelight, and their rider returns before dawn.\n\n"The map marks Aldwick, a village burned in the old wars. Its people cut their cellars deep, down into catacombs older than the village itself. The chronicle says a king's blade was laid to rest in a reliquary there, waiting for a worthy hand.\n\nWe warn you: the dead of Aldwick were not the last to move in. Something nests in those galleries now. Bring torches, and bring steel."\n\nTravel to the sunken cellars, fight through whatever nests there, and recover the Kingsblade from the reliquary.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript">
+          <def>Util_RandomizePointsChallengeRating</def>
+          <parms>
+            <pointsFactorTwoStar>1.5</pointsFactorTwoStar>
+            <pointsFactorThreeStar>2</pointsFactorThreeStar>
+          </parms>
+        </li>
+
+        <li Class="QuestNode_SubScript">
+          <def>Util_AdjustPointsForDistantFight</def>
+        </li>
+
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>12~35</value>
+        </li>
+
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_SunkenCellars</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="QuestNode_WorldObjectTimeout">
+          <worldObject>$site</worldObject>
+          <isQuestTimeout>true</isQuestTimeout>
+          <delayTicks>$(randInt(25,35)*60000)</delayTicks>
+          <inSignalDisable>site.MapGenerated</inSignalDisable>
+          <destroyOnCleanup>true</destroyOnCleanup>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelQuestExpired">Quest expired: [resolvedQuestName]</label>
+                <text TKey="LetterTextQuestExpired">The guild sends grim word: the catacombs of Aldwick have flooded with the spring rains. The reliquary is beyond reach. The quest [resolvedQuestName] has expired.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- Flavor beat when the nests are cleared -->
+        <li Class="QuestNode_Signal">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <node Class="QuestNode_Letter">
+            <letterDef>PositiveEvent</letterDef>
+            <label TKey="LetterLabelCellarsSilent">The cellars fall silent</label>
+            <text TKey="LetterTextCellarsSilent">The last of the nesting things lies still. The catacombs of Aldwick belong to the dead again, and to whoever claims the reliquary.</text>
+          </node>
+        </li>
+
+        <!-- Chapter complete -->
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelChapter2Done">The Sunken Cellars: complete</label>
+                <text TKey="LetterTextChapter2Done">The Kingsblade is out of the dark for the first time in living memory. The guild's rider takes rubbings of the reliquary inscriptions and gallops off to their chronicler.\n\n"There were words on the reliquary," she says over her shoulder. "About a signet. We'll send for you."\n\n(The Shattered Crown arc continues in a future chapter of this mod.)</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>500</xp>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Delay">
+          <inSignalEnable>site.Destroyed</inSignalEnable>
+          <delayTicks>60000</delayTicks>
+          <node Class="QuestNode_End">
+            <outcome>Success</outcome>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

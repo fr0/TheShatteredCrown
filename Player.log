@@ -1,0 +1,45 @@
+Mono path[0] = 'X:/SteamLibrary/steamapps/common/RimWorld/RimWorldWin64_Data/Managed'
+Mono config path = 'X:/SteamLibrary/steamapps/common/RimWorld/MonoBleedingEdge/etc'
+[PhysX] Initialized MultithreadedTaskDispatcher with 32 workers.
+Initialize engine version: 2022.3.35f1 (011206c7a712)
+[Subsystems] Discovering subsystems at path X:/SteamLibrary/steamapps/common/RimWorld/RimWorldWin64_Data/UnitySubsystems
+GfxDevice: creating device client; threaded=1; jobified=0
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 5070 Ti (ID=0x2c05)
+    Vendor:   NVIDIA
+    VRAM:     15995 MB
+    Driver:   32.0.16.1047
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.068 seconds
+- Finished resetting the current domain, in  0.001 seconds
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+[PhysX] Initialized MultithreadedTaskDispatcher with 32 workers.
+UnloadTime: 0.525500 ms
+Command line arguments: -quicktest
+RimWorld 1.6.4871 rev591
+Mod Scenario Backstory dependency (brrainz.harmony) needs to have <downloadUrl> and/or <steamWorkshopUrl> specified.
+Unloading 5 Unused Serialized files (Serialized files now loaded: 5)
+Unloading 99 unused Assets to reduce memory usage. Loaded Objects now: 26494.
+Total: 129.064700 ms (FindLiveObjects: 0.806800 ms CreateObjectMapping: 0.525500 ms MarkObjects: 127.412800 ms  DeleteObjects: 0.319500 ms)
+
+Unloading 3 Unused Serialized files (Serialized files now loaded: 5)
+[PhysX] Initialized MultithreadedTaskDispatcher with 32 workers.
+UnloadTime: 0.614700 ms
+Unloading 2 unused Assets to reduce memory usage. Loaded Objects now: 26518.
+Total: 118.422900 ms (FindLiveObjects: 0.754900 ms CreateObjectMapping: 0.430300 ms MarkObjects: 117.192100 ms  DeleteObjects: 0.045400 ms)
+
+Initializing new game with mods:
+  - Ludeon.RimWorld
+  - Ludeon.RimWorld.Royalty
+  - Ludeon.RimWorld.Ideology
+  - Ludeon.RimWorld.Biotech
+  - Ludeon.RimWorld.Anomaly
+  - Ludeon.RimWorld.Odyssey
+  - cfrolik.adventurersguild
+Unloading 1 Unused Serialized files (Serialized files now loaded: 5)
+Unloading 1 unused Assets to reduce memory usage. Loaded Objects now: 32245.
+Total: 116.192100 ms (FindLiveObjects: 1.059800 ms CreateObjectMapping: 0.634300 ms MarkObjects: 114.412900 ms  DeleteObjects: 0.084700 ms)
+

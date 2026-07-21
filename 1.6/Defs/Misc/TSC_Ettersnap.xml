@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- The Ettersnap: a very rare creature that drinks the memories of the dead.
+       Act 1's quarry. Uses the spelopede's art; lured with remembrance moss
+       (right-click interaction) or tamed the hard way. -->
+
+  <ThingDef ParentName="BaseInsect">
+    <defName>TSC_Ettersnap</defName>
+    <label>ettersnap</label>
+    <description>A rare, skittish creature of the deep hills, the size of a large dog. Ettersnaps drink the residue of memory from the dead, and the right rites can bring what they have drunk back into the light. The old kingdom prized them beyond gold; almost none remain.</description>
+    <statBases>
+      <MoveSpeed>4.6</MoveSpeed>
+      <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+      <ArmorRating_Sharp>0.25</ArmorRating_Sharp>
+      <ComfyTemperatureMin>-20</ComfyTemperatureMin>
+      <MarketValue>1500</MarketValue>
+      <LeatherAmount>0</LeatherAmount>
+      <Wildness>0.97</Wildness>
+    </statBases>
+    <uiIconScale>1.5</uiIconScale>
+    <tools>
+      <li>
+        <label>mandibles</label>
+        <capacities>
+          <li>Bite</li>
+        </capacities>
+        <power>7</power>
+        <cooldownTime>2</cooldownTime>
+        <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
+      </li>
+      <li>
+        <label>head</label>
+        <capacities>
+          <li>Blunt</li>
+        </capacities>
+        <power>4</power>
+        <cooldownTime>2</cooldownTime>
+        <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+        <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+        <chanceFactor>0.1</chanceFactor>
+      </li>
+    </tools>
+    <race>
+      <body>BeetleLike</body>
+      <baseBodySize>0.6</baseBodySize>
+      <baseHungerRate>0.20</baseHungerRate>
+      <baseHealthScale>0.8</baseHealthScale>
+      <useMeatFrom>Megaspider</useMeatFrom>
+      <lifeExpectancy>80</lifeExpectancy>
+      <trainability>None</trainability>
+      <lifeStageAges>
+        <li>
+          <def>EusocialInsectLarva</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>EusocialInsectJuvenile</def>
+          <minAge>0.03</minAge>
+        </li>
+        <li>
+          <def>EusocialInsectAdult</def>
+          <minAge>0.4</minAge>
+          <soundWounded>Pawn_Megascarab_Wounded</soundWounded>
+          <soundDeath>Pawn_Megascarab_Death</soundDeath>
+          <soundCall>Pawn_Megascarab_Call</soundCall>
+          <soundAngry>Pawn_Megascarab_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+      <soundMeleeHitPawn>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHitPawn>
+      <soundMeleeHitBuilding>Pawn_Melee_SmallScratch_HitBuilding</soundMeleeHitBuilding>
+      <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+    </race>
+  </ThingDef>
+
+  <PawnKindDef ParentName="InsectKindBase">
+    <defName>TSC_Ettersnap</defName>
+    <label>ettersnap</label>
+    <race>TSC_Ettersnap</race>
+    <combatPower>90</combatPower>
+    <ecoSystemWeight>0.05</ecoSystemWeight>
+    <lifeStages>
+      <li>
+        <bodyGraphicData>
+          <texPath>Things/Pawn/Animal/Spelopede/Spelopede</texPath>
+          <drawSize>1</drawSize>
+          <color>(140,150,190)</color>
+        </bodyGraphicData>
+        <dessicatedBodyGraphicData>
+          <texPath>Things/Pawn/Animal/Spelopede/Dessicated_Spelopede</texPath>
+          <drawSize>1</drawSize>
+        </dessicatedBodyGraphicData>
+      </li>
+      <li>
+        <bodyGraphicData>
+          <texPath>Things/Pawn/Animal/Spelopede/Spelopede</texPath>
+          <drawSize>1.2</drawSize>
+          <color>(140,150,190)</color>
+        </bodyGraphicData>
+        <dessicatedBodyGraphicData>
+          <texPath>Things/Pawn/Animal/Spelopede/Dessicated_Spelopede</texPath>
+          <drawSize>1.2</drawSize>
+        </dessicatedBodyGraphicData>
+      </li>
+      <li>
+        <bodyGraphicData>
+          <texPath>Things/Pawn/Animal/Spelopede/Spelopede</texPath>
+          <drawSize>1.4</drawSize>
+          <color>(140,150,190)</color>
+        </bodyGraphicData>
+        <dessicatedBodyGraphicData>
+          <texPath>Things/Pawn/Animal/Spelopede/Dessicated_Spelopede</texPath>
+          <drawSize>1.4</drawSize>
+        </dessicatedBodyGraphicData>
+      </li>
+    </lifeStages>
+  </PawnKindDef>
+
+  <!-- The lure: remembrance moss, gathered from old barrows -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_RemembranceMoss</defName>
+    <label>remembrance moss</label>
+    <description>A pale, silver-veined moss that grows only where the dead lie long undisturbed. It smells faintly of rain on old stone. Ettersnaps find it irresistible; it is soaked in exactly what they hunger for.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PlantFoodRaw/Hay</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(150,170,160)</color>
+    </graphicData>
+    <stackLimit>25</stackLimit>
+    <statBases>
+      <MaxHitPoints>60</MaxHitPoints>
+      <Mass>0.05</Mass>
+      <MarketValue>40</MarketValue>
+      <Flammability>1.0</Flammability>
+      <DeteriorationRate>2</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+  </ThingDef>
+
+  <!-- Moss cache chest for the barrow sidequest -->
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_MossCache</defName>
+    <label>mosskeeper's chest</label>
+    <description>A cold-sealed chest of the old kingdom's mosskeepers, built to carry remembrance moss without spoiling it.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_MossCache</contents>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_MossCache</defName>
+    <root Class="ThingSetMaker_Sum">
+      <options>
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>TSC_RemembranceMoss</li>
+                </thingDefs>
+              </filter>
+              <countRange>6~10</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <chance>0.6</chance>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>MedicineHerbal</li>
+                </thingDefs>
+              </filter>
+              <countRange>4~8</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <!-- Always: a manual the mosskeepers kept with their dead (random class) -->
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <categories>
+                  <li>TSC_ClassBooks</li>
+                </categories>
+              </filter>
+              <countRange>1</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+  <JobDef>
+    <defName>TSC_LureEttersnap</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_Lure</driverClass>
+    <reportString>luring TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
+</Defs>

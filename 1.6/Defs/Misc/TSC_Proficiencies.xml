@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Adventure proficiencies: separate from RimWorld's labor skills, trained by
+       class levels and story moments, consumed by dialogue checks and quest
+       interactions. relatedSkill grants a synergy bonus of skill level / 5. -->
+
+  <TheShatteredCrown.TSC_ProficiencyDef>
+    <defName>TSC_Prof_Lore</defName>
+    <label>lore</label>
+    <description>Knowledge of the old kingdom: its history, its rites, its ruins, and the things written on barrow walls.</description>
+    <relatedSkill>Intellectual</relatedSkill>
+  </TheShatteredCrown.TSC_ProficiencyDef>
+
+  <TheShatteredCrown.TSC_ProficiencyDef>
+    <defName>TSC_Prof_Thievery</defName>
+    <label>thievery</label>
+    <description>Locks, traps, sleight of hand, and the professional appraisal of other people's property.</description>
+  </TheShatteredCrown.TSC_ProficiencyDef>
+
+  <TheShatteredCrown.TSC_ProficiencyDef>
+    <defName>TSC_Prof_Nature</defName>
+    <label>nature</label>
+    <description>Wayfinding, foraging, weather-sense, and knowing which things in the woods bite.</description>
+    <relatedSkill>Plants</relatedSkill>
+  </TheShatteredCrown.TSC_ProficiencyDef>
+
+  <TheShatteredCrown.TSC_ProficiencyDef>
+    <defName>TSC_Prof_Athletics</defName>
+    <label>athletics</label>
+    <description>Climbing, swimming, forcing doors, and holding a shield wall past the point of good sense.</description>
+    <relatedSkill>Melee</relatedSkill>
+  </TheShatteredCrown.TSC_ProficiencyDef>
+
+  <TheShatteredCrown.TSC_ProficiencyDef>
+    <defName>TSC_Prof_Persuasion</defName>
+    <label>persuasion</label>
+    <description>Bargaining, flattery, intimidation, and the gentle art of getting your way with words.</description>
+    <relatedSkill>Social</relatedSkill>
+  </TheShatteredCrown.TSC_ProficiencyDef>
+
+  <TheShatteredCrown.TSC_ProficiencyDef>
+    <defName>TSC_Prof_Arcana</defName>
+    <label>arcana</label>
+    <description>The theory behind the old magic: sigils, seals, wards, and what the archotech dreamers left humming under the hills.</description>
+    <relatedSkill>Intellectual</relatedSkill>
+  </TheShatteredCrown.TSC_ProficiencyDef>
+
+  <TheShatteredCrown.TSC_ProficiencyDef>
+    <defName>TSC_Prof_Investigation</defName>
+    <label>investigation</label>
+    <description>Reading a room, a ruin, or a crime: tracks, tampered locks, false walls, and stories that don't add up.</description>
+    <relatedSkill>Intellectual</relatedSkill>
+  </TheShatteredCrown.TSC_ProficiencyDef>
+
+  <TheShatteredCrown.TSC_ProficiencyDef>
+    <defName>TSC_Prof_Insight</defName>
+    <label>insight</label>
+    <description>Reading people: what they want, what they fear, and which of the two is talking.</description>
+    <relatedSkill>Social</relatedSkill>
+  </TheShatteredCrown.TSC_ProficiencyDef>
+
+  <TheShatteredCrown.TSC_ProficiencyDef>
+    <defName>TSC_Prof_Perception</defName>
+    <label>perception</label>
+    <description>Noticing things: the glint in the murder-hole, the fresh scrape on old stone, the silence where birdsong should be.</description>
+    <relatedSkill>Shooting</relatedSkill>
+  </TheShatteredCrown.TSC_ProficiencyDef>
+
+  <TheShatteredCrown.TSC_ProficiencyDef>
+    <defName>TSC_Prof_Survival</defName>
+    <label>survival</label>
+    <description>Staying alive between towns: shelter, fire, clean water, and knowing when the weather means to kill you.</description>
+    <relatedSkill>Animals</relatedSkill>
+  </TheShatteredCrown.TSC_ProficiencyDef>
+
+  <TheShatteredCrown.TSC_ProficiencyDef>
+    <defName>TSC_Prof_Performance</defName>
+    <label>performance</label>
+    <description>Song, story, and spectacle: holding a room, a camp, or a mob in the palm of your hand.</description>
+    <relatedSkill>Artistic</relatedSkill>
+  </TheShatteredCrown.TSC_ProficiencyDef>
+
+</Defs>

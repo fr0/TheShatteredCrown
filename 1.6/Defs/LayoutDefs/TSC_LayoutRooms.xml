@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ============ Watchtower rooms (Chapter 1) ============ -->
+
+  <!-- The garrison's great room: long table, chairs, torchlight -->
+  <LayoutRoomDef>
+    <defName>TSC_GreatRoom</defName>
+    <canMergeWithAdjacentRoom>true</canMergeWithAdjacentRoom>
+    <minSingleRectWidth>6</minSingleRectWidth>
+    <minSingleRectHeight>6</minSingleRectHeight>
+    <floorTypes>
+      <li>WoodPlankFloor</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_DiningSet>
+        <countPerHundredCells>1</countPerHundredCells>
+        <minMaxRange>1~2</minMaxRange>
+      </TSC_DiningSet>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>1~3</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+    <parts>
+      <Corpse>0.25</Corpse>
+    </parts>
+  </LayoutRoomDef>
+
+  <!-- Barracks: wooden bunks along the walls -->
+  <LayoutRoomDef>
+    <defName>TSC_Barracks</defName>
+    <canMergeWithAdjacentRoom>true</canMergeWithAdjacentRoom>
+    <floorTypes>
+      <li>WoodPlankFloor</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_Bunk>
+        <countPerTenEdgeCells>2</countPerTenEdgeCells>
+        <minMaxRange>2~6</minMaxRange>
+      </TSC_Bunk>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>0~2</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+    <parts>
+      <Corpse>0.2</Corpse>
+    </parts>
+  </LayoutRoomDef>
+
+  <!-- Storeroom: shelves and a chance of an intact supply cache -->
+  <LayoutRoomDef>
+    <defName>TSC_Storeroom</defName>
+    <canMergeWithAdjacentRoom>true</canMergeWithAdjacentRoom>
+    <floorTypes>
+      <li>FlagstoneGranite</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_Shelf_Wood>
+        <countPerTenEdgeCells>2</countPerTenEdgeCells>
+        <minMaxRange>2~8</minMaxRange>
+      </TSC_Shelf_Wood>
+      <TSC_SupplyCachePrefab>
+        <countPerHundredCells>1</countPerHundredCells>
+        <minMaxRange>0~2</minMaxRange>
+      </TSC_SupplyCachePrefab>
+    </prefabs>
+    <scatter>
+      <WoodLog>
+        <groupsPerHundredCells>1~2</groupsPerHundredCells>
+        <itemsPerGroup>15~40</itemsPerGroup>
+        <groupDistRange>2~4</groupDistRange>
+      </WoodLog>
+    </scatter>
+    <parts>
+      <Corpse>0.1</Corpse>
+    </parts>
+  </LayoutRoomDef>
+
+  <!-- Collapsed chamber: rubble and ruin -->
+  <LayoutRoomDef>
+    <defName>TSC_RubbleChamber</defName>
+    <spawnJunk>false</spawnJunk>
+    <scatter>
+      <RubblePile>
+        <groupsPerHundredCells>2~4</groupsPerHundredCells>
+        <itemsPerGroup>2~4</itemsPerGroup>
+        <groupDistRange>3~5</groupDistRange>
+        <minGroups>1</minGroups>
+      </RubblePile>
+      <Filth_RubbleRock>
+        <groupsPerHundredCells>3~5</groupsPerHundredCells>
+        <itemsPerGroup>3~8</itemsPerGroup>
+        <groupDistRange>3~5</groupDistRange>
+        <minGroups>1</minGroups>
+      </Filth_RubbleRock>
+    </scatter>
+  </LayoutRoomDef>
+
+  <!-- The tower vault: guaranteed once per watchtower, holds the iron-bound chest -->
+  <LayoutRoomDef>
+    <defName>TSC_Vault</defName>
+    <minSingleRectWidth>6</minSingleRectWidth>
+    <minSingleRectHeight>6</minSingleRectHeight>
+    <floorTypes>
+      <li>FlagstoneGranite</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_VaultChest>
+        <countRange>1~1</countRange>
+      </TSC_VaultChest>
+    </prefabs>
+    <parts>
+      <Corpse>0.3</Corpse>
+    </parts>
+  </LayoutRoomDef>
+
+  <!-- ============ Catacomb rooms (Chapter 2) ============ -->
+
+  <!-- Crypt gallery: rows of stone sarcophagi. Something nests here. -->
+  <LayoutRoomDef>
+    <defName>TSC_Crypt</defName>
+    <canMergeWithAdjacentRoom>true</canMergeWithAdjacentRoom>
+    <floorTypes>
+      <li>FlagstoneGranite</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_SarcophagusPair>
+        <countPerHundredCells>2</countPerHundredCells>
+        <minMaxRange>1~4</minMaxRange>
+      </TSC_SarcophagusPair>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>0~2</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+    <parts>
+      <Corpse>0.4</Corpse>
+      <DormantInsectCluster>0.35</DormantInsectCluster>
+    </parts>
+  </LayoutRoomDef>
+
+  <!-- Mosskeeper's cell: holds the remembrance moss caches (Act 1 sidequest) -->
+  <LayoutRoomDef>
+    <defName>TSC_MossCellar</defName>
+    <minSingleRectWidth>6</minSingleRectWidth>
+    <minSingleRectHeight>6</minSingleRectHeight>
+    <floorTypes>
+      <li>FlagstoneGranite</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_MossCachePrefab>
+        <countRange>1~1</countRange>
+      </TSC_MossCachePrefab>
+    </prefabs>
+    <parts>
+      <DormantInsectCluster />
+      <Corpse>0.3</Corpse>
+    </parts>
+  </LayoutRoomDef>
+
+  <!-- The reliquary: guaranteed once, holds the Kingsblade. Guarded. -->
+  <LayoutRoomDef>
+    <defName>TSC_CryptReliquary</defName>
+    <minSingleRectWidth>7</minSingleRectWidth>
+    <minSingleRectHeight>7</minSingleRectHeight>
+    <floorTypes>
+      <li>TileMarble</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_Reliquary>
+        <countRange>1~1</countRange>
+      </TSC_Reliquary>
+    </prefabs>
+    <parts>
+      <DormantInsectCluster />
+      <Corpse>0.3</Corpse>
+    </parts>
+  </LayoutRoomDef>
+
+</Defs>

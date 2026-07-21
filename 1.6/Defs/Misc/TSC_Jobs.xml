@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <JobDef>
+    <defName>TSC_TalkTo</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_TalkTo</driverClass>
+    <reportString>going to talk to TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <JobDef>
+    <defName>TSC_InitiateTalk</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_InitiateTalk</driverClass>
+    <reportString>seeking out TargetA to talk.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <JobDef>
+    <defName>TSC_PickChest</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_OpenChest</driverClass>
+    <reportString>picking the lock on TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
+  <JobDef>
+    <defName>TSC_ForceChest</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_OpenChest</driverClass>
+    <reportString>breaking open TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
+  <JobDef>
+    <defName>TSC_Perform</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_Perform</driverClass>
+    <reportString>performing by the fire.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
+</Defs>

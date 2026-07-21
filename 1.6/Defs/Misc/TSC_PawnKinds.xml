@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Act 1: the Wayfarer party -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Wayfarer_Serra</defName>
+    <label>wayfarer captain</label>
+    <combatPower>90</combatPower>
+    <itemQuality>Normal</itemQuality>
+    <isFighter>true</isFighter>
+    <weaponTags Inherit="False">
+      <li>NeolithicRangedHeavy</li>
+    </weaponTags>
+    <weaponMoney>200~400</weaponMoney>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Serra</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Wayfarer_Oswin</defName>
+    <label>wayfarer scholar</label>
+    <combatPower>40</combatPower>
+    <isFighter>false</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Oswin</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <!-- Act 1: Maewyn the druid (recruitable) -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Companion_Maewyn</defName>
+    <label>druid</label>
+    <combatPower>70</combatPower>
+    <isFighter>false</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Maewyn</dialogue>
+        <initiations>
+          <!-- Maewyn seeks the player out on the road and offers the Druid's teaching -->
+          <li>
+            <dialogue>TSC_Dialogue_Maewyn_RoadTalk</dialogue>
+            <mtbDays>1</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+            </conditions>
+          </li>
+        </initiations>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <!-- Companion: Bran Underhill, scout of the missing party. His own kind so his
+       dialogue tree attaches to him alone. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Companion_Bran</defName>
+    <label>watchman</label>
+    <combatPower>80</combatPower>
+    <itemQuality>Normal</itemQuality>
+    <isFighter>true</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeAdvanced</li>
+    </weaponTags>
+    <weaponMoney>200~400</weaponMoney>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Bran</dialogue>
+        <initiations>
+          <!-- Bram seeks the player out about a day after joining -->
+          <li>
+            <dialogue>TSC_Dialogue_Bran_CampTalk</dialogue>
+            <mtbDays>1</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+            </conditions>
+          </li>
+        </initiations>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+</Defs>
