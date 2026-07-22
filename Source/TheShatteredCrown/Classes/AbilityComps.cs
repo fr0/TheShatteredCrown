@@ -201,6 +201,284 @@ namespace TheShatteredCrown
         }
     }
 
+    // ---------------------------------------------------------------- vfx
+
+    public class CompProperties_TSC_Vfx : CompProperties_AbilityEffect
+    {
+        public Color color = Color.white;
+        /// <summary>Ring size; vanilla psycasts pass their effect radius here, so area spells should use theirs.</summary>
+        public float scale = 1.5f;
+        public bool atCaster;
+        public bool line;
+        public bool sparks;
+        public bool smoke;
+
+        public CompProperties_TSC_Vfx()
+        {
+            compClass = typeof(CompAbilityEffect_TSC_Vfx);
+        }
+    }
+
+    /// <summary>
+    /// Data-driven spell visuals: a tinted psycast-style ground ring at the
+    /// target (and optionally the caster), an energy line from caster to
+    /// target, sparks, smoke - composed per ability in XML.
+    /// </summary>
+    public class CompAbilityEffect_TSC_Vfx : CompAbilityEffect
+    {
+        public new CompProperties_TSC_Vfx Props => (CompProperties_TSC_Vfx)props;
+
+        // Not surfaced in FleckDefOf; resolved by name once (null if absent).
+        private static readonly FleckDef PsychicLine = DefDatabase<FleckDef>.GetNamedSilentFail("PsycastPsychicLine");
+
+        public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
+        {
+            base.Apply(target, dest);
+            Pawn caster = parent.pawn;
+            Map map = caster?.MapHeld;
+            if (map == null)
+            {
+                return;
+            }
+            Vector3 casterPos = caster.DrawPos;
+            Vector3 targetPos = target.HasThing ? target.Thing.DrawPos
+                : target.Cell.IsValid ? target.Cell.ToVector3Shifted()
+                : casterPos;
+            bool apart = (targetPos - casterPos).sqrMagnitude > 0.1f;
+            Ring(targetPos, map);
+            if (Props.atCaster && apart)
+            {
+                Ring(casterPos, map);
+            }
+            if (Props.line && apart && PsychicLine != null)
+            {
+                FleckMaker.ConnectingLine(casterPos, targetPos, PsychicLine, map);
+            }
+            if (Props.sparks)
+            {
+                FleckMaker.ThrowMicroSparks(targetPos, map);
+            }
+            if (Props.smoke)
+            {
+                FleckMaker.ThrowSmoke(targetPos, map, 1.2f);
+                if (Props.atCaster && apart)
+                {
+                    FleckMaker.ThrowSmoke(casterPos, map, 1.2f);
+                }
+            }
+        }
+
+        private void Ring(Vector3 pos, Map map)
+        {
+            if (FleckDefOf.PsycastAreaEffect == null)
+            {
+                FleckMaker.ThrowDustPuff(pos, map, 1.2f);
+                return;
+            }
+            FleckCreationData data = FleckMaker.GetDataStatic(pos, map, FleckDefOf.PsycastAreaEffect, Props.scale);
+            data.rotationRate = Rand.Range(-3f, 3f);
+            data.instanceColor = Props.color;
+            map.flecks.CreateFleck(data);
+        }
+    }
+
+    // ---------------------------------------------------------------- direct damage
+
+    public class CompProperties_TSC_Damage : CompProperties_AbilityEffect
+    {
+        public float damage = 12f;
+        public float armorPenetration = 0.3f;
+        public DamageDef damageDef;
+        /// <summary>0 = single target; otherwise every ENEMY pawn within radius of the target point.</summary>
+        public float radius;
+
+        public CompProperties_TSC_Damage()
+        {
+            compClass = typeof(CompAbilityEffect_TSC_Damage);
+        }
+    }
+
+    /// <summary>Sorcery: direct damage to the target, or to every hostile pawn around the target point (allies are spared - precision arcana).</summary>
+    public class CompAbilityEffect_TSC_Damage : CompAbilityEffect
+    {
+        public new CompProperties_TSC_Damage Props => (CompProperties_TSC_Damage)props;
+
+        public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
+        {
+            base.Apply(target, dest);
+            Pawn caster = parent.pawn;
+            Map map = caster?.Map;
+            if (map == null)
+            {
+                return;
+            }
+            DamageDef damageDef = Props.damageDef ?? DamageDefOf.Burn;
+            if (Props.radius <= 0.01f)
+            {
+                target.Thing?.TakeDamage(new DamageInfo(damageDef, Props.damage, Props.armorPenetration, -1f, caster));
+                return;
+            }
+            IntVec3 center = target.Cell.IsValid ? target.Cell : caster.Position;
+            List<Pawn> hit = new List<Pawn>();
+            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+                if (!pawn.Dead && pawn.HostileTo(caster) && pawn.Position.InHorDistOf(center, Props.radius))
+                {
+                    hit.Add(pawn); // collect first: damage can despawn/panic pawns mid-iteration
+                }
+            }
+            foreach (Pawn pawn in hit)
+            {
+                pawn.TakeDamage(new DamageInfo(damageDef, Props.damage, Props.armorPenetration, -1f, caster));
+            }
+        }
+
+        public override bool Valid(LocalTargetInfo target, bool throwMessages = false)
+        {
+            if (Props.radius <= 0.01f && target.Thing == null)
+            {
+                if (throwMessages)
+                {
+                    Messages.Message("Must target a creature.", MessageTypeDefOf.RejectInput, historical: false);
+                }
+                return false;
+            }
+            return base.Valid(target, throwMessages);
+        }
+    }
+
+    // ---------------------------------------------------------------- explosion
+
+    public class CompProperties_TSC_Explosion : CompProperties_AbilityEffect
+    {
+        public float radius = 2.9f;
+        public int damage = 15;
+        public DamageDef damageDef;
+
+        public CompProperties_TSC_Explosion()
+        {
+            compClass = typeof(CompAbilityEffect_TSC_Explosion);
+        }
+    }
+
+    /// <summary>The big nuke: a real explosion at the target point - fire, sound, and NO regard for friend or foe. Placement is the skill.</summary>
+    public class CompAbilityEffect_TSC_Explosion : CompAbilityEffect
+    {
+        public new CompProperties_TSC_Explosion Props => (CompProperties_TSC_Explosion)props;
+
+        public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
+        {
+            base.Apply(target, dest);
+            Pawn caster = parent.pawn;
+            Map map = caster?.Map;
+            if (map == null || !target.Cell.IsValid)
+            {
+                return;
+            }
+            GenExplosion.DoExplosion(target.Cell, map, Props.radius,
+                Props.damageDef ?? DamageDefOf.Flame, caster, Props.damage);
+        }
+    }
+
+    // ---------------------------------------------------------------- self teleport
+
+    public class CompProperties_TSC_SelfTeleport : CompProperties_AbilityEffect
+    {
+        public IntRange stunTicks = IntRange.Zero;
+
+        public CompProperties_TSC_SelfTeleport()
+        {
+            compClass = typeof(CompAbilityEffect_TSC_SelfTeleport);
+        }
+    }
+
+    /// <summary>
+    /// One-click self-teleport: the targeted cell is the DESTINATION and the
+    /// caster is who moves. (Vanilla CompAbilityEffect_Teleport is built for
+    /// Skip's two-step targeting - first pick who, then pick where - which a
+    /// single-target ability never completes.)
+    /// </summary>
+    public class CompAbilityEffect_TSC_SelfTeleport : CompAbilityEffect
+    {
+        public new CompProperties_TSC_SelfTeleport Props => (CompProperties_TSC_SelfTeleport)props;
+
+        public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
+        {
+            base.Apply(target, dest);
+            Pawn caster = parent.pawn;
+            Map map = caster.Map;
+            IntVec3 cell = target.Cell;
+            if (map == null || !cell.IsValid || !cell.Standable(map))
+            {
+                return;
+            }
+            caster.pather?.StopDead();
+            caster.Position = cell;
+            caster.Notify_Teleported();
+            if (Props.stunTicks != IntRange.Zero)
+            {
+                caster.stances?.stunner?.StunFor(Props.stunTicks.RandomInRange, caster, addBattleLog: false);
+            }
+        }
+
+        public override bool Valid(LocalTargetInfo target, bool throwMessages = false)
+        {
+            Map map = parent.pawn?.Map;
+            if (map == null || !target.Cell.IsValid || !target.Cell.Standable(map))
+            {
+                if (throwMessages)
+                {
+                    Messages.Message("Cannot step there.", MessageTypeDefOf.RejectInput, historical: false);
+                }
+                return false;
+            }
+            return base.Valid(target, throwMessages);
+        }
+    }
+
+    // ---------------------------------------------------------------- ongoing vfx
+
+    public class HediffCompProperties_TSC_OngoingVfx : HediffCompProperties
+    {
+        public FleckDef fleck;
+        public Color color = Color.white;
+        public float scale = 1f;
+        public int interval = 60;
+        /// <summary>Random offset radius around the pawn for each puff.</summary>
+        public float scatter = 0.35f;
+
+        public HediffCompProperties_TSC_OngoingVfx()
+        {
+            compClass = typeof(HediffComp_TSC_OngoingVfx);
+        }
+    }
+
+    /// <summary>
+    /// Duration effects stay VISIBLE: while the hediff lasts, tinted flecks
+    /// pulse around the pawn (bramble churn at a snared pawn's feet, heat
+    /// shimmer on a raging barbarian, sigil rings on a warded ally).
+    /// </summary>
+    public class HediffComp_TSC_OngoingVfx : HediffComp
+    {
+        public HediffCompProperties_TSC_OngoingVfx Props => (HediffCompProperties_TSC_OngoingVfx)props;
+
+        public override void CompPostTick(ref float severityAdjustment)
+        {
+            Pawn p = parent.pawn;
+            if (Props.fleck == null || !p.Spawned || p.Map == null || !p.IsHashIntervalTick(Props.interval))
+            {
+                return;
+            }
+            Vector3 pos = p.DrawPos + new Vector3(
+                Rand.Range(-Props.scatter, Props.scatter), 0f, Rand.Range(-Props.scatter, Props.scatter));
+            FleckCreationData data = FleckMaker.GetDataStatic(pos, p.Map, Props.fleck, Props.scale);
+            data.instanceColor = Props.color;
+            p.Map.flecks.CreateFleck(data);
+        }
+    }
+
     // ---------------------------------------------------------------- energy cost
 
     public class CompProperties_TSC_EnergyCost : CompProperties_AbilityEffect

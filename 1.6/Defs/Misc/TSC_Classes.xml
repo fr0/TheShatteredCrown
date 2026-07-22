@@ -136,6 +136,31 @@
   </TheShatteredCrown.TSC_ClassDef>
 
   <TheShatteredCrown.TSC_ClassDef>
+    <defName>TSC_Class_Sorcerer</defName>
+    <label>sorcerer</label>
+    <description>Magic as a temperament. Where the wizard studies, the sorcerer simply burns - and points the burning at whatever needs to stop existing.</description>
+    <proficiencies>
+      <li>TSC_Prof_Arcana</li>
+      <li>TSC_Prof_Persuasion</li>
+      <li>TSC_Prof_Insight</li>
+    </proficiencies>
+    <unlocks>
+      <li>
+        <ability>TSC_Ability_Scorch</ability>
+        <level>1</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_ArcLightning</ability>
+        <level>2</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_Firestorm</ability>
+        <level>4</level>
+      </li>
+    </unlocks>
+  </TheShatteredCrown.TSC_ClassDef>
+
+  <TheShatteredCrown.TSC_ClassDef>
     <defName>TSC_Class_Barbarian</defName>
     <label>barbarian</label>
     <description>Fury as a fighting style. Hits harder, hurts less, and apologizes to nobody.</description>

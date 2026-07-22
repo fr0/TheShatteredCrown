@@ -69,6 +69,8 @@ namespace TheShatteredCrown
             {
                 ForceGenerateNewPawn = true,
                 AllowPregnant = false,
+                // Companions fight: no backstories/traits that disable violence.
+                MustBeCapableOfViolence = true,
             };
             if (def.gender != Gender.None)
             {

@@ -83,6 +83,32 @@ namespace TheShatteredCrown
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(options));
         }
 
+        [DebugAction("The Shattered Crown", "Add level in class...", allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        private static void AddClassLevelTool()
+        {
+            if (!RpgGate())
+            {
+                return;
+            }
+            System.Collections.Generic.List<DebugMenuOption> options = new System.Collections.Generic.List<DebugMenuOption>();
+            foreach (TSC_ClassDef classDef in DefDatabase<TSC_ClassDef>.AllDefsListForReading)
+            {
+                TSC_ClassDef local = classDef;
+                options.Add(new DebugMenuOption(local.defName, DebugMenuOptionMode.Tool, delegate
+                {
+                    foreach (Verse.Thing thing in Find.CurrentMap.thingGrid.ThingsAt(UI.MouseCell()))
+                    {
+                        if (thing is Pawn pawn)
+                        {
+                            TSC_ProgressionManager.Current.DebugAddClassLevel(pawn, local);
+                            break;
+                        }
+                    }
+                }));
+            }
+            Find.WindowStack.Add(new Dialog_DebugOptionListLister(options));
+        }
+
         [DebugAction("The Shattered Crown", "Open test dialogue...", actionType = DebugActionType.ToolMapForPawns, allowedGameStates = AllowedGameStates.PlayingOnMap)]
         private static void OpenTestDialogue(Pawn pawn)
         {

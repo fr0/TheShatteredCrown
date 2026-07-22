@@ -60,6 +60,13 @@
         <disappearsAfterTicks>7500</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>PsycastAreaEffect</fleck>
+        <color>(1, 0.85, 0.3)</color>
+        <scale>0.9</scale>
+        <interval>160</interval>
+        <scatter>0</scatter>
+      </li>
     </comps>
     <stages>
       <li>
@@ -124,6 +131,13 @@
         <disappearsAfterTicks>2500</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>PsycastAreaEffect</fleck>
+        <color>(0.65, 0.75, 0.9)</color>
+        <scale>1</scale>
+        <interval>110</interval>
+        <scatter>0</scatter>
+      </li>
     </comps>
     <stages>
       <li>
@@ -148,6 +162,13 @@
       <li Class="HediffCompProperties_Disappears">
         <disappearsAfterTicks>2500</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>DustPuff</fleck>
+        <color>(0.6, 0.5, 0.7)</color>
+        <scale>0.8</scale>
+        <interval>60</interval>
+        <scatter>0.35</scatter>
       </li>
     </comps>
     <stages>
@@ -178,6 +199,13 @@
         <disappearsAfterTicks>5000</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>PsycastAreaEffect</fleck>
+        <color>(1, 0.3, 0.3)</color>
+        <scale>1</scale>
+        <interval>120</interval>
+        <scatter>0</scatter>
+      </li>
     </comps>
     <stages>
       <li>
@@ -197,6 +225,13 @@
       <li Class="HediffCompProperties_Disappears">
         <disappearsAfterTicks>7500</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>PsycastAreaEffect</fleck>
+        <color>(0.4, 0.9, 1)</color>
+        <scale>1.1</scale>
+        <interval>100</interval>
+        <scatter>0</scatter>
       </li>
     </comps>
     <stages>
@@ -219,6 +254,13 @@
       <li Class="HediffCompProperties_Disappears">
         <disappearsAfterTicks>3750</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>DustPuff</fleck>
+        <color>(0.5, 0.4, 0.7)</color>
+        <scale>0.9</scale>
+        <interval>70</interval>
+        <scatter>0.3</scatter>
       </li>
     </comps>
     <stages>
@@ -246,6 +288,13 @@
         <disappearsAfterTicks>3750</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>HeatGlow</fleck>
+        <color>(1, 0.3, 0.2)</color>
+        <scale>1.2</scale>
+        <interval>35</interval>
+        <scatter>0.3</scatter>
+      </li>
     </comps>
     <stages>
       <li>
@@ -271,6 +320,13 @@
         <disappearsAfterTicks>2500</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>PsycastAreaEffect</fleck>
+        <color>(0.8, 0.85, 0.9)</color>
+        <scale>1.2</scale>
+        <interval>90</interval>
+        <scatter>0</scatter>
+      </li>
     </comps>
     <stages>
       <li>
@@ -294,6 +350,13 @@
         <disappearsAfterTicks>1875</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>DustPuffThick</fleck>
+        <color>(0.4, 0.55, 0.3)</color>
+        <scale>1.1</scale>
+        <interval>25</interval>
+        <scatter>0.4</scatter>
+      </li>
     </comps>
     <stages>
       <li>
@@ -313,6 +376,13 @@
       <li Class="HediffCompProperties_Disappears">
         <disappearsAfterTicks>7500</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>DustPuff</fleck>
+        <color>(0.55, 0.42, 0.3)</color>
+        <scale>0.8</scale>
+        <interval>140</interval>
+        <scatter>0.35</scatter>
       </li>
     </comps>
     <stages>
@@ -334,6 +404,13 @@
       <li Class="HediffCompProperties_Disappears">
         <disappearsAfterTicks>2500</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>DustPuff</fleck>
+        <color>(1, 1, 0.95)</color>
+        <scale>0.7</scale>
+        <interval>30</interval>
+        <scatter>0.4</scatter>
       </li>
     </comps>
     <stages>
@@ -401,6 +478,13 @@
       <li Class="HediffCompProperties_Disappears">
         <disappearsAfterTicks>3750</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>DustPuff</fleck>
+        <color>(0.95, 1, 0.75)</color>
+        <scale>0.7</scale>
+        <interval>45</interval>
+        <scatter>0.35</scatter>
       </li>
     </comps>
     <stages>

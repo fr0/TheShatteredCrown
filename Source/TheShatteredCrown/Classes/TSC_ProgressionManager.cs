@@ -434,6 +434,38 @@ namespace TheShatteredCrown
             UpdateLevelHediff(pawn);
         }
 
+        /// <summary>
+        /// Dev tool: adds one level in the class directly - learning it at
+        /// level 1 if unknown - bypassing XP and pending points. Applies the
+        /// same unlocks a real level-up would.
+        /// </summary>
+        public void DebugAddClassLevel(Pawn pawn, TSC_ClassDef classDef)
+        {
+            if (pawn == null || classDef == null)
+            {
+                return;
+            }
+            TSC_ClassRecord record = RecordOf(pawn);
+            if (!record.Has(classDef))
+            {
+                LearnClass(pawn, classDef); // level 1 IS the added level
+                return;
+            }
+            int index = record.classes.IndexOf(classDef);
+            record.levels[index]++;
+            int classLevel = record.levels[index];
+            List<string> gained = classDef.ApplyTo(pawn, classLevel, record);
+            StringBuilder sb = new StringBuilder($"{pawn.LabelShortCap} advances to {classDef.label} {classLevel} (dev).");
+            foreach (string gain in gained)
+            {
+                sb.Append($" {gain}.");
+            }
+            Messages.Message(sb.ToString(), pawn, MessageTypeDefOf.PositiveEvent, historical: false);
+            UpdateLevelHediff(pawn);
+            // Max energy scales with total level; keep the Needs bar current.
+            pawn.needs?.AddOrRemoveNeedsAsAppropriate();
+        }
+
         /// <summary>Seeds a named character's starting class and applies their current unlocks.</summary>
         public void SeedClass(Pawn pawn, TSC_ClassDef classDef)
         {

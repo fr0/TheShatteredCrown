@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <KeyBindingCategoryDef>
+    <defName>TSC_Keys</defName>
+    <label>The Shattered Crown</label>
+    <description>Turn-based mode keys.</description>
+  </KeyBindingCategoryDef>
+
+  <KeyBindingDef>
+    <defName>TSC_EndTurn</defName>
+    <label>end turn</label>
+    <category>TSC_Keys</category>
+    <defaultKeyCodeA>Return</defaultKeyCodeA>
+    <defaultKeyCodeB>KeypadEnter</defaultKeyCodeB>
+  </KeyBindingDef>
+
+</Defs>

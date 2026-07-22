@@ -84,6 +84,14 @@
   </ThingDef>
 
   <ThingDef ParentName="TSC_ClassBookBase">
+    <defName>TSC_Book_Sorcerer</defName>
+    <label>sorcerer's manual</label>
+    <description>"The Loud Blood": half confession, half instruction, written by someone whose magic arrived before their patience. Mostly about not setting fire to things, with a long final chapter about setting fire to things properly. Studying it teaches the Sorcerer's art.</description>
+    <graphicData><color>(0.65,0.2,0.45)</color></graphicData>
+    <comps><li Class="TheShatteredCrown.CompProperties_TSC_LearnClassUse"><classDef>TSC_Class_Sorcerer</classDef></li></comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_ClassBookBase">
     <defName>TSC_Book_Barbarian</defName>
     <label>barbarian's manual</label>
     <description>"The Red Breath": less a book than a rant with a spine, dictated by a hill-chief to a terrified scribe. How to let anger carry what armor cannot. Studying it teaches the Barbarian's art.</description>
