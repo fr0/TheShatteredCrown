@@ -73,6 +73,11 @@ namespace TheShatteredCrown
         private int attackBlockedTick = -1;
         private int cycleTurnTicks;
         private int cycleTurnsTaken;
+        // Pod move: consecutive hostile turns that can ONLY be movement
+        // (nobody in attack range/LOS) resolve SIMULTANEOUSLY.
+        private readonly HashSet<Pawn> activeGroup = new HashSet<Pawn>();
+        private int groupEndIndex = -1;
+        private int groupLastMoveTick;
         private bool engagedHostiles;
         private bool approachMode;
         private bool exitRequested;
@@ -131,6 +136,10 @@ namespace TheShatteredCrown
         public bool ExitRequested => exitRequested;
         public bool ActiveOn(Map m) => active && m != null && m == map;
         public bool IsCombatant(Pawn p) => combatants.Contains(p);
+        public bool IsGroupMover(Pawn p) => activeGroup.Contains(p);
+        public int GroupCount => activeGroup.Count;
+        public int GroupEndIndex => groupEndIndex;
+        public IEnumerable<Pawn> GroupMovers => activeGroup;
 
         // ---------------------------------------------------------------- AP
 
@@ -306,6 +315,8 @@ namespace TheShatteredCrown
             apMessaged.Clear();
             attackedJobs.Clear();
             pendingJobStop = null;
+            activeGroup.Clear();
+            groupEndIndex = -1;
             turnStartTick = -1;
             attackBlockedTick = -1;
             approachMode = false;
@@ -348,6 +359,8 @@ namespace TheShatteredCrown
         {
             initiative.Clear();
             combatants.Clear();
+            activeGroup.Clear();
+            groupEndIndex = -1;
             engagedHostiles = false;
             IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
             for (int i = 0; i < pawns.Count; i++)
@@ -466,6 +479,30 @@ namespace TheShatteredCrown
                 StartEnvironmentPhase();
                 return;
             }
+            // Pod move: if this hostile can only move (nobody hittable from
+            // where they stand), batch every CONSECUTIVE such hostile into one
+            // simultaneous movement phase.
+            Pawn first = initiative[index];
+            if (!first.IsColonistPlayerControlled && IsPureMover(first))
+            {
+                int last = index;
+                while (last + 1 < initiative.Count)
+                {
+                    Pawn next = initiative[last + 1];
+                    bool qualifies = next != null && !next.Dead && !next.Downed && next.Spawned && next.Map == map
+                        && !next.IsColonistPlayerControlled && IsPureMover(next);
+                    if (!qualifies)
+                    {
+                        break;
+                    }
+                    last++;
+                }
+                if (last > index)
+                {
+                    StartGroupMove(index, last);
+                    return;
+                }
+            }
             turnIndex = index;
             activePawn = initiative[index];
             phase = EncounterPhase.Turn;
@@ -529,6 +566,117 @@ namespace TheShatteredCrown
                 }
                 Messages.Message($"Enemy turn: {activePawn.LabelShortCap}.",
                     activePawn, MessageTypeDefOf.SilentInput, historical: false);
+            }
+        }
+
+        /// <summary>True when the hostile cannot hit ANY colonist from their current position: their turn can only be movement.</summary>
+        private bool IsPureMover(Pawn p)
+        {
+            Verb verb = p.TryGetAttackVerb(null);
+            if (verb == null)
+            {
+                return true;
+            }
+            List<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
+            for (int i = 0; i < colonists.Count; i++)
+            {
+                if (!colonists[i].Downed && verb.CanHitTarget(colonists[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private void StartGroupMove(int firstIndex, int lastIndex)
+        {
+            turnIndex = firstIndex;
+            groupEndIndex = lastIndex;
+            activePawn = null;
+            phase = EncounterPhase.Turn;
+            turnStartTick = -1;
+            attackBlockedTick = -1;
+            activeGroup.Clear();
+            for (int i = firstIndex; i <= lastIndex; i++)
+            {
+                Pawn p = initiative[i];
+                if (p == null || p.Dead || p.Downed || !p.Spawned || p.Map != map)
+                {
+                    continue;
+                }
+                // Same AP treatment as a normal turn start (fresh pool + bank).
+                float carry = ap.TryGetValue(p, out float unspent) ? Mathf.Clamp(unspent, 0f, 1f) : 0f;
+                ap.Remove(p);
+                apMessaged.Remove(p);
+                if (carry > 0.05f)
+                {
+                    ap[p] = BaseAp + carry;
+                }
+                activeGroup.Add(p);
+                cycleTurnsTaken++;
+            }
+            if (activeGroup.Count == 0)
+            {
+                groupEndIndex = -1;
+                StartTurn(lastIndex + 1);
+                return;
+            }
+            groupLastMoveTick = Find.TickManager.TicksGame;
+            AddLog($"--- enemies advance together ({activeGroup.Count}) ---", LogHostileColor);
+            if (Find.TickManager.Paused)
+            {
+                Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+            }
+        }
+
+        private static readonly List<Pawn> tmpGroupMembers = new List<Pawn>();
+
+        private void GroupMoveTick(TickManager tm)
+        {
+            if (turnStartTick < 0)
+            {
+                turnStartTick = tm.TicksGame;
+                groupLastMoveTick = tm.TicksGame;
+            }
+            cycleTurnTicks++;
+            tmpGroupMembers.Clear();
+            tmpGroupMembers.AddRange(activeGroup);
+            bool anyMoving = false;
+            foreach (Pawn p in tmpGroupMembers)
+            {
+                if (p == null || p.Dead || p.Downed || !p.Spawned || p.Map != map)
+                {
+                    activeGroup.Remove(p);
+                    continue;
+                }
+                MeterMovement(p);
+                if (ApOf(p) < DryThresholdAp)
+                {
+                    SettleSprite(p);
+                    activeGroup.Remove(p);
+                    continue;
+                }
+                if (p.pather != null && p.pather.MovingNow)
+                {
+                    anyMoving = true;
+                }
+            }
+            if (anyMoving)
+            {
+                groupLastMoveTick = tm.TicksGame;
+            }
+            int elapsed = tm.TicksGame - turnStartTick;
+            if (activeGroup.Count == 0 || elapsed >= MaxTurnTicks
+                || tm.TicksGame - groupLastMoveTick >= IdleGraceTicks)
+            {
+                foreach (Pawn p in activeGroup)
+                {
+                    SettleSprite(p);
+                }
+                activeGroup.Clear();
+                int resume = groupEndIndex + 1;
+                groupEndIndex = -1;
+                StartTurn(resume);
             }
         }
 
@@ -757,9 +905,9 @@ namespace TheShatteredCrown
         /// <summary>End turn button / auto-advance.</summary>
         public void AdvanceTurn()
         {
-            if (!active || phase != EncounterPhase.Turn)
+            if (!active || phase != EncounterPhase.Turn || activeGroup.Count > 0)
             {
-                return;
+                return; // group phase ends itself; no external skipping
             }
             SettleSprite(activePawn);
             StartTurn(turnIndex + 1);
@@ -860,6 +1008,13 @@ namespace TheShatteredCrown
                     }
                     StartTurn(0);
                 }
+                return;
+            }
+
+            // Pod move: consecutive movement-only hostiles resolve together.
+            if (activeGroup.Count > 0)
+            {
+                GroupMoveTick(tm);
                 return;
             }
 
@@ -980,7 +1135,7 @@ namespace TheShatteredCrown
         {
             if (phase == EncounterPhase.Turn)
             {
-                return p == activePawn;
+                return p == activePawn || activeGroup.Contains(p);
             }
             return !(combatants.Contains(p) && !p.Dead && !p.Downed);
         }
@@ -1325,14 +1480,29 @@ namespace TheShatteredCrown
                 : SimpleColor.Yellow;
         }
 
-        /// <summary>Pulsing translucent disc + ring marking the pawn whose turn it is.</summary>
+        /// <summary>Pulsing translucent disc + ring marking the pawn whose turn it is (every mover during a pod-move phase).</summary>
         private void DrawActivePawnHighlight(TSC_EncounterController ctrl)
         {
-            Pawn p = ctrl.ActivePawn;
-            if (p == null || !p.Spawned || p.Map != map)
+            if (ctrl.GroupCount > 0)
             {
+                foreach (Pawn mover in ctrl.GroupMovers)
+                {
+                    if (mover != null && mover.Spawned && mover.Map == map)
+                    {
+                        DrawHighlightFor(mover);
+                    }
+                }
                 return;
             }
+            Pawn active = ctrl.ActivePawn;
+            if (active != null && active.Spawned && active.Map == map)
+            {
+                DrawHighlightFor(active);
+            }
+        }
+
+        private void DrawHighlightFor(Pawn p)
+        {
             bool player = p.IsColonistPlayerControlled;
             float pulse = 0.85f + 0.18f * Mathf.Sin(Time.realtimeSinceStartup * 4f);
             Vector3 center = p.DrawPos;
@@ -1663,7 +1833,8 @@ namespace TheShatteredCrown
                 (Pawn p, int index) = entries[start + s];
                 Rect row = new Rect(widgetPos.x, y, PanelWidth, RowHeight);
                 Rect tile = new Rect(row.x + 3f, row.y + (RowHeight - PortraitSize) / 2f, PortraitSize, PortraitSize);
-                bool isActive = turnPhase && index == ctrl.TurnIndex;
+                bool isActive = turnPhase && (index == ctrl.TurnIndex
+                    || (ctrl.GroupCount > 0 && index >= ctrl.TurnIndex && index <= ctrl.GroupEndIndex));
                 bool acted = turnPhase ? index < ctrl.TurnIndex : true; // env phase: whole cycle done
 
                 if (isActive)
@@ -1754,6 +1925,10 @@ namespace TheShatteredCrown
                 text = ctrl.ApproachMode
                     ? "TURN-BASED armed: approach freely; turns begin when enemies engage."
                     : $"TURN-BASED, cycle {ctrl.Cycle}: the world moves...";
+            }
+            else if (ctrl.GroupCount > 0)
+            {
+                text = $"TURN-BASED, cycle {ctrl.Cycle}: enemies advance together ({ctrl.GroupCount})...";
             }
             else
             {
@@ -2332,6 +2507,13 @@ namespace TheShatteredCrown
             if (!combatVerb)
             {
                 return true;
+            }
+            // Pod move: grouped movers were classified as unable to attack;
+            // one who walks INTO range mid-phase waits for a real turn.
+            if (ctrl.IsGroupMover(caster))
+            {
+                __result = false;
+                return false;
             }
             float cost = TSC_EncounterController.AttackApCost(__instance);
             if (!ctrl.Active || caster != ctrl.ActivePawn)
