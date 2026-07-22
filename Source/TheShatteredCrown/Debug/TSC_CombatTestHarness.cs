@@ -132,8 +132,39 @@ namespace TheShatteredCrown
             parms.points = Mathf.Max(parms.points, 320f);
             parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
             IncidentDefOf.RaidEnemy.Worker.TryExecute(parms);
+            SpawnHexerWithRaid(map);
             Messages.Message("COMBAT TEST READY: pawns classed (3 levels), geared, skilled; turn-based armed; raid inbound.",
                 MessageTypeDefOf.ThreatBig, historical: false);
+        }
+
+        /// <summary>A bandit hexer joins the test raid (spawned beside the raid lord's pawns, added to the lord).</summary>
+        private static void SpawnHexerWithRaid(Map map)
+        {
+            PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_BanditHexer");
+            if (kind == null)
+            {
+                return;
+            }
+            Verse.AI.Group.Lord lord = null;
+            List<Verse.AI.Group.Lord> lords = map.lordManager.lords;
+            for (int i = 0; i < lords.Count; i++)
+            {
+                if (lords[i].faction != null && lords[i].faction.HostileTo(Faction.OfPlayer) && lords[i].ownedPawns.Count > 0)
+                {
+                    lord = lords[i];
+                    break;
+                }
+            }
+            if (lord == null)
+            {
+                return;
+            }
+            Pawn anchor = lord.ownedPawns[0];
+            Pawn hexer = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                kind, lord.faction, PawnGenerationContext.NonPlayer,
+                forceGenerateNewPawn: true, mustBeCapableOfViolence: true));
+            GenSpawn.Spawn(hexer, CellFinder.RandomClosewalkCellNear(anchor.Position, map, 4), map);
+            lord.AddPawn(hexer);
         }
 
         private static void SetSkill(Pawn pawn, SkillDef def, int level)

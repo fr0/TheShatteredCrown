@@ -587,20 +587,41 @@ namespace TheShatteredCrown
             }
         }
 
-        /// <summary>True when the hostile cannot hit ANY colonist from their current position: their turn can only be movement.</summary>
+        /// <summary>True when the hostile cannot hit ANY colonist from their current position - by weapon OR castable ability: their turn can only be movement.</summary>
         private bool IsPureMover(Pawn p)
         {
+            List<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
             Verb verb = p.TryGetAttackVerb(null);
-            if (verb == null)
+            if (verb == null && (p.abilities == null || p.abilities.abilities.Count == 0))
             {
                 return true;
             }
-            List<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
             for (int i = 0; i < colonists.Count; i++)
             {
-                if (!colonists[i].Downed && verb.CanHitTarget(colonists[i]))
+                if (!colonists[i].Downed && verb != null && verb.CanHitTarget(colonists[i]))
                 {
                     return false;
+                }
+            }
+            // Casters: an AI-usable, off-cooldown spell that reaches a colonist
+            // means this is NOT a movement-only turn.
+            if (p.abilities != null)
+            {
+                List<Ability> abilities = p.abilities.abilities;
+                for (int j = 0; j < abilities.Count; j++)
+                {
+                    Ability ability = abilities[j];
+                    if (!ability.def.aiCanUse || !ability.CanCast || ability.verb == null)
+                    {
+                        continue;
+                    }
+                    for (int i = 0; i < colonists.Count; i++)
+                    {
+                        if (!colonists[i].Downed && ability.verb.CanHitTarget(colonists[i]))
+                        {
+                            return false;
+                        }
+                    }
                 }
             }
             return true;

@@ -439,7 +439,7 @@ namespace TheShatteredCrown
         /// level 1 if unknown - bypassing XP and pending points. Applies the
         /// same unlocks a real level-up would.
         /// </summary>
-        public void DebugAddClassLevel(Pawn pawn, TSC_ClassDef classDef)
+        public void DebugAddClassLevel(Pawn pawn, TSC_ClassDef classDef, bool announce = true)
         {
             if (pawn == null || classDef == null)
             {
@@ -448,19 +448,22 @@ namespace TheShatteredCrown
             TSC_ClassRecord record = RecordOf(pawn);
             if (!record.Has(classDef))
             {
-                LearnClass(pawn, classDef); // level 1 IS the added level
+                LearnClass(pawn, classDef, announce); // level 1 IS the added level
                 return;
             }
             int index = record.classes.IndexOf(classDef);
             record.levels[index]++;
             int classLevel = record.levels[index];
             List<string> gained = classDef.ApplyTo(pawn, classLevel, record);
-            StringBuilder sb = new StringBuilder($"{pawn.LabelShortCap} advances to {classDef.label} {classLevel} (dev).");
-            foreach (string gain in gained)
+            if (announce)
             {
-                sb.Append($" {gain}.");
+                StringBuilder sb = new StringBuilder($"{pawn.LabelShortCap} advances to {classDef.label} {classLevel} (dev).");
+                foreach (string gain in gained)
+                {
+                    sb.Append($" {gain}.");
+                }
+                Messages.Message(sb.ToString(), pawn, MessageTypeDefOf.PositiveEvent, historical: false);
             }
-            Messages.Message(sb.ToString(), pawn, MessageTypeDefOf.PositiveEvent, historical: false);
             UpdateLevelHediff(pawn);
             // Max energy scales with total level; keep the Needs bar current.
             pawn.needs?.AddOrRemoveNeedsAsAppropriate();

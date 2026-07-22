@@ -476,6 +476,7 @@
     <description>The target moves at half speed and loses 20% manipulation for 1.5 hours.</description>
     <iconPath>UI/Abilities/Burden</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
+    <aiCanUse>true</aiCanUse>
     <statBases>
       <Ability_Duration>62</Ability_Duration>
     </statBases>
@@ -544,6 +545,7 @@
     <description>Deals 14 burn damage to a single target with 30% armor penetration.</description>
     <iconPath>UI/Abilities/SolarPinhole</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
+    <aiCanUse>true</aiCanUse>
     <hostile>true</hostile>
     <verbProperties>
       <warmupTime>1</warmupTime>

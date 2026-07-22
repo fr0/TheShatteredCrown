@@ -1,5 +1,6 @@
 using System.Linq;
 using LudeonTK;
+using RimWorld;
 using Verse;
 
 namespace TheShatteredCrown
@@ -107,6 +108,22 @@ namespace TheShatteredCrown
                 }));
             }
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(options));
+        }
+
+        [DebugAction("The Shattered Crown", "Spawn bandit hexer", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        private static void SpawnBanditHexer()
+        {
+            PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_BanditHexer");
+            RimWorld.Faction faction = Verse.Find.FactionManager.RandomEnemyFaction(allowHidden: false, allowDefeated: false, allowNonHumanlike: false);
+            if (kind == null || faction == null)
+            {
+                Messages.Message("No hexer kind or enemy faction available.", RimWorld.MessageTypeDefOf.RejectInput, historical: false);
+                return;
+            }
+            Pawn hexer = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                kind, faction, PawnGenerationContext.NonPlayer,
+                forceGenerateNewPawn: true, mustBeCapableOfViolence: true));
+            GenSpawn.Spawn(hexer, UI.MouseCell(), Verse.Find.CurrentMap);
         }
 
         [DebugAction("The Shattered Crown", "Open test dialogue...", actionType = DebugActionType.ToolMapForPawns, allowedGameStates = AllowedGameStates.PlayingOnMap)]
