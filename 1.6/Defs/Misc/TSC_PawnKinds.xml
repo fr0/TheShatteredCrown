@@ -91,4 +91,53 @@
     </modExtensions>
   </PawnKindDef>
 
+  <!-- The crownless: medieval bandit kinds for TSC_Faction_Bandits. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Bandit_Brigand</defName>
+    <label>brigand</label>
+    <combatPower>55</combatPower>
+    <itemQuality>Normal</itemQuality>
+    <isFighter>true</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+      <li>MedievalMeleeAdvanced</li>
+    </weaponTags>
+    <weaponMoney>80~250</weaponMoney>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Bandit_Archer</defName>
+    <label>bandit archer</label>
+    <combatPower>65</combatPower>
+    <itemQuality>Normal</itemQuality>
+    <isFighter>true</isFighter>
+    <weaponTags Inherit="False">
+      <li>NeolithicRangedBasic</li>
+      <li>NeolithicRangedHeavy</li>
+    </weaponTags>
+    <weaponMoney>100~300</weaponMoney>
+  </PawnKindDef>
+
+  <!-- Enemy caster: a bandit who found "The Loud Blood" and read too much of
+       it. Spawns with Sorcerer 3 (class seeded via TSC_ClassExtension +
+       PawnGenerator postfix); the caster AI uses the aiCanUse spells
+       (Scorch; Arc Lightning stays player-only for now). -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_BanditHexer</defName>
+    <label>bandit hexer</label>
+    <combatPower>140</combatPower>
+    <itemQuality>Normal</itemQuality>
+    <isFighter>true</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <weaponMoney>60~150</weaponMoney>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_ClassExtension">
+        <classDef>TSC_Class_Sorcerer</classDef>
+        <levels>3</levels>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
 </Defs>

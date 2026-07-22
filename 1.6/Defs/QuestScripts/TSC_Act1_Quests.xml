@@ -255,6 +255,11 @@
             </li>
           </sitePartsTags>
         </li>
+        <!-- Medieval-only defenders: override the rolled faction with the
+             crownless bandits (brigands / archers / hexers, never guns). -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetBanditFaction">
+          <storeAs>siteFaction</storeAs>
+        </li>
         <li Class="QuestNode_GetDefaultSitePartsParams">
           <tile>$siteTile</tile>
           <faction>$siteFaction</faction>
