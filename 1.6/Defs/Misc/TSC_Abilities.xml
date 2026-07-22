@@ -367,6 +367,9 @@
     <description>The marked target takes +30% damage from all sources for 2 hours.</description>
     <iconPath>UI/Abilities/Beckon</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>83</Ability_Duration>
+    </statBases>
     <hostile>true</hostile>
     <verbProperties>
       <warmupTime>0.5</warmupTime>
@@ -439,6 +442,9 @@
     <description>The warded target takes 35% less damage from all sources for 3 hours.</description>
     <iconPath>UI/Abilities/EntropyLink</iconPath>
     <cooldownTicksRange>1200</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>125</Ability_Duration>
+    </statBases>
     <verbProperties>
       <warmupTime>1</warmupTime>
       <range>23.9</range>
@@ -470,6 +476,9 @@
     <description>The target moves at half speed and loses 20% manipulation for 1.5 hours.</description>
     <iconPath>UI/Abilities/Burden</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>62</Ability_Duration>
+    </statBases>
     <hostile>true</hostile>
     <verbProperties>
       <warmupTime>1</warmupTime>
@@ -633,6 +642,9 @@
     <description>For 1.5 hours the caster deals +30% melee damage, feels half pain, and moves +0.3 faster, but shooting accuracy is greatly reduced.</description>
     <iconPath>UI/Abilities/Berserk</iconPath>
     <cooldownTicksRange>1200</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>62</Ability_Duration>
+    </statBases>
     <targetRequired>False</targetRequired>
     <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
     <verbProperties>
@@ -702,6 +714,9 @@
     <description>For 1 hour the caster feels only 10% of pain and takes 25% less damage.</description>
     <iconPath>UI/Abilities/BulletShield</iconPath>
     <cooldownTicksRange>2500</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>42</Ability_Duration>
+    </statBases>
     <targetRequired>False</targetRequired>
     <verbProperties>
       <warmupTime>0.25</warmupTime>
@@ -766,6 +781,9 @@
     <description>Roots the target: 85% slower movement for 45 minutes.</description>
     <iconPath>UI/Abilities/Burden</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>31</Ability_Duration>
+    </statBases>
     <hostile>true</hostile>
     <verbProperties>
       <warmupTime>1</warmupTime>
@@ -831,6 +849,9 @@
     <description>For 1 hour the caster's melee attacks come 40% faster and melee dodge chance rises by 10.</description>
     <iconPath>UI/Abilities/Focus</iconPath>
     <cooldownTicksRange>1200</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>42</Ability_Duration>
+    </statBases>
     <targetRequired>False</targetRequired>
     <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
     <verbProperties>
@@ -893,6 +914,9 @@
     <description>Drops the touched target senseless with psychic shock. Does not work on animals.</description>
     <iconPath>UI/Abilities/Stun</iconPath>
     <cooldownTicksRange>7500</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>30</Ability_Duration>
+    </statBases>
     <hostile>true</hostile>
     <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
     <verbProperties>
@@ -957,6 +981,9 @@
     <description>The branded target takes +30% damage from all sources for 2 hours.</description>
     <iconPath>UI/Abilities/SolarPinhole</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>83</Ability_Duration>
+    </statBases>
     <hostile>true</hostile>
     <verbProperties>
       <warmupTime>1</warmupTime>
@@ -1050,6 +1077,9 @@
     <description>The marked target takes +30% damage from all sources for 2 hours.</description>
     <iconPath>UI/Abilities/Beckon</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>83</Ability_Duration>
+    </statBases>
     <hostile>true</hostile>
     <verbProperties>
       <warmupTime>0.5</warmupTime>
@@ -1083,6 +1113,9 @@
     <description>For 1.5 hours the caster's ranged attacks come 35% faster and shooting accuracy rises by 4.</description>
     <iconPath>UI/Abilities/Focus</iconPath>
     <cooldownTicksRange>1200</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>62</Ability_Duration>
+    </statBases>
     <targetRequired>False</targetRequired>
     <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
     <verbProperties>
