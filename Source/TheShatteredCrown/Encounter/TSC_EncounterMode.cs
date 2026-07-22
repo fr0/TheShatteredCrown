@@ -193,8 +193,22 @@ namespace TheShatteredCrown
                 Thing equipment = verb.EquipmentSource;
                 if (tools.NullOrEmpty() && verb.CasterIsPawn)
                 {
-                    tools = verb.CasterPawn.def.tools; // unarmed: race tools
-                    equipment = null;
+                    // Body-part verbs: melee selection sometimes rolls a punch
+                    // or bite even for ARMED pawns - price those as the
+                    // weapon's rhythm so the charge always matches the label
+                    // (playtest: knife pawn at 2.5 AP "not enough" because a
+                    // fist roll priced at 3). Truly unarmed: race tools.
+                    ThingWithComps primary = verb.CasterPawn.equipment?.Primary;
+                    if (primary != null && primary.def.IsMeleeWeapon && !primary.def.tools.NullOrEmpty())
+                    {
+                        equipment = primary;
+                        tools = primary.def.tools;
+                    }
+                    else
+                    {
+                        tools = verb.CasterPawn.def.tools;
+                        equipment = null;
+                    }
                 }
                 if (!tools.NullOrEmpty())
                 {
@@ -421,6 +435,10 @@ namespace TheShatteredCrown
             foreach (Pawn p in initiative)
             {
                 combatants.Add(p);
+                // Freezing catches pawns mid-walk with render-tween lag; snap
+                // it now or every sprite settles at once on the first unpause
+                // (visible collective shift after the first turn).
+                SettleSprite(p);
             }
         }
 
@@ -880,6 +898,42 @@ namespace TheShatteredCrown
             if (p != null && p.Spawned)
             {
                 p.Drawer?.tweener?.ResetTweenedPosToRoot();
+                FaceThreat(p);
+            }
+        }
+
+        /// <summary>
+        /// Frozen combatants should look like fighters, not statues: idle
+        /// standing pawns get rotated to face SOUTH (the camera) by vanilla,
+        /// and the freeze holds that pose all round. Face the nearest enemy
+        /// instead at the moment of freezing.
+        /// </summary>
+        private static void FaceThreat(Pawn p)
+        {
+            if (p == null || !p.Spawned || p.Map == null || p.Dead || p.Downed)
+            {
+                return;
+            }
+            Pawn nearest = null;
+            float best = float.MaxValue;
+            IReadOnlyList<Pawn> pawns = p.Map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn other = pawns[i];
+                if (other.Dead || other.Downed || !other.HostileTo(p))
+                {
+                    continue;
+                }
+                float d = (other.Position - p.Position).LengthHorizontalSquared;
+                if (d < best)
+                {
+                    best = d;
+                    nearest = other;
+                }
+            }
+            if (nearest != null)
+            {
+                p.rotationTracker?.FaceCell(nearest.Position);
             }
         }
 
@@ -1001,6 +1055,7 @@ namespace TheShatteredCrown
                         Messages.Message("Battle is joined! Turn order begins.",
                             MessageTypeDefOf.ThreatSmall, historical: false);
                         AddLog("=== BATTLE IS JOINED ===", LogEventColor);
+                        // (facing + tween snap happen in BuildInitiative)
                     }
                     else
                     {
@@ -1083,6 +1138,13 @@ namespace TheShatteredCrown
                     AdvanceTurn();
                     return;
                 }
+            }
+            if (idle && !midSwing)
+            {
+                // Vanilla rotates idle standers to face the camera every tick;
+                // keep the active pawn squared up on the enemy instead (the
+                // controller ticks after pawns, so this wins the frame).
+                FaceThreat(p);
             }
             if (!idle || midSwing)
             {
@@ -2174,6 +2236,65 @@ namespace TheShatteredCrown
         }
     }
 
+    /// <summary>
+    /// Vanilla's rotation update turns every idle standing pawn to face SOUTH
+    /// (the camera). During turns, idle combatants skip that update entirely -
+    /// the encounter controller sets combat facing (FaceThreat) and nothing
+    /// may undo it, regardless of tick ordering. Moving pawns and busy
+    /// stances (aiming, swinging) keep vanilla facing.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_RotationTracker), nameof(Pawn_RotationTracker.UpdateRotation))]
+    public static class Patch_UpdateRotation_TurnBasedFacing
+    {
+        public static bool Prefix(Pawn ___pawn)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || ctrl.ApproachMode || ___pawn == null
+                || !ctrl.ActiveOn(___pawn.Map) || !ctrl.IsCombatant(___pawn))
+            {
+                return true;
+            }
+            if (___pawn.pather != null && ___pawn.pather.Moving)
+            {
+                return true; // walking: face the path
+            }
+            if (___pawn.stances?.curStance is Stance_Busy busy && busy.focusTarg.IsValid)
+            {
+                return true; // aiming/swinging: face the target
+            }
+            return false; // idle stander: hold combat facing, never south
+        }
+    }
+
+    /// <summary>During turns, a combatant's combat-wait reads "Engaged in combat." instead of vanilla's "watching for targets".</summary>
+    [HarmonyPatch]
+    public static class Patch_WaitCombat_Report
+    {
+        public static System.Reflection.MethodBase TargetMethod()
+        {
+            // JobDriver_Wait may or may not declare its own GetReport; patch
+            // whichever implementation actually runs for it.
+            return (System.Reflection.MethodBase)AccessTools.DeclaredMethod(typeof(JobDriver_Wait), "GetReport")
+                ?? AccessTools.DeclaredMethod(typeof(JobDriver), "GetReport");
+        }
+
+        public static void Postfix(JobDriver __instance, ref string __result)
+        {
+            if (!(__instance is JobDriver_Wait) || __instance.job?.def != JobDefOf.Wait_Combat)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            Pawn pawn = __instance.pawn;
+            if (ctrl == null || !ctrl.Active || ctrl.ApproachMode || pawn == null
+                || !ctrl.ActiveOn(pawn.Map) || !ctrl.IsCombatant(pawn))
+            {
+                return;
+            }
+            __result = "Engaged in combat.";
+        }
+    }
+
     /// <summary>Undrafting a combatant ends their turn (if current) and returns them to civilian ticking.</summary>
     [HarmonyPatch(typeof(Pawn_DraftController), nameof(Pawn_DraftController.Drafted), MethodType.Setter)]
     public static class Patch_Drafted_TurnBasedStandDown
@@ -2451,7 +2572,7 @@ namespace TheShatteredCrown
             MoteMaker.ThrowText(pos, map, $"-{dealt:0.#}", textColor);
             if (victim.RaceProps.IsFlesh && victim.RaceProps.BloodDef != null)
             {
-                // Splatter: heavier hits spray more, and past the victim's cell.
+                // Ground stains: heavier hits spray more, past the victim's cell.
                 int splats = Mathf.Clamp(1 + (int)(dealt / 8f), 1, 4);
                 for (int i = 0; i < splats; i++)
                 {
@@ -2460,6 +2581,21 @@ namespace TheShatteredCrown
                     {
                         FilthMaker.TryMakeFilth(cell, map, victim.RaceProps.BloodDef, victim.LabelIndefinite());
                     }
+                }
+                // The visible SPRAY: blood-tinted puffs bursting off the victim
+                // (ground filth alone reads as nothing - vanilla already stains).
+                Color bloodColor = victim.RaceProps.BloodDef.graphicData?.color ?? new Color(0.6f, 0.05f, 0.05f);
+                int puffs = Mathf.Clamp(2 + (int)(dealt / 6f), 2, 6);
+                for (int i = 0; i < puffs; i++)
+                {
+                    FleckCreationData spray = FleckMaker.GetDataStatic(
+                        pos + new Vector3(Rand.Range(-0.25f, 0.25f), 0f, Rand.Range(-0.05f, 0.35f)),
+                        map, FleckDefOf.DustPuff, Rand.Range(0.5f, 0.9f));
+                    spray.rotationRate = Rand.Range(-60f, 60f);
+                    spray.velocityAngle = Rand.Range(0f, 360f);
+                    spray.velocitySpeed = Rand.Range(0.7f, 1.3f);
+                    spray.instanceColor = bloodColor;
+                    map.flecks.CreateFleck(spray);
                 }
             }
             else
