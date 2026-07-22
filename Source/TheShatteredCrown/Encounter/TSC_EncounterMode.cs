@@ -545,7 +545,8 @@ namespace TheShatteredCrown
                 for (int i = 0; i < colonists.Count; i++)
                 {
                     Pawn p = colonists[i];
-                    if (p.Drafted && p.pather != null && p.pather.MovingNow && AnyHostileNear(p))
+                    if (p.Drafted && p.pather != null && p.pather.MovingNow && AnyHostileNear(p)
+                        && !(p.stances?.stagger != null && p.stances.stagger.Staggered))
                     {
                         recentExertion[p] = Mathf.Min(MaxHangoverAp,
                             (recentExertion.TryGetValue(p, out float v) ? v : 0f) + ApPerMoveTick);
@@ -794,6 +795,13 @@ namespace TheShatteredCrown
         private void MeterMovement(Pawn p)
         {
             if (p.pather == null || !p.pather.MovingNow)
+            {
+                return;
+            }
+            // Staggered (bullet impact) = standing still despite an active
+            // path. Those ticks are wall time, not movement - billing them
+            // would make the path preview's price a lie.
+            if (p.stances?.stagger != null && p.stances.stagger.Staggered)
             {
                 return;
             }
