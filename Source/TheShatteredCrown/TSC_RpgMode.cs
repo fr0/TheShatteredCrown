@@ -12,10 +12,18 @@ namespace TheShatteredCrown
     /// </summary>
     public static class TSC_RpgMode
     {
+        /// <summary>Dev-only: forces the RPG layer on in any game this session
+        /// (toggled by a debug action; static, never saved).</summary>
+        public static bool debugOverride;
+
         public static bool Active
         {
             get
             {
+                if (debugOverride)
+                {
+                    return true;
+                }
                 Scenario scenario = Current.Game?.Scenario;
                 if (scenario == null)
                 {

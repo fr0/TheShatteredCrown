@@ -238,6 +238,13 @@ namespace TheShatteredCrown
         {
             base.Apply(target, dest);
             TSC_ProgressionManager.Current.TryConsumeEnergy(parent.pawn, Props.cost);
+            TSC_EncounterController encounter = TSC_EncounterController.Current;
+            if (encounter != null && encounter.ActiveOn(parent.pawn?.Map))
+            {
+                encounter.AddLog(
+                    $"{parent.pawn.LabelShortCap} casts {parent.def.LabelCap} ({Props.cost:0} Energy, {TSC_EncounterController.ActionApCost:0} AP).",
+                    TSC_EncounterController.LogSpellColor);
+            }
         }
 
         public override string ExtraTooltipPart()

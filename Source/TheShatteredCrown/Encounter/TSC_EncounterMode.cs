@@ -1,0 +1,1829 @@
+using System.Collections.Generic;
+using HarmonyLib;
+using RimWorld;
+using RimWorld.Planet;
+using UnityEngine;
+using Verse;
+using Verse.AI;
+
+namespace TheShatteredCrown
+{
+    /// <summary>
+    /// TRUE turn-based encounter mode. While active on a map:
+    /// - Combatants (drafted colonists + hostiles) act one at a time in
+    ///   initiative order. During a pawn's turn ONLY that pawn ticks; everyone
+    ///   else on the map is frozen (Harmony prefixes on Pawn.Tick/TickInterval).
+    /// - Player turns pause for orders (AP budget + planning preview), then
+    ///   unpause to act. Enemy turns resolve automatically under the same AP
+    ///   metering. Turns end when AP runs dry, the pawn idles, or End turn.
+    /// - After every combatant has acted, the ENVIRONMENT PHASE runs a few
+    ///   seconds of normal ticking for everything except the combatants:
+    ///   fires, projectiles, undrafted pawns, passives.
+    /// Ends when no hostiles remain. Deliberately NOT scenario-gated: this is
+    /// a general feature, available in any save with the mod loaded.
+    /// </summary>
+    public class TSC_EncounterController : WorldComponent
+    {
+        public enum EncounterPhase { Turn, Environment }
+
+        public const int RoundTicks = 150;          // AP scaling basis: 1 AP = 37.5 ticks of "time"
+        public const float BaseAp = 4f;
+        public const float ActionApCost = 2f;       // spells (Energy + cooldowns pace them already)
+        public const float MinActionAp = 1f;
+        public const float MaxActionAp = 3f;
+        // Movement is charged by TIME SPENT MOVING, same currency as attacks:
+        // 4 AP = 150 ticks of walking = ~12 cells for a healthy pawn, fewer for
+        // the injured, more under speed buffs. Speed stats matter.
+        public const float ApPerMoveTick = BaseAp / RoundTicks;
+        public const float DryThresholdAp = 0.1f;
+        // Hangover: real-time exertion (same AP pricing) becomes a debt against
+        // the pawn's FIRST turn after entering turn-based; it decays to nothing
+        // over ~5s of calm. Closes the "act free in real time, re-enter fresh"
+        // seam. Player pawns only - enemies pay via the cede-first-cycle rule.
+        public const float HangoverDecayPerTick = BaseAp / (2f * RoundTicks);
+
+        private const int EnvPhaseTicks = 120;      // 2s of world time between cycles
+        private const int MaxTurnTicks = 900;       // hard cap per RESUME (15s safety net)
+        private const int IdleGraceTicks = 45;      // ENEMY turns: idle this long = turn over
+        private const int DrySettleTicks = 15;      // AP dry + not mid-swing = turn over
+        private const int RePauseGraceTicks = 10;   // player pawn idle this long = back to orders
+        private const int ApproachRecheckTicks = 30; // approach mode: how often to look for engagement
+        private const float EngageRadius = 40f;     // hostiles beyond this (with no target) stay dormant
+
+        public static TSC_EncounterController Instance;
+
+        private bool active;
+        private Map map;
+        private int cycle;
+
+        // Transient: rebuilt from the live map, never saved.
+        private EncounterPhase phase = EncounterPhase.Turn;
+        private readonly List<Pawn> initiative = new List<Pawn>();
+        private readonly HashSet<Pawn> combatants = new HashSet<Pawn>();
+        private int turnIndex;
+        private Pawn activePawn;
+        private int turnStartTick = -1;
+        private int phaseEndTick;
+        private int attackBlockedTick = -1;
+        private int cycleTurnTicks;
+        private int cycleTurnsTaken;
+        private bool engagedHostiles;
+        private bool approachMode;
+        private bool exitRequested;
+        private bool enemiesFirstNextCycle;
+        private readonly Dictionary<Pawn, float> ap = new Dictionary<Pawn, float>();
+        private readonly HashSet<Pawn> apMessaged = new HashSet<Pawn>();
+        private readonly Dictionary<Pawn, float> recentExertion = new Dictionary<Pawn, float>();
+        private static readonly List<Pawn> tmpExertionPawns = new List<Pawn>();
+        private static readonly HashSet<Pawn> tmpAccrued = new HashSet<Pawn>();
+
+        // Live combat log: vanilla BattleLog entries (fed by the GUI scanner)
+        // interleaved with our own turn/phase markers.
+        public struct LogLine
+        {
+            public string text;
+            public Color color;
+        }
+
+        public static readonly Color LogPlayerColor = new Color(0.55f, 0.7f, 1f);
+        public static readonly Color LogHostileColor = new Color(1f, 0.55f, 0.5f);
+        public static readonly Color LogWorldColor = new Color(0.7f, 0.7f, 0.7f);
+        public static readonly Color LogEventColor = new Color(1f, 1f, 1f, 0.92f);
+        public static readonly Color LogSuccessColor = new Color(0.4f, 0.8f, 0.45f);
+        public static readonly Color LogFailColor = new Color(0.9f, 0.38f, 0.3f);
+        public static readonly Color LogSpellColor = new Color(0.6f, 0.62f, 0.95f);
+
+        private readonly List<LogLine> combatLog = new List<LogLine>();
+        private const int MaxLogLines = 60;
+
+        public IReadOnlyList<LogLine> CombatLog => combatLog;
+        public int ActivatedAtTick { get; private set; }
+
+        public void AddLog(string text, Color color)
+        {
+            combatLog.Add(new LogLine { text = text, color = color });
+            if (combatLog.Count > MaxLogLines)
+            {
+                combatLog.RemoveRange(0, combatLog.Count - MaxLogLines);
+            }
+        }
+
+        public TSC_EncounterController(World world) : base(world)
+        {
+            Instance = this;
+        }
+
+        public static TSC_EncounterController Current => Instance;
+
+        public bool Active => active;
+        public int Cycle => cycle;
+        public EncounterPhase Phase => phase;
+        public Pawn ActivePawn => phase == EncounterPhase.Turn ? activePawn : null;
+        public IReadOnlyList<Pawn> InitiativeOrder => initiative;
+        public int TurnIndex => turnIndex;
+        public bool ApproachMode => approachMode;
+        public bool ExitRequested => exitRequested;
+        public bool ActiveOn(Map m) => active && m != null && m == map;
+        public bool IsCombatant(Pawn p) => combatants.Contains(p);
+
+        // ---------------------------------------------------------------- AP
+
+        public float ApOf(Pawn p) => ap.TryGetValue(p, out float value) ? value : BaseAp;
+
+        public bool CanAffordAp(Pawn p, float cost)
+        {
+            if (ApOf(p) < cost)
+            {
+                if (apMessaged.Add(p) && p.Faction == Faction.OfPlayer)
+                {
+                    Messages.Message($"{p.LabelShortCap} is out of action points; their turn is ending.",
+                        p, MessageTypeDefOf.RejectInput, historical: false);
+                }
+                return false;
+            }
+            return true;
+        }
+
+        public void SpendAp(Pawn p, float cost)
+        {
+            ap[p] = Mathf.Max(0f, ApOf(p) - cost);
+        }
+
+        public bool TrySpendAp(Pawn p, float cost)
+        {
+            if (!CanAffordAp(p, cost))
+            {
+                return false;
+            }
+            SpendAp(p, cost);
+            return true;
+        }
+
+        /// <summary>Attack cost = the weapon's real cycle as a share of RoundTicks, snapped to halves, clamped 1-3. Spells flat.</summary>
+        public static float AttackApCost(Verb verb)
+        {
+            if (verb == null || verb is Verb_CastAbility)
+            {
+                return ActionApCost;
+            }
+            VerbProperties props = verb.verbProps;
+            float ticks = props.AdjustedCooldownTicks(verb, verb.CasterPawn);
+            ticks += props.warmupTime.SecondsToTicks();
+            if (props.burstShotCount > 1)
+            {
+                ticks += (props.burstShotCount - 1) * props.ticksBetweenBurstShots;
+            }
+            float raw = ticks / (RoundTicks / BaseAp);
+            return Mathf.Clamp(Mathf.Round(raw * 2f) / 2f, MinActionAp, MaxActionAp);
+        }
+
+        public static float AttackApCostFor(Pawn pawn)
+        {
+            return AttackApCost(pawn.TryGetAttackVerb(null));
+        }
+
+        // ---------------------------------------------------------------- lifecycle
+
+        // Toggling is exploit-safe, Pathfinder-style: one shared economy, and
+        // switching never grants actions. Leaving mid-cycle is DEFERRED until
+        // the enemies you owe have acted; entering mid-combat cedes the first
+        // cycle to the enemies who were already fighting.
+        public void Toggle(Map m)
+        {
+            if (active)
+            {
+                if (approachMode || !engagedHostiles)
+                {
+                    Deactivate("Turn-based mode off.");
+                    return;
+                }
+                if (exitRequested)
+                {
+                    exitRequested = false;
+                    Messages.Message("Staying in turn-based mode.", MessageTypeDefOf.SilentInput, historical: false);
+                    return;
+                }
+                exitRequested = true;
+                Messages.Message("Turn-based mode ends once the enemy has acted.",
+                    MessageTypeDefOf.SilentInput, historical: false);
+                if (phase == EncounterPhase.Turn && activePawn != null && activePawn.IsColonistPlayerControlled)
+                {
+                    AdvanceTurn(); // skip logic hands the rest of the cycle to the enemies
+                }
+                return;
+            }
+            active = true;
+            map = m;
+            cycle = 1;
+            exitRequested = false;
+            combatLog.Clear();
+            ActivatedAtTick = Find.TickManager.TicksGame;
+            BuildInitiative();
+            if (!engagedHostiles)
+            {
+                // Armed: real time until battle is joined. The toggle is a
+                // standing preference - no hostiles required, and the mode
+                // only ends when the player switches it off.
+                approachMode = true;
+                phase = EncounterPhase.Environment;
+                phaseEndTick = Find.TickManager.TicksGame + ApproachRecheckTicks;
+                Messages.Message("Turn-based mode armed: turns begin when enemies engage.",
+                    MessageTypeDefOf.SilentInput, historical: false);
+                return;
+            }
+            // Mid-combat entry: no toggle-granted alpha strike. The world takes
+            // a short beat, then the enemies already in the fight act first.
+            enemiesFirstNextCycle = true;
+            phase = EncounterPhase.Environment;
+            phaseEndTick = Find.TickManager.TicksGame + EnvPhaseTicks / 2;
+            Messages.Message("Turn-based mode: the fight settles into turns. The enemy moves first.",
+                MessageTypeDefOf.SilentInput, historical: false);
+        }
+
+        private void Deactivate(string message)
+        {
+            active = false;
+            map = null;
+            activePawn = null;
+            initiative.Clear();
+            combatants.Clear();
+            ap.Clear();
+            apMessaged.Clear();
+            turnStartTick = -1;
+            attackBlockedTick = -1;
+            approachMode = false;
+            exitRequested = false;
+            enemiesFirstNextCycle = false;
+            recentExertion.Clear();
+            if (!message.NullOrEmpty())
+            {
+                Messages.Message(message, MessageTypeDefOf.SilentInput, historical: false);
+            }
+        }
+
+        /// <summary>
+        /// A hostile joins initiative only when ENGAGED: they have an enemy
+        /// target, or they are close to the party. Loitering camp guards stay
+        /// dormant - they live in the environment phase until battle finds them.
+        /// </summary>
+        private bool HostileEngaged(Pawn p)
+        {
+            if (p.mindState?.enemyTarget != null)
+            {
+                return true;
+            }
+            List<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
+            for (int i = 0; i < colonists.Count; i++)
+            {
+                if (p.Position.InHorDistOf(colonists[i].Position, EngageRadius))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>Drafted colonists first, then every ENGAGED hostile. No engaged hostiles = empty (approach mode: nobody frozen).</summary>
+        private void BuildInitiative()
+        {
+            initiative.Clear();
+            combatants.Clear();
+            engagedHostiles = false;
+            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn p = pawns[i];
+                if (p.Dead || p.Downed || p.Faction == Faction.OfPlayer || !p.HostileTo(Faction.OfPlayer))
+                {
+                    continue;
+                }
+                if (HostileEngaged(p))
+                {
+                    engagedHostiles = true;
+                }
+            }
+            if (!engagedHostiles)
+            {
+                return; // approach mode: no combatants, world runs free
+            }
+            List<Pawn> friendlies = new List<Pawn>();
+            List<Pawn> hostiles = new List<Pawn>();
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn p = pawns[i];
+                if (p.Dead || p.Downed)
+                {
+                    continue;
+                }
+                if (p.IsColonistPlayerControlled && p.Drafted)
+                {
+                    friendlies.Add(p);
+                }
+                else if (p.Faction != Faction.OfPlayer && p.HostileTo(Faction.OfPlayer) && HostileEngaged(p))
+                {
+                    hostiles.Add(p);
+                }
+            }
+            // Party-first only when battle begins on the party's terms
+            // (approach mode). A mid-combat toggle cedes the cycle to the enemy.
+            if (enemiesFirstNextCycle)
+            {
+                enemiesFirstNextCycle = false;
+                initiative.AddRange(hostiles);
+                initiative.AddRange(friendlies);
+            }
+            else
+            {
+                initiative.AddRange(friendlies);
+                initiative.AddRange(hostiles);
+            }
+            foreach (Pawn p in initiative)
+            {
+                combatants.Add(p);
+            }
+        }
+
+        private void StartTurn(int index)
+        {
+            while (index < initiative.Count)
+            {
+                Pawn candidate = initiative[index];
+                bool valid = candidate != null && !candidate.Dead && !candidate.Downed && candidate.Spawned && candidate.Map == map;
+                // Exit pending: player turns are skipped, but the enemies you
+                // owe still get theirs - leaving is never a way to dodge them.
+                if (valid && exitRequested && candidate.IsColonistPlayerControlled)
+                {
+                    valid = false;
+                }
+                if (valid)
+                {
+                    break;
+                }
+                index++;
+            }
+            if (index >= initiative.Count)
+            {
+                StartEnvironmentPhase();
+                return;
+            }
+            turnIndex = index;
+            activePawn = initiative[index];
+            phase = EncounterPhase.Turn;
+            turnStartTick = -1;
+            attackBlockedTick = -1;
+            cycleTurnsTaken++;
+            ap.Remove(activePawn);        // fresh AP for their turn
+            apMessaged.Remove(activePawn);
+            if (activePawn.IsColonistPlayerControlled)
+            {
+                float hangover = TakeHangover(activePawn);
+                if (hangover > 0.05f)
+                {
+                    ap[activePawn] = Mathf.Max(0f, BaseAp - hangover);
+                    Messages.Message($"{activePawn.LabelShortCap} is winded from the fighting: {ApOf(activePawn):0.#} AP this turn.",
+                        activePawn, MessageTypeDefOf.SilentInput, historical: false);
+                    AddLog($"{activePawn.LabelShortCap} is winded ({ApOf(activePawn):0.#} AP).", LogWorldColor);
+                }
+            }
+            AddLog(activePawn.IsColonistPlayerControlled
+                    ? $"--- {activePawn.LabelShortCap}'s turn ---"
+                    : $"--- enemy turn: {activePawn.LabelShortCap} ---",
+                activePawn.IsColonistPlayerControlled ? LogPlayerColor : LogHostileColor);
+            if (activePawn.IsColonistPlayerControlled)
+            {
+                // Clean slate: stale queued orders (or a leftover move/attack from
+                // last turn or real time) must not auto-resume - and must not
+                // become the anchor a fresh attack order silently queues behind.
+                activePawn.jobs?.ClearQueuedJobs();
+                Job leftover = activePawn.CurJob;
+                if (leftover != null && (IsMoveJob(leftover.def) || IsActionJob(leftover.def)))
+                {
+                    activePawn.jobs.EndCurrentJob(JobCondition.InterruptForced);
+                }
+                Find.TickManager.Pause();
+                CameraJumper.TryJumpAndSelect(activePawn, CameraJumper.MovementMode.Pan);
+                Messages.Message($"{activePawn.LabelShortCap}'s turn.",
+                    activePawn, MessageTypeDefOf.SilentInput, historical: false);
+            }
+            else
+            {
+                if (Find.TickManager.Paused)
+                {
+                    Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+                }
+                Messages.Message($"Enemy turn: {activePawn.LabelShortCap}.",
+                    activePawn, MessageTypeDefOf.SilentInput, historical: false);
+            }
+        }
+
+        private void StartEnvironmentPhase()
+        {
+            AddLog("--- the world moves ---", LogWorldColor);
+            phase = EncounterPhase.Environment;
+            activePawn = null;
+            // Non-combatants get what combatants actually got this cycle: the
+            // measured AVERAGE turn length, not a guessed constant.
+            int envTicks = cycleTurnsTaken > 0
+                ? Mathf.Clamp(cycleTurnTicks / cycleTurnsTaken, 60, 300)
+                : EnvPhaseTicks;
+            cycleTurnTicks = 0;
+            cycleTurnsTaken = 0;
+            phaseEndTick = Find.TickManager.TicksGame + envTicks;
+            if (Find.TickManager.Paused)
+            {
+                Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+            }
+        }
+
+        /// <summary>Real-time attacks accrue exertion at the same weapon-scaled price.</summary>
+        public void NoteRealtimeAttack(Pawn caster, float cost)
+        {
+            if (caster == null || !caster.IsColonistPlayerControlled || !caster.Drafted)
+            {
+                return;
+            }
+            // Same combat gate as movement: hunting or target practice on a
+            // calm map is not battle exertion.
+            if (caster.Map == null || caster.Map.dangerWatcher.DangerRating == StoryDanger.None)
+            {
+                return;
+            }
+            if (active && !approachMode)
+            {
+                return; // in-turn attacks are charged for real, not remembered
+            }
+            recentExertion[caster] = Mathf.Min(BaseAp,
+                (recentExertion.TryGetValue(caster, out float v) ? v : 0f) + cost);
+        }
+
+        /// <summary>Rolling real-time exertion: movement accrues, calm decays. Runs while the mode is off or in approach.</summary>
+        private void TrackRealtimeExertion()
+        {
+            tmpAccrued.Clear();
+            foreach (Map m in Find.Maps)
+            {
+                // Exertion is a COMBAT concept: peacetime marching (walking the
+                // squad to the battlefield) must not wind anyone. Only accrue
+                // while the map is actually dangerous - which is exactly when
+                // real-time weaving could be exploited.
+                if (m.dangerWatcher.DangerRating == StoryDanger.None)
+                {
+                    continue;
+                }
+                List<Pawn> colonists = m.mapPawns.FreeColonistsSpawned;
+                for (int i = 0; i < colonists.Count; i++)
+                {
+                    Pawn p = colonists[i];
+                    if (p.Drafted && p.pather != null && p.pather.MovingNow)
+                    {
+                        recentExertion[p] = Mathf.Min(BaseAp,
+                            (recentExertion.TryGetValue(p, out float v) ? v : 0f) + ApPerMoveTick);
+                        tmpAccrued.Add(p);
+                    }
+                }
+            }
+            if (recentExertion.Count == 0)
+            {
+                return;
+            }
+            tmpExertionPawns.Clear();
+            tmpExertionPawns.AddRange(recentExertion.Keys);
+            foreach (Pawn p in tmpExertionPawns)
+            {
+                if (tmpAccrued.Contains(p))
+                {
+                    continue; // resting decays; exertion does not decay itself
+                }
+                float value = recentExertion[p] - HangoverDecayPerTick;
+                if (value <= 0f)
+                {
+                    recentExertion.Remove(p);
+                }
+                else
+                {
+                    recentExertion[p] = value;
+                }
+            }
+        }
+
+        /// <summary>Consumes the pawn's exertion debt; their first turn starts short by this much.</summary>
+        private float TakeHangover(Pawn p)
+        {
+            if (recentExertion.TryGetValue(p, out float value))
+            {
+                recentExertion.Remove(p);
+                return value;
+            }
+            return 0f;
+        }
+
+        /// <summary>Called by the verb patch when the active pawn cannot afford an attack.</summary>
+        public void NoteAttackBlocked(Pawn caster)
+        {
+            if (caster == activePawn && attackBlockedTick < 0)
+            {
+                attackBlockedTick = Find.TickManager.TicksGame;
+            }
+        }
+
+        /// <summary>End turn button / auto-advance.</summary>
+        public void AdvanceTurn()
+        {
+            if (!active || phase != EncounterPhase.Turn)
+            {
+                return;
+            }
+            StartTurn(turnIndex + 1);
+        }
+
+        // ---------------------------------------------------------------- per-tick
+
+        // Only runs while unpaused: player order phases are paused and advance
+        // via unpausing or the End turn gizmo.
+        public override void WorldComponentTick()
+        {
+            base.WorldComponentTick();
+            if (!active)
+            {
+                TrackRealtimeExertion();
+                return;
+            }
+            if (map == null || !Find.Maps.Contains(map))
+            {
+                Deactivate("The battlefield is gone; turn-based mode ends.");
+                return;
+            }
+            TickManager tm = Find.TickManager;
+            if (tm.CurTimeSpeed > TimeSpeed.Normal)
+            {
+                tm.CurTimeSpeed = TimeSpeed.Normal;
+            }
+
+            // Loaded mid-encounter: transient turn state is gone, restart the cycle.
+            if (phase == EncounterPhase.Turn && activePawn == null && initiative.Count == 0)
+            {
+                BuildInitiative();
+                if (!engagedHostiles)
+                {
+                    approachMode = true;
+                    phase = EncounterPhase.Environment;
+                    phaseEndTick = tm.TicksGame + ApproachRecheckTicks;
+                    return;
+                }
+                StartTurn(0);
+                return;
+            }
+
+            if (phase == EncounterPhase.Environment)
+            {
+                if (approachMode)
+                {
+                    TrackRealtimeExertion(); // approach is real time: exertion counts
+                }
+                // Bodies are part of the world: frozen combatants' biology
+                // (blood loss, infection, tend timers) advances during the
+                // environment window even though their minds and feet do not.
+                // Downed/dead combatants already tick fully in this phase.
+                if (!approachMode)
+                {
+                    foreach (Pawn combatant in combatants)
+                    {
+                        if (combatant != null && !combatant.Dead && !combatant.Downed && combatant.Spawned)
+                        {
+                            combatant.health?.HealthTick();
+                        }
+                    }
+                }
+                if (tm.TicksGame >= phaseEndTick)
+                {
+                    if (exitRequested)
+                    {
+                        Deactivate("Turn-based mode off.");
+                        return;
+                    }
+                    BuildInitiative();
+                    if (!engagedHostiles)
+                    {
+                        // Battle over (or never started): drop to real time
+                        // but STAY ARMED - the toggle is a preference, not a
+                        // per-fight switch.
+                        if (!approachMode)
+                        {
+                            approachMode = true;
+                            Messages.Message("The field is quiet. Real time resumes; turn-based mode stays armed.",
+                                MessageTypeDefOf.SilentInput, historical: false);
+                            AddLog("=== the field is quiet ===", LogEventColor);
+                        }
+                        phaseEndTick = tm.TicksGame + ApproachRecheckTicks;
+                        return;
+                    }
+                    // (fall through: battle begins or next cycle starts)
+                    if (approachMode)
+                    {
+                        approachMode = false;
+                        Messages.Message("Battle is joined! Turn order begins.",
+                            MessageTypeDefOf.ThreatSmall, historical: false);
+                        AddLog("=== BATTLE IS JOINED ===", LogEventColor);
+                    }
+                    else
+                    {
+                        cycle++;
+                    }
+                    StartTurn(0);
+                }
+                return;
+            }
+
+            // A turn is resolving.
+            Pawn p = activePawn;
+            if (p == null || p.Dead || p.Downed || !p.Spawned || p.Map != map)
+            {
+                AdvanceTurn();
+                return;
+            }
+            if (turnStartTick < 0)
+            {
+                turnStartTick = tm.TicksGame;
+            }
+            cycleTurnTicks++; // measured turn time feeds the env-phase length
+            MeterMovement(p);
+
+            int elapsed = tm.TicksGame - turnStartTick;
+            bool midSwing = p.stances?.curStance is Stance_Busy;
+            bool idle = p.CurJob == null
+                || ((p.CurJob.def == JobDefOf.Wait_Combat || p.CurJob.def == JobDefOf.Wait) && p.jobs.jobQueue.Count == 0);
+            bool dry = ApOf(p) < DryThresholdAp;
+            if (elapsed >= MaxTurnTicks || (dry && !midSwing && elapsed >= DrySettleTicks))
+            {
+                if (dry)
+                {
+                    AddLog($"{p.LabelShortCap} is out of action points; turn ends.", LogWorldColor);
+                }
+                AdvanceTurn();
+                return;
+            }
+            // A blocked (unaffordable) attack must not become a standing-still
+            // loop: enemies pass the turn; players get the job cancelled so the
+            // re-pause hands control back for whatever their remaining AP buys.
+            if (attackBlockedTick >= 0 && !midSwing && tm.TicksGame - attackBlockedTick >= DrySettleTicks)
+            {
+                attackBlockedTick = -1;
+                if (p.IsColonistPlayerControlled)
+                {
+                    AddLog($"{p.LabelShortCap} holds: not enough AP for the attack.", LogWorldColor);
+                    if (p.CurJob != null && !IsMoveJob(p.CurJob.def))
+                    {
+                        p.jobs.EndCurrentJob(JobCondition.InterruptForced);
+                    }
+                }
+                else
+                {
+                    AddLog($"{p.LabelShortCap} can't afford another attack; turn ends.", LogWorldColor);
+                    AdvanceTurn();
+                    return;
+                }
+            }
+            if (!idle || midSwing)
+            {
+                return;
+            }
+            if (p.IsColonistPlayerControlled)
+            {
+                // XCOM loop: an idle player pawn with AP left goes BACK TO ORDERS,
+                // not to the next combatant. End turn (or running dry) passes.
+                if (elapsed >= RePauseGraceTicks)
+                {
+                    turnStartTick = -1; // re-anchor on next resume
+                    tm.Pause();
+                    Messages.Message($"{p.LabelShortCap}: {ApOf(p):0.#} AP left.",
+                        p, MessageTypeDefOf.SilentInput, historical: false);
+                }
+            }
+            else if (elapsed >= IdleGraceTicks)
+            {
+                AdvanceTurn();
+            }
+        }
+
+        private void MeterMovement(Pawn p)
+        {
+            if (p.pather == null || !p.pather.MovingNow)
+            {
+                return;
+            }
+            if (!TrySpendAp(p, ApPerMoveTick))
+            {
+                p.pather.StopDead();
+                if (p.CurJob != null)
+                {
+                    p.jobs.EndCurrentJob(JobCondition.InterruptForced);
+                }
+            }
+        }
+
+        /// <summary>The freeze: during a turn only the active pawn ticks; in the environment phase everyone EXCEPT combatants ticks.</summary>
+        public bool ShouldTickPawn(Pawn p)
+        {
+            if (phase == EncounterPhase.Turn)
+            {
+                return p == activePawn;
+            }
+            return !(combatants.Contains(p) && !p.Dead && !p.Downed);
+        }
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look(ref active, "active", defaultValue: false);
+            Scribe_References.Look(ref map, "map");
+            Scribe_Values.Look(ref cycle, "cycle", 1);
+        }
+
+        public static bool IsMoveJob(JobDef def) => def == JobDefOf.Goto;
+
+        public static bool IsActionJob(JobDef def) =>
+            def == JobDefOf.AttackMelee || def == JobDefOf.AttackStatic
+            || def == JobDefOf.CastAbilityOnThing || def == JobDefOf.CastAbilityOnWorldTile;
+    }
+
+    /// <summary>Banner, turn indicator, and the active pawn's AP label (with planning preview while paused).</summary>
+    public class MapComponent_TSC_EncounterGUI : MapComponent
+    {
+        private static readonly Color SpentColor = new Color(0.4f, 0.4f, 0.4f, 0.8f);
+        private static readonly Color AvailableColor = new Color(1f, 1f, 1f, 0.95f);
+        private static readonly Color WarnColor = new Color(0.95f, 0.75f, 0.3f);
+        private static readonly Color OverColor = new Color(0.95f, 0.35f, 0.3f);
+
+        public MapComponent_TSC_EncounterGUI(Map map) : base(map)
+        {
+        }
+
+        private static float EstimateCells(IntVec3 a, IntVec3 b)
+        {
+            int dx = Mathf.Abs(a.x - b.x);
+            int dz = Mathf.Abs(a.z - b.z);
+            return Mathf.Max(dx, dz) + 0.41f * Mathf.Min(dx, dz);
+        }
+
+        private static float PlannedApCost(Pawn p)
+        {
+            float cost = 0f;
+            IntVec3 from = p.Position;
+            // Movement is time-priced: estimate ticks per cell from the pawn's
+            // live MoveSpeed stat (buffs, injuries, and crawling all count).
+            float moveSpeed = Mathf.Max(0.2f, p.GetStatValue(StatDefOf.MoveSpeed));
+            float apPerCell = 60f / moveSpeed * TSC_EncounterController.ApPerMoveTick;
+
+            void AddJob(Job job)
+            {
+                if (job == null)
+                {
+                    return;
+                }
+                if (TSC_EncounterController.IsMoveJob(job.def))
+                {
+                    IntVec3 dest = job.targetA.Cell;
+                    if (dest.IsValid)
+                    {
+                        cost += EstimateCells(from, dest) * apPerCell;
+                        from = dest;
+                    }
+                }
+                else if (TSC_EncounterController.IsActionJob(job.def))
+                {
+                    if (job.def == JobDefOf.AttackMelee && job.targetA.IsValid)
+                    {
+                        IntVec3 dest = job.targetA.Cell;
+                        float approach = Mathf.Max(0f, EstimateCells(from, dest) - 1f);
+                        cost += approach * apPerCell;
+                        from = dest;
+                    }
+                    cost += job.def == JobDefOf.CastAbilityOnThing || job.def == JobDefOf.CastAbilityOnWorldTile
+                        ? TSC_EncounterController.ActionApCost
+                        : TSC_EncounterController.AttackApCostFor(p);
+                }
+            }
+
+            AddJob(p.CurJob);
+            foreach (QueuedJob queued in p.jobs.jobQueue)
+            {
+                AddJob(queued.job);
+            }
+            return cost;
+        }
+
+        private const float PanelWidth = 160f;
+        private const float RowHeight = 30f;
+        private const float HeaderHeight = 20f;
+        private const float PortraitSize = 26f;
+        private const int MaxRows = 14;
+        private static readonly Color PlayerBorder = new Color(0.45f, 0.62f, 1f);
+        private static readonly Color HostileBorder = new Color(1f, 0.4f, 0.32f);
+        private static readonly Color ActedTint = new Color(1f, 1f, 1f, 0.35f);
+
+        // Draggable panel positions (session-persistent; clamped to screen).
+        private static Vector2 widgetPos = new Vector2(12f, 140f);
+        private static bool dragging;
+        private static Vector2 dragOffset;
+        private static Vector2 logPos = new Vector2(-1f, -1f); // sentinel: init on first draw
+        private static bool logDragging;
+        private static Vector2 logDragOffset;
+        private static Vector2 logSize = new Vector2(330f, 230f); // resizable, session-persistent
+        private static bool logResizing;
+        private static Vector2 logResizeStartMouse;
+        private static Vector2 logResizeStartSize;
+
+        private static readonly Vector2 LogMinSize = new Vector2(220f, 110f);
+        private static readonly Vector2 LogMaxSize = new Vector2(760f, 640f);
+        private const int LogScanIntervalTicks = 15;
+
+        private readonly HashSet<int> seenLogIds = new HashSet<int>();
+
+        /// <summary>Feed new vanilla BattleLog entries concerning this map into the encounter log.</summary>
+        public override void MapComponentTick()
+        {
+            base.MapComponentTick();
+            if (Find.TickManager.TicksGame % LogScanIntervalTicks != 0)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.ActiveOn(map))
+            {
+                return;
+            }
+            List<Battle> battles = Find.BattleLog.Battles;
+            for (int b = 0; b < battles.Count; b++)
+            {
+                Battle battle = battles[b];
+                if (battle.LastEntryTimestamp < ctrl.ActivatedAtTick)
+                {
+                    continue;
+                }
+                List<LogEntry> entries = battle.Entries;
+                for (int e = 0; e < entries.Count; e++)
+                {
+                    LogEntry entry = entries[e];
+                    if (entry.Tick < ctrl.ActivatedAtTick || seenLogIds.Contains(entry.LogID))
+                    {
+                        continue;
+                    }
+                    seenLogIds.Add(entry.LogID);
+                    Pawn pov = null;
+                    foreach (Thing concern in entry.GetConcerns())
+                    {
+                        if (concern is Pawn concernPawn && concernPawn.MapHeld == map)
+                        {
+                            pov = concernPawn;
+                            break;
+                        }
+                    }
+                    if (pov == null)
+                    {
+                        continue; // not our battlefield
+                    }
+                    try
+                    {
+                        ctrl.AddLog(entry.ToGameStringFromPOV(pov, false).StripTags(),
+                            TSC_EncounterController.LogEventColor);
+                    }
+                    catch
+                    {
+                        // grammar hiccup on an exotic entry: skip it, keep the log alive
+                    }
+                }
+            }
+            if (seenLogIds.Count > 600)
+            {
+                seenLogIds.Clear(); // Tick/ActivatedAtTick filters keep re-adds harmless
+            }
+        }
+
+        // ------------------------------------------------------------ path preview
+        // Real pathfinder-backed hover preview during a player's turn (paused):
+        // a dashed path from the pawn to the cursor with the ACCURATE AP cost
+        // (the pathfinder's cost is in move-tick units, the same currency the
+        // meter charges). Recomputed only when the hovered cell changes.
+
+        private IntVec3 previewDest = IntVec3.Invalid;
+        private Pawn previewPawn;
+        private readonly List<IntVec3> previewNodes = new List<IntVec3>();
+        private float previewCostAp = -1f;
+
+        private void UpdatePathPreview(TSC_EncounterController ctrl)
+        {
+            Pawn pawn = ctrl.ActivePawn;
+            bool eligible = pawn != null && pawn.IsColonistPlayerControlled && pawn.Spawned
+                && Find.TickManager.Paused && !Mouse.IsInputBlockedNow;
+            if (!eligible)
+            {
+                ClearPathPreview();
+                return;
+            }
+            IntVec3 cell = UI.MouseCell();
+            if (!cell.InBounds(map) || cell.Fogged(map))
+            {
+                ClearPathPreview();
+                return;
+            }
+            if (cell == previewDest && pawn == previewPawn)
+            {
+                return; // cached
+            }
+            previewDest = cell;
+            previewPawn = pawn;
+            previewNodes.Clear();
+            previewCostAp = -1f;
+
+            // Attack-aware: hovering an enemy previews the move the attack
+            // IMPLIES - nothing if the pawn can already hit from here, else the
+            // path to the spot they would attack from.
+            LocalTargetInfo pathTarget = cell;
+            PathEndMode endMode = PathEndMode.OnCell;
+            Pawn enemy = null;
+            List<Thing> things = cell.GetThingList(map);
+            for (int i = 0; i < things.Count; i++)
+            {
+                if (things[i] is Pawn candidate && !candidate.Dead && candidate.HostileTo(Faction.OfPlayer))
+                {
+                    enemy = candidate;
+                    break;
+                }
+            }
+            if (enemy != null && enemy != pawn)
+            {
+                Verb verb = pawn.TryGetAttackVerb(enemy);
+                if (verb != null)
+                {
+                    if (verb.CanHitTarget(enemy))
+                    {
+                        return; // attack works from here: no movement, no line
+                    }
+                    if (verb.IsMeleeAttack)
+                    {
+                        pathTarget = enemy;
+                        endMode = PathEndMode.Touch;
+                    }
+                    else
+                    {
+                        CastPositionRequest request = new CastPositionRequest
+                        {
+                            caster = pawn,
+                            target = enemy,
+                            verb = verb,
+                            maxRangeFromTarget = verb.verbProps.range,
+                            wantCoverFromTarget = true,
+                        };
+                        if (CastPositionFinder.TryFindCastPosition(request, out IntVec3 firingSpot))
+                        {
+                            pathTarget = firingSpot;
+                        }
+                        else
+                        {
+                            pathTarget = enemy; // no firing spot found: close in
+                            endMode = PathEndMode.Touch;
+                        }
+                    }
+                }
+            }
+            if (!map.reachability.CanReach(pawn.Position, pathTarget, endMode, TraverseParms.For(pawn)))
+            {
+                return;
+            }
+            PawnPath path = map.pathFinder.FindPathNow(pawn.Position, pathTarget, TraverseParms.For(pawn), null, endMode);
+            if (path == null || !path.Found)
+            {
+                path?.ReleaseToPool();
+                return;
+            }
+            previewCostAp = path.TotalCost * TSC_EncounterController.ApPerMoveTick;
+            foreach (IntVec3 node in path.NodesReversed)
+            {
+                previewNodes.Add(node);
+            }
+            path.ReleaseToPool();
+        }
+
+        private void ClearPathPreview()
+        {
+            previewDest = IntVec3.Invalid;
+            previewPawn = null;
+            previewNodes.Clear();
+            previewCostAp = -1f;
+        }
+
+        private static readonly Color PathGoodColor = new Color(0.45f, 0.85f, 0.45f);
+
+        /// <summary>Green = move leaves enough AP to attack after; yellow = move fits but eats the attack; red = doesn't fit.</summary>
+        private SimpleColor PathVerdict(TSC_EncounterController ctrl)
+        {
+            Pawn active = ctrl.ActivePawn;
+            if (active == null)
+            {
+                return SimpleColor.White;
+            }
+            float current = ctrl.ApOf(active);
+            if (previewCostAp > current)
+            {
+                return SimpleColor.Red;
+            }
+            return current - previewCostAp >= TSC_EncounterController.AttackApCostFor(active)
+                ? SimpleColor.Green
+                : SimpleColor.Yellow;
+        }
+
+        private readonly List<IntVec3> activePawnCells = new List<IntVec3>();
+        private static readonly Color ActivePlayerEdgeColor = new Color(0.4f, 0.65f, 1f);
+        private static readonly Color ActiveHostileEdgeColor = new Color(1f, 0.35f, 0.3f);
+
+        /// <summary>Cell rectangle + pulsing ring marking the pawn whose turn it is.</summary>
+        private void DrawActivePawnHighlight(TSC_EncounterController ctrl)
+        {
+            Pawn p = ctrl.ActivePawn;
+            if (p == null || !p.Spawned || p.Map != map)
+            {
+                return;
+            }
+            bool player = p.IsColonistPlayerControlled;
+            activePawnCells.Clear();
+            foreach (IntVec3 cell in p.OccupiedRect())
+            {
+                activePawnCells.Add(cell);
+            }
+            GenDraw.DrawFieldEdges(activePawnCells, player ? ActivePlayerEdgeColor : ActiveHostileEdgeColor);
+            float pulse = 0.7f + 0.12f * Mathf.Sin(Time.realtimeSinceStartup * 4f);
+            Vector3 center = p.DrawPos;
+            center.y = AltitudeLayer.MetaOverlays.AltitudeFor();
+            GenDraw.DrawCircleOutline(center, pulse, player ? SimpleColor.Blue : SimpleColor.Red);
+        }
+
+        /// <summary>Active-pawn highlight + world-space dashed line along the previewed path (runs on the render update).</summary>
+        public override void MapComponentUpdate()
+        {
+            base.MapComponentUpdate();
+            if (Find.CurrentMap != map)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.ActiveOn(map))
+            {
+                return;
+            }
+            DrawActivePawnHighlight(ctrl);
+            if (previewNodes.Count < 2 || previewCostAp < 0f || !Find.TickManager.Paused)
+            {
+                return;
+            }
+            SimpleColor lineColor = PathVerdict(ctrl);
+            // Dashed: draw every other segment. Nodes come dest -> start.
+            for (int i = previewNodes.Count - 1; i > 0; i -= 2)
+            {
+                Vector3 a = previewNodes[i].ToVector3ShiftedWithAltitude(AltitudeLayer.MetaOverlays);
+                Vector3 b = previewNodes[i - 1].ToVector3ShiftedWithAltitude(AltitudeLayer.MetaOverlays);
+                GenDraw.DrawLineBetween(a, b, lineColor);
+            }
+        }
+
+        private void DrawPathPreviewLabel(TSC_EncounterController ctrl)
+        {
+            if (previewCostAp < 0f || ctrl.ActivePawn == null || !Find.TickManager.Paused)
+            {
+                return;
+            }
+            float current = ctrl.ApOf(ctrl.ActivePawn);
+            float attackCost = TSC_EncounterController.AttackApCostFor(ctrl.ActivePawn);
+            Text.Font = GameFont.Tiny;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            GUI.color = previewCostAp > current ? OverColor
+                : current - previewCostAp < attackCost ? WarnColor
+                : PathGoodColor; // matches the line: green = attack still affordable
+            // Above-right of the cursor: vanilla tooltips spawn below-right and
+            // were covering the labels there.
+            Vector2 mouse = Event.current.mousePosition;
+            Widgets.Label(new Rect(mouse.x + 16f, mouse.y - 38f, 90f, 18f), $"{previewCostAp:0.#} AP");
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.UpperLeft;
+        }
+
+        /// <summary>
+        /// Hover an enemy during a paused turn: estimated hit chance from the
+        /// active pawn's CURRENT position, using the engine's own math (ranged:
+        /// ShotReport with cover/distance/skill; melee: hit x (1 - dodge)).
+        /// </summary>
+        private void DrawHitChanceLabel(TSC_EncounterController ctrl)
+        {
+            if (!Find.TickManager.Paused)
+            {
+                return;
+            }
+            Pawn active = ctrl.ActivePawn;
+            if (active == null || !active.IsColonistPlayerControlled || !active.Spawned)
+            {
+                return;
+            }
+            IntVec3 cell = UI.MouseCell();
+            if (!cell.InBounds(map) || cell.Fogged(map))
+            {
+                return;
+            }
+            Pawn target = null;
+            List<Thing> things = cell.GetThingList(map);
+            for (int i = 0; i < things.Count; i++)
+            {
+                if (things[i] is Pawn candidate && !candidate.Dead && candidate.HostileTo(Faction.OfPlayer))
+                {
+                    target = candidate;
+                    break;
+                }
+            }
+            if (target == null || target == active)
+            {
+                return;
+            }
+            Verb verb = active.TryGetAttackVerb(target);
+            if (verb == null)
+            {
+                return;
+            }
+            string text;
+            float chance = -1f;
+            if (verb.IsMeleeAttack)
+            {
+                float hit = Mathf.Clamp01(active.GetStatValue(StatDefOf.MeleeHitChance));
+                float dodge = Mathf.Clamp01(target.GetStatValue(StatDefOf.MeleeDodgeChance));
+                chance = hit * (1f - dodge);
+                text = $"hit ~{chance:P0} (melee)";
+            }
+            else if (!verb.CanHitTarget(target))
+            {
+                text = "no clear shot from here";
+            }
+            else
+            {
+                chance = ShotReport.HitReportFor(active, verb, target).TotalEstimatedHitChance;
+                text = $"hit ~{chance:P0}";
+            }
+            Text.Font = GameFont.Tiny;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            GUI.color = chance < 0f ? WarnColor
+                : chance >= 0.7f ? PathGoodColor
+                : chance >= 0.4f ? WarnColor
+                : OverColor;
+            // Stacked above the cursor with the AP label, clear of the tooltip zone.
+            Vector2 mouse = Event.current.mousePosition;
+            Widgets.Label(new Rect(mouse.x + 16f, mouse.y - 20f, 140f, 18f), text);
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.UpperLeft;
+        }
+
+        private static void HandleDrag(Rect header, ref Vector2 pos, ref bool isDragging, ref Vector2 offset)
+        {
+            Event evt = Event.current;
+            if (evt.type == EventType.MouseDown && evt.button == 0 && header.Contains(evt.mousePosition))
+            {
+                isDragging = true;
+                offset = evt.mousePosition - pos;
+                evt.Use();
+            }
+            else if (isDragging && evt.type == EventType.MouseDrag)
+            {
+                pos = evt.mousePosition - offset;
+                evt.Use();
+            }
+            else if (isDragging && (evt.type == EventType.MouseUp || evt.rawType == EventType.MouseUp))
+            {
+                isDragging = false;
+                evt.Use();
+            }
+        }
+
+        /// <summary>Scrolling prose log, newest at the bottom; drag the header to move.</summary>
+        private void DrawCombatLog(TSC_EncounterController ctrl)
+        {
+            IReadOnlyList<TSC_EncounterController.LogLine> lines = ctrl.CombatLog;
+            if (lines.Count == 0)
+            {
+                return;
+            }
+            if (logPos.x < 0f)
+            {
+                logPos = new Vector2(UI.screenWidth - logSize.x - 12f, 140f);
+            }
+            logSize.x = Mathf.Clamp(logSize.x, LogMinSize.x, LogMaxSize.x);
+            logSize.y = Mathf.Clamp(logSize.y, LogMinSize.y, LogMaxSize.y);
+            logPos.x = Mathf.Clamp(logPos.x, 0f, UI.screenWidth - logSize.x);
+            logPos.y = Mathf.Clamp(logPos.y, 0f, UI.screenHeight - logSize.y);
+            Rect header = new Rect(logPos.x, logPos.y, logSize.x, 20f);
+
+            // Resize grip (bottom-right corner) - handled before the move drag so
+            // the grip wins when both could claim the mouse.
+            Rect grip = new Rect(logPos.x + logSize.x - 16f, logPos.y + logSize.y - 16f, 16f, 16f);
+            Event evt = Event.current;
+            if (evt.type == EventType.MouseDown && evt.button == 0 && grip.Contains(evt.mousePosition))
+            {
+                logResizing = true;
+                logResizeStartMouse = evt.mousePosition;
+                logResizeStartSize = logSize;
+                evt.Use();
+            }
+            else if (logResizing && evt.type == EventType.MouseDrag)
+            {
+                logSize = logResizeStartSize + (evt.mousePosition - logResizeStartMouse);
+                logSize.x = Mathf.Clamp(logSize.x, LogMinSize.x, LogMaxSize.x);
+                logSize.y = Mathf.Clamp(logSize.y, LogMinSize.y, LogMaxSize.y);
+                evt.Use();
+            }
+            else if (logResizing && (evt.type == EventType.MouseUp || evt.rawType == EventType.MouseUp))
+            {
+                logResizing = false;
+                evt.Use();
+            }
+            HandleDrag(header, ref logPos, ref logDragging, ref logDragOffset);
+
+            Rect panel = new Rect(logPos.x, logPos.y, logSize.x, logSize.y);
+            GUI.color = new Color(0f, 0f, 0f, 0.55f);
+            GUI.DrawTexture(panel, BaseContent.WhiteTex);
+            GUI.color = new Color(1f, 1f, 1f, 0.08f);
+            GUI.DrawTexture(header, BaseContent.WhiteTex);
+            GUI.color = Color.white;
+            Text.Font = GameFont.Tiny;
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Widgets.Label(header, "COMBAT LOG");
+            TooltipHandler.TipRegion(header, "Drag to move");
+
+            // Resize grip visual
+            Text.Font = GameFont.Tiny;
+            Text.Anchor = TextAnchor.MiddleCenter;
+            GUI.color = new Color(1f, 1f, 1f, Mouse.IsOver(grip) || logResizing ? 0.9f : 0.35f);
+            Widgets.Label(grip, "◢");
+            TooltipHandler.TipRegion(grip, "Drag to resize");
+            GUI.color = Color.white;
+
+            // Newest at the bottom, filling upward until the panel is full.
+            Text.Anchor = TextAnchor.UpperLeft;
+            float innerWidth = logSize.x - 10f;
+            float yBottom = panel.yMax - 4f;
+            for (int i = lines.Count - 1; i >= 0; i--)
+            {
+                TSC_EncounterController.LogLine line = lines[i];
+                float height = Text.CalcHeight(line.text, innerWidth);
+                yBottom -= height;
+                if (yBottom < header.yMax + 2f)
+                {
+                    break;
+                }
+                GUI.color = line.color;
+                Widgets.Label(new Rect(panel.x + 5f, yBottom, innerWidth, height), line.text);
+            }
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.UpperLeft;
+        }
+
+        /// <summary>Vertical initiative panel: portrait + name per row; active highlighted, acted dimmed; click jumps; drag the header to move.</summary>
+        private void DrawTurnOrder(TSC_EncounterController ctrl)
+        {
+            IReadOnlyList<Pawn> order = ctrl.InitiativeOrder;
+            if (order == null || order.Count == 0)
+            {
+                return;
+            }
+            List<(Pawn pawn, int index)> entries = new List<(Pawn, int)>();
+            for (int i = 0; i < order.Count; i++)
+            {
+                Pawn p = order[i];
+                if (p != null && !p.Dead && !p.Downed && p.Spawned && p.Map == map)
+                {
+                    entries.Add((p, i));
+                }
+            }
+            if (entries.Count == 0)
+            {
+                return;
+            }
+            // Window: keep the current turn visible in big fights.
+            int start = 0;
+            if (entries.Count > MaxRows)
+            {
+                int currentPos = entries.FindIndex(e => e.index >= ctrl.TurnIndex);
+                if (currentPos < 0)
+                {
+                    currentPos = entries.Count - 1;
+                }
+                start = Mathf.Clamp(currentPos - 3, 0, entries.Count - MaxRows);
+            }
+            int shown = Mathf.Min(MaxRows, entries.Count - start);
+            int overflow = entries.Count - start - shown;
+
+            // Drag handling on the header strip.
+            float panelHeight = HeaderHeight + shown * RowHeight + (overflow > 0 ? 16f : 0f);
+            widgetPos.x = Mathf.Clamp(widgetPos.x, 0f, UI.screenWidth - PanelWidth);
+            widgetPos.y = Mathf.Clamp(widgetPos.y, 0f, UI.screenHeight - panelHeight);
+            Rect header = new Rect(widgetPos.x, widgetPos.y, PanelWidth, HeaderHeight);
+            Event evt = Event.current;
+            if (evt.type == EventType.MouseDown && evt.button == 0 && header.Contains(evt.mousePosition))
+            {
+                dragging = true;
+                dragOffset = evt.mousePosition - widgetPos;
+                evt.Use();
+            }
+            else if (dragging && evt.type == EventType.MouseDrag)
+            {
+                widgetPos = evt.mousePosition - dragOffset;
+                evt.Use();
+            }
+            else if (dragging && (evt.type == EventType.MouseUp || evt.rawType == EventType.MouseUp))
+            {
+                dragging = false;
+                evt.Use();
+            }
+
+            Rect panel = new Rect(widgetPos.x, widgetPos.y, PanelWidth, panelHeight);
+            GUI.color = new Color(0f, 0f, 0f, 0.55f);
+            GUI.DrawTexture(panel, BaseContent.WhiteTex);
+            GUI.color = new Color(1f, 1f, 1f, 0.08f);
+            GUI.DrawTexture(header, BaseContent.WhiteTex);
+            GUI.color = Color.white;
+            Text.Font = GameFont.Tiny;
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Widgets.Label(header, "TURN ORDER");
+            TooltipHandler.TipRegion(header, "Drag to move");
+
+            bool turnPhase = ctrl.Phase == TSC_EncounterController.EncounterPhase.Turn;
+            float y = widgetPos.y + HeaderHeight;
+            for (int s = 0; s < shown; s++)
+            {
+                (Pawn p, int index) = entries[start + s];
+                Rect row = new Rect(widgetPos.x, y, PanelWidth, RowHeight);
+                Rect tile = new Rect(row.x + 3f, row.y + (RowHeight - PortraitSize) / 2f, PortraitSize, PortraitSize);
+                bool isActive = turnPhase && index == ctrl.TurnIndex;
+                bool acted = turnPhase ? index < ctrl.TurnIndex : true; // env phase: whole cycle done
+
+                if (isActive)
+                {
+                    GUI.color = new Color(1f, 1f, 1f, 0.14f);
+                    GUI.DrawTexture(row, BaseContent.WhiteTex);
+                }
+                GUI.color = acted && !isActive ? ActedTint : Color.white;
+                GUI.DrawTexture(tile, PortraitsCache.Get(p, new Vector2(PortraitSize, PortraitSize), Rot4.South));
+                GUI.color = p.Faction == Faction.OfPlayer ? PlayerBorder : HostileBorder;
+                Widgets.DrawBox(tile, 1);
+                if (isActive)
+                {
+                    GUI.color = Color.white;
+                    Widgets.DrawBox(row, 1);
+                }
+                GUI.color = acted && !isActive ? new Color(0.65f, 0.65f, 0.65f, 0.7f)
+                    : p.Faction == Faction.OfPlayer ? Color.white
+                    : new Color(1f, 0.75f, 0.7f);
+                Text.Anchor = TextAnchor.MiddleLeft;
+                Widgets.Label(new Rect(tile.xMax + 5f, row.y, PanelWidth - PortraitSize - 12f, RowHeight),
+                    p.LabelShortCap);
+                GUI.color = Color.white;
+                if (Mouse.IsOver(row) && !dragging)
+                {
+                    Widgets.DrawHighlight(row);
+                }
+                if (Widgets.ButtonInvisible(row))
+                {
+                    CameraJumper.TryJump(p);
+                }
+                y += RowHeight;
+            }
+            if (overflow > 0)
+            {
+                GUI.color = Color.gray;
+                Text.Anchor = TextAnchor.MiddleCenter;
+                Widgets.Label(new Rect(widgetPos.x, y, PanelWidth, 16f), $"+{overflow} more");
+                GUI.color = Color.white;
+            }
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.UpperLeft;
+        }
+
+        public override void MapComponentOnGUI()
+        {
+            if (Find.CurrentMap != map)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.ActiveOn(map))
+            {
+                return;
+            }
+
+            bool paused = Find.TickManager.Paused;
+            string text;
+            if (ctrl.Phase == TSC_EncounterController.EncounterPhase.Environment)
+            {
+                text = ctrl.ApproachMode
+                    ? "TURN-BASED armed: approach freely; turns begin when enemies engage."
+                    : $"TURN-BASED, cycle {ctrl.Cycle}: the world moves...";
+            }
+            else
+            {
+                Pawn turnPawn = ctrl.ActivePawn;
+                string who = turnPawn?.LabelShortCap ?? "?";
+                bool player = turnPawn != null && turnPawn.IsColonistPlayerControlled;
+                text = player
+                    ? (paused ? $"TURN-BASED, cycle {ctrl.Cycle}: {who}'s turn. Right-click to move or attack; End turn to pass."
+                              : $"TURN-BASED, cycle {ctrl.Cycle}: {who} acts...")
+                    : $"TURN-BASED, cycle {ctrl.Cycle}: enemy turn ({who})...";
+                if (ctrl.ExitRequested)
+                {
+                    text += " (ending after enemy turns)";
+                }
+            }
+            // Stack below the colonist bar (portraits + name labels), not on it.
+            float topY = 8f;
+            ColonistBar colonistBar = Find.ColonistBar;
+            if (colonistBar != null && colonistBar.DrawLocs.Count > 0)
+            {
+                float barBottom = 0f;
+                List<Vector2> drawLocs = colonistBar.DrawLocs;
+                for (int i = 0; i < drawLocs.Count; i++)
+                {
+                    barBottom = Mathf.Max(barBottom, drawLocs[i].y);
+                }
+                topY = barBottom + colonistBar.Size.y + 26f;
+            }
+            Rect banner = new Rect(UI.screenWidth / 2f - 380f, topY, 760f, 30f);
+            GUI.color = new Color(0f, 0f, 0f, 0.6f);
+            GUI.DrawTexture(banner, BaseContent.WhiteTex);
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Widgets.Label(banner, text);
+            Text.Anchor = TextAnchor.UpperLeft;
+
+            DrawTurnOrder(ctrl);
+            DrawCombatLog(ctrl);
+            UpdatePathPreview(ctrl);
+            DrawPathPreviewLabel(ctrl);
+            DrawHitChanceLabel(ctrl);
+
+            // AP label over the active pawn only (everyone else is frozen anyway).
+            Pawn active = ctrl.ActivePawn;
+            if (active == null || !active.Spawned)
+            {
+                return;
+            }
+            float current = ctrl.ApOf(active);
+            float attackCost = TSC_EncounterController.AttackApCostFor(active);
+            Text.Font = GameFont.Tiny;
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Vector2 pos = GenMapUI.LabelDrawPosFor(active, -1.5f);
+            string label;
+            float planned = paused ? PlannedApCost(active) : 0f;
+            if (paused && planned > 0.01f)
+            {
+                float remaining = current - planned;
+                label = $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} → ~{remaining:0.#}";
+                GUI.color = remaining < -0.01f ? OverColor
+                    : remaining < attackCost ? WarnColor
+                    : AvailableColor;
+            }
+            else
+            {
+                label = $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} (atk {attackCost:0.#})";
+                GUI.color = current <= 0f ? SpentColor
+                    : current < attackCost ? WarnColor
+                    : AvailableColor;
+            }
+            Widgets.Label(new Rect(pos.x - 55f, pos.y - 8f, 110f, 16f), label);
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.UpperLeft;
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.GetGizmos))]
+    public static class Patch_Pawn_GetGizmos_EncounterToggle
+    {
+        public static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> gizmos, Pawn __instance)
+        {
+            foreach (Gizmo gizmo in gizmos)
+            {
+                yield return gizmo;
+            }
+            // Deliberately NOT scenario-gated (user decision): turn-based combat
+            // is a general feature of the mod, usable in any save.
+            if (!__instance.IsColonistPlayerControlled || !__instance.Drafted || __instance.Map == null)
+            {
+                yield break;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null)
+            {
+                yield break;
+            }
+            Map m = __instance.Map;
+            yield return new Command_Toggle
+            {
+                defaultLabel = "Turn-based mode",
+                defaultDesc = "Combatants (drafted pawns and hostiles) act one at a time in initiative order under an action-point budget; everyone else is frozen. Between cycles the world gets a few seconds to move. Ends when no threats remain.",
+                icon = TexCommand.Attack,
+                isActive = () => ctrl.ActiveOn(m),
+                toggleAction = () => ctrl.Toggle(m),
+            };
+            if (ctrl.ActiveOn(m) && ctrl.ActivePawn == __instance)
+            {
+                yield return new Command_Action
+                {
+                    defaultLabel = "End turn",
+                    defaultDesc = "Finish this pawn's turn now and pass to the next combatant.",
+                    icon = TexCommand.ForbidOff,
+                    action = ctrl.AdvanceTurn,
+                };
+            }
+        }
+    }
+
+    /// <summary>The freeze: out-of-turn pawns simply do not tick.</summary>
+    [HarmonyPatch(typeof(Pawn), "Tick")]
+    public static class Patch_Pawn_Tick_TurnFreeze
+    {
+        public static bool Prefix(Pawn __instance)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || !__instance.Spawned || !ctrl.ActiveOn(__instance.Map))
+            {
+                return true;
+            }
+            return ctrl.ShouldTickPawn(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), "TickInterval")]
+    public static class Patch_Pawn_TickInterval_TurnFreeze
+    {
+        public static bool Prefix(Pawn __instance)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || !__instance.Spawned || !ctrl.ActiveOn(__instance.Map))
+            {
+                return true;
+            }
+            return ctrl.ShouldTickPawn(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.TryTakeOrderedJob))]
+    public static class Patch_TryTakeOrderedJob_EncounterQueueing
+    {
+        /// <summary>Move-then-action: an action ordered while a move is underway queues behind it instead of replacing it.</summary>
+        public static void Prefix(Job job, ref bool requestQueueing, Pawn ___pawn)
+        {
+            if (job == null || ___pawn == null || Verse.Current.Game == null || requestQueueing)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.ActiveOn(___pawn.Map) || !___pawn.IsColonistPlayerControlled)
+            {
+                return;
+            }
+            if (!TSC_EncounterController.IsActionJob(job.def))
+            {
+                return;
+            }
+            Job current = ___pawn.CurJob;
+            if (current != null && TSC_EncounterController.IsMoveJob(current.def))
+            {
+                requestQueueing = true;
+            }
+        }
+
+        /// <summary>
+        /// Auto-resolve: an order issued to the ACTIVE pawn on their turn
+        /// unpauses the game by itself - right-click to move or attack, watch it
+        /// happen, control returns on idle. The pause is invisible plumbing.
+        /// </summary>
+        public static void Postfix(bool __result, Pawn ___pawn)
+        {
+            if (!__result || ___pawn == null || Verse.Current.Game == null)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.Active)
+            {
+                return;
+            }
+            if (___pawn == ctrl.ActivePawn && ___pawn.IsColonistPlayerControlled && Find.TickManager.Paused)
+            {
+                Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+            }
+        }
+    }
+
+    // ------------------------------------------------------------ combat numbers
+    // Numeric feed for the combat log: attack chances at the moment of the
+    // attempt, and per-hit damage with the armor soak. (RimWorld has no single
+    // visible "roll" - hits are a cascade of internal Rand calls - so the log
+    // shows chance + outcome, which carries the same information.)
+
+    /// <summary>Accumulates armor math within one TakeDamage call (armor runs per body part inside it).</summary>
+    internal static class TSC_DamageStash
+    {
+        public static Pawn victim;
+        public static float preArmor;
+        public static float postArmor;
+        public static bool deflected;
+
+        public static void Reset(Pawn newVictim)
+        {
+            victim = newVictim;
+            preArmor = 0f;
+            postArmor = 0f;
+            deflected = false;
+        }
+    }
+
+    [HarmonyPatch(typeof(Verb_MeleeAttack), "TryCastShot")]
+    public static class Patch_MeleeAttempt_LogNumbers
+    {
+        public static void Postfix(Verb_MeleeAttack __instance, bool __result)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            Pawn caster = __instance.CasterPawn;
+            if (ctrl == null || !ctrl.Active || caster == null || !ctrl.ActiveOn(caster.Map))
+            {
+                return;
+            }
+            if (!(__instance.CurrentTarget.Thing is Pawn victim))
+            {
+                return;
+            }
+            float hit = Mathf.Clamp01(caster.GetStatValue(StatDefOf.MeleeHitChance));
+            float dodge = victim.Downed ? 0f : Mathf.Clamp01(victim.GetStatValue(StatDefOf.MeleeDodgeChance));
+            ctrl.AddLog(
+                $"{caster.LabelShortCap} → {victim.LabelShortCap}: melee {hit:P0} to hit, {dodge:P0} dodge → {(__result ? "connects" : "misses")}",
+                TSC_EncounterController.LogWorldColor);
+        }
+    }
+
+    [HarmonyPatch(typeof(Verb_LaunchProjectile), "TryCastShot")]
+    public static class Patch_RangedAttempt_LogNumbers
+    {
+        public static void Postfix(Verb_LaunchProjectile __instance, bool __result)
+        {
+            if (!__result)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            Pawn caster = __instance.CasterPawn;
+            if (ctrl == null || !ctrl.Active || caster == null || !ctrl.ActiveOn(caster.Map))
+            {
+                return;
+            }
+            LocalTargetInfo target = __instance.CurrentTarget;
+            if (!target.IsValid || target.Thing == null)
+            {
+                return;
+            }
+            float chance = ShotReport.HitReportFor(caster, __instance, target).TotalEstimatedHitChance;
+            ctrl.AddLog(
+                $"{caster.LabelShortCap} fires at {target.Thing.LabelShortCap}: est. {chance:P0} to hit",
+                TSC_EncounterController.LogWorldColor);
+        }
+    }
+
+    [HarmonyPatch(typeof(ArmorUtility), nameof(ArmorUtility.GetPostArmorDamage))]
+    public static class Patch_Armor_LogNumbers
+    {
+        public static void Postfix(Pawn pawn, float amount, float __result, ref bool deflectedByMetalArmor)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || pawn == null || !ctrl.ActiveOn(pawn.MapHeld))
+            {
+                return;
+            }
+            if (TSC_DamageStash.victim != pawn)
+            {
+                TSC_DamageStash.Reset(pawn);
+            }
+            TSC_DamageStash.preArmor += amount;
+            TSC_DamageStash.postArmor += __result;
+            TSC_DamageStash.deflected |= deflectedByMetalArmor;
+        }
+    }
+
+    [HarmonyPatch(typeof(Thing), nameof(Thing.TakeDamage))]
+    public static class Patch_TakeDamage_LogNumbers
+    {
+        public static void Postfix(Thing __instance, DamageInfo dinfo, DamageWorker.DamageResult __result)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || !(__instance is Pawn victim) || !ctrl.ActiveOn(victim.MapHeld))
+            {
+                return;
+            }
+            float dealt = __result?.totalDamageDealt ?? 0f;
+            float soaked = 0f;
+            bool deflected = false;
+            if (TSC_DamageStash.victim == victim)
+            {
+                soaked = Mathf.Max(0f, TSC_DamageStash.preArmor - TSC_DamageStash.postArmor);
+                deflected = TSC_DamageStash.deflected;
+                TSC_DamageStash.Reset(null);
+            }
+            if (dealt < 0.1f && soaked < 0.1f && !deflected)
+            {
+                return;
+            }
+            string attacker = dinfo.Instigator is Pawn instigator ? instigator.LabelShortCap : dinfo.Instigator?.LabelCap;
+            string source = attacker.NullOrEmpty() ? "" : $" from {attacker}";
+            string line = deflected && dealt < 0.1f
+                ? $"{victim.LabelShortCap}: armor DEFLECTS the hit{source} ({soaked:0.#} soaked)"
+                : $"{victim.LabelShortCap} takes {dealt:0.#} damage{source}"
+                    + (soaked >= 0.1f ? $" (armor soaked {soaked:0.#})" : "");
+            Color color = victim.Faction == Faction.OfPlayer
+                ? TSC_EncounterController.LogFailColor
+                : TSC_EncounterController.LogSuccessColor;
+            ctrl.AddLog(line, color);
+        }
+    }
+
+    /// <summary>
+    /// Every attack the ACTIVE combatant fires costs weapon-scaled AP; without
+    /// the points it is blocked (turn is ending anyway). AP is charged in the
+    /// POSTFIX, only when the cast actually started - a cast the verb itself
+    /// rejects (out of range, no line of sight) costs nothing. Same rule for
+    /// the real-time exertion hangover.
+    /// </summary>
+    [HarmonyPatch(typeof(Verb), nameof(Verb.TryStartCastOn),
+        typeof(LocalTargetInfo), typeof(LocalTargetInfo), typeof(bool), typeof(bool), typeof(bool), typeof(bool))]
+    public static class Patch_Verb_TryStartCastOn_ApCost
+    {
+        public struct PendingCharge
+        {
+            public Pawn caster;
+            public float cost;
+            public bool realtime;
+        }
+
+        public static bool Prefix(Verb __instance, ref bool __result, out PendingCharge __state)
+        {
+            __state = default;
+            if (Verse.Current.Game == null || !__instance.CasterIsPawn)
+            {
+                return true;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            Pawn caster = __instance.CasterPawn;
+            if (ctrl == null || caster == null)
+            {
+                return true;
+            }
+            bool combatVerb = __instance.IsMeleeAttack
+                || __instance.EquipmentSource != null
+                || __instance is Verb_CastAbility;
+            if (!combatVerb)
+            {
+                return true;
+            }
+            float cost = TSC_EncounterController.AttackApCost(__instance);
+            if (!ctrl.Active || caster != ctrl.ActivePawn)
+            {
+                // Real time (or approach): exertion charged in the postfix.
+                __state = new PendingCharge { caster = caster, cost = cost, realtime = true };
+                return true;
+            }
+            if (!ctrl.CanAffordAp(caster, cost))
+            {
+                ctrl.NoteAttackBlocked(caster);
+                __result = false;
+                return false;
+            }
+            __state = new PendingCharge { caster = caster, cost = cost };
+            return true;
+        }
+
+        public static void Postfix(bool __result, PendingCharge __state)
+        {
+            if (!__result || __state.caster == null)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null)
+            {
+                return;
+            }
+            if (__state.realtime)
+            {
+                ctrl.NoteRealtimeAttack(__state.caster, __state.cost);
+            }
+            else if (ctrl.Active && __state.caster == ctrl.ActivePawn)
+            {
+                ctrl.SpendAp(__state.caster, __state.cost);
+            }
+        }
+    }
+}

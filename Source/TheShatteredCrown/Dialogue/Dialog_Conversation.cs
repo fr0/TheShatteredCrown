@@ -192,6 +192,13 @@ namespace TheShatteredCrown
                 string checkerNote = checker != null ? $" ({checker.LabelShortCap})" : string.Empty;
                 string resultLine = $"{checkName} check{checkerNote}: {roll} + {level} = {roll + level} vs {option.check.difficulty}: {(success ? "Success!" : "Failure")}";
                 transcript.Add(new TranscriptEntry(resultLine, success ? SuccessColor : FailColor));
+                // Mid-encounter dialogue: the roll belongs in the combat log too.
+                TSC_EncounterController encounter = TSC_EncounterController.Current;
+                if (encounter != null && encounter.ActiveOn(context.npc?.Map))
+                {
+                    encounter.AddLog(resultLine,
+                        success ? TSC_EncounterController.LogSuccessColor : TSC_EncounterController.LogFailColor);
+                }
                 if (success)
                 {
                     SoundDefOf.Quest_Succeded.PlayOneShotOnCamera();

@@ -17,6 +17,17 @@ namespace TheShatteredCrown
             return false;
         }
 
+        [DebugAction("The Shattered Crown", "Toggle RPG mode override", allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        private static void ToggleRpgOverride()
+        {
+            TSC_RpgMode.debugOverride = !TSC_RpgMode.debugOverride;
+            Messages.Message(
+                TSC_RpgMode.debugOverride
+                    ? "RPG systems FORCED ON for this session (any scenario). Dev testing only."
+                    : "RPG systems override off (scenario gating restored).",
+                RimWorld.MessageTypeDefOf.NeutralEvent, historical: false);
+        }
+
         [DebugAction("The Shattered Crown", "Add XP to party...", allowedGameStates = AllowedGameStates.PlayingOnMap)]
         private static void AddXpToParty()
         {
