@@ -40,7 +40,9 @@ namespace TheShatteredCrown
         // the pawn's FIRST turn after entering turn-based; it decays to nothing
         // over ~5s of calm. Closes the "act free in real time, re-enter fresh"
         // seam. Player pawns only - enemies pay via the cede-first-cycle rule.
+        // Capped below a full pool: a winded pawn always keeps at least 1 AP.
         public const float HangoverDecayPerTick = BaseAp / (2f * RoundTicks);
+        public const float MaxHangoverAp = BaseAp - 1f;
 
         private const int EnvPhaseTicks = 120;      // 2s of world time between cycles
         private const int MaxTurnTicks = 900;       // hard cap per RESUME (15s safety net)
@@ -183,6 +185,22 @@ namespace TheShatteredCrown
         }
 
         // ---------------------------------------------------------------- lifecycle
+
+        // The gizmo is grouped across every selected drafted pawn, and RimWorld
+        // fires a grouped command's action once PER PAWN on a single click -
+        // debounce to one toggle per frame or a squad-click toggles N times
+        // (on-then-off, or scheduling an exit the player never asked for).
+        private static int lastToggleFrame = -1;
+
+        public void ToggleOncePerClick(Map m)
+        {
+            if (Time.frameCount == lastToggleFrame)
+            {
+                return;
+            }
+            lastToggleFrame = Time.frameCount;
+            Toggle(m);
+        }
 
         // Toggling is exploit-safe, Pathfinder-style: one shared economy, and
         // switching never grants actions. Leaving mid-cycle is DEFERRED until
@@ -372,14 +390,23 @@ namespace TheShatteredCrown
             turnStartTick = -1;
             attackBlockedTick = -1;
             cycleTurnsTaken++;
-            ap.Remove(activePawn);        // fresh AP for their turn
+            // Fresh pool, plus up to 1 unspent AP banked from their last turn.
+            float carry = ap.TryGetValue(activePawn, out float unspent)
+                ? Mathf.Clamp(unspent, 0f, 1f)
+                : 0f;
+            ap.Remove(activePawn);
             apMessaged.Remove(activePawn);
+            if (carry > 0.05f)
+            {
+                ap[activePawn] = BaseAp + carry;
+                AddLog($"{activePawn.LabelShortCap} carries {carry:0.#} unspent AP ({ApOf(activePawn):0.#} this turn).", LogWorldColor);
+            }
             if (activePawn.IsColonistPlayerControlled)
             {
                 float hangover = TakeHangover(activePawn);
                 if (hangover > 0.05f)
                 {
-                    ap[activePawn] = Mathf.Max(0f, BaseAp - hangover);
+                    ap[activePawn] = Mathf.Max(0f, ApOf(activePawn) - hangover);
                     Messages.Message($"{activePawn.LabelShortCap} is winded from the fighting: {ApOf(activePawn):0.#} AP this turn.",
                         activePawn, MessageTypeDefOf.SilentInput, historical: false);
                     AddLog($"{activePawn.LabelShortCap} is winded ({ApOf(activePawn):0.#} AP).", LogWorldColor);
@@ -448,12 +475,47 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            if (active && !approachMode)
+            if (!AnyHostileNear(caster))
             {
-                return; // in-turn attacks are charged for real, not remembered
+                return;
             }
-            recentExertion[caster] = Mathf.Min(BaseAp,
+            // In-turn attacks are charged for real; ARMED approach is already
+            // committed to turn-based (turns begin within the engage recheck),
+            // so there is no real-time seam to remember. Exertion is only for
+            // combat fought with the mode fully OFF.
+            if (active)
+            {
+                return;
+            }
+            recentExertion[caster] = Mathf.Min(MaxHangoverAp,
                 (recentExertion.TryGetValue(caster, out float v) ? v : 0f) + cost);
+        }
+
+        /// <summary>Any live hostile within engage range of the pawn - the zone where exertion counts.</summary>
+        private static bool AnyHostileNear(Pawn p)
+        {
+            Map m = p.Map;
+            if (m == null)
+            {
+                return false;
+            }
+            foreach (IAttackTarget target in m.attackTargetsCache.TargetsHostileToColony)
+            {
+                Thing thing = target.Thing;
+                if (thing == null || !thing.Spawned)
+                {
+                    continue;
+                }
+                if (thing is Pawn hostile && (hostile.Dead || hostile.Downed))
+                {
+                    continue;
+                }
+                if (thing.Position.InHorDistOf(p.Position, EngageRadius))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>Rolling real-time exertion: movement accrues, calm decays. Runs while the mode is off or in approach.</summary>
@@ -462,11 +524,20 @@ namespace TheShatteredCrown
             tmpAccrued.Clear();
             foreach (Map m in Find.Maps)
             {
-                // Exertion is a COMBAT concept: peacetime marching (walking the
-                // squad to the battlefield) must not wind anyone. Only accrue
-                // while the map is actually dangerous - which is exactly when
-                // real-time weaving could be exploited.
+                // Exertion is a COMBAT concept: marching to the battlefield -
+                // even on a map that technically has hostiles somewhere - must
+                // not wind anyone. Accrue only while the map is dangerous AND
+                // hostiles are within engage range of the pawn: exactly where
+                // real-time weaving could cheat the turn economy.
                 if (m.dangerWatcher.DangerRating == StoryDanger.None)
+                {
+                    continue;
+                }
+                // The ARMED map is committed to turn-based: the last stretch
+                // of the approach (inside engage range, before the recheck
+                // fires) must not shave AP off the first turn. Decay still
+                // runs below; only accrual is skipped.
+                if (active && approachMode && m == map)
                 {
                     continue;
                 }
@@ -474,9 +545,9 @@ namespace TheShatteredCrown
                 for (int i = 0; i < colonists.Count; i++)
                 {
                     Pawn p = colonists[i];
-                    if (p.Drafted && p.pather != null && p.pather.MovingNow)
+                    if (p.Drafted && p.pather != null && p.pather.MovingNow && AnyHostileNear(p))
                     {
-                        recentExertion[p] = Mathf.Min(BaseAp,
+                        recentExertion[p] = Mathf.Min(MaxHangoverAp,
                             (recentExertion.TryGetValue(p, out float v) ? v : 0f) + ApPerMoveTick);
                         tmpAccrued.Add(p);
                     }
@@ -526,6 +597,20 @@ namespace TheShatteredCrown
             }
         }
 
+        /// <summary>
+        /// A pawn's sprite trails its logical position (render tween). When a
+        /// turn ends the pawn freezes instantly, but the sprite would finish
+        /// settling DURING the next pawn's turn - a ghostly "tiny move". Snap
+        /// the tween now so frozen means visually frozen.
+        /// </summary>
+        private static void SettleSprite(Pawn p)
+        {
+            if (p != null && p.Spawned)
+            {
+                p.Drawer?.tweener?.ResetTweenedPosToRoot();
+            }
+        }
+
         /// <summary>End turn button / auto-advance.</summary>
         public void AdvanceTurn()
         {
@@ -533,6 +618,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            SettleSprite(activePawn);
             StartTurn(turnIndex + 1);
         }
 
@@ -1032,11 +1118,7 @@ namespace TheShatteredCrown
                 : SimpleColor.Yellow;
         }
 
-        private readonly List<IntVec3> activePawnCells = new List<IntVec3>();
-        private static readonly Color ActivePlayerEdgeColor = new Color(0.4f, 0.65f, 1f);
-        private static readonly Color ActiveHostileEdgeColor = new Color(1f, 0.35f, 0.3f);
-
-        /// <summary>Cell rectangle + pulsing ring marking the pawn whose turn it is.</summary>
+        /// <summary>Pulsing translucent disc + ring marking the pawn whose turn it is.</summary>
         private void DrawActivePawnHighlight(TSC_EncounterController ctrl)
         {
             Pawn p = ctrl.ActivePawn;
@@ -1045,16 +1127,18 @@ namespace TheShatteredCrown
                 return;
             }
             bool player = p.IsColonistPlayerControlled;
-            activePawnCells.Clear();
-            foreach (IntVec3 cell in p.OccupiedRect())
-            {
-                activePawnCells.Add(cell);
-            }
-            GenDraw.DrawFieldEdges(activePawnCells, player ? ActivePlayerEdgeColor : ActiveHostileEdgeColor);
-            float pulse = 0.7f + 0.12f * Mathf.Sin(Time.realtimeSinceStartup * 4f);
+            float pulse = 0.85f + 0.18f * Mathf.Sin(Time.realtimeSinceStartup * 4f);
             Vector3 center = p.DrawPos;
             center.y = AltitudeLayer.MetaOverlays.AltitudeFor();
-            GenDraw.DrawCircleOutline(center, pulse, player ? SimpleColor.Blue : SimpleColor.Red);
+            Material fill = player ? TSC_EncounterFx.ActiveFillPlayer : TSC_EncounterFx.ActiveFillHostile;
+            Graphics.DrawMesh(MeshPool.plane10,
+                Matrix4x4.TRS(center, Quaternion.identity, new Vector3(pulse * 2f, 1f, pulse * 2f)),
+                fill, 0);
+            SimpleColor ringColor = player ? SimpleColor.Blue : SimpleColor.Red;
+            // Concentric outlines read as one thick band.
+            GenDraw.DrawCircleOutline(center, pulse, ringColor);
+            GenDraw.DrawCircleOutline(center, pulse - 0.07f, ringColor);
+            GenDraw.DrawCircleOutline(center, pulse - 0.14f, ringColor);
         }
 
         /// <summary>Active-pawn highlight + world-space dashed line along the previewed path (runs on the render update).</summary>
@@ -1528,7 +1612,7 @@ namespace TheShatteredCrown
                 defaultDesc = "Combatants (drafted pawns and hostiles) act one at a time in initiative order under an action-point budget; everyone else is frozen. Between cycles the world gets a few seconds to move. Ends when no threats remain.",
                 icon = TexCommand.Attack,
                 isActive = () => ctrl.ActiveOn(m),
-                toggleAction = () => ctrl.Toggle(m),
+                toggleAction = () => ctrl.ToggleOncePerClick(m),
             };
             if (ctrl.ActiveOn(m) && ctrl.ActivePawn == __instance)
             {
@@ -1569,6 +1653,69 @@ namespace TheShatteredCrown
                 return true;
             }
             return ctrl.ShouldTickPawn(__instance);
+        }
+    }
+
+    /// <summary>Runtime-built textures/materials for encounter overlays (main thread via StaticConstructorOnStartup).</summary>
+    [StaticConstructorOnStartup]
+    public static class TSC_EncounterFx
+    {
+        public static readonly Material ActiveFillPlayer;
+        public static readonly Material ActiveFillHostile;
+
+        static TSC_EncounterFx()
+        {
+            Texture2D disc = MakeDiscTex(64);
+            ActiveFillPlayer = MaterialPool.MatFrom(new MaterialRequest(disc, ShaderDatabase.Transparent,
+                new Color(0.3f, 0.55f, 1f, 0.22f)));
+            ActiveFillHostile = MaterialPool.MatFrom(new MaterialRequest(disc, ShaderDatabase.Transparent,
+                new Color(1f, 0.3f, 0.25f, 0.22f)));
+        }
+
+        /// <summary>Solid white disc with a soft outer edge; tinting comes from the material color.</summary>
+        private static Texture2D MakeDiscTex(int size)
+        {
+            Texture2D tex = new Texture2D(size, size, TextureFormat.ARGB32, mipChain: false);
+            float r = size / 2f - 0.5f;
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float d = Mathf.Sqrt((x - r) * (x - r) + (y - r) * (y - r)) / r;
+                    float a = d >= 1f ? 0f : Mathf.Clamp01((1f - d) * 6f);
+                    tex.SetPixel(x, y, new Color(1f, 1f, 1f, a));
+                }
+            }
+            tex.Apply();
+            return tex;
+        }
+    }
+
+    /// <summary>
+    /// While turns are running, fire-at-will is suppressed: attacks happen
+    /// only on explicit orders, so auto-fire cannot silently spend the turn's
+    /// AP. The player's actual setting is untouched (the getter is masked, not
+    /// the field) and applies again in real time / armed approach.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_DraftController), nameof(Pawn_DraftController.FireAtWill), MethodType.Getter)]
+    public static class Patch_FireAtWill_TurnBasedSuppression
+    {
+        public static void Postfix(Pawn_DraftController __instance, ref bool __result)
+        {
+            if (!__result)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || ctrl.ApproachMode)
+            {
+                return;
+            }
+            Pawn pawn = __instance.pawn;
+            if (pawn != null && ctrl.ActiveOn(pawn.Map))
+            {
+                __result = false;
+            }
         }
     }
 
