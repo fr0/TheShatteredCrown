@@ -33,11 +33,15 @@ namespace TheShatteredCrown
 
         public override IEnumerable<FloatMenuOption> GetOptionsFor(Thing clickedThing, FloatMenuContext context)
         {
-            if (clickedThing.def != TSC_DefOf.TSC_MossCache)
+            if (clickedThing.def != TSC_DefOf.TSC_MossCache && clickedThing.def != TSC_DefOf.TSC_CellarHatch)
             {
                 yield break;
             }
-            if (!(clickedThing is IOpenable openable) || !openable.CanOpen)
+            // The hatch is a MapPortal, not an openable crate: only the crates
+            // need the IOpenable gate (this check ahead of the hatch branch
+            // silently removed the pick option after the portal conversion).
+            if (clickedThing.def == TSC_DefOf.TSC_MossCache
+                && (!(clickedThing is IOpenable openable) || !openable.CanOpen))
             {
                 yield break;
             }
@@ -52,6 +56,28 @@ namespace TheShatteredCrown
                 yield break;
             }
             Thing localThing = clickedThing;
+            if (clickedThing.def == TSC_DefOf.TSC_CellarHatch)
+            {
+                Building_TSC_CellarHatch hatch = clickedThing as Building_TSC_CellarHatch;
+                if (hatch != null && hatch.Unlocked)
+                {
+                    yield break; // unlocked: the portal's own Enter option takes over
+                }
+                if (hatch != null && hatch.AttemptSpent)
+                {
+                    yield return new FloatMenuOption(
+                        "Cannot pick the lock: it has taken the party's measure", null);
+                    yield break;
+                }
+                // Druid-made lock: finesse or nothing (no Athletics option),
+                // and ONE attempt EVER - choose your picker well.
+                yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
+                    "[Thievery] Pick the cellar lock (one attempt only)", delegate
+                    {
+                        actor.jobs.TryTakeOrderedJob(JobMaker.MakeJob(TSC_DefOf.TSC_PickChest, localThing), JobTag.Misc);
+                    }), actor, clickedThing);
+                yield break;
+            }
             yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
                 "[Thievery] Pick the chest's lock quietly", delegate
                 {
@@ -82,6 +108,34 @@ namespace TheShatteredCrown
             open.initAction = delegate
             {
                 Thing chest = Chest;
+
+                // Maewyn's cellar hatch: not an openable crate but a locked
+                // MAP PORTAL. Pick-only; success UNLOCKS the way down (failure
+                // just holds, retry allowed), and a successful pick has a
+                // witness if Maewyn is in the party.
+                if (chest is Building_TSC_CellarHatch hatch)
+                {
+                    if (hatch.Unlocked || hatch.AttemptSpent)
+                    {
+                        return;
+                    }
+                    bool picked = TSC_CheckUtility.Roll(pawn, TSC_DefOf.TSC_Prof_Thievery, 8, out string pickLine);
+                    if (picked)
+                    {
+                        hatch.Unlock();
+                        Messages.Message($"{pickLine}\nThe druid-made lock yields, grudgingly. Cold cellar air breathes up through the hatch.",
+                            chest, MessageTypeDefOf.PositiveEvent, historical: false);
+                        NoteCellarTheft(pawn);
+                    }
+                    else
+                    {
+                        hatch.NoteFailed();
+                        Messages.Message($"{pickLine}\nThe pick snaps off something that is not quite metal. The lock holds, and it will not be surprised twice.",
+                            chest, MessageTypeDefOf.NeutralEvent, historical: false);
+                    }
+                    return;
+                }
+
                 if (!(chest is IOpenable openable) || !openable.CanOpen)
                 {
                     return;
@@ -123,6 +177,35 @@ namespace TheShatteredCrown
             yield return open;
         }
 
+        /// <summary>
+        /// Robbing Maewyn's cellar with Maewyn in the party: she knows her own
+        /// lock's voice. The -10 lands unconditionally; her confrontation opens
+        /// as a REAL conversation with the picker (closing it unanswered leaves
+        /// the "About your cellar..." follow-up available in her hub).
+        /// </summary>
+        private static void NoteCellarTheft(Pawn picker)
+        {
+            NamedNpcDef def = DefDatabase<NamedNpcDef>.GetNamedSilentFail("TSC_Npc_Maewyn");
+            DialogueStateManager state = DialogueStateManager.Current;
+            Pawn maewyn = state.GetNamedNpcIfExists(def);
+            if (def == null || maewyn == null || maewyn.Dead || maewyn.Faction != Faction.OfPlayer)
+            {
+                return;
+            }
+            state.Set("TSC_MaewynCellarTheft");
+            state.ChangeAffinity(def, -10);
+            DialogueDef confrontation = DefDatabase<DialogueDef>.GetNamedSilentFail("TSC_Dialogue_Maewyn_CellarTheft");
+            if (confrontation != null)
+            {
+                Find.WindowStack.Add(new Dialog_Conversation(confrontation, maewyn, picker));
+            }
+            else
+            {
+                Messages.Message("Maewyn: \"Thirty years that hatch kept itself shut, and I know my own lock's voice, rider.\"",
+                    maewyn, MessageTypeDefOf.NegativeEvent, historical: false);
+            }
+        }
+
         private static void WakeDormant(Thing around)
         {
             Map map = around.Map;
@@ -142,6 +225,43 @@ namespace TheShatteredCrown
                     dormant.WakeUp();
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// The camp crates are the company's ACTIVE stores: opening one uninvited
+    /// while Serra lives is theft. She calls it out once, and each opened
+    /// crate costs -5 affinity - unless she has offered supplies (the
+    /// TSC_Serra_Supplies dialogue flag makes it sanctioned).
+    /// </summary>
+    [HarmonyLib.HarmonyPatch(typeof(Building_Crate), nameof(Building_Crate.Open))]
+    public static class Patch_CampCrate_Theft
+    {
+        public static void Postfix(Building_Crate __instance)
+        {
+            if (__instance.def != TSC_DefOf.TSC_CampCrate_Provisions
+                && __instance.def != TSC_DefOf.TSC_CampCrate_Sundries)
+            {
+                return;
+            }
+            DialogueStateManager state = DialogueStateManager.Current;
+            if (state.IsSet("TSC_Serra_Supplies"))
+            {
+                return; // she offered: sanctioned
+            }
+            NamedNpcDef serraDef = DefDatabase<NamedNpcDef>.GetNamedSilentFail("TSC_Npc_Serra");
+            Pawn serra = serraDef != null ? state.GetNamedNpcIfExists(serraDef) : null;
+            if (serra == null || serra.Dead)
+            {
+                return; // nobody left to object
+            }
+            if (!state.IsSet("TSC_SerraCrateCalledOut"))
+            {
+                state.Set("TSC_SerraCrateCalledOut");
+                Messages.Message("Serra: \"Those are my company's stores, courier. In this pass, that rope is the difference between wintering and starving. ASK next time.\"",
+                    serra, MessageTypeDefOf.NegativeEvent, historical: false);
+            }
+            state.ChangeAffinity(serraDef, -5);
         }
     }
 

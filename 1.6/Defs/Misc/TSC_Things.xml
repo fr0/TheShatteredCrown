@@ -128,4 +128,124 @@
     </comps>
   </ThingDef>
 
+  <!-- The Wayfarers' camp stores: ACTIVE company property, not ruin salvage.
+       Opening one uninvited while Serra lives is THEFT (Harmony postfix on
+       Building_Crate.Open): her callout once + -5 affinity per crate - unless
+       her supplies offer was made (flag TSC_Serra_Supplies). -->
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_CampCrate_Provisions</defName>
+    <label>company provisions crate</label>
+    <description>The Wayfarer company's traveling larder, ropes still tight. Property of people who are sitting right there.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_CampProvisions</contents>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_CampCrate_Sundries</defName>
+    <label>company supply crate</label>
+    <description>Tools, cordage, oilcloth: the Wayfarer company's working stores. Property of people who are sitting right there.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_CommonCache</contents>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- Maewyn's bees: skep hives dotted around the grove (spawned by
+       GenStep_TSC_Village when the GenStepDef sets <beehive>). Slowly yield
+       wild honey (spawned forbidden - it's HERS until you claim it). -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_Beehive</defName>
+    <label>beehive</label>
+    <description>A woven skep hive, kept the old way. The bees come and go on their own errands and keep their opinions to a low hum. Occasionally yields wild honey.</description>
+    <thingClass>Building</thingClass>
+    <size>(1,1)</size>
+    <passability>PassThroughOnly</passability>
+    <pathCost>40</pathCost>
+    <fillPercent>0.35</fillPercent>
+    <rotatable>false</rotatable>
+    <tickerType>Normal</tickerType>
+    <graphicData>
+      <texPath>Things/Building/Production/FermentingBarrel</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <color>(0.85,0.72,0.4)</color>
+      <drawSize>(0.85,0.85)</drawSize>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Flammability>1.2</Flammability>
+      <Mass>8</Mass>
+      <MarketValue>60</MarketValue>
+      <WorkToBuild>800</WorkToBuild>
+    </statBases>
+    <building>
+      <isEdifice>true</isEdifice>
+      <deconstructible>true</deconstructible>
+      <claimable>true</claimable>
+    </building>
+    <minifiedDef>MinifiedThing</minifiedDef>
+    <thingCategories>
+      <li>BuildingsMisc</li>
+    </thingCategories>
+    <comps>
+      <li Class="CompProperties_Spawner">
+        <thingToSpawn>TSC_WildHoney</thingToSpawn>
+        <spawnCount>4</spawnCount>
+        <spawnIntervalRange>90000~150000</spawnIntervalRange>
+        <spawnMaxAdjacent>12</spawnMaxAdjacent>
+        <spawnForbidden>true</spawnForbidden>
+        <writeTimeLeftToSpawn>false</writeTimeLeftToSpawn>
+        <showMessageIfOwned>false</showMessageIfOwned>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="OrganicProductBase">
+    <defName>TSC_WildHoney</defName>
+    <label>wild honey</label>
+    <description>Comb honey from a druid's skeps, sticky and improbably good. Eaten raw as a treat, or cooked into anything that deserves it.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/PlantFoodRaw/Hay</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <color>(0.95,0.75,0.3)</color>
+    </graphicData>
+    <socialPropernessMatters>true</socialPropernessMatters>
+    <statBases>
+      <MarketValue>3</MarketValue>
+      <Mass>0.025</Mass>
+      <Flammability>0.4</Flammability>
+      <DeteriorationRate>3</DeteriorationRate>
+      <Nutrition>0.05</Nutrition>
+    </statBases>
+    <ingestible>
+      <foodType>VegetableOrFruit</foodType>
+      <preferability>RawTasty</preferability>
+      <joy>0.08</joy>
+      <joyKind>Gluttonous</joyKind>
+      <ingestEffect>EatVegetarian</ingestEffect>
+      <ingestSound>Meal_Eat</ingestSound>
+    </ingestible>
+    <thingCategories>
+      <li>FoodRaw</li>
+    </thingCategories>
+  </ThingDef>
+
+  <!-- Left camp crate: always one full stack of pemmican (75). -->
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_CampProvisions</defName>
+    <root Class="ThingSetMaker_StackCount">
+      <fixedParams>
+        <filter>
+          <thingDefs>
+            <li>Pemmican</li>
+          </thingDefs>
+        </filter>
+        <countRange>75~75</countRange>
+      </fixedParams>
+    </root>
+  </ThingSetMakerDef>
+
 </Defs>

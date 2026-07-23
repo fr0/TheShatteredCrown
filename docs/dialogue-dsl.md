@@ -103,8 +103,11 @@ display text. Indented lines under an option add behavior:
 | `in_party()` | the NPC being talked to is in the player faction |
 | `in_party(NamedNpcDefName)` | that named character is in the player faction |
 | `nearby(NamedNpcDefName)` | that named character is spawned on this conversation's map within 20 tiles of the NPC - pair with `in_party(...)` for "your companion is standing right here" reactions |
+| `kind_on_map(PawnKindDefName)` | a living player-owned pawn of that kind is spawned on this conversation's map - use for "you brought the creature HERE" gates (e.g. Oswin's rites need the ettersnap at camp) |
 | `dead(NamedNpcDefName)` / `not dead(...)` | that named character has died (destroyed-but-living, e.g. a despawned site, does NOT count) - use for delivering news of a death |
 | `passive(Insight, 8)` | passive check: 5 + party's best effective proficiency ≥ DC (no die; stable visibility - use for noticing things) |
+| `affinity(>=10)` | the NPC being talked to is at least that warm (also `<=`, `>`, `<`; tiers: hostile <=-20, cold <0, neutral 0-9, warm 10-24, devoted 25+) |
+| `affinity(TSC_Npc_Serra, >=25)` | that named character's affinity qualifies (whether or not they're the one talking) |
 
 ## Effects
 
@@ -122,6 +125,8 @@ display text. Indented lines under an option add behavior:
 | `learn_class(TSC_Class_Cleric)` | the TALKING COLONIST learns a class (level 1; banked levels are assigned via the Level up! dialog) |
 | `teach_class(TSC_Class_Bard)` | the NPC being talked to learns a class |
 | `grant_prof(Lore, 1)` | the talking colonist gains proficiency points (friendly names or defNames) |
+| `affinity(+5)` | the NPC being talked to gains 5 affinity ("X approves. (+5)" message; use negatives to lose it, |10|+ reads "greatly") |
+| `affinity(TSC_Npc_Bran, -5)` | a specific named character's affinity shifts - bystander reactions to a choice made in someone else's conversation |
 
 ## Text substitutions (at display time)
 

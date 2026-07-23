@@ -590,17 +590,62 @@ namespace TheShatteredCrown
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Collections.Look(ref xp, "xp", LookMode.Reference, LookMode.Value, ref workingPawnsA, ref workingXp);
-            Scribe_Collections.Look(ref records, "records", LookMode.Reference, LookMode.Deep, ref workingPawnsB, ref workingRecords);
-            Scribe_Collections.Look(ref proficiencies, "proficiencies", LookMode.Reference, LookMode.Deep, ref workingPawnsC, ref workingProfs);
-            Scribe_Collections.Look(ref energy, "energy", LookMode.Reference, LookMode.Value, ref workingPawnsD, ref workingEnergy);
+            // Tolerant pawn-keyed scribing (same on-disk format as vanilla
+            // dictionary Look): discarded pawns are pruned at SAVE (enemy
+            // casters die and get discarded; their refs load as null), and the
+            // LOAD rebuild skips null/duplicate keys instead of throwing -
+            // vanilla's BuildDictionary aborts the whole dictionary when two
+            // dead keys both resolve to null, losing colonist data with it.
+            LookPawnDict(ref xp, ref workingPawnsA, ref workingXp, "xp", LookMode.Value);
+            LookPawnDict(ref records, ref workingPawnsB, ref workingRecords, "records", LookMode.Deep);
+            LookPawnDict(ref proficiencies, ref workingPawnsC, ref workingProfs, "proficiencies", LookMode.Deep);
+            LookPawnDict(ref energy, ref workingPawnsD, ref workingEnergy, "energy", LookMode.Value);
+        }
+
+        private static void LookPawnDict<V>(ref Dictionary<Pawn, V> dict, ref List<Pawn> keys, ref List<V> values,
+            string label, LookMode valueMode)
+        {
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                keys = new List<Pawn>();
+                values = new List<V>();
+                foreach (KeyValuePair<Pawn, V> pair in dict)
+                {
+                    if (pair.Key != null && !pair.Key.Discarded)
+                    {
+                        keys.Add(pair.Key);
+                        values.Add(pair.Value);
+                    }
+                }
+            }
+            if (Scribe.EnterNode(label))
+            {
+                try
+                {
+                    Scribe_Collections.Look(ref keys, "keys", LookMode.Reference);
+                    Scribe_Collections.Look(ref values, "values", valueMode);
+                }
+                finally
+                {
+                    Scribe.ExitNode();
+                }
+            }
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
-                xp = xp ?? new Dictionary<Pawn, int>();
-                records = records ?? new Dictionary<Pawn, TSC_ClassRecord>();
-                proficiencies = proficiencies ?? new Dictionary<Pawn, TSC_ProficiencySet>();
-                energy = energy ?? new Dictionary<Pawn, float>();
-                energy.RemoveAll(kv => kv.Key == null);
+                dict = new Dictionary<Pawn, V>();
+                if (keys != null && values != null)
+                {
+                    int count = System.Math.Min(keys.Count, values.Count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        if (keys[i] != null && !dict.ContainsKey(keys[i]))
+                        {
+                            dict[keys[i]] = values[i];
+                        }
+                    }
+                }
+                keys = null;
+                values = null;
             }
         }
     }

@@ -54,10 +54,23 @@ namespace TheShatteredCrown
             }
             foreach (Map map in Find.Maps)
             {
-                if (map.listerThings.ThingsOfDef(item).Count > 0)
+                // Detection means POSSESSION, not proximity: quest loot can
+                // lie pre-spawned on site/pocket maps (the barrow moss on the
+                // crypt floor), and merely generating the map must not
+                // complete the fetch. Loose items only count on a player HOME
+                // map (hauled home); elsewhere someone must pick them up.
+                if (map.IsPlayerHome && map.listerThings.ThingsOfDef(item).Count > 0)
                 {
                     Complete();
                     return;
+                }
+                foreach (Pawn pawn in map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer))
+                {
+                    if (PawnHolds(pawn))
+                    {
+                        Complete();
+                        return;
+                    }
                 }
             }
             foreach (Caravan caravan in Find.WorldObjects.Caravans)
@@ -75,6 +88,26 @@ namespace TheShatteredCrown
                     }
                 }
             }
+        }
+
+        private bool PawnHolds(Pawn pawn)
+        {
+            if (pawn.carryTracker?.CarriedThing?.def == item)
+            {
+                return true;
+            }
+            ThingOwner inventory = pawn.inventory?.innerContainer;
+            if (inventory != null)
+            {
+                foreach (Thing thing in inventory)
+                {
+                    if (thing.def == item)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public override void ExposeData()

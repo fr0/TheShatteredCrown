@@ -39,10 +39,33 @@ namespace TheShatteredCrown
         private const float OptionHeight = 34f;
         private const float OptionGap = 4f;
         private const float EntryGap = 12f;
-        private static readonly Color PlayerColor = new Color(0.75f, 0.75f, 0.75f);
+        // Fantasy palette: dark leather ground, old gold frames, parchment ink.
+        private static readonly Color PlayerColor = new Color(0.72f, 0.68f, 0.58f);
+        private static readonly Color NpcTextColor = new Color(0.91f, 0.86f, 0.72f);
         private static readonly Color DimFactor = new Color(0.6f, 0.6f, 0.6f);
-        private static readonly Color SuccessColor = new Color(0.5f, 1f, 0.5f);
-        private static readonly Color FailColor = new Color(1f, 0.4f, 0.4f);
+        private static readonly Color SuccessColor = new Color(0.55f, 0.95f, 0.5f);
+        private static readonly Color FailColor = new Color(1f, 0.45f, 0.4f);
+        private static readonly Color LeatherDark = new Color(0.13f, 0.10f, 0.07f, 0.97f);
+        private static readonly Color GoldBright = new Color(0.87f, 0.75f, 0.45f);
+        private static readonly Color GoldDim = new Color(0.55f, 0.46f, 0.26f);
+        private static readonly Color ButtonFill = new Color(0.22f, 0.17f, 0.10f);
+        private static readonly Color ButtonFillHover = new Color(0.33f, 0.25f, 0.14f);
+
+        /// <summary>Dark-wood button with a gold rim; brightens on hover. Wraps multi-line labels.</summary>
+        private static bool FantasyButton(Rect rect, string label)
+        {
+            bool hover = Mouse.IsOver(rect);
+            GUI.color = hover ? ButtonFillHover : ButtonFill;
+            GUI.DrawTexture(rect, BaseContent.WhiteTex);
+            GUI.color = hover ? GoldBright : GoldDim;
+            Widgets.DrawBox(rect, 1);
+            GUI.color = NpcTextColor;
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Widgets.Label(rect.ContractedBy(4f, 0f), label);
+            Text.Anchor = TextAnchor.UpperLeft;
+            GUI.color = Color.white;
+            return Widgets.ButtonInvisible(rect);
+        }
 
         public override Vector2 InitialSize => new Vector2(780f, 580f);
 
@@ -73,6 +96,16 @@ namespace TheShatteredCrown
                 return;
             }
 
+            // Fantasy dressing: leather ground with a double gold frame.
+            Rect frame = inRect.ExpandedBy(10f);
+            GUI.color = LeatherDark;
+            GUI.DrawTexture(frame, BaseContent.WhiteTex);
+            GUI.color = GoldDim;
+            Widgets.DrawBox(frame, 2);
+            GUI.color = GoldBright;
+            Widgets.DrawBox(frame.ContractedBy(4f), 1);
+            GUI.color = Color.white;
+
             // Left column: portrait + name
             Rect portraitRect = new Rect(inRect.x, inRect.y, PortraitWidth, PortraitHeight);
             if (context.npc != null)
@@ -80,23 +113,49 @@ namespace TheShatteredCrown
                 RenderTexture portrait = PortraitsCache.Get(context.npc, new Vector2(PortraitWidth, PortraitHeight), Rot4.South, default(Vector3), 1f);
                 GUI.DrawTexture(portraitRect, portrait);
             }
-            Widgets.DrawBox(portraitRect);
+            GUI.color = GoldBright;
+            Widgets.DrawBox(portraitRect, 1);
+            GUI.color = GoldDim;
+            Widgets.DrawBox(portraitRect.ExpandedBy(2f), 1);
+            GUI.color = Color.white;
 
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperCenter;
-            Rect nameRect = new Rect(portraitRect.x, portraitRect.yMax + 4f, PortraitWidth, 50f);
+            GUI.color = GoldBright;
+            Rect nameRect = new Rect(portraitRect.x, portraitRect.yMax + 4f, PortraitWidth, 66f);
             StringBuilder nameText = new StringBuilder();
             if (context.npc != null)
             {
                 nameText.AppendLine(context.npc.Name != null ? context.npc.Name.ToStringShort : context.npc.LabelShortCap);
                 nameText.Append(context.npc.KindLabel);
+                NamedNpcDef npcDef = DialogueStateManager.Current.NpcDefFor(context.npc);
+                if (npcDef != null)
+                {
+                    int affinityValue = DialogueStateManager.Current.AffinityOf(npcDef);
+                    nameText.Append($"\n{DialogueStateManager.AffinityTier(affinityValue)} ({(affinityValue > 0 ? "+" : "")}{affinityValue})");
+                }
             }
             Widgets.Label(nameRect, nameText.ToString());
+            GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
 
             // Right column: the transcript (older entries dimmed)
             List<DialogueOption> visibleOptions = VisibleOptions();
-            float optionsHeight = visibleOptions.Count * (OptionHeight + OptionGap);
+            // Options grow to fit their text: long labels (check prefixes
+            // especially) wrap instead of clipping at the button edges.
+            Text.Font = GameFont.Small;
+            float optionWidth = inRect.width - PortraitWidth - 16f;
+            List<string> optionLabels = new List<string>();
+            List<float> optionHeights = new List<float>();
+            float optionsHeight = 0f;
+            foreach (DialogueOption option in visibleOptions)
+            {
+                string label = OptionLabel(option);
+                float height = Mathf.Max(OptionHeight, Text.CalcHeight(label, optionWidth - 30f) + 10f);
+                optionLabels.Add(label);
+                optionHeights.Add(height);
+                optionsHeight += height + OptionGap;
+            }
             Rect transcriptRect = new Rect(portraitRect.xMax + 16f, inRect.y, inRect.width - PortraitWidth - 16f, inRect.height - optionsHeight - 12f);
 
             float contentWidth = transcriptRect.width - 16f;
@@ -128,15 +187,15 @@ namespace TheShatteredCrown
 
             // Options
             float optY = inRect.height - optionsHeight;
-            foreach (DialogueOption option in visibleOptions)
+            for (int i = 0; i < visibleOptions.Count; i++)
             {
-                Rect btnRect = new Rect(transcriptRect.x, optY, transcriptRect.width, OptionHeight);
-                if (Widgets.ButtonText(btnRect, OptionLabel(option)))
+                Rect btnRect = new Rect(transcriptRect.x, optY, transcriptRect.width, optionHeights[i]);
+                if (FantasyButton(btnRect, optionLabels[i]))
                 {
-                    Choose(option);
+                    Choose(visibleOptions[i]);
                     break;
                 }
-                optY += OptionHeight + OptionGap;
+                optY += optionHeights[i] + OptionGap;
             }
         }
 
@@ -165,7 +224,7 @@ namespace TheShatteredCrown
 
         private void PushNpcLine(DialogueNode node)
         {
-            transcript.Add(new TranscriptEntry(Resolve(node.text), Color.white));
+            transcript.Add(new TranscriptEntry(Resolve(node.text), NpcTextColor));
             scrollToBottom = true;
         }
 

@@ -85,6 +85,14 @@ namespace TheShatteredCrown
                 return;
             }
             Pawn pawn = DialogueStateManager.Current.GetOrGenerateNamedNpc(npcDef, faction);
+            // Tag BEFORE the already-spawned skip: the village genstep may have
+            // spawned this character during map generation (persistent-site
+            // residents), and quest target signals (serra.Killed) must attach
+            // either way.
+            if (!questTagToAdd.NullOrEmpty())
+            {
+                QuestUtility.AddQuestTag(pawn, questTagToAdd);
+            }
             if (pawn.Dead || pawn.Spawned || pawn.Faction == Faction.OfPlayer)
             {
                 return;
@@ -92,10 +100,6 @@ namespace TheShatteredCrown
             if (pawn.IsWorldPawn())
             {
                 Find.WorldPawns.RemovePawn(pawn);
-            }
-            if (!questTagToAdd.NullOrEmpty())
-            {
-                QuestUtility.AddQuestTag(pawn, questTagToAdd);
             }
             IntVec3 cell = CellFinder.RandomClosewalkCellNear(map.Center, map, 8);
             GenSpawn.Spawn(pawn, cell, map);

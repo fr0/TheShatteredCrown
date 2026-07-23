@@ -22,7 +22,7 @@ Corvus supervises, insufferably.
 
 * [Learn the Druid's way] "I hear it now. Faintly." -> end
     if not flag(TSC_MaewynTaught)
-    do flag(TSC_MaewynTaught); learn_class(TSC_Class_Druid); grant_xp(25)
+    do flag(TSC_MaewynTaught); learn_class(TSC_Class_Druid); grant_xp(25); affinity(+5)
 * "This is... a lot of sitting, Maewyn." -> end
 
 == decline ==

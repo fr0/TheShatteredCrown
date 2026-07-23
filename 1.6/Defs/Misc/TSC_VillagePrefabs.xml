@@ -2,8 +2,10 @@
 <Defs>
 
   <!-- Underhill village buildings. Hand-authored: granite walls, wood doors,
-       plank floors. Local coords: (x,0,z) from the prefab's own origin;
-       terrain rects are (x,z,width,height). -->
+       plank floors. Local coords: (x,0,z) from the prefab's own origin.
+       RECTS ARE INCLUSIVE CORNERS: (minX,minZ,maxX,maxZ) - the vanilla
+       CellRect parse. NOT width/height (that mistake produced L-shaped
+       wall blobs and missing walls in generated houses). -->
 
   <!-- A villager's cottage: bed, table, chair, torch. Door on the south wall. -->
   <PrefabDef>
@@ -12,11 +14,11 @@
     <things>
       <Wall>
         <rects>
-          <li>(0,0,3,1)</li>
-          <li>(4,0,4,1)</li>
-          <li>(0,6,8,1)</li>
-          <li>(0,1,1,5)</li>
-          <li>(7,1,1,5)</li>
+          <li>(0,0,2,0)</li>
+          <li>(4,0,7,0)</li>
+          <li>(0,6,7,6)</li>
+          <li>(0,1,0,5)</li>
+          <li>(7,1,7,5)</li>
         </rects>
         <stuff>BlocksGranite</stuff>
       </Wall>
@@ -44,7 +46,7 @@
       <WoodPlankFloor>
         <rects>
           <li>(1,1,6,5)</li>
-          <li>(3,0,1,1)</li>
+          <li>(3,0,3,0)</li>
         </rects>
       </WoodPlankFloor>
     </terrain>
@@ -57,11 +59,11 @@
     <things>
       <Wall>
         <rects>
-          <li>(0,0,3,1)</li>
-          <li>(4,0,3,1)</li>
-          <li>(0,5,7,1)</li>
-          <li>(0,1,1,4)</li>
-          <li>(6,1,1,4)</li>
+          <li>(0,0,2,0)</li>
+          <li>(4,0,6,0)</li>
+          <li>(0,5,6,5)</li>
+          <li>(0,1,0,4)</li>
+          <li>(6,1,6,4)</li>
         </rects>
         <stuff>BlocksGranite</stuff>
       </Wall>
@@ -85,7 +87,7 @@
       <WoodPlankFloor>
         <rects>
           <li>(1,1,5,4)</li>
-          <li>(3,0,1,1)</li>
+          <li>(3,0,3,0)</li>
         </rects>
       </WoodPlankFloor>
     </terrain>
@@ -98,11 +100,11 @@
     <things>
       <Wall>
         <rects>
-          <li>(0,0,4,1)</li>
-          <li>(5,0,3,1)</li>
-          <li>(0,5,8,1)</li>
-          <li>(0,1,1,4)</li>
-          <li>(7,1,1,4)</li>
+          <li>(0,0,3,0)</li>
+          <li>(5,0,7,0)</li>
+          <li>(0,5,7,5)</li>
+          <li>(0,1,0,4)</li>
+          <li>(7,1,7,4)</li>
         </rects>
         <stuff>BlocksGranite</stuff>
       </Wall>
@@ -125,7 +127,7 @@
       <FlagstoneGranite>
         <rects>
           <li>(1,1,6,4)</li>
-          <li>(4,0,1,1)</li>
+          <li>(4,0,4,0)</li>
         </rects>
       </FlagstoneGranite>
     </terrain>
@@ -147,12 +149,12 @@
         </positions>
         <stuff>Cloth</stuff>
       </Bedroll>
-      <TSC_SupplyCache>
-        <positions>
-          <li>(9,0,2)</li>
-          <li>(10,0,2)</li>
-        </positions>
-      </TSC_SupplyCache>
+      <TSC_CampCrate_Provisions>
+        <position>(9,0,2)</position>
+      </TSC_CampCrate_Provisions>
+      <TSC_CampCrate_Sundries>
+        <position>(10,0,2)</position>
+      </TSC_CampCrate_Sundries>
       <TorchLamp>
         <positions>
           <li>(1,0,1)</li>
@@ -172,7 +174,7 @@
     <terrain>
       <PackedDirt>
         <rects>
-          <li>(0,0,11,9)</li>
+          <li>(0,0,10,8)</li>
         </rects>
       </PackedDirt>
     </terrain>
@@ -186,11 +188,11 @@
     <things>
       <Wall>
         <rects>
-          <li>(0,0,6,1)</li>
-          <li>(7,0,7,1)</li>
-          <li>(0,9,14,1)</li>
-          <li>(0,1,1,8)</li>
-          <li>(13,1,1,8)</li>
+          <li>(0,0,5,0)</li>
+          <li>(7,0,13,0)</li>
+          <li>(0,9,13,9)</li>
+          <li>(0,1,0,8)</li>
+          <li>(13,1,13,8)</li>
         </rects>
         <stuff>BlocksGranite</stuff>
       </Wall>
@@ -255,7 +257,7 @@
       <WoodPlankFloor>
         <rects>
           <li>(1,1,12,8)</li>
-          <li>(6,0,1,1)</li>
+          <li>(6,0,6,0)</li>
         </rects>
       </WoodPlankFloor>
     </terrain>

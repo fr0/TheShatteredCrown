@@ -12,8 +12,17 @@
     <lastName>Underhill</lastName>
     <kind>TSC_Companion_Bran</kind>
     <gender>Male</gender>
+    <childhood>TSC_Backstory_TowerBorn</childhood>
+    <adulthood>TSC_Backstory_BorderWatchman</adulthood>
     <classDef>TSC_Class_Warden</classDef>
     <plotArmor>true</plotArmor>
+    <!-- Forty years of Underhills on a wall: he can actually use the sword -->
+    <minSkills>
+      <li>
+        <skill>Melee</skill>
+        <level>5</level>
+      </li>
+    </minSkills>
     <!-- Always the longsword and patched gambeson his dialogue describes -->
     <forcedWeapon>MeleeWeapon_LongSword</forcedWeapon>
     <forcedWeaponStuff>Steel</forcedWeaponStuff>
@@ -34,6 +43,8 @@
     <lastName>Voss</lastName>
     <kind>TSC_Wayfarer_Serra</kind>
     <gender>Female</gender>
+    <childhood>TSC_Backstory_HuntersChild</childhood>
+    <adulthood>TSC_Backstory_CompanyCaptain</adulthood>
     <classDef>TSC_Class_Ranger</classDef>
     <plotArmor>true</plotArmor>
     <!-- Always the greatbow her dialogue describes (the kind's tag could roll Pila) -->
@@ -48,6 +59,8 @@
     <lastName>Pell</lastName>
     <kind>TSC_Wayfarer_Oswin</kind>
     <gender>Male</gender>
+    <childhood>TSC_Backstory_CopyistsChild</childhood>
+    <adulthood>TSC_Backstory_ItinerantScholar</adulthood>
     <classDef>TSC_Class_Wizard</classDef>
     <plotArmor>true</plotArmor>
   </TheShatteredCrown.NamedNpcDef>
@@ -61,6 +74,8 @@
     <lastName>Ashvale</lastName>
     <kind>TSC_Companion_Maewyn</kind>
     <gender>Female</gender>
+    <childhood>TSC_Backstory_HollowBorn</childhood>
+    <adulthood>TSC_Backstory_HedgeDruid</adulthood>
     <classDef>TSC_Class_Druid</classDef>
     <plotArmor>true</plotArmor>
   </TheShatteredCrown.NamedNpcDef>

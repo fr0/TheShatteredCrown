@@ -1,0 +1,40 @@
+# Maewyn confronts the player the moment her cellar lock is picked while she
+# is in the party (opened directly by the pick job - no walk-up).
+# Compile with:  scripts\Compile-Dialogue.ps1
+
+dialogue TSC_Dialogue_Maewyn_CellarTheft
+
+== start ==
+The lock has barely finished yielding when you feel it: the particular silence of being watched by a druid and her raven.
+
+"I know my own lock's voice, rider."
+
+Maewyn doesn't raise hers. She doesn't need to. "Thirty years, that lock. It has kept out storms, wolves, and two kings' tax collectors." Corvus clicks his beak once, like a gavel. "It couldn't keep out my own company."
+
+* "I should have asked. I'm sorry, Maewyn." -> sorry
+    do flag(TSC_MaewynCellarAired)
+* "You were never going to just open it for me." -> defiant
+    do flag(TSC_MaewynCellarAired); affinity(-5)
+* [Say nothing.] -> silence
+    do flag(TSC_MaewynCellarAired)
+
+== sorry ==
+She looks at you for a long moment. Some of the frost goes out of it. Not all.
+
+"The book you may keep; knowledge should be shared, and you could have just asked. The trust will take longer to restock than the shelf."
+
+* "It won't happen again." -> end
+
+== defiant ==
+"For the company's good, was it." Her voice could frost the hives.
+
+"Then the company can carry its own opinion of it. Keep the book. My locks are done being polite about the rest."
+
+* "Understood." -> end
+
+== silence ==
+The silence stretches, and she lets it. Corvus does the judging for both of them.
+
+"The book you may keep. Knowledge wants feet. The trust, rider, walks slower."
+
+* "..." -> end

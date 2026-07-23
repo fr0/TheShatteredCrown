@@ -43,6 +43,24 @@ namespace TheShatteredCrown
         }
     }
 
+    /// <summary>
+    /// Shifts a named character's AFFINITY (BG3-style approval). With no npc
+    /// set, targets the pawn being talked to. Fires the "X approves. (+5)"
+    /// message; other named characters present can react to the same choice
+    /// via additional effects with explicit npc.
+    /// </summary>
+    public class DialogueEffect_Affinity : DialogueEffect
+    {
+        public NamedNpcDef npc;
+        public int amount;
+
+        public override void Apply(DialogueContext context)
+        {
+            NamedNpcDef def = npc ?? DialogueStateManager.Current.NpcDefFor(context.npc);
+            DialogueStateManager.Current.ChangeAffinity(def, amount);
+        }
+    }
+
     /// <summary>Shifts goodwill with the NPC's faction.</summary>
     public class DialogueEffect_Goodwill : DialogueEffect
     {

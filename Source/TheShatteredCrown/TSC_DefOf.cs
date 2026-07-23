@@ -17,6 +17,9 @@ namespace TheShatteredCrown
         public static PawnKindDef TSC_Ettersnap;
         public static ThingDef TSC_RemembranceMoss;
         public static ThingDef TSC_MossCache;
+        public static ThingDef TSC_CellarHatch;
+        public static ThingDef TSC_CampCrate_Provisions;
+        public static ThingDef TSC_CampCrate_Sundries;
         public static NeedDef TSC_Need_Energy;
         public static TSC_ProficiencyDef TSC_Prof_Thievery;
         public static TSC_ProficiencyDef TSC_Prof_Athletics;

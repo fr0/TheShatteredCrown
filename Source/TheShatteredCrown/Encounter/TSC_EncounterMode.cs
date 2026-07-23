@@ -53,6 +53,18 @@ namespace TheShatteredCrown
         private const int IdleGraceTicks = 45;      // ENEMY turns: idle this long = turn over
         private const int DrySettleTicks = 15;      // AP dry + not mid-swing = turn over
         private const int RePauseGraceTicks = 10;   // player pawn idle this long = back to orders
+
+        // Whether the CURRENT pause was initiated by the mod (turn-start /
+        // re-pause planning stops) rather than the player. The PAUSED banner
+        // callout is for player pauses only; any unpause clears this.
+        private bool autoPause;
+
+        public bool AutoPause => autoPause;
+
+        public void NoteRunning()
+        {
+            autoPause = false;
+        }
         private const int ApproachRecheckTicks = 30; // approach mode: how often to look for engagement
         private const float EngageRadius = 40f;     // hostiles beyond this (with no target) stay dormant
 
@@ -572,6 +584,7 @@ namespace TheShatteredCrown
                     SettleSprite(activePawn);
                 }
                 Find.TickManager.Pause();
+                autoPause = true;
                 CameraJumper.TryJumpAndSelect(activePawn, CameraJumper.MovementMode.Pan);
                 Messages.Message($"{activePawn.LabelShortCap}'s turn.",
                     activePawn, MessageTypeDefOf.SilentInput, historical: false);
@@ -1179,6 +1192,7 @@ namespace TheShatteredCrown
                 {
                     turnStartTick = -1; // re-anchor on next resume
                     tm.Pause();
+                    autoPause = true;
                     Messages.Message($"{p.LabelShortCap}: {ApOf(p):0.#} AP left.",
                         p, MessageTypeDefOf.SilentInput, historical: false);
                 }
@@ -1572,7 +1586,7 @@ namespace TheShatteredCrown
                 {
                     if (mover != null && mover.Spawned && mover.Map == map)
                     {
-                        DrawHighlightFor(mover);
+                        DrawHighlightFor(mover, ctrl);
                     }
                 }
                 return;
@@ -1580,21 +1594,29 @@ namespace TheShatteredCrown
             Pawn active = ctrl.ActivePawn;
             if (active != null && active.Spawned && active.Map == map)
             {
-                DrawHighlightFor(active);
+                DrawHighlightFor(active, ctrl);
             }
         }
 
-        private void DrawHighlightFor(Pawn p)
+        private void DrawHighlightFor(Pawn p, TSC_EncounterController ctrl)
         {
             bool player = p.IsColonistPlayerControlled;
+            // The at-a-glance attack budget: blue = another attack fits the
+            // remaining AP, amber = movement money only.
+            bool canAttack = !player
+                || ctrl.ApOf(p) >= TSC_EncounterController.AttackApCostFor(p) - 0.001f;
             float pulse = 0.85f + 0.18f * Mathf.Sin(Time.realtimeSinceStartup * 4f);
             Vector3 center = p.DrawPos;
             center.y = AltitudeLayer.MetaOverlays.AltitudeFor();
-            Material fill = player ? TSC_EncounterFx.ActiveFillPlayer : TSC_EncounterFx.ActiveFillHostile;
+            Material fill = !player ? TSC_EncounterFx.ActiveFillHostile
+                : canAttack ? TSC_EncounterFx.ActiveFillPlayer
+                : TSC_EncounterFx.ActiveFillPlayerDry;
             Graphics.DrawMesh(MeshPool.plane10,
                 Matrix4x4.TRS(center, Quaternion.identity, new Vector3(pulse * 2f, 1f, pulse * 2f)),
                 fill, 0);
-            SimpleColor ringColor = player ? SimpleColor.Blue : SimpleColor.Red;
+            SimpleColor ringColor = !player ? SimpleColor.Red
+                : canAttack ? SimpleColor.Blue
+                : SimpleColor.Yellow;
             // Concentric outlines read as one thick band.
             GenDraw.DrawCircleOutline(center, pulse, ringColor);
             GenDraw.DrawCircleOutline(center, pulse - 0.07f, ringColor);
@@ -2049,6 +2071,39 @@ namespace TheShatteredCrown
             Widgets.Label(banner, text);
             Text.Anchor = TextAnchor.UpperLeft;
 
+            // Unmissable state callout below the banner. Two states share the
+            // slot: a red "* PAUSED *" when the PLAYER paused (the mod's own
+            // planning pauses - turn start, idle re-pause - stay quiet), and a
+            // blue "YOUR TURN" whenever a player pawn holds the turn otherwise
+            // (planning pause included: that IS the "give orders now" moment).
+            if (!paused)
+            {
+                ctrl.NoteRunning();
+            }
+            bool userPaused = paused && !ctrl.AutoPause;
+            bool playerTurn = ctrl.Phase == TSC_EncounterController.EncounterPhase.Turn
+                && ctrl.GroupCount == 0
+                && ctrl.ActivePawn != null && ctrl.ActivePawn.IsColonistPlayerControlled;
+            if (userPaused || playerTurn)
+            {
+                Rect callout = new Rect(UI.screenWidth / 2f - 160f, banner.yMax + 6f, 320f, 36f);
+                float pulse = 0.55f + 0.45f * Mathf.Abs(Mathf.Sin(Time.realtimeSinceStartup * 3.2f));
+                GUI.color = userPaused
+                    ? new Color(0.45f, 0.04f, 0.04f, 0.85f)
+                    : new Color(0.05f, 0.18f, 0.42f, 0.85f);
+                GUI.DrawTexture(callout, BaseContent.WhiteTex);
+                GUI.color = userPaused
+                    ? new Color(1f, 0.85f, 0.25f, pulse)
+                    : new Color(0.45f, 0.8f, 1f, pulse);
+                Widgets.DrawBox(callout, 2);
+                Text.Font = GameFont.Medium;
+                Text.Anchor = TextAnchor.MiddleCenter;
+                Widgets.Label(callout, userPaused ? "* PAUSED *" : "YOUR TURN");
+                Text.Anchor = TextAnchor.UpperLeft;
+                Text.Font = GameFont.Small;
+                GUI.color = Color.white;
+            }
+
             // Always-available End Turn button beside the banner during a
             // player pawn's turn - no selection needed (the gizmo requires
             // the active pawn selected; this does not).
@@ -2102,12 +2157,16 @@ namespace TheShatteredCrown
             }
             else
             {
-                label = $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} (atk {attackCost:0.#})";
+                // Spell out the attack budget: seeing "needs X" beats doing
+                // the arithmetic mid-fight.
+                label = current < attackCost
+                    ? $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} (needs {attackCost:0.#} to attack)"
+                    : $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} (atk {attackCost:0.#})";
                 GUI.color = current <= 0f ? SpentColor
                     : current < attackCost ? WarnColor
                     : AvailableColor;
             }
-            Widgets.Label(new Rect(pos.x - 55f, pos.y - 8f, 110f, 16f), label);
+            Widgets.Label(new Rect(pos.x - 80f, pos.y - 8f, 160f, 16f), label);
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
@@ -2153,6 +2212,28 @@ namespace TheShatteredCrown
                     icon = TexCommand.ForbidOff,
                     action = ctrl.AdvanceTurn,
                 };
+                // Explicit counterpart to the suppressed auto-extinguish:
+                // orders win while burning, so this IS the order. Vanilla
+                // beat-out-flames job, no AP cost.
+                if (__instance.HasAttachment(ThingDefOf.Fire))
+                {
+                    Pawn burning = __instance;
+                    yield return new Command_Action
+                    {
+                        defaultLabel = "Extinguish fire",
+                        defaultDesc = "Stop and beat out the flames (vanilla self-extinguish). Costs no action points; anything queued is dropped.",
+                        icon = ContentFinder<Texture2D>.Get("Things/Special/Fire/FireA", reportFailure: false)
+                            ?? ContentFinder<Texture2D>.Get("Things/Special/Fire", reportFailure: false)
+                            ?? TexCommand.ForbidOff,
+                        action = () =>
+                        {
+                            burning.jobs?.ClearQueuedJobs();
+                            Job job = JobMaker.MakeJob(JobDefOf.ExtinguishSelf);
+                            job.playerForced = true;
+                            burning.jobs?.TryTakeOrderedJob(job);
+                        },
+                    };
+                }
             }
         }
     }
@@ -2202,6 +2283,7 @@ namespace TheShatteredCrown
     public static class TSC_EncounterFx
     {
         public static readonly Material ActiveFillPlayer;
+        public static readonly Material ActiveFillPlayerDry; // AP below another attack: amber
         public static readonly Material ActiveFillHostile;
 
         static TSC_EncounterFx()
@@ -2209,6 +2291,8 @@ namespace TheShatteredCrown
             Texture2D disc = MakeDiscTex(64);
             ActiveFillPlayer = MaterialPool.MatFrom(new MaterialRequest(disc, ShaderDatabase.Transparent,
                 new Color(0.3f, 0.55f, 1f, 0.22f)));
+            ActiveFillPlayerDry = MaterialPool.MatFrom(new MaterialRequest(disc, ShaderDatabase.Transparent,
+                new Color(1f, 0.78f, 0.25f, 0.22f)));
             ActiveFillHostile = MaterialPool.MatFrom(new MaterialRequest(disc, ShaderDatabase.Transparent,
                 new Color(1f, 0.3f, 0.25f, 0.22f)));
         }
@@ -2254,6 +2338,56 @@ namespace TheShatteredCrown
             }
             string ap = $"{TSC_EncounterController.ActionApCost:0.#} AP";
             __result = __result.NullOrEmpty() ? ap : $"{__result}\n{ap}";
+        }
+    }
+
+    /// <summary>
+    /// Unaffordable actions wear a red bar across the top of their gizmo:
+    /// the active pawn's AP is below the cost, so clicking would only buy
+    /// the "can't afford" message. Abilities price at the spell cost;
+    /// weapon gizmos (Command_VerbTarget) at the pawn's attack cost.
+    /// Companion to the AP price tag above.
+    /// </summary>
+    [HarmonyPatch(typeof(Command), nameof(Command.GizmoOnGUI))]
+    public static class Patch_CommandAbility_ApShortfallBar
+    {
+        public static void Postfix(Command __instance, Vector2 topLeft, float maxWidth, GizmoRenderParms parms)
+        {
+            if (parms.shrunk || Verse.Current.Game == null)
+            {
+                return;
+            }
+            Pawn pawn;
+            float cost;
+            if (__instance is Command_Ability abilityCommand)
+            {
+                pawn = abilityCommand.Ability?.pawn;
+                cost = TSC_EncounterController.ActionApCost;
+            }
+            else if (__instance is Command_VerbTarget verbCommand)
+            {
+                pawn = verbCommand.verb?.CasterPawn;
+                cost = pawn != null ? TSC_EncounterController.AttackApCostFor(pawn) : 0f;
+            }
+            else
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || ctrl.ApproachMode || pawn == null
+                || !ctrl.ActiveOn(pawn.Map) || !pawn.IsColonistPlayerControlled
+                || ctrl.ActivePawn != pawn)
+            {
+                return;
+            }
+            if (ctrl.ApOf(pawn) >= cost - 0.001f)
+            {
+                return;
+            }
+            Rect bar = new Rect(topLeft.x, topLeft.y - 7f, __instance.GetWidth(maxWidth), 5f);
+            GUI.color = new Color(0.9f, 0.15f, 0.1f, 0.9f);
+            GUI.DrawTexture(bar, BaseContent.WhiteTex);
+            GUI.color = Color.white;
         }
     }
 
@@ -2387,6 +2521,39 @@ namespace TheShatteredCrown
             {
                 __result = false;
             }
+        }
+    }
+
+    /// <summary>
+    /// Burning must not hijack the turn: vanilla's self-extinguish think node
+    /// outranks even player-forced jobs, so an on-fire pawn drops their
+    /// ordered attack/move to beat flames. During turn-based mode, for player
+    /// pawns, ORDERS WIN - the auto-beat only fires when the pawn is idle
+    /// (no job or combat-waiting, nothing queued). Beating flames costs no
+    /// AP; frozen pawns don't tick, so they burn until their turn comes -
+    /// fire is round-damage, BG3 style.
+    /// </summary>
+    [HarmonyPatch(typeof(JobGiver_ExtinguishSelf), "TryGiveJob")]
+    public static class Patch_ExtinguishSelf_OrdersWin
+    {
+        public static bool Prefix(Pawn pawn, ref Job __result)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || pawn == null || !ctrl.ActiveOn(pawn.Map)
+                || ctrl.ApproachMode || !pawn.IsColonistPlayerControlled)
+            {
+                return true;
+            }
+            Job cur = pawn.CurJob;
+            bool busy = cur != null
+                && cur.def != JobDefOf.Wait && cur.def != JobDefOf.Wait_Combat
+                && cur.def != JobDefOf.ExtinguishSelf;
+            if (busy || (pawn.jobs != null && pawn.jobs.jobQueue.Count > 0))
+            {
+                __result = null;
+                return false;
+            }
+            return true;
         }
     }
 

@@ -150,7 +150,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->Oswin's books are unanimous: ettersnaps cannot resist remembrance moss, a pale growth found only where the dead lie long undisturbed. The old kingdom's mosskeepers stored it in cold-sealed chests, and their barrow stands not far from the camp.\n\nRecover remembrance moss from the mosskeepers' barrow. Expect the barrow's tenants to object.\n\n(With moss in hand, the ettersnap can simply be lured: right-click it with a colonist selected. Without it, taming is brutally hard.)</li>
+        <li>questDescription->Oswin's books are unanimous: ettersnaps cannot resist remembrance moss, a pale growth found only where the dead lie long undisturbed. It still carpets the cold floors of the mosskeepers' barrow, not far from the camp.\n\nDescend into the barrow and gather remembrance moss from among the dead. Expect the barrow's tenants to object.\n\n(With moss in hand, the ettersnap can simply be lured: right-click it with a colonist selected. Without it, taming is brutally hard.)</li>
       </rulesStrings>
     </questDescriptionRules>
     <root Class="QuestNode_Sequence">
@@ -198,7 +198,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelMossFound">Remembrance moss</label>
-                <text TKey="LetterTextMossFound">The mosskeepers' chest gives up its silver-veined harvest, smelling of rain on old stone. With this, the ettersnap can be lured instead of chased.\n\n(Right-click the ettersnap with a colonist selected, carrying the moss, to lure it.)</text>
+                <text TKey="LetterTextMossFound">The barrow gives up its silver-veined harvest, gathered from among the sarcophagi and smelling of rain on old stone. With this, the ettersnap can be lured instead of chased.\n\n(Right-click the ettersnap with a colonist selected, carrying the moss, to lure it.)</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>150</xp>
@@ -490,19 +490,51 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelEttersnapCaught">The ettersnap, yours</label>
-                <text TKey="LetterTextEttersnapCaught">The ettersnap is yours: pale-eyed, silver-flecked, and heavier with memory than any living thing has a right to be.\n\nBring it back to Serra's company. Oswin will want to begin the rites at once; whatever the creature drank near the shard, it is about to speak.\n\n(Act 1 concludes here for now; the story continues in the next act of this mod.)</text>
+                <text TKey="LetterTextEttersnapCaught">The ettersnap is yours: pale-eyed, silver-flecked, and heavier with memory than any living thing has a right to be.\n\nBring it back to Serra's company, alive, and speak with Oswin. His rites will pour out whatever the creature drank near the shard.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_UpdateDescription">
-                <description>The ettersnap is acquired: alive, intact, and full of someone else's memories. Return to the Wayfarers' camp; Oswin's rites will bring what it holds into the light.\n\n(Act 1 concludes here for now; the story continues in the next act.)</description>
+                <description>The ettersnap is acquired: alive, intact, and full of someone else's memories. Bring the creature back to the Wayfarers' camp and speak with Oswin; the Rite of the Poured Cup will bring what it holds into the light.</description>
+              </li>
+              <!-- Unlocks Oswin's rites conversation (with the creature on his map) -->
+              <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
+                <flag>TSC_EttersnapCaught</flag>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>400</xp>
               </li>
-              <li Class="QuestNode_Delay">
-                <delayTicks>60000</delayTicks>
-                <node Class="QuestNode_End">
-                  <outcome>Success</outcome>
-                </node>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- Oswin's rite performed (dialogue signal): Act 1's finale -->
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_RitesPerformed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelRitesDone">The Poured Cup</label>
+                <text TKey="LetterTextRitesDone">The rite is sung, and the ettersnap dreamed aloud: a sanguophage's crypt holding a shard of the shattered crown, and a waterfall-fed lake near a village Oswin knows. He and Serra will break camp and meet you there.\n\n(Act 1 concludes here for now; the story continues in the next act of this mod.)</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- Death fail-safe: nobody else knows the rites -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_OnNpcDeath">
+          <npc>TSC_Npc_Oswin</npc>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NegativeEvent</letterDef>
+                <label TKey="LetterLabelOswinDead">Oswin Pell is dead</label>
+                <text TKey="LetterTextOswinDead">Oswin Pell is dead, and the Rite of the Poured Cup died with him. Whatever the ettersnap drank near the crown shard, no living scholar knows how to call it out.\n\nThe hunt is over. The search for the shattered crown will need another door.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
               </li>
             </nodes>
           </node>

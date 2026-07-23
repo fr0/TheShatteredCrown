@@ -141,6 +141,12 @@ def parse_conditions(expr: str, path, lineno) -> list:
             if not arg:
                 raise ParseError(path, lineno, "nearby syntax: nearby(<NamedNpcDefName>)")
             conditions.append(Condition("DialogueCondition_Nearby", {"npc": arg}))
+        elif name == "kind_on_map":
+            if negated:
+                raise ParseError(path, lineno, "'not kind_on_map(...)' is not supported (no such condition class yet)")
+            if not arg:
+                raise ParseError(path, lineno, "kind_on_map syntax: kind_on_map(<PawnKindDefName>)")
+            conditions.append(Condition("DialogueCondition_KindOnMap", {"kind": arg}))
         elif name == "passive":
             if negated:
                 raise ParseError(path, lineno, "'not passive(...)' is not supported")
@@ -149,8 +155,31 @@ def parse_conditions(expr: str, path, lineno) -> list:
                 raise ParseError(path, lineno, "passive syntax: passive(<Proficiency>, <DC>)")
             conditions.append(Condition("DialogueCondition_Passive",
                                         {"proficiency": PROFICIENCIES[parts[0]], "difficulty": parts[1]}))
+        elif name == "affinity":
+            if negated:
+                raise ParseError(path, lineno, "'not affinity(...)' is not supported; use the opposite comparison")
+            parts = [p.strip() for p in arg.split(",")]
+            npc = parts[0] if len(parts) == 2 else None
+            if len(parts) > 2:
+                raise ParseError(path, lineno, "affinity syntax: affinity([Npc,] >=N | <=N | >N | <N)")
+            m = re.match(r"^(>=|<=|>|<)\s*(-?\d+)$", parts[-1])
+            if not m:
+                raise ParseError(path, lineno, "affinity syntax: affinity([Npc,] >=N | <=N | >N | <N)")
+            op, num = m.group(1), int(m.group(2))
+            fields = {}
+            if npc:
+                fields["npc"] = npc
+            if op == ">=":
+                fields["min"] = str(num)
+            elif op == ">":
+                fields["min"] = str(num + 1)
+            elif op == "<=":
+                fields["max"] = str(num)
+            else:
+                fields["max"] = str(num - 1)
+            conditions.append(Condition("DialogueCondition_Affinity", fields))
         else:
-            raise ParseError(path, lineno, f"unknown condition '{name}' (know: flag, quest_active, quest_succeeded, in_party, nearby, dead, passive)")
+            raise ParseError(path, lineno, f"unknown condition '{name}' (know: flag, quest_active, quest_succeeded, in_party, nearby, kind_on_map, dead, passive, affinity)")
     return conditions
 
 
@@ -197,9 +226,18 @@ def parse_effects(expr: str, path, lineno) -> list:
             if len(parts) > 1:
                 fields["points"] = parts[1]
             effects.append(Effect("DialogueEffect_GrantProficiency", fields))
+        elif name == "affinity":
+            parts = [p.strip() for p in arg.split(",")]
+            if len(parts) == 1:
+                fields = {"amount": parts[0].lstrip("+")}
+            elif len(parts) == 2:
+                fields = {"npc": parts[0], "amount": parts[1].lstrip("+")}
+            else:
+                raise ParseError(path, lineno, "affinity syntax: affinity(+5) or affinity(<NamedNpcDefName>, +5)")
+            effects.append(Effect("DialogueEffect_Affinity", fields))
         else:
             raise ParseError(path, lineno,
-                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, grant_xp, learn_class, teach_class, grant_prof)")
+                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, grant_xp, learn_class, teach_class, grant_prof, affinity)")
     return effects
 
 
@@ -424,7 +462,11 @@ def emit(dlg: Dialogue) -> str:
                 out.append(f"              <difficulty>{opt.check.difficulty}</difficulty>")
                 if not opt.check.retryable:
                     # Once per save: rolling sets this flag; the option hides after.
-                    out.append(f"              <onceKey>TSC_Rolled_{dlg.def_name}_{node.name}_{opt_index}</onceKey>")
+                    # Keyed by WHAT the check is (dialogue + proficiency + DC),
+                    # not where it sits - the same check duplicated across
+                    # branches shares one attempt, so a failure elsewhere in
+                    # the tree cannot be retried from another node.
+                    out.append(f"              <onceKey>TSC_Rolled_{dlg.def_name}_{opt.check.proficiency}_{opt.check.difficulty}</onceKey>")
                 if opt.check.success_link:
                     out.append(f"              <successLink>{opt.check.success_link}</successLink>")
                 if opt.check.fail_link:

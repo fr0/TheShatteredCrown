@@ -30,3 +30,8 @@ And then the main quest:
 The crew has located the Ettersnap, in a cave nearby (different world map location,
 the cave is a sub-map). Go there and acquire the Ettersnap, and bring it back.
 If the player did quest #1, this will be slightly easier.
+
+Once the player brings back the live ettersnap, Oswin performs the rites.
+The player learns that the shard was buried with a sanguophage in a
+crypt, but the location of that crypt is uncertain. They learn of a local
+village that might hold clues to its location.

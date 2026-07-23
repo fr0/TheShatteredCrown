@@ -29,9 +29,9 @@ Bran's eyebrows climb. It's the first thing about you that's genuinely surprised
 "Aye." He looks at the ruin with new eyes, seeing what you saw. "Twelve days holed up and the first person I see reads my whole camp like a ledger. The guild sent the right rider."
 
 * "Then give me the short version: where's your company?" -> point_camp
-    do flag(TSC_BranRead); grant_xp(25)
+    do flag(TSC_BranRead); grant_xp(25); affinity(+5)
 * "Habit. What happened out here?" -> story
-    do flag(TSC_BranRead); grant_xp(25)
+    do flag(TSC_BranRead); grant_xp(25); affinity(+5)
 
 == read_miss ==
 "...Rationed fires?" Bran glances at the fire-blackened corner where he has plainly been burning whole logs at once. "Friend, I've been cooking rats over a bonfire for twelve days. Good instinct, wrong ruin."
@@ -88,8 +88,9 @@ He tips his chin at the road you rode in on.
 "I've eaten rat and nettle soup for twelve days and named a wall Gerald. You know what? Yes. Point me at the road. Serra can shout at me for getting cut off when we're all around the same fire."
 
 * "Welcome aboard, Bran." -> welcomed
-    do join_party()
+    do join_party(); affinity(+5)
 * "Actually, hold the ruin a while longer." -> held_fast
+    do affinity(-5)
 
 == welcomed ==
 Bran shoulders his pack like it weighs nothing, whistles once through his teeth, and spits on the ruin's threshold.
@@ -140,7 +141,7 @@ Bran looks over at Serra's tent, then back at you, and there's no twelve days of
 He takes up the longsword and falls in beside you.
 
 * "Welcome aboard, Bran."
-    do join_party()
+    do join_party(); affinity(+5)
 
 == joined ==
 Bran checks the edge on his knife with a thumb.
@@ -149,7 +150,17 @@ Bran checks the edge on his knife with a thumb.
 
 * "Teach me to hold a line the way you do, Bran." -> warden_teaching
     if flag(TSC_BranLoyal) and not flag(TSC_BranTaught)
+* "Anything on your mind, old watchman?" -> confidant
+    if affinity(>=15) and not flag(TSC_BranConfided)
 * "Carry on, Bran."
+
+== confidant ==
+Bran considers the road behind you both before he answers.
+
+"Only that forty years of Underhills stood a wall and watched the kingdom rot past it. And the first time I walk AWAY from a post, the road hands me a company worth keeping." He taps his knife's pommel twice, an old watch signal. "All quiet. That's the report."
+
+* "All quiet. Carry on, Bran." -> end
+    do flag(TSC_BranConfided); grant_xp(10)
 
 == warden_teaching ==
 Bran looks you over the way he looked over the ruin's walls, checking for the weak courses.

@@ -139,7 +139,9 @@
     </thingCategories>
   </ThingDef>
 
-  <!-- Moss cache chest for the barrow sidequest -->
+  <!-- LEGACY: no longer spawned (the moss lies loose on the barrow floor
+       since the underground rework). Def kept so old saves that generated
+       a chest still load. -->
   <ThingDef ParentName="AncientSealedCrateBase">
     <defName>TSC_MossCache</defName>
     <label>mosskeeper's chest</label>

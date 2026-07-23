@@ -15,7 +15,24 @@ namespace TheShatteredCrown
     {
         public PrefabDef innPrefab;
         public NamedNpcDef innkeeper;
+        /// <summary>Optional locked hatch spawned inside the inn (Maewyn's cellar).</summary>
+        public ThingDef cellarHatch;
+        /// <summary>Optional: skep hives scattered around the inn's yard (Maewyn's bees).</summary>
+        public ThingDef beehive;
+        public IntRange beehiveCount = new IntRange(3, 5);
+        /// <summary>Optional: wild birds loitering around the inn (Maewyn's ravens; Odyssey crows). The first one is named Corvus.</summary>
+        public PawnKindDef yardBird;
+        public IntRange yardBirdCount = new IntRange(2, 4);
         public List<VillageBuilding> buildings = new List<VillageBuilding>();
+        /// <summary>
+        /// Named residents around the inn, re-spawned on EVERY map generation -
+        /// this is what repopulates a persistent site on revisit (quest spawn
+        /// nodes fire once and die with their quest). Serra and Oswin at camp.
+        /// </summary>
+        public List<NamedNpcDef> residents = new List<NamedNpcDef>();
+        /// <summary>Skip the residents once this dialogue flag is set (the camp packs up after the rites).</summary>
+        [NoTranslate]
+        public string residentsSkipIfFlag;
 
         public override int SeedPart => 190847312;
 
@@ -39,6 +56,55 @@ namespace TheShatteredCrown
                 IntVec3 innPos = center + new IntVec3(0, 0, 10);
                 SpawnBuilding(innPrefab, map, innPos);
                 SpawnResident(innkeeper, faction, map, innPos);
+                if (residentsSkipIfFlag.NullOrEmpty() || !DialogueStateManager.Current.IsSet(residentsSkipIfFlag))
+                {
+                    foreach (NamedNpcDef resident in residents)
+                    {
+                        SpawnResident(resident, faction, map, innPos);
+                    }
+                }
+                if (cellarHatch != null)
+                {
+                    if (!CellFinder.TryFindRandomCellNear(innPos, map, 3,
+                        c => c.InBounds(map) && c.Standable(map)
+                            && c.GetFirstBuilding(map) == null && c.GetFirstItem(map) == null,
+                        out IntVec3 hatchCell))
+                    {
+                        hatchCell = innPos;
+                    }
+                    GenSpawn.Spawn(ThingMaker.MakeThing(cellarHatch), hatchCell, map);
+                }
+                if (yardBird != null)
+                {
+                    int birds = yardBirdCount.RandomInRange;
+                    for (int i = 0; i < birds; i++)
+                    {
+                        Pawn bird = PawnGenerator.GeneratePawn(yardBird);
+                        IntVec3 birdCell = CellFinder.RandomClosewalkCellNear(innPos, map, 8);
+                        GenSpawn.Spawn(bird, birdCell, map);
+                        if (i == 0)
+                        {
+                            bird.Name = new NameSingle("Corvus");
+                        }
+                    }
+                }
+                if (beehive != null)
+                {
+                    int hives = beehiveCount.RandomInRange;
+                    for (int i = 0; i < hives; i++)
+                    {
+                        // The yard, not the doorstep: outside the building
+                        // footprint but within sight of the cottage.
+                        if (CellFinder.TryFindRandomCellNear(innPos, map, 8,
+                            c => c.InBounds(map) && c.Standable(map)
+                                && c.GetFirstBuilding(map) == null && c.GetFirstItem(map) == null
+                                && !c.Roofed(map) && c.DistanceTo(innPos) > 4f,
+                            out IntVec3 hiveCell))
+                        {
+                            GenSpawn.Spawn(ThingMaker.MakeThing(beehive), hiveCell, map);
+                        }
+                    }
+                }
             }
 
             // Buildings around the square

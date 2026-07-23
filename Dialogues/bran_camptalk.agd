@@ -16,7 +16,9 @@ He holds up the badge.
 * "The crown matters, Bran. The old kingdom isn't done." -> believer
 * "You held your watch. Now we look out for each other." -> together
 * "Honestly? I'm mostly in it for the guild's coin." -> honest
+    do affinity(+5)
 * "Maybe this was all a waste of time. Have you considered that?" -> waste
+    do affinity(-5)
 
 == believer ==
 Bran closes his fist around the badge, and for a moment the tiredness drops off his face entirely.
@@ -28,7 +30,7 @@ He pins the badge inside his gambeson, over the heart.
 "Glad Serra sent me scouting. Glad you came."
 
 * "Rest up. The hunt's not over." -> end
-    do flag(TSC_BranLoyal); grant_xp(50)
+    do flag(TSC_BranLoyal); grant_xp(50); affinity(TSC_Npc_Bran, +10)
 
 == together ==
 Bran nods slowly.
@@ -36,7 +38,7 @@ Bran nods slowly.
 "I got used to just watching my own back. A full night's sleep hasn't happened in a while."
 
 * "Rest up. The hunt's not over." -> end
-    do flag(TSC_BranLoyal); grant_xp(50)
+    do flag(TSC_BranLoyal); grant_xp(50); affinity(TSC_Npc_Bran, +10)
 
 == honest ==
 Bran barks a laugh, sudden and rusty.

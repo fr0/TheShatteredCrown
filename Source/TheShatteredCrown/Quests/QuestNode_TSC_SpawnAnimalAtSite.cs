@@ -66,6 +66,22 @@ namespace TheShatteredCrown
                 return;
             }
             spawned = true;
+            // On cavern maps (the ettersnap site forces the Cavern mutator)
+            // the center is usually solid rock, and RandomClosewalkCellNear
+            // returns an unwalkable root unchanged - walk outward to the
+            // nearest open floor first (the deepest cave chamber: the den).
+            IntVec3 root = map.Center;
+            if (!root.Walkable(map))
+            {
+                foreach (IntVec3 candidate in GenRadial.RadialCellsAround(map.Center, 60f, useCenter: false))
+                {
+                    if (candidate.InBounds(map) && candidate.Walkable(map))
+                    {
+                        root = candidate;
+                        break;
+                    }
+                }
+            }
             for (int i = 0; i < count; i++)
             {
                 Pawn pawn = PawnGenerator.GeneratePawn(kind, null);
@@ -73,7 +89,7 @@ namespace TheShatteredCrown
                 {
                     QuestUtility.AddQuestTag(pawn, questTagToAdd);
                 }
-                IntVec3 cell = CellFinder.RandomClosewalkCellNear(map.Center, map, 12);
+                IntVec3 cell = CellFinder.RandomClosewalkCellNear(root, map, 12);
                 GenSpawn.Spawn(pawn, cell, map);
             }
         }

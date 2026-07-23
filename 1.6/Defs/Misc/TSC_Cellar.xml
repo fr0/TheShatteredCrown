@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Maewyn's cellar: a REAL cellar. The hatch is a MapPortal into a
+       one-room underground pocket map (vanilla ancient-hatch machinery).
+       Locked until the [Thievery] pick succeeds (DC 8; pick-only). Unlocking
+       while Maewyn is IN THE PARTY is the theft moment (JobDriver callout,
+       -10 affinity, flag TSC_MaewynCellarTheft). The druid book and the rest
+       of her cache sit in the cellar itself (GenStep_TSC_Cellar). -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_CellarHatch</defName>
+    <label>cellar hatch</label>
+    <description>A heavy oak hatch set into the cottage floor, iron-banded and fitted with a druid-made lock that has clearly never needed a second try. A ladder below leads down to Maewyn's root cellar.</description>
+    <size>(1,1)</size>
+    <thingClass>TheShatteredCrown.Building_TSC_CellarHatch</thingClass>
+    <rotatable>false</rotatable>
+    <tickerType>Normal</tickerType>
+    <useHitPoints>false</useHitPoints>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/AncientHatch/AncientHatch_Closed</texPath>
+      <drawSize>(1,1)</drawSize>
+    </graphicData>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <fillPercent>0</fillPercent>
+    <passability>PassThroughOnly</passability>
+    <pathCost>30</pathCost>
+    <destroyable>false</destroyable>
+    <building>
+      <isEdifice>false</isEdifice>
+      <deconstructible>false</deconstructible>
+      <isTargetable>false</isTargetable>
+      <isInert>true</isInert>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <portal>
+      <pocketMapGenerator>TSC_MaewynCellar</pocketMapGenerator>
+      <exitDef>TSC_CellarExit</exitDef>
+      <pocketMapSize>35</pocketMapSize>
+    </portal>
+    <statBases>
+      <Flammability>0</Flammability>
+    </statBases>
+  </ThingDef>
+
+  <ThingDef ParentName="PocketMapExit">
+    <defName>TSC_CellarExit</defName>
+    <label>cellar ladder</label>
+    <description>A worn wooden ladder up to the cottage floor.</description>
+    <size>(1,1)</size>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/AncientHatchExit/AncientHatchExit</texPath>
+      <drawSize>(1,1)</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <MapGeneratorDef>
+    <defName>TSC_MaewynCellar</defName>
+    <label>root cellar</label>
+    <isUnderground>true</isUnderground>
+    <disableCallAid>true</disableCallAid>
+    <pocketMapProperties>
+      <biome>Underground</biome>
+      <temperature>8</temperature>
+      <canBeCleaned>true</canBeCleaned>
+    </pocketMapProperties>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>TSC_CellarRoom</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <GenStepDef>
+    <defName>TSC_CellarRoom</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Cellar" />
+  </GenStepDef>
+
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_MaewynCellar</defName>
+    <root Class="ThingSetMaker_Sum">
+      <options>
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>TSC_Book_Druid</li>
+                </thingDefs>
+              </filter>
+              <countRange>1~1</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Silver</li>
+                </thingDefs>
+              </filter>
+              <countRange>60~120</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>MedicineHerbal</li>
+                </thingDefs>
+              </filter>
+              <countRange>4~8</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+</Defs>

@@ -32,6 +32,7 @@ Something happens to Serra's face that, on anyone else, you'd call a smile.
 "A wall named Gerald. Aye, that's my scout." She jerks her chin at the fire. "Sit, both of you. If the guild's courier is modest AND useful, this pass may finally owe us something."
 
 * "I'm listening." -> reveal
+    do affinity(+5)
 
 == bran_walked ==
 The woman by the firepit watches you come with a hunter's patience, and no challenge. By the woodpile, Bran lifts two fingers off his knee in greeting.
@@ -59,6 +60,7 @@ The stillness goes total. For three heartbeats, Serra Voss is a statue holding a
 "He was the best watch I ever posted. The pass knew it too; it took eight weeks to catch him." She turns back to you, and the captain is back on duty. Whatever else there is will happen later, on her own watch, alone. "You rode through the thing that killed my scout to bring me a straight answer. That buys you the story, courier. All of it."
 
 * "Then tell it." -> reveal
+    do affinity(+5)
 
 == relief ==
 Something unclenches in her shoulders. It's the first honest movement she's made.
@@ -84,7 +86,7 @@ Serra holds your gaze a moment longer. Then the frost breaks, just slightly, at 
 "One rider, not an auditor. Hm. Whoever taught you to talk earned their fee." She moves over on the log, which from Serra Voss is an embrace. "Sit, then. You've a company's worth of news to hear."
 
 * "I'm listening." -> reveal
-    do grant_xp(25)
+    do grant_xp(25); affinity(+5)
 
 == overdue_frost ==
 "Pretty words. The guild teaches those instead of map-reading now, does it." She turns back to the fire. "Sit down anyway, courier. Frost or no, you've earned the explanation by getting here."
@@ -136,7 +138,11 @@ Serra looks up from her map, marking your approach the way she marks everything:
 * "Storm's coming off the peaks by tomorrow night. The high route will ice over." -> weather_read
     if not flag(TSC_SerraWeather)
     check Survival 7 -> weather_read | weather_miss
+* "Tell me about the company, Serra. The people, not the mission." -> company_talk
+    if affinity(>=10) and not flag(TSC_SerraCompanyTalk)
 * "Remind me of the mission." -> remind
+* "I need supplies." -> supplies
+    if not flag(TSC_Serra_Supplies)
 * "Just checking in." -> end
 
 == raiders ==
@@ -166,7 +172,7 @@ She looks at you squarely.
 
 She scratches a name in charcoal on a bark strip.
 
-"There's a druid in the hills, Maewyn Ashvale. Keeps ravens. Prickly as a thornhedge, but I'm betting she'll talk to you. Ask her to carry word to the guild that we're alive and on the hunt."
+"There's a druid in the hills, Maewyn Ashvale. Keeps ravens. Prickly as a thornhedge, but I'm betting she'll talk to you; she owes me a favor. Ask her to carry word to the guild that we're alive and on the hunt."
 
 * "I'll find her grove." -> hub
     do flag(TSC_GaveDruid); give_quest(TSC_Side_Druid)
@@ -178,7 +184,7 @@ Serra glances at the peaks, reads the same signs, and gives you a look she usual
 "...It will, at that. High route ices, low route floods three days after." She adjusts two pins on her map without another word.
 
 * "Just keeping us dry, captain." -> hub
-    do flag(TSC_SerraWeather); grant_xp(25)
+    do flag(TSC_SerraWeather); grant_xp(25); affinity(+5)
 
 == weather_miss ==
 Serra follows your gaze to the peaks, then back to you, unimpressed.
@@ -197,10 +203,25 @@ Two days of tracking, stillness, wind-reading, and loosing arrows at distances y
 
 * [Learn the Ranger's craft] "Understood, captain." -> hub
     if not flag(TSC_SerraTaught)
-    do flag(TSC_SerraTaught); learn_class(TSC_Class_Ranger); grant_xp(25)
+    do flag(TSC_SerraTaught); learn_class(TSC_Class_Ranger); grant_xp(25); affinity(+5)
 * "Another time. The hunt first." -> hub
+
+== company_talk ==
+Serra looks at the fire for a while before answering, which is her version of clearing her throat.
+
+"Oswin signed on to read the world's oldest library and got eight weeks of rat stew. Never once asked to turn back. Bran holds any door you put him in front of and calls it a quiet life." She glances up at you. "That's the company."
+
+* "Good to know." -> hub
+    do flag(TSC_SerraCompanyTalk); grant_xp(10)
 
 == remind ==
 "The ettersnap. The cave. Alive." She counts them off on three fingers, then adds a fourth: "And talk to Oswin before you go. He knows what the creature can't resist, and where to find it. His books are insufferable and correct."
 
 * "Understood." -> hub
+
+== supplies ==
+
+"There are some rations in one of the crates in our camp. You're welcome to them. Beyond that, you'll have to fend for yourself. If you passed the guild's training, I know you're capable of doing so."
+
+* "Understood." -> end
+    do flag(TSC_Serra_Supplies)

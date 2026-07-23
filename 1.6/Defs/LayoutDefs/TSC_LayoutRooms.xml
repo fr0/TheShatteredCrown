@@ -137,11 +137,13 @@
     </prefabs>
     <parts>
       <Corpse>0.4</Corpse>
-      <DormantInsectCluster>0.35</DormantInsectCluster>
+      <!-- 0.35 could roll a completely empty barrow; Oswin promises tenants. -->
+      <DormantInsectCluster>0.75</DormantInsectCluster>
     </parts>
   </LayoutRoomDef>
 
-  <!-- Mosskeeper's cell: holds the remembrance moss caches (Act 1 sidequest) -->
+  <!-- Mosskeeper's cell (Act 1 sidequest). The moss itself lies loose on
+       the crypt floor - spawned by GenStep_TSC_BarrowCrypt, no chest. -->
   <LayoutRoomDef>
     <defName>TSC_MossCellar</defName>
     <minSingleRectWidth>6</minSingleRectWidth>
@@ -149,11 +151,6 @@
     <floorTypes>
       <li>FlagstoneGranite</li>
     </floorTypes>
-    <prefabs>
-      <TSC_MossCachePrefab>
-        <countRange>1~1</countRange>
-      </TSC_MossCachePrefab>
-    </prefabs>
     <parts>
       <DormantInsectCluster />
       <Corpse>0.3</Corpse>

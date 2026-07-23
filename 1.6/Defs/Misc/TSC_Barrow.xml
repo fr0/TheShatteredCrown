@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- The mosskeepers' barrow is ACTUALLY UNDERGROUND: the surface site
+       holds only the barrow mouth (a cave-entrance MapPortal, vanilla
+       insect-lair machinery), and the crypt generates in this pocket map -
+       carved into solid rock, natural caves around it (forceCaves), the
+       rope exit placed by vanilla PlaceCaveExit and connected to the crypt
+       by a bored robbers' tunnel (GenStep_TSC_BarrowCrypt). Shamblers rise
+       down here, near the mosskeeper's chest. -->
+
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_BarrowEntrance</defName>
+    <label>barrow mouth</label>
+    <description>The mouth of a mosskeepers' barrow: a dark, stone-lipped descent into the hill. The air rising out of it is cold, and smells of rain on old stone.</description>
+    <size>(6,6)</size>
+    <useHitPoints>false</useHitPoints>
+    <thingClass>TheShatteredCrown.Building_TSC_BarrowEntrance</thingClass>
+    <rotatable>false</rotatable>
+    <tickerType>Normal</tickerType>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <canOverlapZones>false</canOverlapZones>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/CaveEntranceA</texPath>
+      <drawSize>(6,6)</drawSize>
+    </graphicData>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <fillPercent>0</fillPercent>
+    <passability>Impassable</passability>
+    <holdsRoof>true</holdsRoof>
+    <destroyable>false</destroyable>
+    <building>
+      <isEdifice>true</isEdifice>
+      <deconstructible>false</deconstructible>
+      <isTargetable>false</isTargetable>
+      <isInert>true</isInert>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <portal>
+      <pocketMapGenerator>TSC_BarrowUnderground</pocketMapGenerator>
+      <exitDef>CaveExit</exitDef>
+      <pocketMapSize>75</pocketMapSize>
+    </portal>
+    <statBases>
+      <Flammability>0</Flammability>
+    </statBases>
+    <inspectorTabs>
+      <li>ITab_ContentsMapPortal</li>
+    </inspectorTabs>
+  </ThingDef>
+
+  <MapGeneratorDef>
+    <defName>TSC_BarrowUnderground</defName>
+    <label>mosskeepers' barrow</label>
+    <isUnderground>true</isUnderground>
+    <forceCaves>true</forceCaves>
+    <ignoreAreaRevealedLetter>true</ignoreAreaRevealedLetter>
+    <disableCallAid>true</disableCallAid>
+    <pocketMapProperties>
+      <biome>Underground</biome>
+      <temperature>4</temperature>
+      <canBeCleaned>true</canBeCleaned>
+      <tileMutators>
+        <li>UndergroundCave</li>
+      </tileMutators>
+    </pocketMapProperties>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_BarrowCrypt</li>
+      <li>TSC_MossBarrowUndead</li>
+      <li>Plants</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <GenStepDef>
+    <defName>TSC_BarrowCrypt</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BarrowCrypt">
+      <layoutDef>TSC_MossBarrow</layoutDef>
+      <size>33</size>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The barrow's guaranteed tenants: shamblers (Anomaly; skipped without).
+       Runs in the pocket map, centered on the mosskeeper's chest. -->
+  <GenStepDef>
+    <defName>TSC_MossBarrowUndead</defName>
+    <order>552</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BarrowUndead">
+      <count>4~6</count>
+    </genStep>
+  </GenStepDef>
+
+</Defs>

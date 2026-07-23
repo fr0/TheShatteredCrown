@@ -110,6 +110,12 @@ namespace TheShatteredCrown
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(options));
         }
 
+        [DebugAction("The Shattered Crown", "Show act title card", allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        private static void ShowTitleCard()
+        {
+            TSC_TitleCardManager.Show("Act 1", "Distilled Memory");
+        }
+
         [DebugAction("The Shattered Crown", "Spawn bandit hexer", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
         private static void SpawnBanditHexer()
         {

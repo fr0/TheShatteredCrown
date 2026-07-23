@@ -85,6 +85,9 @@ namespace TheShatteredCrown
 
         public override void PostGameStart()
         {
+            // The opening title card: scheduled here because PostGameStart runs
+            // exactly once, at new-game creation, in THIS scenario only.
+            TSC_TitleCardManager.ScheduleOpening();
             if (introQuest == null)
             {
                 return;

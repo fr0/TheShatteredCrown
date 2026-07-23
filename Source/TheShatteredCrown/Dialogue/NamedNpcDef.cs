@@ -14,6 +14,12 @@ namespace TheShatteredCrown
         public ThingDef stuff;
     }
 
+    public class TSC_MinSkill
+    {
+        public SkillDef skill;
+        public int level;
+    }
+
     public class NamedNpcDef : Def
     {
         public string firstName;
@@ -27,6 +33,18 @@ namespace TheShatteredCrown
 
         /// <summary>Story-critical: lethal events down this character instead of killing them (Harmony Pawn.Kill prefix).</summary>
         public bool plotArmor;
+
+        /// <summary>Fixed backstories, applied after generation - the captain was always a captain, never a vatgrown soldier.</summary>
+        public BackstoryDef childhood;
+        public BackstoryDef adulthood;
+
+        /// <summary>
+        /// Skill floors applied after generation. Backstories are swapped in
+        /// AFTER the roll (their skillGains never apply), so this is how a
+        /// character's signature competence is guaranteed - a lucky higher
+        /// roll is kept.
+        /// </summary>
+        public System.Collections.Generic.List<TSC_MinSkill> minSkills;
 
         /// <summary>
         /// Optional exact weapon, replacing whatever the pawn kind generates.

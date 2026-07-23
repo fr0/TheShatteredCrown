@@ -328,7 +328,9 @@ namespace TheShatteredCrown
                 sb.AppendLine("        <rects>");
                 foreach (CellRect r in pair.Value)
                 {
-                    sb.AppendLine($"          <li>({r.minX},{r.minZ},{r.Width},{r.Height})</li>");
+                    // Inclusive corners (minX,minZ,maxX,maxZ): the vanilla
+                    // CellRect XML parse. Width/height here breaks prefabs.
+                    sb.AppendLine($"          <li>({r.minX},{r.minZ},{r.maxX},{r.maxZ})</li>");
                 }
                 sb.AppendLine("        </rects>");
                 sb.AppendLine($"      </{pair.Key.defName}>");

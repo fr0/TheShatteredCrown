@@ -19,6 +19,8 @@ namespace TheShatteredCrown
         private Dictionary<string, Pawn> namedNpcs = new Dictionary<string, Pawn>();
         private HashSet<string> firedInitiations = new HashSet<string>();
         private Pawn protagonist;
+        private List<string> npcKeysWorking;
+        private List<Pawn> npcValuesWorking;
 
         /// <summary>Transient: pawns currently walking over to start a conversation (not saved; retries after load).</summary>
         private static readonly Dictionary<Pawn, DialogueDef> pendingInitiations = new Dictionary<Pawn, DialogueDef>();
@@ -78,6 +80,35 @@ namespace TheShatteredCrown
             }
             Pawn pawn = PawnGenerator.GeneratePawn(request);
             pawn.Name = def.MakeName();
+            // Fixed backstories: bio text and work-tags follow the def; the
+            // rolled skills stay (our proficiency/class systems carry the
+            // character identity anyway).
+            if (def.childhood != null)
+            {
+                pawn.story.Childhood = def.childhood;
+            }
+            if (def.adulthood != null)
+            {
+                pawn.story.Adulthood = def.adulthood;
+            }
+            // Skill floors: the swapped-in backstories' skillGains never
+            // applied (they arrive after the roll), so signature skills are
+            // guaranteed here instead.
+            if (!def.minSkills.NullOrEmpty() && pawn.skills != null)
+            {
+                foreach (TSC_MinSkill entry in def.minSkills)
+                {
+                    if (entry?.skill == null)
+                    {
+                        continue;
+                    }
+                    SkillRecord record = pawn.skills.GetSkill(entry.skill);
+                    if (record != null && !record.TotallyDisabled && record.Level < entry.level)
+                    {
+                        record.Level = entry.level;
+                    }
+                }
+            }
             if (def.forcedWeapon != null && pawn.equipment != null)
             {
                 pawn.equipment.DestroyAllEquipment();
@@ -117,6 +148,52 @@ namespace TheShatteredCrown
         public Pawn GetNamedNpcIfExists(NamedNpcDef def)
         {
             return def != null && namedNpcs.TryGetValue(def.defName, out Pawn pawn) ? pawn : null;
+        }
+
+        // ---------------------------------------------------------------- affinity
+
+        private Dictionary<string, int> affinity = new Dictionary<string, int>();
+
+        /// <summary>Relationship score with a named character. 0 = neutral; dialogue choices and story actions move it.</summary>
+        public int AffinityOf(NamedNpcDef def)
+        {
+            return def != null && affinity.TryGetValue(def.defName, out int value) ? value : 0;
+        }
+
+        /// <summary>BG3-style approval: shifts affinity and (by default) surfaces "X approves. (+5)".</summary>
+        public void ChangeAffinity(NamedNpcDef def, int amount, bool announce = true)
+        {
+            if (def == null || amount == 0)
+            {
+                return;
+            }
+            affinity[def.defName] = AffinityOf(def) + amount;
+            if (announce)
+            {
+                Pawn pawn = GetNamedNpcIfExists(def);
+                string name = pawn?.Name?.ToStringShort ?? def.label ?? def.defName;
+                string strength = UnityEngine.Mathf.Abs(amount) >= 10 ? "greatly " : "";
+                string word = amount > 0 ? "approves" : "disapproves";
+                string line = $"{name} {strength}{word}. ({(amount > 0 ? "+" : "")}{amount})";
+                if (pawn != null && pawn.Spawned)
+                {
+                    Messages.Message(line, pawn, MessageTypeDefOf.SilentInput, historical: false);
+                }
+                else
+                {
+                    Messages.Message(line, MessageTypeDefOf.SilentInput, historical: false);
+                }
+            }
+        }
+
+        /// <summary>Human-readable relationship tier for UI.</summary>
+        public static string AffinityTier(int value)
+        {
+            if (value <= -20) return "hostile";
+            if (value < 0) return "cold";
+            if (value < 10) return "neutral";
+            if (value < 25) return "warm";
+            return "devoted";
         }
 
         /// <summary>Reverse lookup: the character def whose pawn this is, else null.</summary>
@@ -373,8 +450,37 @@ namespace TheShatteredCrown
         {
             base.ExposeData();
             Scribe_Collections.Look(ref flags, "flags", LookMode.Value);
-            Scribe_Collections.Look(ref namedNpcs, "namedNpcs", LookMode.Value, LookMode.Reference);
+            // Tolerant manual scribing: reference-valued dictionaries REQUIRE
+            // working lists (the plain Look overload errors and the dict was
+            // silently never saved). Null pawns (long-gone characters) are
+            // dropped on load instead of erroring.
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                npcKeysWorking = new List<string>();
+                npcValuesWorking = new List<Pawn>();
+                foreach (KeyValuePair<string, Pawn> pair in namedNpcs)
+                {
+                    if (pair.Value != null && !pair.Value.Discarded)
+                    {
+                        npcKeysWorking.Add(pair.Key);
+                        npcValuesWorking.Add(pair.Value);
+                    }
+                }
+            }
+            if (Scribe.EnterNode("namedNpcs"))
+            {
+                try
+                {
+                    Scribe_Collections.Look(ref npcKeysWorking, "keys", LookMode.Value);
+                    Scribe_Collections.Look(ref npcValuesWorking, "values", LookMode.Reference);
+                }
+                finally
+                {
+                    Scribe.ExitNode();
+                }
+            }
             Scribe_Collections.Look(ref firedInitiations, "firedInitiations", LookMode.Value);
+            Scribe_Collections.Look(ref affinity, "affinity", LookMode.Value, LookMode.Value);
             Scribe_References.Look(ref protagonist, "protagonist");
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
@@ -390,6 +496,25 @@ namespace TheShatteredCrown
                 {
                     firedInitiations = new HashSet<string>();
                 }
+                if (affinity == null)
+                {
+                    affinity = new Dictionary<string, int>();
+                }
+                namedNpcs = new Dictionary<string, Pawn>();
+                if (npcKeysWorking != null && npcValuesWorking != null)
+                {
+                    int count = System.Math.Min(npcKeysWorking.Count, npcValuesWorking.Count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        if (!npcKeysWorking[i].NullOrEmpty() && npcValuesWorking[i] != null
+                            && !namedNpcs.ContainsKey(npcKeysWorking[i]))
+                        {
+                            namedNpcs[npcKeysWorking[i]] = npcValuesWorking[i];
+                        }
+                    }
+                }
+                npcKeysWorking = null;
+                npcValuesWorking = null;
             }
         }
     }

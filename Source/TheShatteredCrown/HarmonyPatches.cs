@@ -141,10 +141,13 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            // ___pawn.Faction.IsPlayer instead of == Faction.OfPlayer: during
+            // world generation the player faction does not exist yet, and the
+            // OfPlayer lookup errors on every faction-leader pawn generated.
             __result = Verse.Current.Game != null && Find.World != null
                 && TSC_RpgMode.Active
                 && ___pawn != null && ___pawn.RaceProps.Humanlike
-                && ___pawn.Faction == Faction.OfPlayer
+                && ___pawn.Faction != null && ___pawn.Faction.IsPlayer
                 && TSC_ProgressionManager.Current.MaxEnergy(___pawn) > 0f;
         }
     }

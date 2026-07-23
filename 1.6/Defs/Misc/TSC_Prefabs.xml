@@ -114,21 +114,6 @@
     </things>
   </PrefabDef>
 
-  <!-- Moss cache for the barrow sidequest -->
-  <PrefabDef>
-    <defName>TSC_MossCachePrefab</defName>
-    <size>(3,3)</size>
-    <things>
-      <TSC_MossCache>
-        <position>(1,0,1)</position>
-      </TSC_MossCache>
-      <TorchLamp>
-        <position>(0,0,2)</position>
-        <chance>0.5</chance>
-      </TorchLamp>
-    </things>
-  </PrefabDef>
-
   <!-- Supply cache crate for storerooms -->
   <PrefabDef>
     <defName>TSC_SupplyCachePrefab</defName>

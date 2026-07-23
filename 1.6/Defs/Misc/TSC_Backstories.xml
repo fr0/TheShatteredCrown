@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Fixed backstories for the named story characters, assigned in
+       NamedNpcDef (childhood/adulthood) at generation - no more vatgrown
+       soldiers captaining a medieval company. The TSC_NamedNpc spawn
+       category is referenced by nothing, so these never appear in random
+       pawn generation. -->
+
+  <!-- Bran Underhill -->
+  <BackstoryDef>
+    <defName>TSC_Backstory_TowerBorn</defName>
+    <title>tower-born</title>
+    <titleShort>tower kid</titleShort>
+    <description>[PAWN_nameDef] was born in a border watchtower and raised on its stairs. [PAWN_pronoun] learned stonework from patching walls and swordwork from watching the watch.</description>
+    <slot>Childhood</slot>
+    <spawnCategories>
+      <li>TSC_NamedNpc</li>
+    </spawnCategories>
+    <skillGains>
+      <Construction>2</Construction>
+      <Melee>2</Melee>
+    </skillGains>
+  </BackstoryDef>
+
+  <BackstoryDef>
+    <defName>TSC_Backstory_BorderWatchman</defName>
+    <title>border watchman</title>
+    <titleShort>watchman</titleShort>
+    <description>[PAWN_nameDef] held a dead kingdom's border tower long after the pay stopped coming, because forty years of family had held it before [PAWN_objective]. The watch ended; the standing did not.</description>
+    <slot>Adulthood</slot>
+    <spawnCategories>
+      <li>TSC_NamedNpc</li>
+    </spawnCategories>
+    <skillGains>
+      <Melee>4</Melee>
+      <Construction>2</Construction>
+    </skillGains>
+  </BackstoryDef>
+
+  <!-- Serra Voss -->
+  <BackstoryDef>
+    <defName>TSC_Backstory_HuntersChild</defName>
+    <title>hunter's child</title>
+    <titleShort>hunter kid</titleShort>
+    <description>[PAWN_nameDef] grew up in the high passes, reading wind and track before letters. The first bow was too big; the second fit.</description>
+    <slot>Childhood</slot>
+    <spawnCategories>
+      <li>TSC_NamedNpc</li>
+    </spawnCategories>
+    <skillGains>
+      <Shooting>3</Shooting>
+      <Animals>1</Animals>
+    </skillGains>
+  </BackstoryDef>
+
+  <BackstoryDef>
+    <defName>TSC_Backstory_CompanyCaptain</defName>
+    <title>company captain</title>
+    <titleShort>captain</titleShort>
+    <description>[PAWN_nameDef] led a guild company through passes that ate lesser expeditions: rationing words like arrows, and losing fewer of either than anyone else in the trade.</description>
+    <slot>Adulthood</slot>
+    <spawnCategories>
+      <li>TSC_NamedNpc</li>
+    </spawnCategories>
+    <skillGains>
+      <Shooting>5</Shooting>
+      <Social>2</Social>
+      <Animals>1</Animals>
+    </skillGains>
+  </BackstoryDef>
+
+  <!-- Oswin Pell -->
+  <BackstoryDef>
+    <defName>TSC_Backstory_CopyistsChild</defName>
+    <title>copyist's child</title>
+    <titleShort>ink child</titleShort>
+    <description>[PAWN_nameDef] was raised in a copying-house among the last books of the old kingdom, and learned early that margins are where the truth hides.</description>
+    <slot>Childhood</slot>
+    <spawnCategories>
+      <li>TSC_NamedNpc</li>
+    </spawnCategories>
+    <skillGains>
+      <Intellectual>3</Intellectual>
+    </skillGains>
+  </BackstoryDef>
+
+  <BackstoryDef>
+    <defName>TSC_Backstory_ItinerantScholar</defName>
+    <title>itinerant scholar</title>
+    <titleShort>scholar</titleShort>
+    <description>[PAWN_nameDef] carried a reference library across half the rim on one mule and an opinion. Evidence is a full sentence; everything else is marginalia.</description>
+    <slot>Adulthood</slot>
+    <spawnCategories>
+      <li>TSC_NamedNpc</li>
+    </spawnCategories>
+    <skillGains>
+      <Intellectual>6</Intellectual>
+      <Artistic>2</Artistic>
+    </skillGains>
+  </BackstoryDef>
+
+  <!-- Maewyn Ashvale -->
+  <BackstoryDef>
+    <defName>TSC_Backstory_HollowBorn</defName>
+    <title>hollow-born</title>
+    <titleShort>hollow kid</titleShort>
+    <description>[PAWN_nameDef] was born in a green hollow the maps forgot, and was raised as much by the hills as by anyone with a name.</description>
+    <slot>Childhood</slot>
+    <spawnCategories>
+      <li>TSC_NamedNpc</li>
+    </spawnCategories>
+    <skillGains>
+      <Plants>2</Plants>
+      <Animals>2</Animals>
+    </skillGains>
+  </BackstoryDef>
+
+  <BackstoryDef>
+    <defName>TSC_Backstory_HedgeDruid</defName>
+    <title>hedge druid</title>
+    <titleShort>druid</titleShort>
+    <description>[PAWN_nameDef] kept a grove for thirty years: bees, ravens, beds, and the long patience of green things. The hills talk to [PAWN_objective]. They rarely bother with anyone else.</description>
+    <slot>Adulthood</slot>
+    <spawnCategories>
+      <li>TSC_NamedNpc</li>
+    </spawnCategories>
+    <skillGains>
+      <Plants>5</Plants>
+      <Animals>4</Animals>
+      <Medicine>2</Medicine>
+    </skillGains>
+  </BackstoryDef>
+
+</Defs>

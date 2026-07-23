@@ -13,9 +13,21 @@
       <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
       <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
     </li>
+    <li>
+      <packageId>Ludeon.RimWorld.Royalty</packageId>
+      <displayName>RimWorld - Royalty</displayName>
+      <downloadUrl>https://store.steampowered.com/app/1149640/RimWorld__Royalty/</downloadUrl>
+    </li>
+    <li>
+      <packageId>Ludeon.RimWorld.Odyssey</packageId>
+      <displayName>RimWorld - Odyssey</displayName>
+      <downloadUrl>https://store.steampowered.com/dlc/294100/</downloadUrl>
+    </li>
   </modDependencies>
   <loadAfter>
     <li>brrainz.harmony</li>
+    <li>Ludeon.RimWorld.Royalty</li>
+    <li>Ludeon.RimWorld.Odyssey</li>
   </loadAfter>
   <description>A medieval-themed epic quest chain. The Wayfarers' Guild, a roving band of adventurers, recruits you into the hunt for the Shattered Crown: finding companions, and delving into bespoke dungeons and ruins across the rim.
 
@@ -24,5 +36,5 @@ Features:
 - Hand-crafted dungeon and ruin locations to explore
 - Medieval flavor: swords, bows, plate armor, and ancient secrets
 
-Requires the Odyssey expansion (uses its structure-generation content).</description>
+Requires the Royalty expansion (ability artwork and psychic effects) and the Odyssey expansion (openable containers and underground structures). All other expansions are optional.</description>
 </ModMetaData>

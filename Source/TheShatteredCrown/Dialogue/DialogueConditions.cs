@@ -33,6 +33,25 @@ namespace TheShatteredCrown
     }
 
     /// <summary>
+    /// True when the named character's affinity lies within [min, max]. With no
+    /// npc set, checks the pawn being talked to. Gate warm confidences behind
+    /// min, cold brush-offs behind max.
+    /// </summary>
+    public class DialogueCondition_Affinity : DialogueCondition
+    {
+        public NamedNpcDef npc;
+        public int min = int.MinValue;
+        public int max = int.MaxValue;
+
+        public override bool Met(DialogueContext context)
+        {
+            NamedNpcDef def = npc ?? DialogueStateManager.Current.NpcDefFor(context.npc);
+            int value = DialogueStateManager.Current.AffinityOf(def);
+            return value >= min && value <= max;
+        }
+    }
+
+    /// <summary>
     /// True when a companion is in the player's faction. With no npc set, it
     /// checks the pawn currently being talked to.
     /// </summary>
@@ -132,6 +151,33 @@ namespace TheShatteredCrown
             foreach (Quest q in Find.QuestManager.QuestsListForReading)
             {
                 if (q.root == quest && (q.State == QuestState.Ongoing || q.State == QuestState.NotYetAccepted))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// True when a living, player-owned pawn of the given kind is spawned on
+    /// the same map as the NPC being talked to. Gates dialogue on a creature
+    /// physically being present - e.g. Oswin's rites need the ettersnap AT the
+    /// camp, not merely owned on some other map.
+    /// </summary>
+    public class DialogueCondition_KindOnMap : DialogueCondition
+    {
+        public PawnKindDef kind;
+
+        public override bool Met(DialogueContext context)
+        {
+            if (kind == null || context.npc == null || !context.npc.Spawned)
+            {
+                return false;
+            }
+            foreach (Pawn pawn in context.npc.Map.mapPawns.PawnsInFaction(Faction.OfPlayer))
+            {
+                if (pawn.kindDef == kind && !pawn.Dead)
                 {
                     return true;
                 }

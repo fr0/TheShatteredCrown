@@ -44,6 +44,10 @@
     <tags>
       <li>TSC_PartyCamp</li>
     </tags>
+    <!-- Story hub: survives being visited and left (the rites require returning) -->
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension" />
+    </modExtensions>
   </SitePartDef>
 
   <GenStepDef>
@@ -52,6 +56,14 @@
     <order>470</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_Village">
       <innPrefab>TSC_CampSite</innPrefab>
+      <!-- Re-spawned every generation so the persistent camp repopulates on
+           revisit (the quest's spawn nodes fire once). After the rites the
+           company packs up for the oasis village: no residents. -->
+      <residents>
+        <li>TSC_Npc_Serra</li>
+        <li>TSC_Npc_Oswin</li>
+      </residents>
+      <residentsSkipIfFlag>TSC_RitesDone</residentsSkipIfFlag>
     </genStep>
   </GenStepDef>
 
@@ -74,12 +86,15 @@
     </tags>
   </SitePartDef>
 
+  <!-- Surface half: just the barrow mouth; the crypt (and its shamblers)
+       generate in the TSC_BarrowUnderground pocket map behind the portal.
+       See 1.6/Defs/Misc/TSC_Barrow.xml. -->
   <GenStepDef>
     <defName>TSC_MossBarrowSite</defName>
     <linkWithSite>TSC_MossBarrowSite</linkWithSite>
     <order>470</order>
-    <genStep Class="GenStep_AncientRuins">
-      <layoutDef>TSC_MossBarrow</layoutDef>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BarrowSurface">
+      <entranceDef>TSC_BarrowEntrance</entranceDef>
     </genStep>
   </GenStepDef>
 
@@ -98,6 +113,10 @@
     <tags>
       <li>TSC_DruidGrove</li>
     </tags>
+    <!-- Story location: persists across visits (Maewyn respawns via genstep) -->
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension" />
+    </modExtensions>
   </SitePartDef>
 
   <GenStepDef>
@@ -107,6 +126,11 @@
     <genStep Class="TheShatteredCrown.GenStep_TSC_Village">
       <innPrefab>TSC_CottageSmall</innPrefab>
       <innkeeper>TSC_Npc_Maewyn</innkeeper>
+      <cellarHatch>TSC_CellarHatch</cellarHatch>
+      <beehive>TSC_Beehive</beehive>
+      <beehiveCount>4~6</beehiveCount>
+      <yardBird>Crow</yardBird>
+      <yardBirdCount>3~5</yardBirdCount>
     </genStep>
   </GenStepDef>
 
@@ -125,6 +149,13 @@
     <tags>
       <li>TSC_EttersnapCave</li>
     </tags>
+    <!-- An ACTUAL cave: big mountain mass with a carved cave system (the
+         same mutator Odyssey's insect-lair site uses). The ettersnap dens
+         in the deepest chamber - the spawn node walks out from the solid
+         center to the nearest open floor. -->
+    <forceMutators>
+      <li>Cavern</li>
+    </forceMutators>
   </SitePartDef>
 
   <!-- Side site: the village of Underhill, Bram's home -->
@@ -142,6 +173,10 @@
     <tags>
       <li>TSC_UnderhillVillage</li>
     </tags>
+    <!-- Story location: persists across visits -->
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension" />
+    </modExtensions>
   </SitePartDef>
 
   <GenStepDef>

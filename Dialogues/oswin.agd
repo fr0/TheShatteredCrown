@@ -4,6 +4,12 @@
 
 dialogue TSC_Dialogue_Oswin
 
+# The rites fire when the captured ettersnap is physically AT the camp:
+# quest sets TSC_EttersnapCaught on acquisition, kind_on_map requires the
+# creature on Oswin's map, and finishing the scene sets TSC_RitesDone
+# (which also completes the TSC_Act1_Ettersnap quest via signal).
+entry rites_ready if flag(TSC_EttersnapCaught) and not flag(TSC_RitesDone) and kind_on_map(TSC_Ettersnap)
+
 == start ==
 A reedy man sits cross-legged by a crate-desk, three books open at once, writing in a fourth. He doesn't look up.
 
@@ -19,7 +25,19 @@ A reedy man sits cross-legged by a crate-desk, three books open at once, writing
     if not flag(TSC_MetParty)
 * "Teach me the Binder's school properly, Oswin." -> wizard_teaching
     if flag(TSC_OswinRespect) and not flag(TSC_OswinTaught)
+* "Read me something, Oswin. Whatever's worth the ink tonight." -> reading
+    if affinity(>=10) and not flag(TSC_OswinReading)
 * "Just introducing myself." -> intro
+
+== reading ==
+Oswin looks up, suspicious, as if kindness were a forgery he's been trained to spot. Then he clears his throat and reads: a passage from the Chronicle, the one where the Nine Passes are named, each for the soldier who held it.
+
+His voice is different when he reads. The squint goes out of it.
+
+"Nobody has asked me to read aloud in eight years." He marks the page with a raven feather. "Ask again sometime, courier."
+
+* "I will, scholar." -> end
+    do flag(TSC_OswinReading); grant_xp(10)
 
 # Pre-reveal: the hunt is Serra's story to tell, and Oswin knows it
 == hunt_deflect ==
@@ -41,7 +59,7 @@ Three evenings by the fire follow: sigil grammar, ward geometry, and the Binder'
 
 * [Learn the Wizard's art] "I'll mind the inkwell, scholar." -> end
     if not flag(TSC_OswinTaught)
-    do flag(TSC_OswinTaught); learn_class(TSC_Class_Wizard); grant_xp(25)
+    do flag(TSC_OswinTaught); learn_class(TSC_Class_Wizard); grant_xp(25); affinity(+5)
 * "Another time. The hunt first." -> end
 
 == intro ==
@@ -93,7 +111,7 @@ Oswin's quill stops mid-word.
 "The burial cantos. Which nobody reads, because the Chronicle's a doorstop and the cantos are in the old meter." He leans forward, delighted despite himself. "Yes: twice. Once as omen, once as *inventory*. You've actually read it. Courier, I take back a full third of what I assumed about you."
 
 * "Only a third, scholar?" -> end
-    do flag(TSC_OswinRespect); grant_xp(25)
+    do flag(TSC_OswinRespect); grant_xp(25); affinity(TSC_Npc_Oswin, +5)
 
 == lore_shallow ==
 "The Chronicle of the Nine Passes." Oswin's eyes narrow. "Which canto, courier? Because the Chronicle has no burial cantos; you're thinking of the Lay of the Cold Hearth, and misquoting it at that. Points for ambition. None for scholarship."
@@ -106,7 +124,7 @@ Oswin's quill stops. He looks at you the way he looks at a rare book.
 "*Somebody* reads. Yes, the Binder's school held that memory outlives the mind that made it, the way heat outlives the fire. The crown itself was built on that doctrine: nine shards, each one holding... hm." He catches himself, glances toward Serra's fire, lowers his voice. "Each one holding more than metal. Ask me again when the ettersnap has spoken. I dislike being wrong in front of the well-read."
 
 * "I'll hold you to it, scholar." -> end
-    do flag(TSC_OswinRespect); grant_xp(25)
+    do flag(TSC_OswinRespect); grant_xp(25); affinity(TSC_Npc_Oswin, +5)
 
 == arcana_shallow ==
 "Bindery doctrine! Everyone's a scholar." He snorts and returns to his writing. "The Binder's school is a century of corrupted copies and wishful marginalia. Mind the rites, courier, and leave the doctrine to people with reference libraries."
@@ -114,23 +132,94 @@ Oswin's quill stops. He looks at you the way he looks at a rare book.
 * "As you say, Oswin." -> end
 
 == rites ==
-"The Rite of the Poured Cup. Three nights, a circle of grave-iron, and a very patient singer, which will be me, as Serra's singing frightens horses. Done right, the creature dreams aloud and we transcribe. Done wrong, the memories curdle and we learn nothing."
+"The Rite of the Poured Cup. Some incantations, a circle of grave-iron, and a very patient singer, which will be me, as Serra's singing frightens horses. Done right, the creature dreams aloud and we transcribe. Done wrong, the memories curdle and we learn nothing."
 
 He fixes you with the squint.
 
-"Which is why the creature must come back ALIVE and CALM. No nets, no clubs, no heroics."
+"Which is why the creature must come back *alive*. No clubs, no heroics."
 
 * "Then tell me about the moss." -> moss
     if not flag(TSC_GaveMoss)
-* "Alive and calm. Understood." -> end
+* "Alive. Understood." -> end
 
 == moss ==
 "Remembrance moss." He pulls a sketch: pale fronds, silver veins. "Grows only where the dead lie long undisturbed, and to an ettersnap it is a lit feast in a dark room. They cannot resist it. The mosskeepers of the old kingdom farmed it in cold barrows, and one of their barrows stands not a day from this fire."
 
 He marks your map with an ink-stained thumb.
 
-"Bring back a chest of it and the creature will follow you home like a lamb. Go without it and you can try patience against a thing that has outwaited kingdoms. The barrow *will* be tenanted. They always are."
+"Bring back an armful of it and the creature will follow you home like a lamb. Go without it and you can try patience against a thing that has outwaited kingdoms. The barrow *will* be tenanted. They always are."
 
 * "I'll fetch your moss, scholar." -> end
     do flag(TSC_GaveMoss); give_quest(TSC_Side_Moss)
 * "We'll see if it's needed." -> end
+    do affinity(-5)
+
+# Bridge into the rite: entered automatically (see entry above) once the
+# living ettersnap is on Oswin's map. Backing out is safe; the entry
+# re-fires next time you talk to him.
+== rites_ready ==
+
+Oswin is on his feet before you've said a word, ink abandoned mid-sentence, staring past you at the ettersnap with the expression most men reserve for royalty or ghosts.
+
+"You actually... eight weeks, and there it is. Drinking half the pass's dead like wine in a skin." He is already pulling grave-iron stakes from the bottom of a crate, counting under his breath. "Keep it calm. Keep it CLOSE. I need an hour to raise the circle, and then, courier, we are going to listen to a creature remember."
+
+* "Begin your rite, scholar. We'll keep it settled." -> rites_1
+* "An hour, then. I'll not go far." -> end
+
+== rites_1 ==
+
+It takes a while, but eventually Oswin's preparations are complete. He finishes one last incantation, and then begins singing in a language you've never heard before.
+
+His voice is surprisingly good.
+
+* Sit and listen. -> rites_2
+
+== rites_2 ==
+
+You sit silently listening, watching the sedated ettersnap in the center of the circle. You see its chest just barely rise and fall with long, slow breaths.
+
+Eventually, something begins to appear faintly above the ettersnap. It starts out as a dark splotch in your vision, but quickly grows to a full-on hallucination.
+
+It shows what is very clearly the inside of a sanguophage's crypt. Next to a sleeping sanguophage is unmistakably a piece of the shattered crown. You've never seen a shard before, but you instinctively know it to be true.
+The visage then shifts to an outdoor setting - a serene lake fed by a waterfall, surrounded by cedar trees.
+
+Then, just as quickly as it came, the vision is gone.
+
+* "Well, that was something." -> rites_3
+
+== rites_3 ==
+
+"Good news and bad news," Oswin says.
+
+"Bad news first: I've no clue where that crypt is."
+
+* "And the good news?" -> rites_4b
+* "But the crown is there! We saw it!" -> rites_4a
+
+== rites_4a ==
+
+"Yep. So two pieces of good news, I guess."
+
+* "What's the other?" -> rites_4b
+
+== rites_4b ==
+
+"I know where that oasis is. I've been there. And it's not far from a village."
+
+* "That's where we're headed next, then." -> rites_5
+* "Someone at that village might know something that could help us." -> rites_5
+
+== rites_5 ==
+
+"Agreed. I'll mark it on your map. If you don't mind, though, Serra and I will pack up camp and meet you there."
+
+* "You're not coming with us?" -> rites_6
+* "Stay safe, you two." -> end
+    do flag(TSC_RitesDone); signal(TSC_Act1_Ettersnap, TSC_RitesPerformed); grant_xp(250); affinity(+5)
+
+== rites_6 ==
+
+"Nope. I don't want to slow you down - not when we're this close. When you get there, talk to the locals. Don't spook them, though. We probably need their help."
+
+* "On my way." -> end
+    do flag(TSC_RitesDone); signal(TSC_Act1_Ettersnap, TSC_RitesPerformed); grant_xp(250); affinity(+5)
