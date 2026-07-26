@@ -11,10 +11,13 @@ namespace TheShatteredCrown
     /// <summary>
     /// Guild halls: the Wayfarers keep a factor in every friendly town. On
     /// a settlement map belonging to a non-hostile humanlike faction (in
-    /// Adventure Mode), one guild factor spawns near the center and holds
-    /// his post. Talking to him is the presentation layer over the same
-    /// contract generator that feeds the quest tab: browse the board, hire
-    /// on help, or haggle the guild's rates up once and for all.
+    /// EITHER scenario - the story campaign visits cities too), one guild
+    /// factor spawns near the center and holds his post. Talking to him is
+    /// the presentation layer over the same contract generator that feeds
+    /// the quest tab: browse the board, hire on help, or haggle the guild's
+    /// rates up once and for all. In the story scenario the board only
+    /// restocks when asked in person; Adventure Mode also restocks on the
+    /// world clock.
     /// </summary>
     public class MapComponent_TSC_GuildFactor : MapComponent
     {
@@ -27,7 +30,7 @@ namespace TheShatteredCrown
         public override void MapComponentTick()
         {
             if (spawned || Find.TickManager.TicksGame % 250 != 0
-                || !TSC_AdventureModeGate.Active)
+                || !TSC_RpgMode.Active)
             {
                 return;
             }
@@ -68,20 +71,25 @@ namespace TheShatteredCrown
     {
         public override void Apply(DialogueContext context)
         {
-            // An empty board restocks when someone asks in person: the
-            // factor "finds something at the bottom of the satchel".
-            bool any = false;
+            // A thin board restocks when someone asks in person: the factor
+            // "finds something at the bottom of the satchel". Topped up to
+            // two open offers - in the story scenario this is the ONLY
+            // restock path, so it must carry the whole board.
+            int open = 0;
             foreach (Quest quest in Find.QuestManager.QuestsListForReading)
             {
                 if (quest.State == QuestState.NotYetAccepted && TSC_ContractManager.IsContract(quest.root))
                 {
-                    any = true;
-                    break;
+                    open++;
                 }
             }
-            if (!any)
+            TSC_ContractManager manager = Find.World.GetComponent<TSC_ContractManager>();
+            for (int i = open; i < 2 && manager != null; i++)
             {
-                Find.World.GetComponent<TSC_ContractManager>()?.TryGenerateNow();
+                if (!manager.TryGenerateNow())
+                {
+                    break;
+                }
             }
             Find.WindowStack.Add(new Window_TSC_ContractBoard(context.interactor));
         }

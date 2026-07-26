@@ -40,7 +40,10 @@ namespace TheShatteredCrown
         /// </summary>
         public bool TryGenerateNow()
         {
-            return TSC_AdventureModeGate.Active && GenerateContract();
+            // Broader gate than the world-clock restock: a guild factor can
+            // hand out work in EITHER scenario (story campaigns visit guild
+            // halls too); only the automatic cadence is Adventure-only.
+            return TSC_RpgMode.Active && GenerateContract();
         }
 
         public override void WorldComponentTick()
