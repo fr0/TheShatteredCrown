@@ -71,16 +71,20 @@
     </proficiencies>
     <unlocks>
       <li>
-        <ability>TSC_Ability_StandFast</ability>
+        <ability>TSC_Ability_Charge</ability>
         <level>1</level>
       </li>
       <li>
-        <ability>TSC_Ability_SecondWind</ability>
+        <ability>TSC_Ability_StandFast</ability>
         <level>2</level>
       </li>
       <li>
+        <ability>TSC_Ability_SecondWind</ability>
+        <level>3</level>
+      </li>
+      <li>
         <ability>TSC_Ability_Challenge</ability>
-        <level>4</level>
+        <level>5</level>
       </li>
     </unlocks>
   </TheShatteredCrown.TSC_ClassDef>
@@ -96,16 +100,20 @@
     </proficiencies>
     <unlocks>
       <li>
-        <ability>TSC_Ability_Shadowstep</ability>
+        <ability>TSC_Ability_Ambush</ability>
         <level>1</level>
       </li>
       <li>
-        <ability>TSC_Ability_MarkedForDeath</ability>
+        <ability>TSC_Ability_Shadowstep</ability>
         <level>2</level>
       </li>
       <li>
+        <ability>TSC_Ability_MarkedForDeath</ability>
+        <level>3</level>
+      </li>
+      <li>
         <ability>TSC_Ability_Vanish</ability>
-        <level>4</level>
+        <level>5</level>
       </li>
     </unlocks>
   </TheShatteredCrown.TSC_ClassDef>
@@ -121,16 +129,20 @@
     </proficiencies>
     <unlocks>
       <li>
-        <ability>TSC_Ability_ArcaneWard</ability>
+        <ability>TSC_Ability_MagicMissile</ability>
         <level>1</level>
       </li>
       <li>
-        <ability>TSC_Ability_LeadenCurse</ability>
+        <ability>TSC_Ability_ArcaneWard</ability>
         <level>2</level>
       </li>
       <li>
+        <ability>TSC_Ability_LeadenCurse</ability>
+        <level>3</level>
+      </li>
+      <li>
         <ability>TSC_Ability_Blink</ability>
-        <level>4</level>
+        <level>5</level>
       </li>
     </unlocks>
   </TheShatteredCrown.TSC_ClassDef>
@@ -182,6 +194,10 @@
         <ability>TSC_Ability_Unbreakable</ability>
         <level>4</level>
       </li>
+      <li>
+        <ability>TSC_Ability_Whirlwind</ability>
+        <level>5</level>
+      </li>
     </unlocks>
   </TheShatteredCrown.TSC_ClassDef>
 
@@ -206,6 +222,10 @@
       <li>
         <ability>TSC_Ability_Barkskin</ability>
         <level>4</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_SummonBear</ability>
+        <level>6</level>
       </li>
     </unlocks>
   </TheShatteredCrown.TSC_ClassDef>
@@ -271,7 +291,7 @@
     </proficiencies>
     <unlocks>
       <li>
-        <ability>TSC_Ability_FieldDressing</ability>
+        <ability>TSC_Ability_ChargedShot</ability>
         <level>1</level>
       </li>
       <li>

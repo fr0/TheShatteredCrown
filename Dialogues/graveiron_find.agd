@@ -1,0 +1,14 @@
+# Proximity ping for the Cold Iron quest (one-shot per save): opened from
+# code (MapComponent_TSC_GraveIronSense) when a colonist first gets close
+# to a grave-iron stack at the ruined waystation. {PLAYER} is that pawn.
+
+dialogue TSC_Dialogue_GraveIronFind
+
+== start ==
+The air changes first. A cold that has nothing to do with the weather, faint and steady, like standing near a cellar door.
+
+{PLAYER} looks down. Among the rubble: metal. Dull silver-grey fittings, hinge plates and door bands, lying where they fell two hundred years ago. No rust on any of it. The nearest piece is an arm's reach away, and the cold is coming off it.
+
+Grave-iron. Haldor's price, scattered through these stones.
+
+* [Gather it up.] -> end

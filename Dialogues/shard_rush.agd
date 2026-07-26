@@ -1,0 +1,18 @@
+# The first touch of the crown shard (one-shot per save). Opened from code
+# (TSC_ShardTracker) the moment a colonist first has the shard in hand;
+# {PLAYER} is that pawn. The Act 2 title card follows when this closes.
+
+dialogue TSC_Dialogue_ShardRush
+
+== start ==
+The shard is lighter than it should be, and colder than the cave.
+
+The moment {PLAYER}'s fingers close on it, something answers: a rush, wrist to spine to skull, like plunging into a winter river.
+
+Then it passes. Almost. A cold weight settles behind the breastbone and stays there.
+
+Broken or not, the piece still carries some of the power that the whole crown once granted.
+
+Behind {PLAYER}, in the black marble, the folded hands come apart.
+
+* [Close your hand around it.] -> end

@@ -248,4 +248,720 @@
     </root>
   </ThingSetMakerDef>
 
+
+  <!-- THE woodpile (Root farm): the set piece half of Harrowfield's
+       dialogue leans on. Chest-high cover - Nell hides behind it for a
+       reason. Deconstructs into firewood if the player is a monster. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_Woodpile</defName>
+    <label>woodpile</label>
+    <description>Split firewood, stacked with the patient geometry of farm winters. Good cover, better kindling, and locally famous as a hiding spot.</description>
+    <size>(2,1)</size>
+    <rotatable>false</rotatable>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_Woodpile</texPath>
+      <!-- 512x256 texture: drawSize keeps the 2:1 aspect (no skew) -->
+      <drawSize>(2.1,1.05)</drawSize>
+      <drawOffset>(0,0,0.08)</drawOffset>
+    </graphicData>
+    <altitudeLayer>Building</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <pathCost>60</pathCost>
+    <fillPercent>0.55</fillPercent>
+    <castEdgeShadows>true</castEdgeShadows>
+    <statBases>
+      <MaxHitPoints>150</MaxHitPoints>
+      <Flammability>1.2</Flammability>
+      <WorkToBuild>300</WorkToBuild>
+    </statBases>
+    <costList>
+      <WoodLog>40</WoodLog>
+    </costList>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>true</deconstructible>
+      <claimable>true</claimable>
+    </building>
+  </ThingDef>
+
+
+  <!-- The village well: centerpiece of the packed-dirt square, and the
+       place Old Wick's "I ask about you at the well" happens. Solid cover. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_Well</defName>
+    <thingClass>TheShatteredCrown.Building_TSC_Well</thingClass>
+    <label>well</label>
+    <description>A stone-ringed village well with a wooden windlass and a patient bucket. The social center of any village worth the name: water comes up, news goes around.</description>
+    <size>(2,2)</size>
+    <rotatable>false</rotatable>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_Well</texPath>
+      <drawSize>(2.3,2.3)</drawSize>
+    </graphicData>
+    <altitudeLayer>Building</altitudeLayer>
+    <passability>Impassable</passability>
+    <fillPercent>0.7</fillPercent>
+    <castEdgeShadows>true</castEdgeShadows>
+    <statBases>
+      <MaxHitPoints>400</MaxHitPoints>
+      <Flammability>0.2</Flammability>
+      <WorkToBuild>1200</WorkToBuild>
+    </statBases>
+    <costList>
+      <BlocksGranite>25</BlocksGranite>
+      <WoodLog>10</WoodLog>
+    </costList>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>true</deconstructible>
+      <claimable>true</claimable>
+    </building>
+  </ThingDef>
+
+
+  <!-- The rigged rope down the well shaft: spawned beside the well after the
+       first descent (Building_TSC_Well checks), then a normal portal into
+       the TSC_WellCaves pocket map for the whole party. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_WellDescent</defName>
+    <label>well descent</label>
+    <description>A knotted rope, staked fast and dropped past the ledge inside the well shaft. Below the waterline of the world: an opening, and cold air rising out of it.</description>
+    <size>(1,1)</size>
+    <useHitPoints>false</useHitPoints>
+    <thingClass>TheShatteredCrown.Building_TSC_WellDescent</thingClass>
+    <rotatable>false</rotatable>
+    <tickerType>Normal</tickerType>
+    <canOverlapZones>false</canOverlapZones>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_WellDescent</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+    </graphicData>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <fillPercent>0</fillPercent>
+    <passability>PassThroughOnly</passability>
+    <pathCost>30</pathCost>
+    <destroyable>false</destroyable>
+    <building>
+      <isEdifice>false</isEdifice>
+      <deconstructible>false</deconstructible>
+      <isTargetable>false</isTargetable>
+      <isInert>true</isInert>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <portal>
+      <pocketMapGenerator>TSC_WellCaves</pocketMapGenerator>
+      <exitDef>CaveExit</exitDef>
+      <pocketMapSize>110</pocketMapSize>
+    </portal>
+    <statBases>
+      <Flammability>0</Flammability>
+    </statBases>
+    <inspectorTabs>
+      <li>ITab_ContentsMapPortal</li>
+    </inspectorTabs>
+  </ThingDef>
+
+  <!-- The dead delver's chest, down in the well caves. -->
+  <ThingDef ParentName="CrateBase">
+    <defName>TSC_LootChest</defName>
+    <label>weathered chest</label>
+    <description>An iron-banded wooden chest, swollen with cave damp but intact. Someone carried it a long way down to leave it here.</description>
+    <size>(1,1)</size>
+    <fillPercent>0.4</fillPercent>
+    <rotatable>false</rotatable>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_LootChest</texPath>
+      <drawSize>(1.15,1.15)</drawSize>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>150</MaxHitPoints>
+      <Flammability>0.8</Flammability>
+    </statBases>
+  </ThingDef>
+
+  <!-- The unsigned journal from the chest: read for the sanguophage's confession. -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_WeatheredJournal</defName>
+    <label>weathered journal</label>
+    <description>A journal in cracked leather, its pages foxed and water-stained but legible. The hand is beautiful, old-fashioned, and utterly steady. It is not signed.</description>
+    <graphicData>
+      <texPath>Things/Item/Book/Textbook/Textbook</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.85</drawSize>
+      <color>(0.55,0.5,0.42)</color>
+    </graphicData>
+    <techLevel>Medieval</techLevel>
+    <stackLimit>1</stackLimit>
+    <statBases>
+      <MaxHitPoints>60</MaxHitPoints>
+      <Mass>0.6</Mass>
+      <MarketValue>80</MarketValue>
+      <Flammability>1.0</Flammability>
+      <DeteriorationRate>2.0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+    <comps>
+      <li Class="CompProperties_Usable">
+        <useJob>UseItem</useJob>
+        <useLabel>Read the weathered journal</useLabel>
+        <useDuration>600</useDuration>
+        <showUseGizmo>true</showUseGizmo>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_OpenDialogue">
+        <dialogue>TSC_Dialogue_WeatheredJournal</dialogue>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- Contract-site chest: the proficiency sink and the class-manual economy
+       of Adventure Mode. Pick [Thievery 8] for a quiet open or pry
+       [Athletics 7] loud (TSC_Interactions chest machinery); the loot table
+       is where multiclass manuals enter an Adventure Mode run (no mentors
+       there). Placed by GenStep_TSC_PlaceChest in contract ruins. -->
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_ContractChest</defName>
+    <label>sealed guild chest</label>
+    <description>A traveling chest under an old lock, abandoned with the building around it. Guild charter says what is inside belongs to whoever gets it open; the lock says try.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_ContractChest</contents>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Thievery</proficiency>
+            <dc>8</dc>
+            <label>Pick the lock (quiet)</label>
+            <successOpens>true</successOpens>
+            <successXp>25</successXp>
+            <successMessage>The lock gives without a sound; nothing in the dark stirs.</successMessage>
+            <failOpens>true</failOpens>
+            <failWakesDormant>true</failWakesDormant>
+            <failMessage>The pick slips; the lid screeches open, and the dark answers.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>7</dc>
+            <label>Pry it open (loud)</label>
+            <successOpens>true</successOpens>
+            <successWakesDormant>true</successWakesDormant>
+            <successXp>15</successXp>
+            <successMessage>The lid comes away with a crack that rolls through the ruin.</successMessage>
+            <failMessage>The bar bends; the lid does not. Whatever is inside stays there.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- A graven waymark of the old kingdom: the Lore check spot for generated
+       ruins. Reading it correctly is worth XP; the stone asks nothing else. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_GravenStone</defName>
+    <label>graven stone</label>
+    <description>A knee-high stone cut with the old kingdom's road-script, worn soft by centuries of weather that never reached it. Most riders would use it to sit on.</description>
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>40</pathCost>
+    <fillPercent>0.35</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_GravenStone</texPath>
+      <drawSize>(0.9,0.9)</drawSize>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>7</dc>
+            <label>Read the road-script</label>
+            <successXp>40</successXp>
+            <successMessage>The script yields: a waymark of the old road network, naming what this place was and what it kept. Worth knowing.</successMessage>
+            <failMessage>The script keeps its counsel. It reads like a list, or a prayer, or a warning; without the old forms, there is no telling which.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_ContractChest</defName>
+    <root Class="ThingSetMaker_Sum">
+      <options>
+        <!-- Always: a purse -->
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Silver</li>
+                </thingDefs>
+              </filter>
+              <countRange>90~200</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <!-- Often: one random class manual - the multiclass path of
+             Adventure Mode -->
+        <li>
+          <chance>0.4</chance>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <categories>
+                  <li>TSC_ClassBooks</li>
+                </categories>
+              </filter>
+              <countRange>1</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <!-- Sometimes: field supplies -->
+        <li>
+          <chance>0.5</chance>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>MedicineHerbal</li>
+                </thingDefs>
+              </filter>
+              <countRange>3~6</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+  <!-- The castle armory's chest: war gear under an old lock. Same pick/pry
+       machinery as the guild chest; the loot is martial. -->
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_ArmoryChest</defName>
+    <label>armory chest</label>
+    <description>A garrison chest, iron-strapped and stenciled with a company mark nobody has answered to in centuries. Armories were locked for good reasons, most of which are still inside.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_Armory</contents>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Thievery</proficiency>
+            <dc>8</dc>
+            <label>Pick the lock (quiet)</label>
+            <successOpens>true</successOpens>
+            <successXp>25</successXp>
+            <successMessage>The garrison lock gives the way it was built to: only to the right hands.</successMessage>
+            <failOpens>true</failOpens>
+            <failWakesDormant>true</failWakesDormant>
+            <failMessage>The pick slips; the hasp bangs open against the strap, and the sound carries.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>7</dc>
+            <label>Pry it open (loud)</label>
+            <successOpens>true</successOpens>
+            <successWakesDormant>true</successWakesDormant>
+            <successXp>15</successXp>
+            <successMessage>The strap tears out of the wood with a report like a snapped lance.</successMessage>
+            <failMessage>The chest was built to survive a siege, and it remembers how.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_Armory</defName>
+    <root Class="ThingSetMaker_Sum">
+      <options>
+        <!-- Always: garrison steel -->
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>MeleeWeapon_LongSword</li>
+                  <li>MeleeWeapon_Mace</li>
+                  <li>MeleeWeapon_Gladius</li>
+                  <li>Bow_Recurve</li>
+                </thingDefs>
+              </filter>
+              <countRange>2~3</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <!-- Sometimes: something to wear under it -->
+        <li>
+          <chance>0.5</chance>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Apparel_PlateArmor</li>
+                  <li>TSC_Apparel_Gambeson</li>
+                </thingDefs>
+              </filter>
+              <countRange>1</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+  <!-- The shrine altar: an Arcana rite with a real answer. Speaking it
+       correctly blesses the speaker (TSC_Hediff_Blessed, days); getting it
+       wrong burns. One attempt per altar, like every check spot. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_ShrineAltar</defName>
+    <label>old altar</label>
+    <description>A basin of white stone, dry for centuries and clean anyway. The rim is cut with a rite in the old forms. The stone is faintly warm, which a wise traveler will notice before touching it.</description>
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <fillPercent>0.4</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_ShrineAltar</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>250</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Arcana</proficiency>
+            <dc>8</dc>
+            <label>Speak the rite</label>
+            <successXp>30</successXp>
+            <successHediff>TSC_Hediff_Blessed</successHediff>
+            <successMessage>The old forms come out right, and the stone answers: warmth up through the hand, and a steadiness that settles in behind the eyes and stays.</successMessage>
+            <failDamage>6</failDamage>
+            <failDamageDef>Burn</failDamageDef>
+            <failMessage>The rite sours on the tongue. The stone goes hearth-hot for one heartbeat, long enough to teach the hand respect.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- Beast tracks at dens: read the quarry before you fight it. Nature or
+       Survival, whichever the party does better; success leaves a few days
+       of the hunter's eye. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_BeastTracks</defName>
+    <label>beast sign</label>
+    <description>Prints, drag marks, and a killing ground worn smooth. Everything about the thing that lives here is written on the floor, for anyone who can read the language.</description>
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>Standable</passability>
+    <fillPercent>0</fillPercent>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BeastTracks</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>60</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+      <isEdifice>false</isEdifice>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Nature</proficiency>
+            <dc>7</dc>
+            <label>Read the sign</label>
+            <successXp>30</successXp>
+            <successHediff>TSC_Hediff_HuntersEye</successHediff>
+            <successMessage>The floor gives it all up: weight, gait, favorite line of approach, and the limp it is hiding. You will see it coming before it decides to be seen.</successMessage>
+            <failMessage>Prints, sure. Big ones. The rest of the story stays in the dirt.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Survival</proficiency>
+            <dc>7</dc>
+            <label>Work out its habits</label>
+            <successXp>30</successXp>
+            <successHediff>TSC_Hediff_HuntersEye</successHediff>
+            <successMessage>Feeding times, water line, the bolt-hole it trusts. You know this animal now, and it does not know you.</successMessage>
+            <failMessage>It hunts, it sleeps, it kills things at this end of the cave. You knew that walking in.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- The rune ward: an Arcana obstacle that guards rather than blesses.
+       Dispel it for the way through; get it wrong and it bites. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_RuneWard</defName>
+    <label>rune ward</label>
+    <description>A squat stone cut with a binding sigil, and the sigil still holds a charge: the air above it wavers like a road in summer. Whoever set it meant for it to outlast them, and it has.</description>
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>Impassable</passability>
+    <fillPercent>1</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <castEdgeShadows>true</castEdgeShadows>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_RuneWard</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>300</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Arcana</proficiency>
+            <dc>8</dc>
+            <label>Unbind the ward</label>
+            <successRemoves>true</successRemoves>
+            <successXp>40</successXp>
+            <successMessage>The sigil resists, then unravels, the charge bleeding off as warmth. The stone is just a stone now.</successMessage>
+            <failDamage>8</failDamage>
+            <failDamageDef>Burn</failDamageDef>
+            <failMessage>The ward snaps back along the unbinding like a whip up a rope. The sigil burns steady, unimpressed.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- A partial collapse: strength or wits clear it. Deliberately NOT
+       impassable - placement is random, and a sealed corridor is a softlock
+       nobody ordered. Slow to cross, quick to clear, and it is cover. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_CollapsedPassage</defName>
+    <label>collapsed passage</label>
+    <description>Roof-fall choking the way: stones from fist-size to cart-size, balanced the way falls balance, which is to say badly. It can be climbed over slowly, heaved clear, or read for the one safe line.</description>
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>120</pathCost>
+    <fillPercent>0.85</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <castEdgeShadows>true</castEdgeShadows>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_CollapsedPassage</texPath>
+      <drawSize>(1.15,1.15)</drawSize>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>7</dc>
+            <label>Heave it clear</label>
+            <successRemoves>true</successRemoves>
+            <successXp>25</successXp>
+            <successMessage>Shoulder, back, and leverage. The fall gives up its keystone and the rest walks itself down into a floor.</successMessage>
+            <failMessage>The keystone is somewhere in there. It is not where you put your shoulder.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>7</dc>
+            <label>Find the safe line</label>
+            <successRemoves>true</successRemoves>
+            <successXp>25</successXp>
+            <successMessage>Every fall has one stone doing all the work. You find it, shift it a hand's width, and the pile settles into something a cart could cross.</successMessage>
+            <failMessage>If there is a safe line through this, it is written in a language of dust and bad odds.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- Contract objective: the guild's strongbox, lost with a courier and
+       scattered into whatever ruin the contract points at. Possession
+       completes the delve (QuestNode_TSC_DetectItem). -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_GuildStrongbox</defName>
+    <label>guild strongbox</label>
+    <description>An iron-banded lockbox under the Wayfarers' seal, lost in transit years ago and written off. The guild pays for its return and does not discuss what is inside.</description>
+    <graphicData>
+      <texPath>Things/Building/TSC_LootChest</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.8</drawSize>
+    </graphicData>
+    <techLevel>Medieval</techLevel>
+    <stackLimit>1</stackLimit>
+    <statBases>
+      <MaxHitPoints>150</MaxHitPoints>
+      <Mass>7</Mass>
+      <MarketValue>150</MarketValue>
+      <Flammability>0.2</Flammability>
+      <DeteriorationRate>0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+  </ThingDef>
+
+  <!-- The ember bow and its arrow: carried by the sleeper behind the warm
+       door, and the only way to get one is to put it down. No recipe, no
+       trade tags, so it exists exactly once per playthrough. -->
+  <!-- A direct-hit arrow that burns, NOT an explosive: vanilla requires
+       forced-miss scatter on explosive projectiles and forbids it on
+       everything else, and a bow that cannot aim is not a bow. The arrow
+       punches, then the Flame rider ignites what it stuck in. -->
+  <ThingDef ParentName="BaseProjectileNeolithic">
+    <defName>TSC_Projectile_FireArrow</defName>
+    <label>ember arrow</label>
+    <graphicData>
+      <texPath>Things/Projectile/Arrow_Small</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <shaderType>TransparentPostLight</shaderType>
+      <color>(255,150,60)</color>
+    </graphicData>
+    <projectile>
+      <damageDef>Arrow</damageDef>
+      <damageAmountBase>13</damageAmountBase>
+      <speed>44</speed>
+      <extraDamages>
+        <li>
+          <def>Flame</def>
+          <amount>10</amount>
+        </li>
+      </extraDamages>
+      <filth>Filth_Ash</filth>
+      <filthChance>0.35</filthChance>
+      <filthCount>1~2</filthCount>
+      <ai_IsIncendiary>true</ai_IsIncendiary>
+    </projectile>
+  </ThingDef>
+
+  <ThingDef ParentName="BaseWeapon">
+    <defName>TSC_Weapon_EmberBow</defName>
+    <label>ember bow</label>
+    <description>A short selfbow of black yew, its belly inlaid with a thread of gold that runs warm to the touch. Nocked arrows catch light on the draw and burn all the way out. It was buried with something that had no use for a bow and kept it anyway.</description>
+    <techLevel>Medieval</techLevel>
+    <possessionCount>1</possessionCount>
+    <graphicData>
+      <texPath>Things/Item/Equipment/WeaponRanged/BowShort</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <color>(120,80,60)</color>
+    </graphicData>
+    <soundInteract>Bow_Small</soundInteract>
+    <thingCategories>
+      <li>WeaponsRanged</li>
+    </thingCategories>
+    <weaponClasses>
+      <li>Ranged</li>
+      <li>RangedLight</li>
+    </weaponClasses>
+    <weaponTags>
+      <li>TSC_EmberBow</li>
+    </weaponTags>
+    <tradeability>None</tradeability>
+    <destroyOnDrop>false</destroyOnDrop>
+    <burnableByRecipe>false</burnableByRecipe>
+    <relicChance>0</relicChance>
+    <statBases>
+      <MaxHitPoints>140</MaxHitPoints>
+      <Mass>0.9</Mass>
+      <Flammability>0</Flammability>
+      <MarketValue>1800</MarketValue>
+      <AccuracyTouch>0.80</AccuracyTouch>
+      <AccuracyShort>0.80</AccuracyShort>
+      <AccuracyMedium>0.65</AccuracyMedium>
+      <AccuracyLong>0.45</AccuracyLong>
+      <RangedWeapon_Cooldown>1.40</RangedWeapon_Cooldown>
+    </statBases>
+    <verbs>
+      <li>
+        <verbClass>Verb_Shoot</verbClass>
+        <hasStandardCommand>true</hasStandardCommand>
+        <defaultProjectile>TSC_Projectile_FireArrow</defaultProjectile>
+        <warmupTime>1.20</warmupTime>
+        <range>26.9</range>
+        <soundCast>Bow_Small</soundCast>
+        <muzzleFlashScale>9</muzzleFlashScale>
+      </li>
+    </verbs>
+    <tools>
+      <li>
+        <label>limb</label>
+        <capacities>
+          <li>Blunt</li>
+          <li>Poke</li>
+        </capacities>
+        <power>9</power>
+        <cooldownTime>2</cooldownTime>
+      </li>
+    </tools>
+    <comps>
+      <li>
+        <compClass>CompQuality</compClass>
+      </li>
+    </comps>
+    <rotateInShelves>false</rotateInShelves>
+  </ThingDef>
+
 </Defs>

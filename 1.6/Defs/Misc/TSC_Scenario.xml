@@ -18,6 +18,10 @@
     <description>The Wayfarers' Guild has hunted the shattered crown of Aldruin, the last king, for generations. At last their search got a hit: a clue that sent a party of adventurers into a mountain pass, chasing a shard of the crown or the trail of one.\n\nThat party has been gone too long. No communiqué in weeks.\n\nThis is where you come in: ride out, locate their camp, and find the party, whether they're alive or dead. You start alone, with a horse, crude gear, and basic supplies.\n\nNote: starting with a single character makes the early game challenging.</description>
     <scenario>
       <summary>One rider, one horse, and a missing party somewhere in the pass. Difficult at first.</summary>
+      <playerFaction>
+        <def>PlayerFaction</def>
+        <factionDef>TSC_PlayerGuild</factionDef>
+      </playerFaction>
       <parts>
 
         <!-- Give the intro quest at game start -->
@@ -97,5 +101,44 @@
       </parts>
     </scenario>
   </ScenarioDef>
+
+
+  <!-- The player faction: the guild itself, fixed name (no "New Arrivals").
+       A clone of vanilla PlayerColony with identity swapped - techLevel and
+       research tags deliberately untouched (a rename, not a rebalance). -->
+  <FactionDef ParentName="PlayerFactionBase">
+    <defName>TSC_PlayerGuild</defName>
+    <label>wayfarers' guild</label>
+    <description>A far-riding company of the Wayfarers' Guild: adventurers, couriers, and seekers after the shattered crown of Aldruin.</description>
+    <fixedName>The Wayfarers' Guild</fixedName>
+    <isPlayer>true</isPlayer>
+    <basicMemberKind>Colonist</basicMemberKind>
+    <pawnSingular>adventurer</pawnSingular>
+    <pawnsPlural>adventurers</pawnsPlural>
+    <techLevel>Industrial</techLevel>
+    <factionNameMaker>NamerFactionOutlander</factionNameMaker>
+    <settlementNameMaker>NamerSettlementOutlander</settlementNameMaker>
+    <allowedCultures><li>Astropolitan</li></allowedCultures>
+    <backstoryFilters>
+      <li>
+        <categories>
+          <li>Offworld</li>
+        </categories>
+      </li>
+    </backstoryFilters>
+    <factionIconPath>World/WorldObjects/Expanding/Town</factionIconPath>
+    <startingResearchTags>
+      <li>ClassicStart</li>
+    </startingResearchTags>
+    <startingTechprintsResearchTags>
+      <li>ClassicStart</li>
+      <li>ClassicStartTechprints</li>
+    </startingTechprintsResearchTags>
+    <apparelStuffFilter>
+      <thingDefs>
+        <li>Synthread</li>
+      </thingDefs>
+    </apparelStuffFilter>
+  </FactionDef>
 
 </Defs>

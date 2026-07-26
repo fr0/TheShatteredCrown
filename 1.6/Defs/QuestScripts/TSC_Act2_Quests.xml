@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Act 2 opening: given by Oswin in the shard epilogue. A bard in a
+       distant city sings verses about a forgotten crown that no city bard
+       should know. Travel there, find her, hear where the song comes from.
+       Completes on the bard conversation's signal (TSC_MetBard).
+       ================================================================ -->
+
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Act2_BardLead</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Singer in [bardCity_label]</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Word from the roads, by way of a peddler Oswin trusts as far as peddlers go: a bard in [bardCity_label] has been singing tales of a forgotten crown - verses Oswin swears no living singer should know.\n\nOne shard is in hand. If the song is real, it may point at another.\n\nTravel to [bardCity_label] and speak with the bard.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetDistantSettlement">
+          <storeAs>bardCity</storeAs>
+          <storeFactionAs>bardFaction</storeFactionAs>
+          <tag>bardCity</tag>
+          <minDist>12</minDist>
+          <maxDist>30</maxDist>
+        </li>
+        <!-- The bard is there whenever the city map exists: settlements
+             regenerate on revisit, and the spawn node self-heals. -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_SpawnNpcAtSite">
+          <inSignal>bardCity.MapGenerated</inSignal>
+          <npc>TSC_Npc_Bard</npc>
+          <site>$bardCity</site>
+          <faction>$bardFaction</faction>
+          <tag>bard</tag>
+        </li>
+
+        <!-- Serra and Oswin ride as temporary party members from the crypt
+             epilogue; arriving at the city is where they get off. They stay
+             (friendly faction, posted in town) and work the lead from there. -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_CompanionsSettle">
+          <site>$bardCity</site>
+          <npcs>
+            <li>TSC_Npc_Serra</li>
+            <li>TSC_Npc_Oswin</li>
+          </npcs>
+        </li>
+
+        <!-- Death fail-safe: the song outlives the singer, barely. -->
+        <li Class="QuestNode_Signal">
+          <inSignal>bard.Killed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NegativeEvent</letterDef>
+                <label TKey="LetterLabelBardDead">The singer is dead</label>
+                <text TKey="LetterTextBardDead">The bard of [bardCity_label] is dead, and the verses with her. Whatever she knew about the forgotten crown goes unsung.\n\nThe lead is lost. Others will surface; songs like that do not stay buried.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MetBard</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelBardMet">The song has a source</label>
+                <text TKey="LetterTextBardMet">The bard's verses are real, and they were learned, not written. The trail of the second shard starts where the song does.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>200</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

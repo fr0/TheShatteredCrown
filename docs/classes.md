@@ -1,0 +1,235 @@
+# Classes and Spells
+
+**Undrafted casting**: healing and cleansing spells (Healing Touch,
+Cleanse, Nature's Balm, Lay on Hands, Field Dressing, Song of Rest,
+Inner Calm) can be cast while undrafted - field medicine between
+fights. Energy costs and cooldowns apply as normal. All other spells
+require drafting.
+
+Reference for all 11 companion classes in The Shattered Crown. Generated
+from the defs (`TSC_Classes.xml`, `TSC_Abilities.xml`, `TSC_Books.xml`);
+update this file when those change.
+
+## How classes work
+
+- **Learning a class**, two paths:
+  - **Manuals** ("Study warden's manual" etc.; the mosskeepers' barrow
+    always yields one random manual): studying UNLOCKS the class for
+    the whole company - it appears as a "(new class)" choice in the
+    Level up! dialog, where beginning it at level 1 costs a class
+    level like any other assignment. The manual is consumed; a second
+    copy of an already-studied manual is just paper.
+  - **Mentors** teach directly (class at level 1, free, +25 XP):
+    - Bran → **Warden** (after `TSC_BranLoyal`)
+    - Serra → **Ranger**
+    - Oswin → **Wizard** (after earning `TSC_OswinRespect`)
+    - Maewyn → **Druid** (in-party road conversation)
+- **XP and levels**: XP comes from quest completions and dialogue
+  (checks, confidences). Level N → N+1 costs **200 x N XP** (200, 400,
+  600...; doubled 2026-07-23 - a full Act 1 run lands around level
+  4-5). Level-ups are banked and spent via the **Level up!** dialog;
+  multiclass pawns assign levels per class.
+- **Proficiencies**: each class trains three; trained proficiencies add
+  `1 + classLevel/4` to d10 checks.
+- **Energy**: every spell costs Energy (10/15/25), which regenerates
+  during sleep. The Bard's Song of Rest is the only in-field restore.
+- **Turn-based mode**: every spell costs a flat **3 AP**. Ability gizmos
+  show the AP price and wear a red bar when unaffordable.
+- **Cast times**: the values below are the turn-based warmups. Outside
+  turn-based mode every cast takes **2.5x** as long (real-time casting
+  is interruptible like any warmup).
+- **Spell scaling**: every spell's effect grows **+15% per level in the
+  class that grants it** (level 5 = x1.6). MAGNITUDE scales, never
+  duration: damage, healing, weapon-strike multipliers, buff/debuff
+  stat strengths (e.g. Arcane Ward's 50% reduction becomes 80% at
+  wizard 5; a mark's +30% becomes +48%), Charged Shot's damage bonus
+  (180% → 228%), and Song of Rest's energy restore. The tables below
+  list level-1 baselines. Magic Missile instead uses its own steeper
+  +2 damage/level curve. Durations, teleport ranges, Vanish/Stunning
+  Palm (vanilla effects), and the binary cleanses never scale.
+- **Cooldowns** are listed in in-game time (2,500 ticks = 1 hour;
+  60,000 = 1 day). Combat spells cool down fast; healing and utility
+  spells are deliberately slow.
+
+Ranges: `self` = caster only (one-click cast, no targeting); `touch` =
+adjacent (~1-4 cells). Combat buff/debuff durations are REAL seconds at
+1x speed (a "60s" mark outlasts most fights but not the day); day-scale
+utility buffs (Blessing, Inspiring Verse, Song of Rest, Aura of
+Courage) are stated in in-game time. In turn-based mode frozen pawns
+don't tick, so durations stretch across the round.
+
+---
+
+## Cleric
+
+*A healer of the old faith: mends wounds, drives out sickness, and
+steadies the party with blessings.*
+
+**Proficiencies**: Lore, Insight, Persuasion
+
+| Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
+|----|--------|--------|------|----------|-------|--------|
+| 1 | Healing touch | 10 | 1.5s | 6 h | touch | Heals up to 25 injury, worst wounds first |
+| 2 | Blessing | 10 | 1s | 1 day | 24 | Target gains +10% consciousness for 1 day |
+| 4 | Cleanse | 10 | 2s | 1 day | touch | Removes disease, infection, food poisoning, toxic buildup |
+
+## Bard
+
+*A singer of the old songs: war-hymns for battle, verses for work,
+dirges for the enemy, and rest-songs for camp.*
+
+**Proficiencies**: Performance, Persuasion, Lore
+
+| Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
+|----|--------|--------|------|----------|-------|--------|
+| 1 | Battle hymn | 15 | 1s | 30 min | 7 | Allies within 9.9 cells: +0.40 move, +8% melee hit for 2 min |
+| 2 | Inspiring verse | 10 | 1s | 1 day | 24 | Target: +20% global work speed for 12 h |
+| 3 | Dirge | 15 | 1.5s | 15 min | 24 | Enemies within 6.9 cells of point: -10% consciousness, -10% moving for 40s |
+| 5 | Song of rest | 15 | 2s | 2 days | 7 | Allies within 9.9 cells: +25% rest rate, 50% faster healing for 12 h, +15 Energy each (not the singer) |
+
+## Warden
+
+*A soldier of the old watch: holds the line, shrugs off wounds, and
+dares the enemy to come and try.*
+
+**Proficiencies**: Athletics, Perception, Survival
+
+| Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
+|----|--------|--------|------|----------|-------|--------|
+| 1 | Charge | 10 | 0.25s | 30 min | self | Sprint at 5x normal move speed for 5 seconds |
+| 2 | Stand fast | 10 | 0.5s | 30 min | 7 | Allies within 6.9 cells: 35% less damage taken for 40s (no move penalty) |
+| 3 | Second wind | 15 | 0.5s | 12 h | self | Heals up to 15 of the caster's own injuries |
+| 5 | Challenge | 15 | 1s | 15 min | 19 | Enemies within 6.9 cells of point: -15% consciousness, -15% moving, sharply reduced melee hit and shooting accuracy for 40s |
+
+## Rogue
+
+*Locks, shadows, and knives in that order. Rogues go where they aren't
+invited and leave with what isn't theirs.*
+
+**Proficiencies**: Thievery, Investigation, Perception
+
+| Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
+|----|--------|--------|------|----------|-------|--------|
+| 1 | Ambush | 15 | 0.5s | 30 min | touch | One perfect strike: 300% of normal weapon damage to an adjacent target |
+| 2 | Shadowstep | 10 | 0.5s | 15 min | 20 | Teleports the caster to a visible cell |
+| 3 | Marked for death | 10 | 0.5s | 15 min | 24 | Target takes +30% damage from all sources for 60s |
+| 5 | Vanish | 15 | 0.5s | 1 h | self | Caster becomes invisible for 15 seconds |
+
+## Wizard
+
+*A student of the old sigils. What the ignorant call magic, the wizard
+calls unfinished homework.*
+
+**Proficiencies**: Arcana, Lore, Investigation
+
+| Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
+|----|--------|--------|------|----------|-------|--------|
+| 1 | Magic missile | 10 | 1s | 15 min | 24 | 8 + 2 per wizard level burn damage to one target, 30% armor penetration (10 at wizard 1, 18 at 5) |
+| 2 | Arcane ward | 10 | 1s | 30 min | 24 | Target takes 50% less damage from all sources for 2 min |
+| 3 | Leaden curse | 10 | 1s | 15 min | 24 | Target: half move speed, -20% manipulation for 45s |
+| 5 | Blink | 15 | 1s | 15 min | 28 | Teleports the caster to a visible cell; brief stun on arrival |
+
+## Sorcerer
+
+*Magic as a temperament. Where the wizard studies, the sorcerer simply
+burns - and points the burning at whatever needs to stop existing.*
+
+**Proficiencies**: Arcana, Persuasion, Insight
+
+| Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
+|----|--------|--------|------|----------|-------|--------|
+| 1 | Scorch | 10 | 1s | 15 min | 24 | 14 burn damage to one target, 30% armor penetration |
+| 2 | Arc lightning | 15 | 1.5s | 15 min | 24 | 10 burn damage, 50% AP, to every ENEMY within 3.9 cells of the strike point (allies unharmed) |
+| 4 | Firestorm | 25 | 2s | 1 h | 24 | Explosion: 20 flame damage in a 3.5-cell radius, starts fires. Hits allies AND enemies |
+
+## Barbarian
+
+*Fury as a fighting style. Hits harder, hurts less, and apologizes to
+nobody.*
+
+**Proficiencies**: Athletics, Survival, Nature
+
+| Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
+|----|--------|--------|------|----------|-------|--------|
+| 1 | Rage | 15 | 0.25s | 30 min | self | 60s: +30% melee damage, half pain, +0.3 move; shooting accuracy greatly reduced |
+| 2 | War cry | 15 | 0.5s | 15 min | 19 | Enemies within 6.9 cells of point: -10% consciousness, -10% moving for 40s |
+| 4 | Unbreakable | 25 | 0.25s | 1 h | self | 40s: only 10% of pain felt, 25% less damage taken |
+| 5 | Whirlwind | 15 | 0.5s | 30 min | self | One turning blow: normal weapon damage to EVERY enemy within 1.9 cells |
+
+## Druid
+
+*The hills' own healer. Speaks for the green things, and occasionally
+lets the green things speak back.*
+
+**Proficiencies**: Nature, Insight, Perception
+
+| Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
+|----|--------|--------|------|----------|-------|--------|
+| 1 | Nature's balm | 15 | 1.5s | 6 h | touch | Heals up to 20 injury, worst wounds first |
+| 2 | Bramble snare | 10 | 1s | 15 min | 24 | Roots the target: 85% slower movement for 30s |
+| 4 | Barkskin | 15 | 1.5s | 30 min | 7 | Allies within 6.9 cells: +25% sharp / +15% blunt armor for 2 min |
+| 6 | Summon bear | 30 | 2s | 2.5 min (real) | 5 | Summons a grizzly that fights at the druid's side for 60s: attacks nearby enemies, follows when idle, vanishes traceless (no corpse). One bear at a time; does not scale with level |
+
+## Monk
+
+*Discipline made flesh. The monk's weapon is the monk, kept sharp by
+stillness.*
+
+**Proficiencies**: Athletics, Insight, Perception
+
+| Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
+|----|--------|--------|------|----------|-------|--------|
+| 1 | Flurry | 10 | 0.25s | 30 min | self | 40s: melee attacks 40% faster, +10 melee dodge. In turn-based mode the haste cuts attack AP costs (unarmed 2 AP drops to 1: four punches a round) |
+| 2 | Inner calm | 10 | 2s | 1 day | touch | Removes disease, infection, food poisoning, toxic buildup |
+| 4 | Stunning palm | 15 | 1s | 3 h | touch | Drops the touched target senseless with psychic shock (not animals) |
+
+## Paladin
+
+*An oath with legs. Heals the fallen, heartens the fearful, and brands
+the wicked for what they are.*
+
+**Proficiencies**: Athletics, Persuasion, Insight
+
+| Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
+|----|--------|--------|------|----------|-------|--------|
+| 1 | Lay on hands | 25 | 1.5s | 12 h | touch | Heals up to 35 injury, worst wounds first (biggest heal in the game) |
+| 2 | Righteous brand | 10 | 1s | 15 min | 24 | Branded target's attacks falter: sharply reduced melee hit chance and shooting accuracy for 60s |
+| 4 | Aura of courage | 15 | 1s | 1 day | 7 | Allies within 9.9 cells: -12% mental break threshold, +5% consciousness for 12 h |
+
+## Ranger
+
+*The road's own child: tracker, archer, and field surgeon of last
+resort.*
+
+**Proficiencies**: Nature, Survival, Perception
+
+| Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
+|----|--------|--------|------|----------|-------|--------|
+| 1 | Charged shot | 10 | 0.5s | 30 min | self | Next 3 ranged attacks deal 180% damage (charges last up to 60s; misses spend charges) |
+| 2 | Hunter's mark | 10 | 0.5s | 15 min | 29 | Target takes +30% damage from all sources for 60s |
+| 4 | Swift quiver | 15 | 0.25s | 30 min | self | 60s: ranged attacks 35% faster, +4 shooting accuracy |
+
+---
+
+## Cross-class notes
+
+- **The +30% damage marks** (Marked for Death, Hunter's Mark) are the
+  same debuff by two names - they do not stack with each other on one
+  target. (Righteous Brand used to be a third copy; it is now an
+  attack-falter debuff instead.)
+- **The debuff shouts** (Dirge, War Cry) share one effect at slightly
+  different radii/ranges. Challenge is no longer one of them: as the
+  Warden capstone it applies its own stronger debuff (-15%/-15% plus
+  attack falter).
+- **Weapon-scaled strikes** (Ambush 300%, Whirlwind 100% AoE) price off
+  the caster's average weapon damage - better weapon, better spell.
+- **Healer ladder** by throughput: Second Wind 15 self (12 h) →
+  Nature's Balm 20 (6 h) → Healing Touch 25 (6 h) → Lay on Hands 35
+  (12 h). (Field Dressing was replaced by Charged Shot; the Ranger no
+  longer heals.)
+- **Friendly-fire warning**: Firestorm is the only spell that damages
+  allies (and can cook the ettersnap - it must be brought back alive).
+  Arc Lightning is the safe AoE.
+- **Enemy casters**: bandit hexers carry the Sorcerer kit (Scorch, Arc
+  Lightning) and use it under the same energy/AP rules. Magic Missile
+  is AI-castable too, so future enemy wizards can use it.

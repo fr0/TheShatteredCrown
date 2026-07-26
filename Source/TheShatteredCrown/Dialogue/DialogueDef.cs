@@ -150,6 +150,13 @@ namespace TheShatteredCrown
             {
                 return false;
             }
+            // A retryable check that recently failed is cooling down: hidden
+            // until the retry time passes (the fail node's text carries the
+            // "come back later" fiction).
+            if (check != null && !check.retryKey.NullOrEmpty() && DialogueStateManager.Current.IsCoolingDown(check.retryKey))
+            {
+                return false;
+            }
             foreach (DialogueCondition condition in conditions)
             {
                 if (!condition.Met(context))
@@ -181,6 +188,16 @@ namespace TheShatteredCrown
         /// </summary>
         [NoTranslate]
         public string onceKey;
+
+        /// <summary>
+        /// Retryable checks: a FAILED roll hides the option for retryHours of
+        /// in-game time ("the moment has passed - come back later") instead of
+        /// allowing an immediate re-click re-roll. DSL: 'retryable' (8h) or
+        /// 'retryable(N)' for N hours.
+        /// </summary>
+        [NoTranslate]
+        public string retryKey;
+        public float retryHours = 8f;
     }
 
     /// <summary>Attach to a PawnKindDef to make pawns of that kind conversable.</summary>

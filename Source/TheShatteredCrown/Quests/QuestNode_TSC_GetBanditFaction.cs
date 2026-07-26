@@ -29,8 +29,10 @@ namespace TheShatteredCrown
 
         private bool TryStore(Slate slate)
         {
-            FactionDef def = DefDatabase<FactionDef>.GetNamedSilentFail("TSC_Faction_Bandits");
-            Faction faction = def != null ? Find.FactionManager.FirstFactionOfDef(def) : null;
+            // Find-or-create: a missing faction instance no longer kills the
+            // quest (it used to fail the test run, which silently starved
+            // Adventure Mode of bandit-camp contracts on affected worlds).
+            Faction faction = TSC_BanditFactionUtility.Get();
             if (faction == null)
             {
                 return false;

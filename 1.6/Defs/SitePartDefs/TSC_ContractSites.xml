@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Adventure Mode contract sites. Deliberately generic: the quest text
+       carries the flavor, the sites are reusable shells. None are
+       persistent - a contract site lives and dies with its contract. -->
+
+  <!-- A ruined waystation of the old road network: the delve target.
+       Reuses the vault-free TSC_Waystation layout; the guild's strongbox is
+       scattered somewhere reachable inside. -->
+  <SitePartDef>
+    <defName>TSC_ContractRuin</defName>
+    <label>forgotten ruin</label>
+    <description>A ruin of the old kingdom, marked on a guild contract. Whatever the guild wants out of it is still inside, and so is whatever moved in after the roof fell.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Explore {0}</approachOrderString>
+    <approachingReportString>Exploring {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>120</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ContractRuin</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractRuin_Structure</defName>
+    <linkWithSite>TSC_ContractRuin</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Waystation</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractRuin_Strongbox</defName>
+    <linkWithSite>TSC_ContractRuin</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_ScatterItems">
+      <thingDef>TSC_GuildStrongbox</thingDef>
+      <stacks>1~1</stacks>
+      <radius>16</radius>
+    </genStep>
+  </GenStepDef>
+
+  <!-- Proficiency spots in the ruin: a locked guild chest (Thievery quiet /
+       Athletics loud; manuals in its loot - the multiclass path of Adventure
+       Mode) and graven stones (Lore, XP). -->
+  <GenStepDef>
+    <defName>TSC_ContractRuin_CheckSpots</defName>
+    <linkWithSite>TSC_ContractRuin</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li>
+          <def>TSC_ContractChest</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_GravenStone</def>
+          <count>1~2</count>
+        </li>
+        <li>
+          <def>TSC_CollapsedPassage</def>
+          <count>0~2</count>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- Beast sign at the contract den: read the quarry before the fight -->
+  <GenStepDef>
+    <defName>TSC_ContractDen_Spots</defName>
+    <linkWithSite>TSC_ContractDen</linkWithSite>
+    <order>486</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li>
+          <def>TSC_BeastTracks</def>
+          <count>1~1</count>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- A beast's den in the deep hills: the hunt target. Same cavern
+       treatment as the ettersnap cave; the quarry is spawned by the
+       contract's quest node once the map generates. -->
+  <SitePartDef>
+    <defName>TSC_ContractDen</defName>
+    <label>beast den</label>
+    <description>A den in the wild hills, marked on a guild contract. Something with a price on its hide sleeps here.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</expandingIconTexture>
+    <approachOrderString>Enter {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ContractDen</li>
+    </tags>
+    <forceMutators>
+      <li>Cavern</li>
+    </forceMutators>
+  </SitePartDef>
+
+</Defs>

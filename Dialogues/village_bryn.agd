@@ -1,0 +1,126 @@
+# Bryn Fenwick - farmer of Harrowfield (Act 1 village).
+
+dialogue TSC_Dialogue_Bryn
+
+# Night visits: asleep node preempts everything (entries in order).
+entry asleep if sleeping()
+
+entry revisit if flag(TSC_MetBryn)
+
+== start ==
+A woman is mending a fence with more nails in her mouth than the job strictly needs, and she talks around them anyway. Bright-eyed, wind-burned, talking with the energy of someone who finds the world interesting regardless.
+
+"Bryn Fenwick!" She spits the nails into her palm. "Col's wife, the fast half of the arrangement. You're off the pass road, aren't you? You've the look. Come, tell me one thing about it, and we're friends."
+
+* "One thing? The pass has bandits, a barrow, and worse. Choose." -> choose
+    do flag(TSC_MetBryn); affinity(+5)
+* "Well met, Bryn. Maybe another time for stories." -> end
+    do flag(TSC_MetBryn)
+
+== choose ==
+"The bandits I knew about. We've seen them nearby, but they haven't been brave enough - or foolish enough - to actually rob us. I'm not sure I want to know about the barrow."
+
+* "Probably for the best." -> hub
+
+== revisit ==
+Bryn shades her eyes against the light.
+
+"Back again! Sit a moment if you like."
+
+* "Hello, Bryn." -> hub
+
+== hub ==
+"What can I do for you?"
+
+* "What do you know about a nearby sanguophage crypt?" -> crypt
+    if flag(TSC_RitesDone)
+* "I found an old journal in the caves under the well. Unsigned. Does it mean anything to you?" -> journal
+    if flag(TSC_WeatheredJournalRead)
+* "I'm looking for work." -> story_offer
+    if not quest_active(TSC_Side_TrueStory) and not quest_succeeded(TSC_Side_TrueStory)
+* "I've got your story, Bryn." -> story_tell
+    if quest_active(TSC_Side_TrueStory)
+* "Just passing through." -> end
+
+== crypt ==
+Bryn looks uncomfortable.
+
+"Uh, Sanguophages? We don't have those here. Just honest folk."
+
+* "I didn't mean *here*. Just... nearby." -> crypt_2
+* "Fair enough" -> hub
+
+== crypt_2 ==
+
+She shrugs. You're probably not going to get much more out of her on this subject.
+
+* "Right, then." -> hub
+
+== journal ==
+"Caves," Bryn says. "Under our *well*." She frowns.
+
+"Nobody in this village writes, courier. Ledgers and grave-markers, that's the lot of it. If it's old and it's written, it's from before us. And the only thing in this valley from before us is Old Wick."
+
+* "Alright. Thanks." -> hub
+
+== asleep ==
+Bryn has fallen asleep mid-gesture, one arm hanging off the bedroll, as if the day simply ran out before she did. She is grinning at something in a dream, and it is probably a story she'd tell you in the morning.
+
+* [Shake them awake.] -> woken
+    do wake()
+* [Leave them to their rest.] -> end
+
+# The GRUMPY-WAKING node. After the talk ends they head back to bed by
+# themselves (night duty rest). QUEST HOOK: hang urgent night-time
+# branches here as gated options, e.g.
+#   * "Wake up properly. The village is in danger." -> crisis_node
+#       if flag(TSC_SomeCrisis)
+== woken ==
+Bryn comes up grinning before she's fully awake, as if expecting the day to have started early out of enthusiasm.
+
+"Whazzit. Is it a story? Is somebody..." The grin loses to the yawn. "No. No, night rules. Even stories keep till breakfast, and so do you." She's asleep again almost before she finishes.
+
+* "Sorry. Go back to sleep." -> end
+* "Morning, then." -> end
+
+== story_offer ==
+Bryn sets down the hammer and climbs onto the fence rail, which is apparently how she takes meetings.
+
+"Work? *You* want work from *me*?" She laughs. "Here's the job then, and I pay in the only coin I've got: bring me *one true story*. Something you did, out there, told properly, with the fire still in it. Not fence-post rumor. The real thing." She leans forward. "This village runs on weather and potatoes, courier. Bring us something to burn."
+
+* "One true story. You'll have it." -> hub
+    do give_quest(TSC_Side_TrueStory)
+* "Stories cost more than silver, Bryn." -> hub
+
+== story_tell ==
+Word travels ahead of you: by the time you reach the fence, Bryn has assembled an audience of herself, two chickens, and, at a carefully casual distance, half the village.
+
+"Well?" She pats the rail. "Up you get. Tell it *true*."
+
+* "The night Oswin sang, and a creature dreamed for all to see..." -> story_landed
+    if flag(TSC_RitesDone)
+    check Performance 7 -> story_landed | story_flat retryable
+* "The day the raider camp learned what the guild sends..." -> story_landed
+    if quest_succeeded(TSC_Side_Raiders)
+    check Performance 7 -> story_landed | story_flat retryable
+* "What walks in the mosskeepers' barrow, and what it wanted..." -> story_landed
+    if quest_succeeded(TSC_Side_Moss)
+    check Performance 7 -> story_landed | story_flat retryable
+* "Not yet. It isn't ready." -> hub
+
+== story_landed ==
+You tell it true, and somewhere in the middle the village stops pretending not to listen. When you finish the silence is heavy, and then Bryn exhales.
+
+"*That*," she says, "is a story." She looks around at her neighbors, delighted, already editing. "Right. Everyone heard it wrong, I'll fix it by supper."
+
+* "It's yours now, Bryn. Spend it well." -> hub
+    do signal(TSC_Side_TrueStory, TSC_StoryTold); affinity(+5); affinity(TSC_Npc_Tam, +5); affinity(TSC_Npc_Hessa, +5); affinity(TSC_Npc_Wilf, +5); affinity(TSC_Npc_Mara, +5); affinity(TSC_Npc_Col, +5); affinity(TSC_Npc_Pip, +5); affinity(TSC_Npc_Nell, +5); affinity(TSC_Npc_Haldor, +5); affinity(TSC_Npc_OldWick, +5)
+
+== story_flat ==
+You tell it, and it's all true, and somehow it falls flat. The chickens leave first.
+
+Bryn pats your arm, genuinely kind.
+
+"The *story*'s good," she says. "The telling needs practice. Come back and try it again; the second telling's always better."
+
+* "I'll work on the delivery." -> hub

@@ -1,0 +1,81 @@
+# Hessa Root - farmer of Harrowfield (Act 1 village).
+
+dialogue TSC_Dialogue_Hessa
+
+# Night visits: asleep node preempts everything (entries in order).
+entry asleep if sleeping()
+
+entry hub if flag(TSC_MetHessa)
+
+== start ==
+A woman stands at the cottage door with a basket of washing on her hip. Her eyes take in your weapons and boots. Her sleeves are rolled to the elbow; her forearms are hard from work.
+
+"Hessa Root. Wife to Tam, mother to the two you'll hear before you see." She shifts the basket. "We don't get strangers. State your business and I'll tell you if Harrowfield has any."
+
+* "No business, goodwife. Just the road, and a warm hearth if anyone in Harrowfield will share one." -> hub
+    do flag(TSC_MetHessa)
+* "The guild sent me through the pass. I mean the village no trouble." -> hub
+    do flag(TSC_MetHessa)
+* "My business is my own." -> end
+
+== hub ==
+Hessa looks you over the way she looks over market produce.
+
+"Still here? What do you want?"
+
+* "What do you know about a nearby sanguophage crypt?" -> crypt
+    if flag(TSC_RitesDone)
+* "I found an old journal in the caves under the well. Unsigned. Does it mean anything to you?" -> journal
+    if flag(TSC_WeatheredJournalRead)
+* "I'm looking for work." -> children_offer
+    if flag(TSC_KidsGone) and not quest_active(TSC_Side_Children) and not quest_succeeded(TSC_Side_Children)
+* "I'm still searching the hills, Hessa." -> children_progress
+    if quest_active(TSC_Side_Children)
+* "Just passing through." -> end
+
+== asleep ==
+Hessa sleeps lightly, one arm flung over her eyes. Even unconscious she looks ready for a count. You have the distinct impression that waking her will be remembered.
+
+* [Shake them awake.] -> woken
+    do wake()
+* [Leave them to their rest.] -> end
+
+== woken ==
+Hessa is awake instantly and completely. She looks at you with cold calculation.
+
+"This," she says, "is being remembered. Whatever it is, the sun can carry it. Out."
+
+* "Sorry. Go back to sleep." -> end
+* "Morning, then." -> end
+
+== crypt ==
+Hessa's expression does not change, which is its own kind of answer.
+
+"Crypts. No. And if you're planning on prying one open, courier, do it downwind of my washing." She shifts the basket. "The hills keep their dead and we keep our distance. That's the whole arrangement out here."
+
+* "Understood, goodwife." -> hub
+
+== journal ==
+Hessa's jaw tightens.
+
+"Caves. Under the well my children drink from. That is what you just told me." She sets down the pail. "I don't care whose diary you dug up, courier. I care whether anything down there can climb."
+
+* "It's handled. The caves are cleared." -> hub
+* "Fair. My apologies." -> hub
+
+== children_offer ==
+For the first time since you've known her, Hessa Root's hands hang still at her sides. Her voice comes out level and tight.
+
+"Work. Yes. There's work." A breath. "The children are gone. Slipped out dawn, the pair of them, and left a note. The note has a *drawing* of a sword on it." Her jaw tightens once. "Pip's been packing for the hills all week; I knew the signs and told myself I didn't. I would like my children back before their next meal."
+
+* "I'll bring them home, Hessa. Both of them." -> hub
+    do give_quest(TSC_Side_Children); affinity(+5)
+* "Children wander home on their own, mostly." -> hub
+    do affinity(-5)
+
+== children_progress ==
+Hessa is at the door, hands finally busy: folding and refolding the same cloth.
+
+"The hills are big," she says, to no one in particular. "And they are small. Both of my children are small."
+
+* "I'll find them. Hold the door for them." -> hub

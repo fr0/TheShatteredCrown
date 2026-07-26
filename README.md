@@ -13,3 +13,7 @@ There are some AI-built tools that make this feasible:
 
 * A dialogue DSL + compiler that makes it easier to write NPC/companion dialogue
 * A dialogue tester application (Windows/WPF)
+
+## Credits
+
+* Spell icons by [Lorc](https://lorcblog.blogspot.com) ([CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)), from the [700+ RPG Icons pack](https://opengameart.org/content/700-rpg-icons) (also at [game-icons.net](https://game-icons.net)).

@@ -1,0 +1,129 @@
+%YAML 1.2
+---
+# Sublime Text syntax for The Shattered Crown dialogue DSL (.agd).
+# Install: copy into your Sublime "Packages/User" folder (see README note
+# or run scripts/Install-AgdSyntax.ps1). Works in ST3 (3103+) and ST4.
+name: AGD Dialogue
+file_extensions:
+  - agd
+scope: source.agd
+
+contexts:
+  main:
+    # Comments (full-line only, like the compiler treats them)
+    - match: '^\s*#.*$'
+      scope: comment.line.number-sign.agd
+
+    # dialogue TSC_Dialogue_Name
+    - match: '^(dialogue)\s+(\S+)'
+      captures:
+        1: keyword.control.agd
+        2: entity.name.class.agd
+
+    # entry node_name if <conditions>
+    - match: '^(entry)\s+(\w+)(?:\s+(if)\b)?'
+      captures:
+        1: keyword.control.agd
+        2: entity.name.function.agd
+        3: keyword.control.agd
+      push: expressions
+
+    # == node_name ==  (markup.heading + entity.name.function: colored in
+    # every scheme, and the name stays in the Ctrl+R symbol list)
+    - match: '^(==)\s*(\w+)\s*(==)\s*$'
+      scope: markup.heading.agd
+      captures:
+        1: punctuation.definition.heading.begin.agd
+        2: entity.name.section.agd entity.name.function.agd
+        3: punctuation.definition.heading.end.agd
+
+    # * "Option text" -> target   /   * [Action text.] -> target
+    - match: '^\s*(\*)(?=\s)'
+      captures:
+        1: keyword.operator.list.agd
+      push: option
+
+    # indented: check Proficiency 8 -> success | failure
+    - match: '^\s+(check)\s+(\w+)\s+(\d+)\s*(->)\s*(\w+)\s*(\|)\s*(\w+)\s*$'
+      captures:
+        1: keyword.control.agd
+        2: storage.type.proficiency.agd
+        3: constant.numeric.agd
+        4: keyword.operator.arrow.agd
+        5: entity.name.label.agd
+        6: punctuation.separator.agd
+        7: entity.name.label.agd
+
+    # indented: if <conditions>
+    - match: '^\s+(if)\b'
+      captures:
+        1: keyword.control.agd
+      push: expressions
+
+    # indented: do effect(); effect()
+    - match: '^\s+(do)\b'
+      captures:
+        1: keyword.control.agd
+      push: expressions
+
+    # prose: *emphasis* and {PLAYER}-style placeholders
+    - match: '\*[^*\n]+\*'
+      scope: markup.italic.agd
+    - match: '\{\w+\}'
+      scope: constant.other.placeholder.agd
+
+  # Condition/effect expression lists: flag(X) and not dead(Y); do a(); b()
+  expressions:
+    - match: $
+      pop: true
+    - match: '\b(and|not)\b'
+      scope: keyword.operator.word.agd
+    - match: '(\w+)\s*(\()'
+      captures:
+        1: support.function.agd
+        2: punctuation.section.parens.begin.agd
+      push: args
+    - match: ';'
+      scope: punctuation.separator.sequence.agd
+
+  args:
+    - match: $
+      pop: true
+    - match: '\)'
+      scope: punctuation.section.parens.end.agd
+      pop: true
+    - match: '(>=|<=|==|>|<)'
+      scope: keyword.operator.comparison.agd
+    - match: '[+-]?\d+\b'
+      scope: constant.numeric.agd
+    - match: ','
+      scope: punctuation.separator.agd
+    - match: '[A-Za-z_]\w*'
+      scope: variable.parameter.agd
+
+  option:
+    - match: $
+      pop: true
+    - match: '"'
+      scope: punctuation.definition.string.begin.agd
+      push: option-string
+    - match: '\[[^\]\n]*\]'
+      scope: string.other.action.agd
+    - match: '(->)\s*(end)\b'
+      captures:
+        1: keyword.operator.arrow.agd
+        2: constant.language.end.agd
+    - match: '(->)\s*(\w+)'
+      captures:
+        1: keyword.operator.arrow.agd
+        2: entity.name.label.agd
+
+  option-string:
+    - meta_scope: string.quoted.double.agd
+    - match: '"'
+      scope: punctuation.definition.string.end.agd
+      pop: true
+    - match: '\*[^*"\n]+\*'
+      scope: markup.italic.agd
+    - match: '\{\w+\}'
+      scope: constant.other.placeholder.agd

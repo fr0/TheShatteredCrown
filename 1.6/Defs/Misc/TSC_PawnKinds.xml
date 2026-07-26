@@ -140,4 +140,80 @@
     </modExtensions>
   </PawnKindDef>
 
+
+  <!-- Captain of the crypt looting party (surface parley; factionless until
+       the words run out - see MapComponent_TSC_CryptParley). -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Bandit_CryptLeader</defName>
+    <label>bandit captain</label>
+    <combatPower>90</combatPower>
+    <itemQuality>Good</itemQuality>
+    <isFighter>true</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeAdvanced</li>
+    </weaponTags>
+    <weaponMoney>250~450</weaponMoney>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_CryptBandits</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <!-- The bard of the distant city (Act 2 opening): unarmed performer,
+       spawned at the lead's settlement by TSC_Act2_BardLead. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Bard</defName>
+    <label>bard</label>
+    <combatPower>30</combatPower>
+    <itemQuality>Normal</itemQuality>
+    <isFighter>false</isFighter>
+    <weaponTags Inherit="False" />
+    <weaponMoney>0</weaponMoney>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Bard</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <!-- The guild's factor: one per friendly town in Adventure Mode
+       (MapComponent_TSC_GuildFactor). Unarmed clerk; the dialogue is the
+       whole job - the board, hirelings, and the rates haggle. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_GuildFactor</defName>
+    <label>guild factor</label>
+    <combatPower>30</combatPower>
+    <itemQuality>Normal</itemQuality>
+    <isFighter>false</isFighter>
+    <weaponTags Inherit="False" />
+    <weaponMoney>0</weaponMoney>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_GuildFactor</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <!-- The one who made Old Wick: buried behind the warm door with the crown
+       shard it was left to keep. Sleeps until the shard is lifted, then
+       fights at range with TSC_Hediff_KindledBlood on (see MapComponent_TSC_ElderSleeper).
+       Act 1's boss - the combat power is the wake-up, not the kind. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_ElderSanguophage</defName>
+    <label>the sleeper</label>
+    <combatPower>400</combatPower>
+    <itemQuality>Excellent</itemQuality>
+    <isFighter>true</isFighter>
+    <destroyGearOnDrop>false</destroyGearOnDrop>
+    <!-- No rolled weapon: the ember bow is put in its hands at spawn
+         (GenStep_TSC_CryptInterior.EquipEmberBow) and drops as loot. -->
+    <weaponTags Inherit="False" />
+    <weaponMoney>0</weaponMoney>
+    <apparelMoney>400~700</apparelMoney>
+    <apparelTags Inherit="False">
+      <li>Medieval</li>
+    </apparelTags>
+  </PawnKindDef>
+
 </Defs>

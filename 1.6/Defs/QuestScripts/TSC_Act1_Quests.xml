@@ -506,7 +506,6 @@
           </node>
         </li>
 
-        <!-- Oswin's rite performed (dialogue signal): Act 1's finale -->
         <li Class="QuestNode_Signal">
           <inSignal>TSC_RitesPerformed</inSignal>
           <node Class="QuestNode_Sequence">
@@ -514,7 +513,11 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelRitesDone">The Poured Cup</label>
-                <text TKey="LetterTextRitesDone">The rite is sung, and the ettersnap dreamed aloud: a sanguophage's crypt holding a shard of the shattered crown, and a waterfall-fed lake near a village Oswin knows. He and Serra will break camp and meet you there.\n\n(Act 1 concludes here for now; the story continues in the next act of this mod.)</text>
+                <text TKey="LetterTextRitesDone">The rite is sung, and the ettersnap dreamed for all to see: a sanguophage's crypt holding a shard of the shattered crown, and a waterfall-fed lake in the hills beyond Harrowfield, the farming village off the old road. Serra and Oswin will break camp and meet you there.\n\nRide ahead to Harrowfield.</text>
+              </li>
+              <!-- The epilogue quest: the road to the village the vision pointed past -->
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                <questDef>TSC_SideQuest_Harrowfield</questDef>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
@@ -535,6 +538,89 @@
               </li>
               <li Class="QuestNode_End">
                 <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+
+  <!-- Act 1 finale: the crypt. Given by Old Wick's dialogue on either route
+       (trust: he sends the party; journal: he walks ahead and waits inside,
+       TSC_WickAtCrypt). Completes when the crown shard is in player hands. -->
+  <QuestScriptDef>
+    <defName>TSC_Act1_Crypt</defName>
+    <defaultChallengeRating>2</defaultChallengeRating>
+    <isRootSpecial>true</isRootSpecial>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Warm Door</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Old Wick has given up the place he kept for sixty years: a Crown-survey gallery in the Harrow hills, bricked shut over a crypt that was old before the kingdom had a name. A shard of the shattered crown lies at the bottom of it, behind a door of warm stone, on the chest of the sanguophage it was buried with.\n\nFind the gallery, go down, and bring the shard out. It will not come quietly off that chest.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>3~8</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_CryptSite</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+          <item>TSC_CrownShard</item>
+          <!-- Act 1 does not END mid-boss-fight: the shard counts as
+               recovered once the sleeper and its risen are dealt with. -->
+          <requireNoHostiles>true</requireNoHostiles>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelShardFound">A shard of the crown</label>
+                <text TKey="LetterTextShardFound">A broken shard of a king's crown, out of a sanguophage's grave and into daylight for the first time in centuries. The guild's search has its first answer.\n\nOne shard of nine.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>300</xp>
+              </li>
+              <!-- ACT BOUNDARY: the first shard in hand ends Act 1. Act 2's
+                   opening content hangs off this flag. -->
+              <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
+                <flag>TSC_Act2_Started</flag>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
               </li>
             </nodes>
           </node>

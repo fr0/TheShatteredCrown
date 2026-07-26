@@ -13,6 +13,10 @@ namespace TheShatteredCrown
     public class QuestNode_TSC_DetectItem : QuestNode
     {
         public SlateRef<ThingDef> item;
+        /// <summary>Total pieces the player must possess (default 1). Cold Iron wants a load, not a sliver.</summary>
+        public SlateRef<int> minCount;
+        /// <summary>Possession only counts once no map with colonists has an active hostile threat - the crypt's shard is not "recovered" mid-boss-fight.</summary>
+        public SlateRef<bool> requireNoHostiles;
         public QuestNode node;
 
         [NoTranslate]
@@ -24,6 +28,8 @@ namespace TheShatteredCrown
             QuestPart_TSC_DetectItem part = new QuestPart_TSC_DetectItem
             {
                 item = item.GetValue(slate),
+                minCount = System.Math.Max(1, minCount.GetValue(slate)),
+                requireNoHostiles = requireNoHostiles.GetValue(slate),
                 inSignalEnable = QuestGenUtility.HardcodedSignalWithQuestID(inSignalEnable.GetValue(slate)) ?? slate.Get<string>("inSignal"),
             };
             QuestGen.quest.AddPart(part);
@@ -42,6 +48,8 @@ namespace TheShatteredCrown
     public class QuestPart_TSC_DetectItem : QuestPartActivable
     {
         public ThingDef item;
+        public int minCount = 1;
+        public bool requireNoHostiles;
 
         private const int CheckInterval = 250;
 
@@ -52,25 +60,41 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            if (requireNoHostiles)
+            {
+                foreach (Map map in Find.Maps)
+                {
+                    if (map.mapPawns.FreeColonistsSpawnedCount > 0
+                        && GenHostility.AnyHostileActiveThreatToPlayer(map))
+                    {
+                        return; // holding the prize mid-fight is not recovering it
+                    }
+                }
+            }
+            // Detection means POSSESSION, not proximity: quest loot can lie
+            // pre-spawned on site/pocket maps (the barrow moss on the crypt
+            // floor), and merely generating the map must not complete the
+            // fetch. Loose items only count on a player HOME map (hauled
+            // home); elsewhere someone must pick them up. Totals sum across
+            // every map, pawn, and caravan against minCount.
+            int total = 0;
             foreach (Map map in Find.Maps)
             {
-                // Detection means POSSESSION, not proximity: quest loot can
-                // lie pre-spawned on site/pocket maps (the barrow moss on the
-                // crypt floor), and merely generating the map must not
-                // complete the fetch. Loose items only count on a player HOME
-                // map (hauled home); elsewhere someone must pick them up.
-                if (map.IsPlayerHome && map.listerThings.ThingsOfDef(item).Count > 0)
+                if (map.IsPlayerHome)
                 {
-                    Complete();
-                    return;
+                    foreach (Thing thing in map.listerThings.ThingsOfDef(item))
+                    {
+                        total += thing.stackCount;
+                    }
                 }
                 foreach (Pawn pawn in map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer))
                 {
-                    if (PawnHolds(pawn))
-                    {
-                        Complete();
-                        return;
-                    }
+                    total += HeldCount(pawn);
+                }
+                if (total >= minCount)
+                {
+                    Complete();
+                    return;
                 }
             }
             foreach (Caravan caravan in Find.WorldObjects.Caravans)
@@ -83,18 +107,23 @@ namespace TheShatteredCrown
                 {
                     if (thing.def == item)
                     {
-                        Complete();
-                        return;
+                        total += thing.stackCount;
                     }
+                }
+                if (total >= minCount)
+                {
+                    Complete();
+                    return;
                 }
             }
         }
 
-        private bool PawnHolds(Pawn pawn)
+        private int HeldCount(Pawn pawn)
         {
+            int count = 0;
             if (pawn.carryTracker?.CarriedThing?.def == item)
             {
-                return true;
+                count += pawn.carryTracker.CarriedThing.stackCount;
             }
             ThingOwner inventory = pawn.inventory?.innerContainer;
             if (inventory != null)
@@ -103,17 +132,18 @@ namespace TheShatteredCrown
                 {
                     if (thing.def == item)
                     {
-                        return true;
+                        count += thing.stackCount;
                     }
                 }
             }
-            return false;
+            return count;
         }
 
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Defs.Look(ref item, "item");
+            Scribe_Values.Look(ref minCount, "minCount", 1);
         }
     }
 }

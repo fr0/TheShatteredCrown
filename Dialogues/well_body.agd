@@ -1,0 +1,33 @@
+# The dead body in the well caves (one-shot per save): a VICTIM of the
+# sanguophage, laid out for burial by the thing that killed them - the
+# guilt the unsigned journal confesses to. Opened from code
+# (MapComponent_TSC_CaveBody) when a colonist first comes within sight of
+# the body; {PLAYER} is that pawn. The chest holds the journal.
+
+dialogue TSC_Dialogue_WellBody
+
+== start ==
+At the edge of the lamplight a body lies on the cave floor, and it has lain there a long time. Years. The bones are clean and undisturbed, the clothes gone to shreds and shadow. Whoever they were, they came down with a chest, and they never went back up.
+
+* [Look closer.] -> closer
+* [Leave them to the dark.] -> end
+
+== closer ==
+{PLAYER} crouches. No broken bones. No rockfall, no rust-stained blade among the ribs, no sign the cave ever laid a hand on them. They are stretched out straight, arms folded: a body arranged for burial, by careful hands.
+
+Then, at the throat, the lamplight catches it. Two marks scored into the neck bone, small and fine and exactly paired. Whatever made them did not do it to kill. Killing was just how it ended.
+
+So: something drank this person dry, down here in the dark. And then it folded their arms, and smoothed them straight, and set the chest beside them like flowers left on a grave by the one who dug it.
+
+* [Insight] Whatever did this *grieved*. -> grieved
+    if passive(Insight, 8)
+* [See what they left behind.] -> end
+* [Stand up. Say nothing.] -> end
+
+== grieved ==
+It is written in the arrangement, once you see it. Not the carelessness of a predator with its kill: the rigid tidiness of someone who has done what they cannot take back, and has nothing left to offer but order.
+
+{PLAYER} has seen graves dug in anger, and graves dug in haste. This one was dug in apology.
+
+* [See what they left behind.] -> end
+* [Leave the dead their quiet.] -> end

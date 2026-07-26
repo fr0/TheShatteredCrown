@@ -37,15 +37,20 @@ namespace TheShatteredCrown
             TSC_ProgressionManager progression = TSC_ProgressionManager.Current;
             TSC_ClassRecord record = progression.RecordOf(pawn);
             int pending = progression.PendingPoints(pawn);
-            if (pending <= 0 || record.classes.Count == 0)
+            // Studied manuals add "(new class)" rows: begin an unlocked class
+            // at level 1 for the same one-point price as advancing one.
+            List<TSC_ClassDef> newChoices = progression.NewClassChoicesFor(pawn);
+            int totalChoices = record.classes.Count + newChoices.Count;
+            if (pending <= 0 || totalChoices == 0)
             {
                 Close();
                 return;
             }
-            if (record.classes.Count == 1)
+            if (totalChoices == 1)
             {
                 selectedClass = 0;
             }
+            selectedClass = Mathf.Clamp(selectedClass, 0, totalChoices - 1);
 
             float y = 0f;
             Text.Font = GameFont.Medium;
@@ -77,10 +82,32 @@ namespace TheShatteredCrown
                 }
                 y += RowHeight;
             }
+            for (int i = 0; i < newChoices.Count; i++)
+            {
+                TSC_ClassDef classDef = newChoices[i];
+                int rowIndex = record.classes.Count + i;
+                string label = $"(new class) {classDef.LabelCap} 1";
+                string unlockPreview = UnlocksAt(classDef, 1);
+                if (!unlockPreview.NullOrEmpty())
+                {
+                    label += $"   (unlocks: {unlockPreview})";
+                }
+                Rect row = new Rect(0f, y, inRect.width, RowHeight);
+                GUI.color = new Color(0.8f, 0.9f, 1f);
+                if (Widgets.RadioButtonLabeled(row, label, selectedClass == rowIndex))
+                {
+                    selectedClass = rowIndex;
+                }
+                GUI.color = Color.white;
+                y += RowHeight;
+            }
             y += 10f;
 
             // ---- proficiency choice
-            TSC_ClassDef chosen = record.classes[selectedClass];
+            bool beginningNew = selectedClass >= record.classes.Count;
+            TSC_ClassDef chosen = beginningNew
+                ? newChoices[selectedClass - record.classes.Count]
+                : record.classes[selectedClass];
             Widgets.Label(new Rect(0f, y, inRect.width, 24f), $"Improve which proficiency? ({chosen.label}-trained improve by 2)");
             y += 26f;
 
@@ -121,8 +148,16 @@ namespace TheShatteredCrown
             }
             if (Widgets.ButtonText(buttonRect, "Confirm level-up") && ready)
             {
-                TSC_ProgressionManager.Current.AssignPoint(pawn, chosen, selectedProficiency);
+                if (beginningNew)
+                {
+                    TSC_ProgressionManager.Current.AssignPointNewClass(pawn, chosen, selectedProficiency);
+                }
+                else
+                {
+                    TSC_ProgressionManager.Current.AssignPoint(pawn, chosen, selectedProficiency);
+                }
                 selectedProficiency = null;
+                selectedClass = 0;
                 if (TSC_ProgressionManager.Current.PendingPoints(pawn) <= 0)
                 {
                     Close();

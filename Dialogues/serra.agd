@@ -4,6 +4,16 @@
 
 dialogue TSC_Dialogue_Serra
 
+# The city farewell: opened from code (QuestPart_TSC_CompanionsSettle) the
+# moment both Wayfarers leave the party at the bard's city. Checked FIRST.
+entry city_farewell if flag(TSC_CompanionsSettled) and not flag(TSC_FarewellDone)
+# Shard epilogue: the first shard is in hand and the company came to see it.
+# Works at the crypt (they come down the rope) or wherever they meet next.
+entry shard_epilogue if flag(TSC_ShardRushSeen) and not flag(TSC_SerraShardTalk)
+# At Harrowfield (second village visit onward, post-rites): the company kept
+# its word and camped outside.
+entry village_arrived if flag(TSC_CampAtVillage) and not flag(TSC_SerraVillageTalk)
+entry village_hub if flag(TSC_CampAtVillage)
 entry hub if flag(TSC_MetParty)
 # Bran walked himself back to camp (left unrecruited at the ruin); Serra already
 # knows he's alive, so no challenge and no "alive?!" relief. Checked BEFORE
@@ -17,7 +27,7 @@ The woman by the firepit is on her feet with the greatbow half-raised before you
 
 "*Underhill.*"
 
-She crosses the camp in five strides. What happens next is not a hug (Serra Voss does not hug), but she takes Bran by the gambeson straps and shakes him once, the way you'd test a gate you were sure had blown down.
+She crosses the camp in five strides. What happens next is not a hug (Serra Voss does not hug), but she takes Bran by the gambeson straps and shakes him once, hard.
 
 "Twelve days. *Twelve.*" Then, over her shoulder, to you: "And you'd be the rider the guild finally sent. You pulled my scout out of the pass and walked him home. That buys you the whole story."
 
@@ -27,9 +37,9 @@ She crosses the camp in five strides. What happens next is not a hug (Serra Voss
 == bran_credit ==
 Bran snorts. "Don't listen. I was holed up talking to a wall I'd named Gerald."
 
-Something happens to Serra's face that, on anyone else, you'd call a smile.
+Serra's mouth tightens. It might be the closest thing she does to a smile.
 
-"A wall named Gerald. Aye, that's my scout." She jerks her chin at the fire. "Sit, both of you. If the guild's courier is modest AND useful, this pass may finally owe us something."
+"A wall named Gerald. Aye, that's my scout." She jerks her chin at the fire. "Sit, both of you. If the guild's courier is modest *and* useful, this pass may finally owe us something."
 
 * "I'm listening." -> reveal
     do affinity(+5)
@@ -63,7 +73,7 @@ The stillness goes total. For three heartbeats, Serra Voss is a statue holding a
     do affinity(+5)
 
 == relief ==
-Something unclenches in her shoulders. It's the first honest movement she's made.
+Her shoulders ease. It's the first honest movement she's made.
 
 "Alive. *Alive.* Twelve days I've had a knot where that scout should be." She recovers the stillness fast, but not fast enough. "Good. That's... good. Then you've earned the explanation the guild's letter didn't have room for."
 
@@ -81,7 +91,7 @@ Something unclenches in her shoulders. It's the first honest movement she's made
     if dead(TSC_Npc_Bran)
 
 == overdue_thaw ==
-Serra holds your gaze a moment longer. Then the frost breaks, just slightly, at the corners.
+Serra holds your gaze a moment longer. Then her mouth eases, just slightly.
 
 "One rider, not an auditor. Hm. Whoever taught you to talk earned their fee." She moves over on the log, which from Serra Voss is an embrace. "Sit, then. You've a company's worth of news to hear."
 
@@ -119,11 +129,83 @@ She glances up.
 
 "And talk to me before you ride. The pass has... complications you should hear about. Work, if you'll take it."
 
-* "I'll take the hunt. And I'll hear the rest." -> end
+# Straight into the hub: taking the main quest is the start of the
+# conversation with Serra, not the end of it.
+* "I'll take the hunt. And I'll hear the rest." -> hub
     do flag(TSC_MetParty); signal(TSC_Act1_Camp, TSC_MetParty); give_quest(TSC_Act1_Ettersnap)
 
+== city_farewell ==
+Serra swings down off her horse in the middle of the city street and starts unstrapping her bedroll from the saddle, which is how you find out the decision has already been made.
+
+"This is where we get off, courier." She nods at the rooftops around you. "The song is here, the bard is here, and whatever taught the song to a beggar is under our boots somewhere. Somebody should be standing on top of it who knows how to wait. That's the company's whole trade."
+
+She hands you the lead rope of the pack horse, keeping nothing but her bow.
+
+"You ride better without us counting your rations. Oswin will work the archives here; I'll work everything that isn't archives. When the road brings you back through, you'll find us - and we'll have earned our keep."
+
+* "Keep each other alive, captain." -> farewell_warm
+* "This is your hunt too, Serra." -> farewell_hunt
+
+== farewell_warm ==
+"That's the plan. It's always the plan." She takes your arm at the wrist, one hard grip, the closest thing to sentiment she carries. "Watch your back trail, courier. You're worth robbing now."
+
+* [Let them go.] -> end
+    do flag(TSC_FarewellDone); affinity(+5)
+
+== farewell_hunt ==
+"It is. That's why I'm standing where the next piece of it is going to surface." She shoulders the bedroll. "You carry the shard and the roads, we hold the city and the song. That's not leaving the hunt, courier. That's surrounding it."
+
+* [Let them go.] -> end
+    do flag(TSC_FarewellDone); affinity(+5)
+
+== shard_epilogue ==
+Serra looks you over the way she counts survivors after a fight: hands, eyes, feet, in that order. Then she looks at the bag with the shard in it, and for one breath the captain lets the hunter show through.
+
+"Two months in a pass, a season before that in the archives, and there it is in a courier's saddlebag." She shakes her head once. "The guild is going to build a statue of you if you keep this up."
+
+She jerks her chin toward Oswin.
+
+"Before you count it done: talk to the scholar. News found us on the road, and he's been vibrating ever since. And courier - wherever this goes next, it doesn't go without us. The company rides with you."
+
+* "I'll hear it." -> end
+    do flag(TSC_SerraShardTalk); affinity(+5)
+* "Let me breathe first, captain." -> end
+    do flag(TSC_SerraShardTalk)
+
+== village_arrived ==
+The camp sits north of the village square: two bedrolls, a firepit, Serra's greatbow against a log. She watches you cross the field and nods.
+
+"Told you we'd be here." She jerks her chin at the village. "Came in quiet, camped outside the fence. The farmers never moved on us; they lent us a kettle. Progress."
+
+"Oswin's still working through what the rite showed. Talk to him. And whatever you've stirred up here, keep stirring. The shard is close."
+
+* "Good to have you both at my back again." -> village_hub
+    do flag(TSC_SerraVillageTalk); affinity(+5)
+* "Settle in. I'll keep working the village." -> village_hub
+    do flag(TSC_SerraVillageTalk)
+
+== village_hub ==
+Serra sits by the camp fire with her map across her knees, remade for this valley: the village, the hills, fresh pins.
+
+"Courier. What do you need?"
+
+* "What do you make of Harrowfield?" -> village_view
+    if not flag(TSC_SerraVillageView)
+* "Teach me to hunt the way you do, Serra." -> ranger_teaching
+    if quest_succeeded(TSC_Side_Raiders) and not flag(TSC_SerraTaught)
+* "Tell me about the company, Serra. The people, not the mission." -> company_talk
+    if affinity(>=10) and not flag(TSC_SerraCompanyTalk)
+* "Remind me of the mission." -> remind_at_village
+* "Just checking in." -> end
+
+== village_view ==
+"Good fences, bad sightlines. Full larders and no watch posted." She turns a pin between two fingers. "Farmers who feed strangers and an elder who watches like a soldier. Someone in this village keeps a second ledger, courier. I'd bet the bow on it."
+
+* "Noted, captain." -> village_hub
+    do flag(TSC_SerraVillageView); grant_xp(10)
+
 == hub ==
-Serra looks up from her map, marking your approach the way she marks everything: range first, intent second.
+Serra looks up from her map, marking your approach: distance first, intent second.
 
 "Courier. The hunt stands. What do you need?"
 
@@ -140,7 +222,14 @@ Serra looks up from her map, marking your approach the way she marks everything:
     check Survival 7 -> weather_read | weather_miss
 * "Tell me about the company, Serra. The people, not the mission." -> company_talk
     if affinity(>=10) and not flag(TSC_SerraCompanyTalk)
+* "About the hunt... the cave's gone from my map. Mark it again." -> remark
+    if not quest_active(TSC_Act1_Ettersnap) and not flag(TSC_RitesDone)
 * "Remind me of the mission." -> remind
+    if not flag(TSC_RitesDone)
+* "Remind me of the mission." -> remind_after_rites
+    if flag(TSC_RitesDone) and not flag(TSC_CampAtVillage)
+* "Remind me of the mission." -> remind_at_village
+    if flag(TSC_CampAtVillage)
 * "I need supplies." -> supplies
     if not flag(TSC_Serra_Supplies)
 * "Just checking in." -> end
@@ -195,11 +284,11 @@ Serra follows your gaze to the peaks, then back to you, unimpressed.
     do flag(TSC_SerraWeather)
 
 == ranger_teaching ==
-Serra studies you for a long moment. It's the same measuring look she gave you at first meeting, but the arithmetic has changed.
+Serra studies you for a long moment. It's the same measuring look she gave you at first meeting, but the calculation has changed.
 
-"You ended the raider band my whole company couldn't shake. That buys you the thing I don't sell." She picks up the greatbow. "Walk with me. First lesson: the pass has been talking about you for days, and you haven't heard a word of it. We'll fix your ears, then your feet, then your draw."
+"You ended the raider band my whole company couldn't shake. That buys you the thing I don't sell." She picks up the greatbow. "Walk with me. First lesson: the pass has been talking about you for days, and you haven't heard a word. We'll fix your ears, then your feet, then your draw."
 
-Two days of tracking, stillness, wind-reading, and loosing arrows at distances you'd have called impossible. Serra teaches the way she does everything: precisely, and without wasting a syllable.
+Two days of tracking, stillness, wind-reading, and loosing arrows at distances you'd have called impossible. Serra teaches the way she does everything: precisely, without waste.
 
 * [Learn the Ranger's craft] "Understood, captain." -> hub
     if not flag(TSC_SerraTaught)
@@ -214,14 +303,45 @@ Serra looks at the fire for a while before answering, which is her version of cl
 * "Good to know." -> hub
     do flag(TSC_SerraCompanyTalk); grant_xp(10)
 
+# Safety hatch: the hunt's objective was lost (site vanished in an older
+# build, or the quest otherwise died without the rites happening). Serra
+# re-marks the cave, which spawns a fresh site and creature.
+== remark ==
+Serra looks at you the way she looks at a snapped bowstring: recalculating.
+
+"Lost the *cave*." She unrolls the map without another word and marks it again, pressing hard enough to tear. "The creature hasn't moved; it has outwaited better. Don't make me draw this a third time."
+
+* "Won't happen twice, captain." -> hub
+    do give_quest(TSC_Act1_Ettersnap)
+
 == remind ==
 "The ettersnap. The cave. Alive." She counts them off on three fingers, then adds a fourth: "And talk to Oswin before you go. He knows what the creature can't resist, and where to find it. His books are insufferable and correct."
 
 * "Understood." -> hub
 
+# Post-rites, still in the pass: the hunt is over and the vision replaced it.
+# She points at the village now, not the cave, and promises to follow.
+== remind_after_rites ==
+"The hunt's done. What the creature gave us is a crypt, a sleeping sanguophage, and a shard of the crown lying next to it." She taps the map twice. "The lake in the vision is an hour east of a village called Harrowfield. That's where you're going. Ask Oswin for the rest; he's been chewing on it since we broke the circle."
+
+She looks up.
+
+"Find someone in that village who knows what's under those hills. Oswin and I will pack the camp and meet you there."
+
+* "Understood." -> hub
+
+# The promise is kept: they are camped outside Harrowfield. No more travel
+# plans, just the work in front of her.
+== remind_at_village ==
+"A crypt in these hills, a sanguophage asleep in it, and a shard of the crown lying next to it. That's what the creature gave us and that's all it gave us." She turns a pin between her fingers without setting it down.
+
+"So we're here, and we're staying until this valley gives up the door. Work the village, courier. Oswin works the books. Somebody in Harrowfield has known where that crypt is their whole life and has good reasons not to say so."
+
+* "Understood." -> village_hub
+
 == supplies ==
 
 "There are some rations in one of the crates in our camp. You're welcome to them. Beyond that, you'll have to fend for yourself. If you passed the guild's training, I know you're capable of doing so."
 
-* "Understood." -> end
+* "Understood." -> hub
     do flag(TSC_Serra_Supplies)

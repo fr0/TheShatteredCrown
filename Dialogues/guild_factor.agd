@@ -1,0 +1,49 @@
+# The guild factor: the Wayfarers' man in every friendly town (Adventure
+# Mode; spawned by MapComponent_TSC_GuildFactor on settlement maps). The
+# hall made flesh: the contract board, hirelings, and the rates haggle.
+# He is generated, not a named NPC - the dialogue carries the character.
+
+dialogue TSC_Dialogue_GuildFactor
+
+== start ==
+The guild's factor holds a table near the middle of town: ledger, ink, a strongbox chained to the table leg, and the Wayfarers' mark on a standing board behind him. He reads your charter upside down without asking to see it.
+
+"A charter-rider. Good. The roads make more work than the guild can write down. What do you need?"
+
+* "What work is posted?" -> board
+    do contract_board()
+* "I'm looking to hire on help." -> hire
+    do hire_offer()
+* "The guild's rates are thin for what the roads cost. Sweeten them." -> rates_up
+    if not flag(TSC_GuildRates)
+    check Persuasion 8 -> rates_up | rates_flat
+* "Nothing today." -> end
+
+== board ==
+He turns the standing board so you can read it, and goes back to his ledger while you do.
+
+"Take what suits. Pay is on completion, as chartered."
+
+* "Let me look." -> start
+
+== hire ==
+"There's always somebody in a town like this wanting out of it." He runs a finger down the ledger without needing to look. "Guild vets them enough to know which end of the work they hold. The rest you find out on the road."
+
+* "Understood." -> start
+
+== rates_up ==
+The factor sets down his pen, which men like him do not do for nothing.
+
+"The roads cost what they cost," he says. Then, after a moment: "And the guild knows what its couriers have been riding through this season. All right. Charter rate, plus a fifth, marked to your name. Do not tell the next rider."
+
+* "Done. Show me the board." -> board
+    do flag(TSC_GuildRates); grant_xp(25); contract_board()
+* "Done, and appreciated." -> start
+    do flag(TSC_GuildRates); grant_xp(25)
+
+== rates_flat ==
+"The rates are the rates." He does not set down the pen. "The guild pays on completion at charter terms, same as every rider on this ledger. The board is behind me if the terms suit; the road is behind you if they don't."
+
+* "Fair enough. Show me the board." -> board
+    do contract_board()
+* "Fair enough." -> start

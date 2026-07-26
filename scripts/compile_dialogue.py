@@ -61,6 +61,7 @@ class Check:
     success_effects: list = field(default_factory=list)
     fail_effects: list = field(default_factory=list)
     retryable: bool = False
+    retry_hours: float = 8.0
 
 
 @dataclass
@@ -118,13 +119,27 @@ def parse_conditions(expr: str, path, lineno) -> list:
             cls = "DialogueCondition_FlagNotSet" if negated else "DialogueCondition_FlagSet"
             conditions.append(Condition(cls, {"flag": arg}))
         elif name == "quest_active":
-            if negated:
-                raise ParseError(path, lineno, "'not quest_active(...)' is not supported (no such condition class yet)")
-            conditions.append(Condition("DialogueCondition_QuestActive", {"quest": arg}))
+            cls = "DialogueCondition_QuestNotActive" if negated else "DialogueCondition_QuestActive"
+            conditions.append(Condition(cls, {"quest": arg}))
         elif name == "quest_succeeded":
+            cls = "DialogueCondition_QuestNotSucceeded" if negated else "DialogueCondition_QuestSucceeded"
+            conditions.append(Condition(cls, {"quest": arg}))
+        elif name == "has_item":
+            parts = [p.strip() for p in arg.split(",")]
+            fields = {"def": parts[0]}
+            if len(parts) > 1:
+                fields["count"] = parts[1]
+            if len(parts) > 2:
+                raise ParseError(path, lineno, "has_item syntax: has_item(<ThingDef>[, count])")
             if negated:
-                raise ParseError(path, lineno, "'not quest_succeeded(...)' is not supported (no such condition class yet)")
-            conditions.append(Condition("DialogueCondition_QuestSucceeded", {"quest": arg}))
+                fields["invert"] = "true"
+            conditions.append(Condition("DialogueCondition_HasItem", fields))
+        elif name == "min_quests_succeeded":
+            parts = [p.strip() for p in arg.split(",")]
+            if len(parts) < 2 or not parts[0].isdigit():
+                raise ParseError(path, lineno, "min_quests_succeeded syntax: min_quests_succeeded(<N>, <Quest1>, <Quest2>, ...)")
+            cls = "DialogueCondition_NotMinQuestsSucceeded" if negated else "DialogueCondition_MinQuestsSucceeded"
+            conditions.append(Condition(cls, {"min": parts[0], "quests": parts[1:]}))
         elif name == "in_party":
             if negated:
                 raise ParseError(path, lineno, "'not in_party(...)' is not supported (no such condition class yet)")
@@ -141,6 +156,9 @@ def parse_conditions(expr: str, path, lineno) -> list:
             if not arg:
                 raise ParseError(path, lineno, "nearby syntax: nearby(<NamedNpcDefName>)")
             conditions.append(Condition("DialogueCondition_Nearby", {"npc": arg}))
+        elif name == "sleeping":
+            cls = "DialogueCondition_Awake" if negated else "DialogueCondition_Sleeping"
+            conditions.append(Condition(cls, {}))
         elif name == "kind_on_map":
             if negated:
                 raise ParseError(path, lineno, "'not kind_on_map(...)' is not supported (no such condition class yet)")
@@ -179,7 +197,7 @@ def parse_conditions(expr: str, path, lineno) -> list:
                 fields["max"] = str(num - 1)
             conditions.append(Condition("DialogueCondition_Affinity", fields))
         else:
-            raise ParseError(path, lineno, f"unknown condition '{name}' (know: flag, quest_active, quest_succeeded, in_party, nearby, kind_on_map, dead, passive, affinity)")
+            raise ParseError(path, lineno, f"unknown condition '{name}' (know: flag, quest_active, quest_succeeded, min_quests_succeeded, has_item, in_party, nearby, kind_on_map, dead, passive, affinity)")
     return conditions
 
 
@@ -207,14 +225,58 @@ def parse_effects(expr: str, path, lineno) -> list:
             effects.append(Effect("DialogueEffect_GiveQuest", {"quest": arg, "sendLetter": "true"}))
         elif name == "give_quest_silent":
             effects.append(Effect("DialogueEffect_GiveQuest", {"quest": arg, "sendLetter": "false"}))
+        elif name == "parley_hostile":
+            # The npc's parley group (MapComponent_TSC_CryptParley) attacks.
+            effects.append(Effect("DialogueEffect_TSC_ParleyHostile", {}))
+        elif name == "parley_flee":
+            # The npc's parley group panics off the map.
+            effects.append(Effect("DialogueEffect_TSC_ParleyFlee", {}))
+        elif name == "npc_leave":
+            # The npc walks off the map for good ("let him walk").
+            effects.append(Effect("DialogueEffect_TSC_NpcLeave", {}))
+        elif name == "npc_hostile":
+            # The npc turns on the party; optional arg = a HediffDef applied
+            # first (npc_hostile(TSC_Hediff_ElderBlood) for boss fights).
+            effects.append(Effect("DialogueEffect_TSC_NpcHostile",
+                                  {"hediff": arg} if arg else {}))
         elif name == "message":
             effects.append(Effect("DialogueEffect_Message", {"text": arg}))
         elif name == "goodwill":
             effects.append(Effect("DialogueEffect_Goodwill", {"amount": arg}))
         elif name == "join_party":
-            effects.append(Effect("DialogueEffect_JoinParty", {}))
+            # No arg: the speaker joins. With a NamedNpcDef arg: that NPC
+            # joins too (e.g. Oswin's scene recruiting Serra alongside him).
+            effects.append(Effect("DialogueEffect_JoinParty", {"npc": arg} if arg else {}))
+        elif name == "trade":
+            effects.append(Effect("DialogueEffect_OpenTrade", {}))
+        elif name == "wake":
+            effects.append(Effect("DialogueEffect_Wake", {}))
+        elif name == "depart":
+            effects.append(Effect("DialogueEffect_DespawnNpc", {"npc": arg}))
+        elif name == "give_item":
+            parts = [p.strip() for p in arg.split(",")]
+            fields = {"def": parts[0]}
+            if len(parts) > 1:
+                fields["count"] = parts[1]
+            if len(parts) > 2:
+                fields["quality"] = parts[2]
+            if len(parts) > 3:
+                raise ParseError(path, lineno, "give_item syntax: give_item(<ThingDef>[, count[, Quality]])")
+            effects.append(Effect("DialogueEffect_GiveThing", fields))
+        elif name == "take_item":
+            parts = [p.strip() for p in arg.split(",")]
+            fields = {"def": parts[0]}
+            if len(parts) > 1:
+                fields["count"] = parts[1]
+            if len(parts) > 2:
+                raise ParseError(path, lineno, "take_item syntax: take_item(<ThingDef>[, count])")
+            effects.append(Effect("DialogueEffect_TakeThing", fields))
         elif name == "grant_xp":
             effects.append(Effect("DialogueEffect_GrantXp", {"xp": arg}))
+        elif name == "contract_board":
+            effects.append(Effect("DialogueEffect_TSC_ContractBoard", {}))
+        elif name == "hire_offer":
+            effects.append(Effect("DialogueEffect_TSC_HireOffer", {}))
         elif name == "learn_class":
             effects.append(Effect("DialogueEffect_LearnClass", {"classDef": arg}))
         elif name == "teach_class":
@@ -237,7 +299,7 @@ def parse_effects(expr: str, path, lineno) -> list:
             effects.append(Effect("DialogueEffect_Affinity", fields))
         else:
             raise ParseError(path, lineno,
-                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, grant_xp, learn_class, teach_class, grant_prof, affinity)")
+                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, trade, grant_xp, learn_class, teach_class, grant_prof, affinity, parley_hostile, parley_flee)")
     return effects
 
 
@@ -319,15 +381,20 @@ def parse_file(path: Path) -> Dialogue:
                                      f"checks use proficiencies only; '{name}' is not one of: {', '.join(sorted(PROFICIENCIES))}")
                 fail_part = m.group(4).strip()
                 retryable = False
-                if fail_part.endswith("retryable"):
+                retry_hours = 8.0
+                rm = re.search(r"retryable(?:\(\s*(\d+(?:\.\d+)?)\s*\))?$", fail_part)
+                if rm:
                     retryable = True
-                    fail_part = fail_part[: -len("retryable")].strip()
+                    if rm.group(1):
+                        retry_hours = float(rm.group(1))
+                    fail_part = fail_part[: rm.start()].strip()
                 option.check = Check(
                     proficiency=PROFICIENCIES[name],
                     difficulty=int(m.group(2)),
                     success_link=resolve_link(m.group(3)),
                     fail_link=resolve_link(fail_part),
                     retryable=retryable,
+                    retry_hours=retry_hours,
                 )
                 continue
             if stripped.startswith("on success do "):
@@ -401,7 +468,13 @@ def node_text(lines: list) -> str:
 
 def emit_fields(out, fields: dict, indent: str):
     for key, value in fields.items():
-        out.append(f"{indent}<{key}>{esc(value)}</{key}>")
+        if isinstance(value, list):
+            out.append(f"{indent}<{key}>")
+            for item in value:
+                out.append(f"{indent}  <li>{esc(item)}</li>")
+            out.append(f"{indent}</{key}>")
+        else:
+            out.append(f"{indent}<{key}>{esc(value)}</{key}>")
 
 
 def emit_condition_list(out, conditions, indent):
@@ -467,6 +540,13 @@ def emit(dlg: Dialogue) -> str:
                     # branches shares one attempt, so a failure elsewhere in
                     # the tree cannot be retried from another node.
                     out.append(f"              <onceKey>TSC_Rolled_{dlg.def_name}_{opt.check.proficiency}_{opt.check.difficulty}</onceKey>")
+                else:
+                    # Retryable: a FAILED roll hides the check for retryHours of
+                    # in-game time (no click-spam re-rolls). Same what-not-where
+                    # keying as onceKey: duplicated checks share one cooldown.
+                    out.append(f"              <retryKey>TSC_Retry_{dlg.def_name}_{opt.check.proficiency}_{opt.check.difficulty}</retryKey>")
+                    hours = opt.check.retry_hours
+                    out.append(f"              <retryHours>{hours:g}</retryHours>")
                 if opt.check.success_link:
                     out.append(f"              <successLink>{opt.check.success_link}</successLink>")
                 if opt.check.fail_link:

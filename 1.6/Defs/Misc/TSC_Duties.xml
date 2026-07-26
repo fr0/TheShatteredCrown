@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Villager NIGHT duty: like vanilla WanderClose (eat when urgently
+       hungry, wander near the duty spot) but goes to sleep at merely
+       TIRED instead of VeryTired - indoors at night, villagers actually
+       bed down instead of pacing until near-collapse. The day toil keeps
+       vanilla WanderClose (VeryTired nap as a safety net only). -->
+  <DutyDef>
+    <defName>TSC_Duty_VillagerNight</defName>
+    <thinkNode Class="ThinkNode_Priority">
+      <subNodes>
+        <li Class="JobGiver_GetFood">
+          <minCategory>UrgentlyHungry</minCategory>
+        </li>
+        <li Class="JobGiver_GetRest">
+          <minCategory>Tired</minCategory>
+        </li>
+        <li Class="JobGiver_WanderNearDutyLocation">
+          <wanderRadius>2</wanderRadius>
+        </li>
+      </subNodes>
+    </thinkNode>
+  </DutyDef>
+
+</Defs>

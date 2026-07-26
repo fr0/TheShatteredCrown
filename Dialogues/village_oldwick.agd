@@ -1,0 +1,177 @@
+# Old Wick - village elder of Harrowfield (Act 1 village).
+
+dialogue TSC_Dialogue_OldWick
+
+# Night visits: asleep node preempts everything (entries in order).
+entry asleep if sleeping()
+
+entry hub if flag(TSC_MetOldWick)
+
+== start ==
+The chair by the cottage hearth has clearly been that man's chair since before the hearth was laid. He might be the oldest human you've seen on this trip. He doesn't look up when you enter. He was already looking at where you'd stop.
+
+"Wick Alderman. The young ones say Old Wick, as if there were another." His voice is dry. "Seventy-two years in this valley, and I remember when the pass road carried kings' couriers instead of trouble. Sit. Or don't. Both tell me something."
+
+* [Sit.] "Then I'll give the chair a chance to talk." -> hub
+    do flag(TSC_MetOldWick); affinity(+5)
+* "Well met, elder. I'm the guild's courier, up from the pass." -> hub
+    do flag(TSC_MetOldWick)
+* "Another time, old one." -> end
+
+== hub ==
+The old man by his hearth doesn't look up, but he knows you're there. The grey cat on his lap looked up before you knocked.
+
+"Speak your words, I'll listen."
+
+* "What do you know about a nearby sanguophage crypt?" -> crypt
+    if flag(TSC_RitesDone) and not flag(TSC_WickCryptTold)
+* "Tell me again about the door in the hills." -> crypt_after
+    if flag(TSC_WickCryptTold) and not flag(TSC_WickConfessed)
+* "I found a journal, down in the caves under the well. Unsigned." -> journal
+    if flag(TSC_WeatheredJournalRead) and not flag(TSC_WickCryptTold)
+* "How is the watch, warden of Harrowfield?" -> penance_watch
+    if flag(TSC_WickPenance)
+* "What was this village like when you were young?" -> young
+* "Just passing through." -> end
+
+== penance_watch ==
+"Quiet," he says. "I mean to keep it that way." Betsy resettles on his lap; the hands on the stick are the same old hands. "The children think I have gotten stranger. Mara knows more than she says, as ever. And the door has not spoken since. It knows I am not coming back."
+
+"Ask at the well, courier, whenever you ride through. That was the terms."
+
+* "Keep it so, elder." -> hub
+
+== young ==
+
+"This village? Didn't exist then. But others did. Mostly mining outposts, which is what I spent my younger days on."
+
+"I've been all around this land, and just ended up here. Was less of a choice and more of a happenstance. Regardless, I don't mind it out here. The villagers take good care of me."
+
+"Oh, and I have my Betsy."
+
+* "Okay." -> hub
+* "Betsy?" -> betsy
+
+== betsy ==
+
+"My cat."
+
+* "Right." -> hub
+
+== asleep ==
+Old Wick sleeps in his chair by the banked hearth, upright, hands folded on his stick. It is impossible to tell at a glance whether he is asleep or just resting with his eyes closed. His breathing is light. Betsy, coiled on his lap, watches for him: two green eyes, unblinking, on you.
+
+* [Shake them awake.] -> woken
+    do wake()
+* [Leave them to their rest.] -> end
+
+== woken ==
+One eye opens. Old Wick regards you from the depths of the chair.
+
+"I wasn't asleep," he says, though he clearly was. "I was thinking. With my eyes closed. As it happens, I have now finished thinking, and the conclusion is: morning." The eye closes.
+
+* "Sorry. Go back to sleep." -> end
+* "Morning, then." -> end
+
+# ============ THE CRYPT TREE ============
+# The real thread. Old Wick tells what he knows (and what he WANTS done)
+# only once the courier has completed at least 3 of the six Harrowfield
+# sidequests - the earn-the-village's-trust gate. TSC_MaraCryptTip adds
+# the "you talk in your doze" opener. TSC_WickCryptTold marks the reveal
+# done and is the Act 2 hook: hang the crypt quest off it when it exists.
+== crypt ==
+The question lands in silence. Old Wick's hands still on his stick. For a moment the dry voice is gone; what's left is old.
+
+"...Now where," he says softly, "did a courier learn to ask *that*."
+
+* "Mara says you talk in your doze. Old words. Blood-drinkers, and a door." -> crypt_mara
+    if flag(TSC_MaraCryptTip)
+* "From your neighbors, elder. Ask them what my hands have been doing." -> crypt_tell
+    if min_quests_succeeded(3, TSC_Side_WetPlot, TSC_Side_RidgeLight, TSC_Side_ColdIron, TSC_Side_Children, TSC_Side_TrueStory, TSC_Side_WeedPatch)
+    do flag(TSC_WickCryptTold); grant_xp(150); affinity(+10)
+* "It doesn't matter where. Tell me what you know." -> crypt_refuse
+    if not min_quests_succeeded(3, TSC_Side_WetPlot, TSC_Side_RidgeLight, TSC_Side_ColdIron, TSC_Side_Children, TSC_Side_TrueStory, TSC_Side_WeedPatch)
+* "Forget I asked." -> hub
+
+== crypt_mara ==
+"...Mara." It is a dry sound, not quite a laugh. "A quiet woman who notices loud things. Aye, I talk in my sleep. Seventy-two years, a man's earned the right to talk to whoever's listening." The eye that fixes you is old but clear. "The trouble, courier, is that lately something has started talking *back*."
+
+He settles deeper into the chair, and Betsy resettles with him, and both of them watch you.
+
+* "Your neighbors speak for me, elder. Ask at the well." -> crypt_tell
+    if min_quests_succeeded(3, TSC_Side_WetPlot, TSC_Side_RidgeLight, TSC_Side_ColdIron, TSC_Side_Children, TSC_Side_TrueStory, TSC_Side_WeedPatch)
+    do flag(TSC_WickCryptTold); grant_xp(150); affinity(+10)
+* "Then tell me what it says." -> crypt_refuse
+    if not min_quests_succeeded(3, TSC_Side_WetPlot, TSC_Side_RidgeLight, TSC_Side_ColdIron, TSC_Side_Children, TSC_Side_TrueStory, TSC_Side_WeedPatch)
+* "Another time, elder." -> hub
+
+== crypt_refuse ==
+"No." It is not unkind, just immovable. "Words like these are keys, courier, and I am too old to hand keys to strangers passing through." He strokes the cat once, slowly. "You want to know what I know? Be less of a stranger. Help the folk of this village. Not once, for show. Enough that when I ask about you at the well, the answers come back warm."
+
+The eye closes. The audience, evidently, is over.
+
+* "Fair enough, elder. I'll be about it." -> hub
+* "Have it your way." -> hub
+
+== crypt_tell ==
+The old man is quiet for a long time. Then: "I did ask, you know. At the well." His hands fold on the stick. "So. Sixty years ago I swung a pick for the Crown survey, up the old road into the Harrow hills. And one spring we cut into a gallery that had no business being there. Dressed stone, courier, older than the kingdom that was paying us. And at the end of it, a door." The hearth pops. He does not blink. "Warm. Warm to the hand, underground, in winter."
+
+"We bricked it up and we swore, the four of us, and I am the last one left who swore. And lately," he says, softly, "the door has started swearing back. In my sleep. It knows my name, and it is *patient*."
+
+* "What do you want done about it?" -> crypt_want
+* "A warm door and bad dreams. That's all?" -> crypt_want
+
+== crypt_want ==
+"I want to be *done*, courier. Done being the last thing between that door and this village. So: find the old survey gallery. Go down. See whether our brickwork held." The stick taps the floor once. "If it held, mend it. If it didn't, then whatever has been drinking the pass's dead all these years has had sixty years to get thirsty, and someone younger than me must *finish* it. Seal it or end it, I won't instruct you. But this village is asleep on top of a door, and I am tired of being the only one who hears the knocking."
+
+* "I'll find your door, elder." -> hub
+    do affinity(+5); give_quest(TSC_Act1_Crypt)
+* "That's a heavy thing to hand a stranger." -> crypt_notstranger
+
+== crypt_notstranger ==
+For the first time since you entered, Old Wick smiles. It changes his whole face.
+
+"Courier," he says, "you stopped being a stranger three good turns ago. That was rather the point of waiting."
+
+* "So it was. I'll find your door." -> hub
+    do affinity(+5); give_quest(TSC_Act1_Crypt)
+
+== crypt_after ==
+"You know what I know," he says, before you have finished asking. "The gallery is up the old survey road. The door is warm. The brickwork is sixty years tired, and so am I." A pause. "When you find it, don't bring what you learn back to me at night. Some things I would rather hear in daylight, with the cat awake."
+
+* "Understood, elder." -> hub
+
+# ============ THE JOURNAL PATH ============
+# Alternative route: reading the weathered journal (TSC_WeatheredJournalRead)
+# lets the courier bring it to Old Wick. He is cagey; a PASSIVE Insight 8
+# (party best, no roll) is the only way through to the confession - he wrote
+# it, he is the sanguophage, and he will meet the party INSIDE the crypt.
+# This bypasses the help-the-villagers gate. Without the passive read there
+# is NO bypass: he deflects and the trust route stays the only way in.
+== journal ==
+"A journal." The dry voice does not change. "Miners were always leaving things down holes. Books. Tools. Friends. I'd not put much weight on any of it."
+
+He strokes the cat. He does not ask what the journal says.
+
+* "[Insight] You didn't ask what it says, elder. You already know." -> journal_pass
+    if passive(Insight, 8)
+* "Maybe so. Forget I mentioned it." -> hub
+
+== journal_pass ==
+He is quiet for a long time.
+
+"No," he says at last. "I didn't ask. I know what it says. I wrote it."
+
+"Wick Alderman, seventy-two years in the valley. A good name. I have had others." He opens his eyes. "You found them, then. Down where the water is. I laid them out myself. The chest was so that whoever found them would know what did it."
+
+"So. No more errands. The crypt is up the old survey road. I will not draw you a map; I will walk there myself. Go down, courier. I will be inside, past the brickwork. We will finish this."
+
+* "I'll be there." -> hub
+    do flag(TSC_WickCryptTold); flag(TSC_WickConfessed); flag(TSC_WickAtCrypt); grant_xp(150); affinity(+10); give_quest(TSC_Act1_Crypt)
+* "Give me one reason to trust you." -> journal_trust
+
+== journal_trust ==
+"None that would hold," he says. "I have had centuries of practice at being trusted. Everything honest I own is in that chest, and you have read it." The cat does not move. "Come armed, if it helps. I would."
+
+* "I'll be there." -> hub
+    do flag(TSC_WickCryptTold); flag(TSC_WickConfessed); flag(TSC_WickAtCrypt); grant_xp(150); affinity(+10); give_quest(TSC_Act1_Crypt)

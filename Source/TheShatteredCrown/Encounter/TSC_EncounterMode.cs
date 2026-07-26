@@ -81,6 +81,13 @@ namespace TheShatteredCrown
         private int turnIndex;
         private Pawn activePawn;
         private int turnStartTick = -1;
+        // Enemy pacing beats: held stillness after the camera lands on an
+        // enemy (see WHO is acting) and again after they finish (see what it
+        // did) - fast turns are good, illegible turns are not. Duration is a
+        // mod setting (default 0.5s); 0 disables the beats entirely.
+        private static int EnemyBeatTicks => TSC_Mod.Settings?.EnemyBeatTicks ?? 30;
+        private int enemyIntroEndTick = -1;
+        private int enemyOutroEndTick = -1;
         private int phaseEndTick;
         private int attackBlockedTick = -1;
         private int cycleTurnTicks;
@@ -201,6 +208,12 @@ namespace TheShatteredCrown
             }
             if (verb.IsMeleeAttack)
             {
+                // The pawn's melee-cooldown stat feeds the AP price: Flurry's
+                // 40% haste means cheaper attacks in TB, not just faster
+                // real-time swings (which AP-gating made irrelevant).
+                float cooldownFactor = verb.CasterIsPawn
+                    ? verb.CasterPawn.GetStatValue(StatDefOf.MeleeCooldownFactor)
+                    : 1f;
                 List<Tool> tools = verb.EquipmentSource?.def.tools;
                 Thing equipment = verb.EquipmentSource;
                 if (tools.NullOrEmpty() && verb.CasterIsPawn)
@@ -215,6 +228,15 @@ namespace TheShatteredCrown
                     {
                         equipment = primary;
                         tools = primary.def.tools;
+                    }
+                    else if (verb.CasterPawn.RaceProps.Humanlike)
+                    {
+                        // Unarmed humanlikes: fast weak jabs at a flat 2 AP
+                        // base. The weighted fist price came to 3 AP - one
+                        // bad punch a round, strictly worse than any knife,
+                        // which sank the Monk's whole fantasy. Under Flurry
+                        // (cooldown x0.6) this snaps to 1 AP punches.
+                        return SnapAp(2f * (RoundTicks / BaseAp) * cooldownFactor);
                     }
                     else
                     {
@@ -232,7 +254,7 @@ namespace TheShatteredCrown
                         weighted += tools[i].AdjustedCooldown(equipment) * w;
                         totalPower += w;
                     }
-                    return SnapAp((weighted / totalPower).SecondsToTicks());
+                    return SnapAp((weighted / totalPower).SecondsToTicks() * cooldownFactor);
                 }
             }
             VerbProperties props = verb.verbProps;
@@ -254,6 +276,24 @@ namespace TheShatteredCrown
         public static float AttackApCostFor(Pawn pawn)
         {
             return AttackApCost(pawn.TryGetAttackVerb(null));
+        }
+
+        /// <summary>
+        /// The pawn's MELEE price specifically, whatever they carry: a bow
+        /// wielder under Flurry punches at Flurry rates, and the label
+        /// should say so instead of quoting only the bow.
+        /// </summary>
+        public static float MeleeApCostFor(Pawn pawn)
+        {
+            Verb melee = pawn?.meleeVerbs?.TryGetMeleeVerb(null);
+            if (melee != null)
+            {
+                return AttackApCost(melee);
+            }
+            float cooldownFactor = pawn != null
+                ? pawn.GetStatValue(StatDefOf.MeleeCooldownFactor)
+                : 1f;
+            return SnapAp(2f * (RoundTicks / BaseAp) * cooldownFactor);
         }
 
         // ---------------------------------------------------------------- lifecycle
@@ -341,10 +381,13 @@ namespace TheShatteredCrown
             apMessaged.Clear();
             attackedJobs.Clear();
             pendingJobStop = null;
+            pendingJobStopJob = null;
             activeGroup.Clear();
             groupEndIndex = -1;
             turnStartTick = -1;
             attackBlockedTick = -1;
+            enemyIntroEndTick = -1;
+            enemyOutroEndTick = -1;
             approachMode = false;
             exitRequested = false;
             enemiesFirstNextCycle = false;
@@ -483,6 +526,11 @@ namespace TheShatteredCrown
 
         private void StartTurn(int index)
         {
+            // Stale beats must not leak into the next turn: an enemy dying
+            // mid-outro would otherwise leave a flag that swallows the next
+            // combatant's whole turn.
+            enemyIntroEndTick = -1;
+            enemyOutroEndTick = -1;
             while (index < initiative.Count)
             {
                 Pawn candidate = initiative[index];
@@ -539,6 +587,22 @@ namespace TheShatteredCrown
             turnStartTick = -1;
             attackBlockedTick = -1;
             cycleTurnsTaken++;
+            // Stunned = lose the turn, BG3 style. A stance stun only ticks
+            // down on the victim's own clock here (frozen pawns don't tick),
+            // so left alone it would stall this turn to the timeout and then
+            // outlive several rounds. Instead the turn is forfeit and one
+            // round's worth of stun burns off: "stunned 3 seconds" reads as
+            // "loses about two turns".
+            if (activePawn.stances?.stunner != null && activePawn.stances.stunner.Stunned)
+            {
+                DrainStun(activePawn, RoundStunTicks);
+                AddLog($"--- {activePawn.LabelShortCap} is stunned: turn lost ---",
+                    activePawn.IsColonistPlayerControlled ? LogPlayerColor : LogHostileColor);
+                Messages.Message($"{activePawn.LabelShortCap} is stunned and loses the turn.",
+                    activePawn, MessageTypeDefOf.SilentInput, historical: false);
+                StartTurn(index + 1);
+                return;
+            }
             // Fresh pool, plus up to 1 unspent AP banked from their last turn.
             float carry = ap.TryGetValue(activePawn, out float unspent)
                 ? Mathf.Clamp(unspent, 0f, 1f)
@@ -547,6 +611,7 @@ namespace TheShatteredCrown
             apMessaged.Remove(activePawn);
             attackedJobs.Remove(activePawn);
             pendingJobStop = null;
+            pendingJobStopJob = null;
             if (carry > 0.05f)
             {
                 ap[activePawn] = BaseAp + carry;
@@ -594,6 +659,18 @@ namespace TheShatteredCrown
                 if (Find.TickManager.Paused)
                 {
                     Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+                }
+                // Enemy turns are watched, not commanded: drop the selection
+                // so no stale gizmo bar hangs under someone else's move (the
+                // player-turn jump re-selects when control returns).
+                Find.Selector.ClearSelection();
+                // Frame the actor, then hold a beat before they move: the
+                // player turn gets a pause for orders, the enemy turn gets
+                // this instead.
+                CameraJumper.TryJump(activePawn, CameraJumper.MovementMode.Pan);
+                if (EnemyBeatTicks > 0)
+                {
+                    enemyIntroEndTick = Find.TickManager.TicksGame + EnemyBeatTicks;
                 }
                 Messages.Message($"Enemy turn: {activePawn.LabelShortCap}.",
                     activePawn, MessageTypeDefOf.SilentInput, historical: false);
@@ -674,6 +751,8 @@ namespace TheShatteredCrown
                 return;
             }
             groupLastMoveTick = Find.TickManager.TicksGame;
+            // Same as a single enemy turn: watched, not commanded.
+            Find.Selector.ClearSelection();
             AddLog($"--- enemies advance together ({activeGroup.Count}) ---", LogHostileColor);
             if (Find.TickManager.Paused)
             {
@@ -898,17 +977,102 @@ namespace TheShatteredCrown
             return p.CurJob != null && attackedJobs.TryGetValue(p, out Job j) && j == p.CurJob;
         }
 
+        /// <summary>
+        /// A fresh player order just became this pawn's CURRENT job. Vanilla
+        /// POOLS Job objects - the object whose attack just delivered can be
+        /// handed straight back for the next order - so the stale references
+        /// here (attackedJobs, pendingJobStopJob) can spuriously match the
+        /// brand-new order and kill it on its first swing ("sometimes my
+        /// attack order does nothing"). A fresh order has attacked zero
+        /// times by definition: clear its bookkeeping.
+        /// </summary>
+        public void NoteFreshOrder(Pawn p, Job job)
+        {
+            if (p == null || job == null)
+            {
+                return;
+            }
+            // Started immediately: whatever flag the pawn carried belonged
+            // to a previous job. Queued behind a move: only clear a flag
+            // that holds THIS exact object (recycled) - the current job's
+            // own flags still apply until it ends.
+            if (p.CurJob == job
+                || (attackedJobs.TryGetValue(p, out Job flagged) && flagged == job))
+            {
+                attackedJobs.Remove(p);
+            }
+            if (pendingJobStopJob == job)
+            {
+                pendingJobStop = null;
+                pendingJobStopJob = null;
+            }
+        }
+
         // The repeat attempt is detected INSIDE the job driver's tick (via the
         // verb prefix); ending the job right there crashes the driver's own
         // closure (NRE in JobDriver_AttackStatic). Stop it from the controller
         // tick instead, safely outside the driver.
+        // Remember the JOB, not just the pawn: the stop fires after the swing's
+        // cooldown clears, and by then the player may have ordered a NEW attack
+        // - which a pawn-only flag silently killed ("I told them to attack and
+        // they didn't; trying again worked").
         private Pawn pendingJobStop;
+        private Job pendingJobStopJob;
 
         public void RequestAttackJobStop(Pawn p)
         {
             if (p == activePawn)
             {
                 pendingJobStop = p;
+                pendingJobStopJob = p.CurJob;
+            }
+        }
+
+        // One skipped turn burns this much stun (2.5s - roughly what a turn
+        // represents). The skip in StartTurn is what makes stuns expire at
+        // all for frozen combatants, so the drain must not silently no-op:
+        // if the field ever vanishes in an update, ExpireStun clears it
+        // outright rather than leaving a pawn stunlocked forever.
+        private const int RoundStunTicks = 150;
+        private static readonly System.Reflection.FieldInfo StunTicksLeftField =
+            AccessTools.Field(typeof(StunHandler), "stunTicksLeft");
+
+        private static void DrainStun(Pawn p, int ticks)
+        {
+            StunHandler stunner = p?.stances?.stunner;
+            if (stunner == null || !stunner.Stunned)
+            {
+                return;
+            }
+            if (StunTicksLeftField != null && StunTicksLeftField.GetValue(stunner) is int left)
+            {
+                StunTicksLeftField.SetValue(stunner, Mathf.Max(0, left - ticks));
+            }
+            else
+            {
+                // Field renamed by an update: fast-forward the handler's own
+                // clock instead so the stun still expires.
+                for (int i = 0; i < ticks && stunner.Stunned; i++)
+                {
+                    stunner.StunHandlerTick();
+                }
+            }
+        }
+
+        /// <summary>
+        /// A hostile tried to ATTACK during the armed approach. The
+        /// engagement recheck runs every half second, and a lunging enemy
+        /// can fit a swing inside that window - so the attack attempt
+        /// itself is the engagement signal. The verb patch refuses the
+        /// swing; this expires the approach window so the very next
+        /// controller tick runs the standard "battle is joined" flip.
+        /// An ambush opens on initiative, not with a free hit.
+        /// </summary>
+        public void NoteHostileAttackDuringApproach(Pawn aggressor)
+        {
+            if (active && approachMode && aggressor != null && aggressor.Map == map)
+            {
+                phaseEndTick = Find.TickManager.TicksGame;
             }
         }
 
@@ -1019,7 +1183,38 @@ namespace TheShatteredCrown
                 return;
             }
             TickManager tm = Find.TickManager;
-            if (tm.CurTimeSpeed > TimeSpeed.Normal)
+            // The armed mode FOLLOWS THE PARTY: it is a standing preference,
+            // not a property of one battlefield. Saved armed on the crypt map
+            // and loaded on the surface (or walked out through a portal), the
+            // old code kept pointing at the empty map - the button read off,
+            // and the first click "turned off" a mode that looked off already.
+            // Outside a live engagement, quietly re-arm wherever the party is.
+            if (map.mapPawns.FreeColonistsSpawnedCount == 0 && (approachMode || !engagedHostiles))
+            {
+                Map partyMap = null;
+                foreach (Map candidate in Find.Maps)
+                {
+                    if (candidate.mapPawns.FreeColonistsSpawnedCount > 0)
+                    {
+                        partyMap = candidate;
+                        break;
+                    }
+                }
+                if (partyMap == null)
+                {
+                    return; // everyone is caravanning: stay armed, do nothing
+                }
+                map = partyMap;
+                approachMode = true;
+                phase = EncounterPhase.Environment;
+                phaseEndTick = tm.TicksGame + ApproachRecheckTicks;
+                BuildInitiative();
+                return;
+            }
+            // The 1x clamp is for RUNNING turns only: armed-but-unengaged
+            // (approach mode) is ordinary real time, and the player may fast
+            // forward the walk to the fight.
+            if (!approachMode && tm.CurTimeSpeed > TimeSpeed.Normal)
             {
                 tm.CurTimeSpeed = TimeSpeed.Normal;
             }
@@ -1114,6 +1309,27 @@ namespace TheShatteredCrown
                 AdvanceTurn();
                 return;
             }
+            // Pacing beats hold the whole battlefield still: outro first
+            // (turn is over, let the result land), then intro (actor framed,
+            // about to move). The decision clock starts after the intro.
+            if (enemyOutroEndTick >= 0)
+            {
+                if (tm.TicksGame >= enemyOutroEndTick)
+                {
+                    enemyOutroEndTick = -1;
+                    AdvanceTurn();
+                }
+                return;
+            }
+            if (enemyIntroEndTick >= 0)
+            {
+                if (tm.TicksGame < enemyIntroEndTick)
+                {
+                    return;
+                }
+                enemyIntroEndTick = -1;
+                turnStartTick = tm.TicksGame;
+            }
             if (turnStartTick < 0)
             {
                 turnStartTick = tm.TicksGame;
@@ -1123,16 +1339,41 @@ namespace TheShatteredCrown
 
             int elapsed = tm.TicksGame - turnStartTick;
             bool midSwing = p.stances?.curStance is Stance_Busy;
+            // Warmup is a swing in progress and must finish; COOLDOWN is
+            // recovery - the attack has already resolved, and a pawn who
+            // cannot buy another one is only performing patience. Turn-end
+            // checks gate on aiming, not on the whole busy stance.
+            bool aiming = p.stances?.curStance is Stance_Warmup;
             bool idle = p.CurJob == null
                 || ((p.CurJob.def == JobDefOf.Wait_Combat || p.CurJob.def == JobDefOf.Wait) && p.jobs.jobQueue.Count == 0);
             bool dry = ApOf(p) < DryThresholdAp;
-            if (elapsed >= MaxTurnTicks || (dry && !midSwing && elapsed >= DrySettleTicks))
+            // The dead-air case: an enemy with SOME AP left, but less than
+            // their attack costs, standing still with nothing to spend it on.
+            // They used to wait out the weapon cooldown plus the idle grace;
+            // now they pass as soon as the swing resolves.
+            bool enemySpent = !p.IsColonistPlayerControlled && !dry
+                && ApOf(p) < AttackApCostFor(p)
+                && (p.pather == null || !p.pather.MovingNow)
+                && (p.jobs?.jobQueue == null || p.jobs.jobQueue.Count == 0);
+            // Mod setting: with auto-end off, PLAYER turns never end on their
+            // own - not dry, not timed out. The re-pause below still hands
+            // control back; End turn is always manual. Enemies are unaffected.
+            bool autoEnd = !p.IsColonistPlayerControlled || (TSC_Mod.Settings?.autoEndTurn ?? true);
+            // Paying 2 AP for the extinguish roll can leave a pawn dry; the
+            // roll still finishes THIS turn - ending mid-tumble would freeze
+            // them (and their fire) half-done until next round.
+            bool rolling = p.CurJobDef == TSC_DefOf.TSC_BeatFlames;
+            if (autoEnd && !rolling && (elapsed >= MaxTurnTicks || ((dry || enemySpent) && !aiming && elapsed >= DrySettleTicks)))
             {
                 if (dry)
                 {
                     AddLog($"{p.LabelShortCap} is out of action points; turn ends.", LogWorldColor);
                 }
-                AdvanceTurn();
+                else if (enemySpent)
+                {
+                    AddLog($"{p.LabelShortCap} can't afford another attack; turn ends.", LogWorldColor);
+                }
+                EndTurnWithBeat(p);
                 return;
             }
             // One click = one attack: the job delivered its attack and tried
@@ -1142,11 +1383,17 @@ namespace TheShatteredCrown
                 if (pendingJobStop != p)
                 {
                     pendingJobStop = null;
+                    pendingJobStopJob = null;
                 }
                 else if (!midSwing)
                 {
+                    Job doomed = pendingJobStopJob;
                     pendingJobStop = null;
-                    if (p.CurJob != null && !IsMoveJob(p.CurJob.def))
+                    pendingJobStopJob = null;
+                    // Only the job that DELIVERED the attack ends here. If the
+                    // player already replaced it with a fresh order, that
+                    // order stands.
+                    if (doomed != null && p.CurJob == doomed && !IsMoveJob(doomed.def))
                     {
                         p.jobs.EndCurrentJob(JobCondition.Succeeded);
                     }
@@ -1155,7 +1402,7 @@ namespace TheShatteredCrown
             // A blocked (unaffordable) attack must not become a standing-still
             // loop: enemies pass the turn; players get the job cancelled so the
             // re-pause hands control back for whatever their remaining AP buys.
-            if (attackBlockedTick >= 0 && !midSwing && tm.TicksGame - attackBlockedTick >= DrySettleTicks)
+            if (attackBlockedTick >= 0 && !aiming && tm.TicksGame - attackBlockedTick >= DrySettleTicks)
             {
                 attackBlockedTick = -1;
                 if (p.IsColonistPlayerControlled)
@@ -1169,7 +1416,7 @@ namespace TheShatteredCrown
                 else
                 {
                     AddLog($"{p.LabelShortCap} can't afford another attack; turn ends.", LogWorldColor);
-                    AdvanceTurn();
+                    EndTurnWithBeat(p);
                     return;
                 }
             }
@@ -1199,8 +1446,23 @@ namespace TheShatteredCrown
             }
             else if (elapsed >= IdleGraceTicks)
             {
-                AdvanceTurn();
+                EndTurnWithBeat(p);
             }
+        }
+
+        /// <summary>
+        /// Enemy turns end on a held half-second so the result reads;
+        /// player turn ends stay instant (the player already knows what
+        /// they did).
+        /// </summary>
+        private void EndTurnWithBeat(Pawn p)
+        {
+            if (p != null && !p.IsColonistPlayerControlled && EnemyBeatTicks > 0)
+            {
+                enemyOutroEndTick = Find.TickManager.TicksGame + EnemyBeatTicks;
+                return;
+            }
+            AdvanceTurn();
         }
 
         private void MeterMovement(Pawn p)
@@ -1232,9 +1494,34 @@ namespace TheShatteredCrown
         {
             if (phase == EncounterPhase.Turn)
             {
+                // Cinematic hold: during an enemy intro/outro beat NOBODY
+                // moves, including the actor - that is what makes it a beat.
+                if (enemyIntroEndTick >= 0 || enemyOutroEndTick >= 0)
+                {
+                    return false;
+                }
                 return p == activePawn || activeGroup.Contains(p);
             }
             return !(combatants.Contains(p) && !p.Dead && !p.Downed);
+        }
+
+        /// <summary>
+        /// Fires obey turn time too. Pawns freeze between their turns but
+        /// fires are their own map Things ticking in REAL time, so a burning
+        /// combatant took fire damage through every other combatant's turn -
+        /// several rounds of burning per cycle. During a turn, a fire only
+        /// ticks if it is attached to a pawn currently allowed to tick (the
+        /// active combatant and their group); ground fires and everyone
+        /// else's burns advance in the environment phase, where the world
+        /// gets its seconds back. Approach mode is realtime: no freezing.
+        /// </summary>
+        public bool ShouldTickFire(Fire fire)
+        {
+            if (phase != EncounterPhase.Turn || approachMode)
+            {
+                return true;
+            }
+            return fire.parent is Pawn attached && ShouldTickPawn(attached);
         }
 
         public override void ExposeData()
@@ -1243,6 +1530,64 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref active, "active", defaultValue: false);
             Scribe_References.Look(ref map, "map");
             Scribe_Values.Look(ref cycle, "cycle", 1);
+            // Saved active-on-a-map-that-no-longer-exists (armed on a site
+            // map, left, saved): the live tick would clean this up, but the
+            // game LOADS PAUSED, so the stale state sat behind an off-looking
+            // button whose first click "turned off" a mode that looked off
+            // already. Clear it before the UI ever draws.
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && active
+                && (map == null || Find.Maps == null || !Find.Maps.Contains(map)))
+            {
+                active = false;
+                map = null;
+            }
+        }
+
+        /// <summary>
+        /// Vanilla's melee math, replicated exactly (Verb_MeleeAttack rolls
+        /// GetNonMissChance then GetDodgeChance): hit stat + light offset,
+        /// times one minus (dodge stat + light offset). Immobile targets
+        /// can't be missed; a target aiming a ranged weapon can't dodge.
+        /// The preview and the combat log both quote THIS, so the number on
+        /// screen is the number the dice actually use.
+        /// </summary>
+        public static float EffectiveMeleeHitChance(Pawn attacker, Pawn victim)
+        {
+            if (victim.Downed || !victim.Awake())
+            {
+                return 1f;
+            }
+            float hit = attacker.GetStatValue(StatDefOf.MeleeHitChance);
+            float dodge = victim.GetStatValue(StatDefOf.MeleeDodgeChance);
+            if (ModsConfig.IdeologyActive)
+            {
+                if (DarknessCombatUtility.IsOutdoorsAndLit(victim))
+                {
+                    hit += attacker.GetStatValue(StatDefOf.MeleeHitChanceOutdoorsLitOffset);
+                    dodge += victim.GetStatValue(StatDefOf.MeleeDodgeChanceOutdoorsLitOffset);
+                }
+                else if (DarknessCombatUtility.IsOutdoorsAndDark(victim))
+                {
+                    hit += attacker.GetStatValue(StatDefOf.MeleeHitChanceOutdoorsDarkOffset);
+                    dodge += victim.GetStatValue(StatDefOf.MeleeDodgeChanceOutdoorsDarkOffset);
+                }
+                else if (DarknessCombatUtility.IsIndoorsAndDark(victim))
+                {
+                    hit += attacker.GetStatValue(StatDefOf.MeleeHitChanceIndoorsDarkOffset);
+                    dodge += victim.GetStatValue(StatDefOf.MeleeDodgeChanceIndoorsDarkOffset);
+                }
+                else if (DarknessCombatUtility.IsIndoorsAndLit(victim))
+                {
+                    hit += attacker.GetStatValue(StatDefOf.MeleeHitChanceIndoorsLitOffset);
+                    dodge += victim.GetStatValue(StatDefOf.MeleeDodgeChanceIndoorsLitOffset);
+                }
+            }
+            if (victim.stances?.curStance is Stance_Busy busy && busy.verb != null
+                && !busy.verb.verbProps.IsMeleeAttack)
+            {
+                dodge = 0f;
+            }
+            return Mathf.Clamp01(hit) * (1f - Mathf.Clamp01(dodge));
         }
 
         public static bool IsMoveJob(JobDef def) => def == JobDefOf.Goto;
@@ -1318,11 +1663,15 @@ namespace TheShatteredCrown
             return cost;
         }
 
-        private const float PanelWidth = 160f;
+        // Widened from 160 for the buff/debuff icon column on the right.
+        private const float PanelWidth = 246f;
         private const float RowHeight = 30f;
         private const float HeaderHeight = 20f;
         private const float PortraitSize = 26f;
         private const int MaxRows = 14;
+        private const float EffectIconSize = 13f;
+        private const int MaxEffectIcons = 6;
+        private const float EffectAreaWidth = MaxEffectIcons * (EffectIconSize + 1f) + 4f;
         private static readonly Color PlayerBorder = new Color(0.45f, 0.62f, 1f);
         private static readonly Color HostileBorder = new Color(1f, 0.4f, 0.32f);
         private static readonly Color ActedTint = new Color(1f, 1f, 1f, 0.35f);
@@ -1730,9 +2079,7 @@ namespace TheShatteredCrown
             float chance = -1f;
             if (verb.IsMeleeAttack)
             {
-                float hit = Mathf.Clamp01(active.GetStatValue(StatDefOf.MeleeHitChance));
-                float dodge = Mathf.Clamp01(target.GetStatValue(StatDefOf.MeleeDodgeChance));
-                chance = hit * (1f - dodge);
+                chance = TSC_EncounterController.EffectiveMeleeHitChance(active, target);
                 text = $"hit ~{chance:P0} (melee)";
             }
             else if (!verb.CanHitTarget(target))
@@ -1960,15 +2307,16 @@ namespace TheShatteredCrown
                     : p.Faction == Faction.OfPlayer ? Color.white
                     : new Color(1f, 0.75f, 0.7f);
                 Text.Anchor = TextAnchor.MiddleLeft;
-                Widgets.Label(new Rect(tile.xMax + 5f, row.y, PanelWidth - PortraitSize - 12f, RowHeight),
+                Widgets.Label(new Rect(tile.xMax + 5f, row.y, PanelWidth - PortraitSize - EffectAreaWidth - 14f, RowHeight),
                     p.LabelShortCap);
                 GUI.color = Color.white;
+                DrawEffectIcons(p, row);
                 // Spell energy strip for classed pawns (max 0 = no classes, no bar).
                 float maxEnergy = TSC_ProgressionManager.Current.MaxEnergy(p);
                 if (maxEnergy > 0f)
                 {
                     float energy = TSC_ProgressionManager.Current.EnergyOf(p);
-                    Rect barBg = new Rect(tile.xMax + 5f, row.yMax - 6f, PanelWidth - PortraitSize - 14f, 3f);
+                    Rect barBg = new Rect(tile.xMax + 5f, row.yMax - 6f, PanelWidth - PortraitSize - EffectAreaWidth - 16f, 3f);
                     GUI.color = new Color(0.08f, 0.12f, 0.2f, 0.9f);
                     GUI.DrawTexture(barBg, BaseContent.WhiteTex);
                     GUI.color = acted && !isActive
@@ -1998,6 +2346,57 @@ namespace TheShatteredCrown
             }
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
+        }
+
+        /// <summary>
+        /// Buff/debuff chips on the right edge of a turn-order row: one small
+        /// lettered square per TEMPORARY hediff (anything with a disappear
+        /// timer - spell effects, psychic shock, invisibility...). Green fill
+        /// for buffs, red for debuffs, border in the effect's label color;
+        /// tooltip carries name, time left, scaled strength, and description.
+        /// </summary>
+        private static void DrawEffectIcons(Pawn p, Rect row)
+        {
+            List<Hediff> hediffs = p.health?.hediffSet?.hediffs;
+            if (hediffs == null)
+            {
+                return;
+            }
+            float rightX = row.xMax - 4f - EffectIconSize;
+            float iconY = row.y + (RowHeight - EffectIconSize) / 2f;
+            int drawn = 0;
+            for (int i = 0; i < hediffs.Count && drawn < MaxEffectIcons; i++)
+            {
+                Hediff hediff = hediffs[i];
+                HediffComp_Disappears timer = hediff.TryGetComp<HediffComp_Disappears>();
+                if (timer == null)
+                {
+                    continue;
+                }
+                Rect icon = new Rect(rightX - drawn * (EffectIconSize + 1f), iconY, EffectIconSize, EffectIconSize);
+                bool bad = hediff.def.isBad;
+                GUI.color = bad ? new Color(0.45f, 0.12f, 0.1f, 0.92f) : new Color(0.1f, 0.32f, 0.14f, 0.92f);
+                GUI.DrawTexture(icon, BaseContent.WhiteTex);
+                GUI.color = hediff.def.defaultLabelColor;
+                Widgets.DrawBox(icon, 1);
+                GUI.color = Color.white;
+                Text.Font = GameFont.Tiny;
+                Text.Anchor = TextAnchor.MiddleCenter;
+                string label = hediff.LabelBase;
+                Widgets.Label(icon, label.NullOrEmpty() ? "?" : label.Substring(0, 1).ToUpperInvariant());
+                string tip = $"{hediff.LabelCap}\n{timer.ticksToDisappear.ToStringTicksToPeriod()} remaining";
+                if (hediff is TSC_Hediff_Leveled && hediff.Severity > 1.001f)
+                {
+                    tip += $"\nStrength x{hediff.Severity:0.0#} (caster level)";
+                }
+                if (!hediff.def.description.NullOrEmpty())
+                {
+                    tip += $"\n\n{hediff.def.description}";
+                }
+                TooltipHandler.TipRegion(icon, tip);
+                drawn++;
+            }
+            GUI.color = Color.white;
         }
 
         public override void MapComponentOnGUI()
@@ -2142,6 +2541,15 @@ namespace TheShatteredCrown
             }
             float current = ctrl.ApOf(active);
             float attackCost = TSC_EncounterController.AttackApCostFor(active);
+            // A ranged wielder has TWO attack economies, and only the melee
+            // one hears Flurry: quote both, or "(atk 4)" over a hasted monk
+            // holding a bow reads as scaling being broken.
+            bool rangedHeld = active.equipment?.Primary?.def?.IsRangedWeapon ?? false;
+            float meleeCost = rangedHeld ? TSC_EncounterController.MeleeApCostFor(active) : attackCost;
+            float cheapest = Mathf.Min(attackCost, meleeCost);
+            string atkPart = rangedHeld
+                ? $"shoot {attackCost:0.#} / melee {meleeCost:0.#}"
+                : $"atk {attackCost:0.#}";
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleCenter;
             Vector2 pos = GenMapUI.LabelDrawPosFor(active, -1.5f);
@@ -2152,21 +2560,21 @@ namespace TheShatteredCrown
                 float remaining = current - planned;
                 label = $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} → ~{remaining:0.#}";
                 GUI.color = remaining < -0.01f ? OverColor
-                    : remaining < attackCost ? WarnColor
+                    : remaining < cheapest ? WarnColor
                     : AvailableColor;
             }
             else
             {
                 // Spell out the attack budget: seeing "needs X" beats doing
                 // the arithmetic mid-fight.
-                label = current < attackCost
-                    ? $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} (needs {attackCost:0.#} to attack)"
-                    : $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} (atk {attackCost:0.#})";
+                label = current < cheapest
+                    ? $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} (needs {cheapest:0.#} to attack)"
+                    : $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} ({atkPart})";
                 GUI.color = current <= 0f ? SpentColor
-                    : current < attackCost ? WarnColor
+                    : current < cheapest ? WarnColor
                     : AvailableColor;
             }
-            Widgets.Label(new Rect(pos.x - 80f, pos.y - 8f, 160f, 16f), label);
+            Widgets.Label(new Rect(pos.x - 100f, pos.y - 8f, 200f, 16f), label);
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
@@ -2178,13 +2586,23 @@ namespace TheShatteredCrown
     {
         public static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> gizmos, Pawn __instance)
         {
+            // During turns, fire-at-will is force-suppressed (see
+            // Patch_FireAtWill_TurnBasedSuppression) - a toggle that can't do
+            // anything is noise, so the button goes away entirely.
+            TSC_EncounterController hideCtrl = TSC_EncounterController.Current;
+            bool hideFireAtWill = hideCtrl != null && hideCtrl.Active && !hideCtrl.ApproachMode
+                && __instance.IsColonistPlayerControlled && hideCtrl.ActiveOn(__instance.Map);
             foreach (Gizmo gizmo in gizmos)
             {
+                if (hideFireAtWill && gizmo is Command_Toggle toggle && toggle.icon == TexCommand.FireAtWill)
+                {
+                    continue;
+                }
                 yield return gizmo;
             }
             // Deliberately NOT scenario-gated (user decision): turn-based combat
             // is a general feature of the mod, usable in any save.
-            if (!__instance.IsColonistPlayerControlled || !__instance.Drafted || __instance.Map == null)
+            if (!__instance.IsColonistPlayerControlled || __instance.Map == null)
             {
                 yield break;
             }
@@ -2194,12 +2612,23 @@ namespace TheShatteredCrown
                 yield break;
             }
             Map m = __instance.Map;
+            // Drafted pawns can ARM the mode; while it is ON, every colonist
+            // shows the toggle - otherwise undrafting the whole party left no
+            // way to end it.
+            if (!__instance.Drafted && !ctrl.ActiveOn(m))
+            {
+                yield break;
+            }
             yield return new Command_Toggle
             {
                 defaultLabel = "Turn-based mode",
-                defaultDesc = "Combatants (drafted pawns and hostiles) act one at a time in initiative order under an action-point budget; everyone else is frozen. Between cycles the world gets a few seconds to move. Stays armed between fights; toggle again to turn it off.",
+                defaultDesc = "Combatants (drafted pawns and hostiles) act one at a time in initiative order under an action-point budget; everyone else is frozen. Between cycles the world gets a few seconds to move. Stays armed between fights and follows the party between maps; toggle again to turn it off.",
                 icon = TexCommand.Attack,
-                isActive = () => ctrl.ActiveOn(m),
+                // The BUTTON is the standing preference: on if the mode is on
+                // anywhere. The armed map itself follows the party (see the
+                // retarget in WorldComponentTick) - showing per-map state here
+                // is what made a loaded save's button look off while armed.
+                isActive = () => ctrl.Active,
                 toggleAction = () => ctrl.ToggleOncePerClick(m),
             };
             if (ctrl.ActiveOn(m) && ctrl.ActivePawn == __instance)
@@ -2217,22 +2646,46 @@ namespace TheShatteredCrown
                 // beat-out-flames job, no AP cost.
                 if (__instance.HasAttachment(ThingDefOf.Fire))
                 {
+                    const float extinguishAp = 2f;
                     Pawn burning = __instance;
-                    yield return new Command_Action
+                    Command_Action extinguish = new Command_Action
                     {
-                        defaultLabel = "Extinguish fire",
-                        defaultDesc = "Stop and beat out the flames (vanilla self-extinguish). Costs no action points; anything queued is dropped.",
+                        defaultLabel = $"Extinguish fire ({extinguishAp:0.#} AP)",
+                        defaultDesc = "Stop, drop, and roll: spend the moment putting the flames out for certain. Anything queued is dropped.",
                         icon = ContentFinder<Texture2D>.Get("Things/Special/Fire/FireA", reportFailure: false)
                             ?? ContentFinder<Texture2D>.Get("Things/Special/Fire", reportFailure: false)
                             ?? TexCommand.ForbidOff,
                         action = () =>
                         {
+                            // Not TryTakeOrderedJob: vanilla refuses orders while
+                            // HasAttachment(Fire) - the one pawn this gizmo exists
+                            // for. StartJob skips that gate. AP charges only once
+                            // the roll is confirmed running.
                             burning.jobs?.ClearQueuedJobs();
-                            Job job = JobMaker.MakeJob(JobDefOf.ExtinguishSelf);
+                            Job job = JobMaker.MakeJob(TSC_DefOf.TSC_BeatFlames, burning);
                             job.playerForced = true;
-                            burning.jobs?.TryTakeOrderedJob(job);
+                            burning.jobs?.StartJob(job, JobCondition.InterruptForced,
+                                null, resumeCurJobAfterwards: false, cancelBusyStances: true);
+                            if (burning.CurJobDef != TSC_DefOf.TSC_BeatFlames)
+                            {
+                                Messages.Message($"{burning.LabelShortCap} can't start the roll right now.",
+                                    burning, MessageTypeDefOf.RejectInput, historical: false);
+                                return;
+                            }
+                            ctrl.SpendAp(burning, extinguishAp);
+                            ctrl.AddLog($"{burning.LabelShortCap} rolls out the flames ({extinguishAp:0.#} AP).",
+                                TSC_EncounterController.LogWorldColor);
+                            if (Find.TickManager.Paused)
+                            {
+                                Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+                            }
                         },
                     };
+                    if (ctrl.ApOf(burning) < extinguishAp)
+                    {
+                        extinguish.Disable($"Not enough AP ({ctrl.ApOf(burning):0.#}/{extinguishAp:0.#}). The flames wait for nobody; the roll waits for next turn.");
+                    }
+                    yield return extinguish;
                 }
             }
         }
@@ -2249,7 +2702,16 @@ namespace TheShatteredCrown
             {
                 return true;
             }
-            return ctrl.ShouldTickPawn(__instance);
+            if (ctrl.ShouldTickPawn(__instance))
+            {
+                return true;
+            }
+            // Frozen pawns skip Real FoW's visibility update too (it lives
+            // in their CompTick) - refresh it here or enemies stay invisible
+            // in plain sight all combat (and beyond: the mod's exact-match
+            // tick counter bricks permanently when skipped past).
+            TSC_Compat_RealFoW.RefreshFrozenPawnVisibility(__instance);
+            return false;
         }
     }
 
@@ -2263,7 +2725,73 @@ namespace TheShatteredCrown
             {
                 return true;
             }
-            return ctrl.ShouldTickPawn(__instance);
+            if (ctrl.ShouldTickPawn(__instance))
+            {
+                return true;
+            }
+            TSC_Compat_RealFoW.RefreshFrozenPawnVisibility(__instance);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Orders win while burning - for real this time. Vanilla's
+    /// BurningResponse subtree sits ABOVE order handling in the think tree:
+    /// a burning pawn drops everything to jump in water, beat flames, or
+    /// RUN RANDOMLY, which in turn-based play meant your pawn spent their
+    /// turn ignoring you. In an encounter, a player combatant's burning
+    /// panic is suppressed entirely; the explicit Extinguish gizmo is the
+    /// response, and choosing to shoot instead while alight is the player's
+    /// call to make. Enemies keep the panic (a flaming brigand bolting is
+    /// both vanilla and funny), and outside turn-based mode vanilla
+    /// behavior is untouched.
+    /// </summary>
+    [HarmonyPatch(typeof(ThinkNode_ConditionalBurning), "Satisfied")]
+    public static class Patch_BurningPanic_TurnBasedSuppression
+    {
+        public static void Postfix(Pawn pawn, ref bool __result)
+        {
+            if (!__result)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || pawn?.Map == null
+                || !pawn.IsColonistPlayerControlled || !ctrl.ActiveOn(pawn.Map))
+            {
+                return;
+            }
+            __result = false;
+        }
+    }
+
+    // Fire runs on the same turn clock as the pawn it burns: without these,
+    // a burning combatant cooked in REAL time through every other turn.
+    [HarmonyPatch(typeof(Fire), "Tick")]
+    public static class Patch_Fire_Tick_TurnFreeze
+    {
+        public static bool Prefix(Fire __instance)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || !__instance.Spawned || !ctrl.ActiveOn(__instance.Map))
+            {
+                return true;
+            }
+            return ctrl.ShouldTickFire(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Fire), "TickInterval")]
+    public static class Patch_Fire_TickInterval_TurnFreeze
+    {
+        public static bool Prefix(Fire __instance)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || !__instance.Spawned || !ctrl.ActiveOn(__instance.Map))
+            {
+                return true;
+            }
+            return ctrl.ShouldTickFire(__instance);
         }
     }
 
@@ -2342,6 +2870,39 @@ namespace TheShatteredCrown
     }
 
     /// <summary>
+    /// Spells take real casting time OUTSIDE turn-based mode: every ability
+    /// def carries a short warmup (0.25-2s) tuned for snappy turns; in
+    /// real-time play that reads as instant, so the warmup is multiplied
+    /// here. Applies to ALL ability casters (enemy hexers too - fair is
+    /// fair); turns keep the def values unchanged.
+    /// </summary>
+    [HarmonyPatch(typeof(Stance_Warmup), MethodType.Constructor,
+        new System.Type[] { typeof(int), typeof(LocalTargetInfo), typeof(Verb) })]
+    public static class Patch_StanceWarmup_RealTimeCastTime
+    {
+        public const float RealTimeCastFactor = 2.5f;
+
+        public static void Prefix(ref int ticks, Verb verb)
+        {
+            if (!(verb is Verb_CastAbility) || Verse.Current.Game == null)
+            {
+                return;
+            }
+            Map map = verb.CasterPawn?.Map;
+            if (map == null)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            bool turnBased = ctrl != null && ctrl.Active && !ctrl.ApproachMode && ctrl.ActiveOn(map);
+            if (!turnBased)
+            {
+                ticks = Mathf.RoundToInt(ticks * RealTimeCastFactor);
+            }
+        }
+    }
+
+    /// <summary>
     /// Unaffordable actions wear a red bar across the top of their gizmo:
     /// the active pawn's AP is below the cost, so clicking would only buy
     /// the "can't afford" message. Abilities price at the spell cost;
@@ -2368,6 +2929,15 @@ namespace TheShatteredCrown
             {
                 pawn = verbCommand.verb?.CasterPawn;
                 cost = pawn != null ? TSC_EncounterController.AttackApCostFor(pawn) : 0f;
+            }
+            else if (__instance is Command_Target && __instance.defaultLabel == "CommandMeleeAttack".Translate())
+            {
+                // The drafted "Melee attack" gizmo is a bare Command_Target
+                // with no pawn on it - but gizmos render for the selected
+                // pawn, so that IS the owner. Price the MELEE swing (a bow
+                // wielder's two economies differ; this button is the melee one).
+                pawn = Find.Selector.SingleSelectedThing as Pawn;
+                cost = pawn != null ? TSC_EncounterController.MeleeApCostFor(pawn) : 0f;
             }
             else
             {
@@ -2533,6 +3103,38 @@ namespace TheShatteredCrown
     /// AP; frozen pawns don't tick, so they burn until their turn comes -
     /// fire is round-damage, BG3 style.
     /// </summary>
+    /// <summary>
+    /// The intake half of "orders win": vanilla swallows EVERY player order
+    /// while the pawn has fire attached (IsCurrentJobPlayerInterruptible is
+    /// false for burning pawns). In real time the panicking pawn masks it;
+    /// in turn-based mode the panic is suppressed, so the gate left a
+    /// burning pawn standing there ignoring attack orders while their fire
+    /// ticked. Fire alone must not block orders - a genuinely
+    /// uninterruptible job still does.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.IsCurrentJobPlayerInterruptible))]
+    public static class Patch_OrdersWinWhileBurning
+    {
+        public static void Postfix(ref bool __result, Pawn ___pawn)
+        {
+            if (__result || ___pawn == null || Verse.Current.Game == null)
+            {
+                return;
+            }
+            Job cur = ___pawn.CurJob;
+            if (cur != null && !cur.def.playerInterruptible)
+            {
+                return; // refused for a real reason, not the fire
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.ActiveOn(___pawn.Map) || !___pawn.IsColonistPlayerControlled)
+            {
+                return;
+            }
+            __result = true;
+        }
+    }
+
     [HarmonyPatch(typeof(JobGiver_ExtinguishSelf), "TryGiveJob")]
     public static class Patch_ExtinguishSelf_OrdersWin
     {
@@ -2588,7 +3190,7 @@ namespace TheShatteredCrown
         /// unpauses the game by itself - right-click to move or attack, watch it
         /// happen, control returns on idle. The pause is invisible plumbing.
         /// </summary>
-        public static void Postfix(bool __result, Pawn ___pawn)
+        public static void Postfix(bool __result, Job job, Pawn ___pawn)
         {
             if (!__result || ___pawn == null || Verse.Current.Game == null)
             {
@@ -2599,6 +3201,9 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            // Pooled-Job hygiene: this order must not inherit a recycled
+            // object's "already attacked" flags.
+            ctrl.NoteFreshOrder(___pawn, job);
             if (___pawn == ctrl.ActivePawn && ___pawn.IsColonistPlayerControlled && Find.TickManager.Paused)
             {
                 Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
@@ -2644,11 +3249,105 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            float hit = Mathf.Clamp01(caster.GetStatValue(StatDefOf.MeleeHitChance));
-            float dodge = victim.Downed ? 0f : Mathf.Clamp01(victim.GetStatValue(StatDefOf.MeleeDodgeChance));
+            float effective = TSC_EncounterController.EffectiveMeleeHitChance(caster, victim);
             ctrl.AddLog(
-                $"{caster.LabelShortCap} → {victim.LabelShortCap}: melee {hit:P0} to hit, {dodge:P0} dodge → {(__result ? "connects" : "misses")}",
+                $"{caster.LabelShortCap} → {victim.LabelShortCap}: melee {effective:P0} effective → {(__result ? "connects" : "misses")}",
                 TSC_EncounterController.LogWorldColor);
+        }
+    }
+
+    /// <summary>
+    /// Floating "Miss" completes the feedback set: damage numbers float
+    /// (mod) and melee dodges float (vanilla), but a swing gone wide showed
+    /// nothing. Vanilla routes every melee outcome through CreateCombatLog
+    /// with a getter that picks the maneuver's rule pack - probing that
+    /// getter against a known maneuver identifies WHICH outcome this is.
+    /// Only the miss branch floats; dodge keeps vanilla's own "dodge" mote.
+    /// </summary>
+    [HarmonyPatch(typeof(Verb_MeleeAttack), "CreateCombatLog")]
+    public static class Patch_MeleeMiss_FloatText
+    {
+        public static readonly Color MissColor = new Color(0.85f, 0.85f, 0.85f);
+
+        private static ManeuverDef probeCached;
+
+        private static ManeuverDef ProbeManeuver()
+        {
+            if (probeCached == null)
+            {
+                foreach (ManeuverDef m in DefDatabase<ManeuverDef>.AllDefsListForReading)
+                {
+                    if (m.combatLogRulesMiss != null && m.combatLogRulesMiss != m.combatLogRulesDodge
+                        && m.combatLogRulesMiss != m.combatLogRulesHit
+                        && m.combatLogRulesMiss != m.combatLogRulesDeflect)
+                    {
+                        probeCached = m;
+                        break;
+                    }
+                }
+            }
+            return probeCached;
+        }
+
+        public static void Postfix(Verb_MeleeAttack __instance, System.Func<ManeuverDef, RulePackDef> rulePackGetter)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            Pawn caster = __instance.CasterPawn;
+            if (ctrl == null || !ctrl.Active || caster == null || !ctrl.ActiveOn(caster.Map))
+            {
+                return;
+            }
+            if (!(__instance.CurrentTarget.Thing is Pawn victim) || !victim.Spawned)
+            {
+                return;
+            }
+            ManeuverDef probe = ProbeManeuver();
+            if (probe == null || rulePackGetter(probe) != probe.combatLogRulesMiss)
+            {
+                return;
+            }
+            MoteMaker.ThrowText(victim.DrawPos, victim.Map, "Miss", MissColor);
+        }
+    }
+
+    /// <summary>
+    /// The ranged half: a projectile that lands on anything other than its
+    /// intended pawn floats "Miss" over that pawn. Shield blocks are not
+    /// misses, ground-targeted shots have no intended pawn, and explosive
+    /// projectiles are skipped (the blast may still connect).
+    /// </summary>
+    [HarmonyPatch(typeof(Projectile), "Impact")]
+    public static class Patch_RangedMiss_FloatText
+    {
+        private static readonly AccessTools.FieldRef<Projectile, Thing> LauncherRef =
+            AccessTools.FieldRefAccess<Projectile, Thing>("launcher");
+        private static readonly AccessTools.FieldRef<Projectile, LocalTargetInfo> IntendedRef =
+            AccessTools.FieldRefAccess<Projectile, LocalTargetInfo>("intendedTarget");
+
+        public static void Postfix(Projectile __instance, Thing hitThing, bool blockedByShield)
+        {
+            if (blockedByShield || Verse.Current.Game == null)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active)
+            {
+                return;
+            }
+            if (__instance.def?.projectile != null && __instance.def.projectile.explosionRadius > 0.01f)
+            {
+                return;
+            }
+            if (!(LauncherRef(__instance) is Pawn) || !(IntendedRef(__instance).Thing is Pawn victim))
+            {
+                return;
+            }
+            if (hitThing == victim || victim.Dead || !victim.Spawned || !ctrl.ActiveOn(victim.Map))
+            {
+                return;
+            }
+            MoteMaker.ThrowText(victim.DrawPos, victim.Map, "Miss", Patch_MeleeMiss_FloatText.MissColor);
         }
     }
 
@@ -2699,9 +3398,69 @@ namespace TheShatteredCrown
         }
     }
 
+    /// <summary>
+    /// Mod setting follow-through: combat skill XP scales with the same
+    /// turn-based damage multiplier. At x0.5 damage a fight takes twice the
+    /// swings, so unscaled per-swing XP would double what each fight
+    /// teaches. Melee and Shooting only, positive XP only (decay untouched),
+    /// and only while turns are running (approach mode and out-of-combat
+    /// learning are exempt) - the same gate as the damage patch below.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_SkillTracker), nameof(Pawn_SkillTracker.Learn))]
+    public static class Patch_SkillLearn_TbDamageScale
+    {
+        private static readonly AccessTools.FieldRef<Pawn_SkillTracker, Pawn> PawnRef =
+            AccessTools.FieldRefAccess<Pawn_SkillTracker, Pawn>("pawn");
+
+        public static void Prefix(Pawn_SkillTracker __instance, SkillDef sDef, ref float xp)
+        {
+            if (xp <= 0f || (sDef != SkillDefOf.Melee && sDef != SkillDefOf.Shooting))
+            {
+                return;
+            }
+            TSC_Settings settings = TSC_Mod.Settings;
+            if (settings == null || Mathf.Abs(settings.tbDamageFactor - 1f) < 0.005f)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || ctrl.ApproachMode)
+            {
+                return;
+            }
+            Pawn pawn = PawnRef(__instance);
+            if (pawn == null || !ctrl.ActiveOn(pawn.MapHeld))
+            {
+                return;
+            }
+            xp *= settings.tbDamageFactor;
+        }
+    }
+
     [HarmonyPatch(typeof(Thing), nameof(Thing.TakeDamage))]
     public static class Patch_TakeDamage_LogNumbers
     {
+        /// <summary>
+        /// Mod setting: global damage multiplier while turns are RUNNING
+        /// (both sides; approach mode is real time and exempt). Applied
+        /// before armor so soak/deflect math sees the scaled hit.
+        /// </summary>
+        public static void Prefix(Thing __instance, ref DamageInfo dinfo)
+        {
+            TSC_Settings settings = TSC_Mod.Settings;
+            if (settings == null || Mathf.Abs(settings.tbDamageFactor - 1f) < 0.005f)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || !ctrl.Active || ctrl.ApproachMode
+                || !(__instance is Pawn victim) || !ctrl.ActiveOn(victim.MapHeld))
+            {
+                return;
+            }
+            dinfo.SetAmount(dinfo.Amount * settings.tbDamageFactor);
+        }
+
         public static void Postfix(Thing __instance, DamageInfo dinfo, DamageWorker.DamageResult __result)
         {
             TSC_EncounterController ctrl = TSC_EncounterController.Instance;
@@ -2836,6 +3595,16 @@ namespace TheShatteredCrown
             // one who walks INTO range mid-phase waits for a real turn.
             if (ctrl.IsGroupMover(caster))
             {
+                __result = false;
+                return false;
+            }
+            // Ambush guard: during the ARMED approach a hostile's attack is
+            // itself the engagement signal - refuse the swing and let the
+            // controller open turn order. No free hits inside the recheck gap.
+            if (ctrl.Active && ctrl.ApproachMode && ctrl.ActiveOn(caster.Map)
+                && caster.Faction != Faction.OfPlayer && caster.HostileTo(Faction.OfPlayer))
+            {
+                ctrl.NoteHostileAttackDuringApproach(caster);
                 __result = false;
                 return false;
             }

@@ -20,12 +20,22 @@ namespace TheShatteredCrown
         public ThingDef npcAnchorThing;
         public QuestScriptDef introQuest;
 
+        /// <summary>The watchtower generates exactly once, ever.</summary>
+        private bool towerGenerated;
+
         public override void GenerateIntoMap(Map map)
         {
-            if (towerLayout == null || map != Find.AnyPlayerHomeMap)
+            // GenerateIntoMap runs for EVERY generated map, and in a traveling
+            // scenario every camp becomes a player home map - which used to
+            // stamp a fresh watchtower (and vault chest with the map case)
+            // onto each one. Only the original starting map, only once:
+            // GameInitData exists solely during new-game creation.
+            if (towerLayout == null || towerGenerated || Find.GameInitData == null
+                || map != Find.AnyPlayerHomeMap)
             {
                 return;
             }
+            towerGenerated = true;
             // GenStep_AncientRuins reads its layout from a private, XML-loaded
             // field; set it by reflection and run the genstep on the player map.
             GenStep_AncientRuins genStep = new GenStep_AncientRuins();
@@ -107,6 +117,7 @@ namespace TheShatteredCrown
             Scribe_Defs.Look(ref towerNpc, "towerNpc");
             Scribe_Defs.Look(ref npcAnchorThing, "npcAnchorThing");
             Scribe_Defs.Look(ref introQuest, "introQuest");
+            Scribe_Values.Look(ref towerGenerated, "towerGenerated");
         }
     }
 }

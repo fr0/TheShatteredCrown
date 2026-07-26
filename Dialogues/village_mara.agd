@@ -1,0 +1,156 @@
+# Mara Thistledown - farmer of Harrowfield (Act 1 village).
+
+dialogue TSC_Dialogue_Mara
+
+# Night visits: asleep node preempts everything (entries in order).
+entry asleep if sleeping()
+
+entry hub if flag(TSC_MetMara)
+
+== start ==
+The woman works steady through the rows. She finishes her row before acknowledging you, which takes a while, and is clearly the point.
+
+"Mara Thistledown." She jerks her chin toward the drooping man two fields over. "His wife. Somebody has to be." The words have no heat in them at all; her eyes stay on her work. "Talk while I weed, if you're talking."
+
+* "I can weed and talk both, if you'll point me at a row." -> hub
+    do flag(TSC_MetMara); affinity(+5)
+* "I'm from the guild, up the pass road. Just introducing myself." -> hub
+    do flag(TSC_MetMara)
+* "Another time, then." -> end
+
+== hub ==
+Mara doesn't stop working.
+
+"Talk if you must, but the weeds won't pull themselves."
+
+* "What do you know about a nearby sanguophage crypt?" -> crypt
+    if flag(TSC_RitesDone)
+* "I found an old journal in the caves under the well. Unsigned. Does it mean anything to you?" -> journal
+    if flag(TSC_WeatheredJournalRead)
+* "I'm looking for work." -> patch_offer
+    if not quest_active(TSC_Side_WeedPatch) and not quest_succeeded(TSC_Side_WeedPatch)
+* "Show me this patch of yours, Mara." -> patch_look
+    if quest_active(TSC_Side_WeedPatch)
+* "Just passing through." -> end
+
+== asleep ==
+Mara sleeps in perfect stillness, hands folded. Her sleep is methodical, without waste.
+
+* [Shake them awake.] -> woken
+    do wake()
+* [Leave them to their rest.] -> end
+
+== woken ==
+Mara wakes instantly. She looks at you, checks that nothing is burning, and delivers her verdict.
+
+"The weeds sleep. I sleep. Learn from us." She turns over.
+
+* "Sorry. Go back to sleep." -> end
+* "Morning, then." -> end
+
+== crypt ==
+"No."
+
+The answer comes before your question is quite finished. Mara pulls the next weed with slightly more force than the weed requires.
+
+* "That was a very fast no, Mara." -> crypt_press
+    check Insight 8 -> crypt_press | crypt_miss
+* "Fair enough." -> hub
+
+== crypt_press ==
+You catch it: her rhythm broke. One weed, missed, then pulled twice. Mara Thistledown does not miss weeds. She knows you caught it, too, and stands up straight for the first time since you've known her.
+
+"...It's not my business to spread. And it's not knowledge, it's mumbling."
+
+* "Whose mumbling, Mara?" -> crypt_reveal
+* "Keep it, then. I'll not pry." -> hub
+    do affinity(+5)
+
+== crypt_reveal ==
+She looks toward the elder's cottage, and her voice drops to the register people reserve for other folks' troubles.
+
+"Old Wick. He talks in his sleep, by his hearth, and lately it's been... old words. Blood-drinkers. A door in the hills that wants opening, or wants *not* opening; it changes." She takes up her weeding again, firmly. "That's all I know and more than I wanted to. Ask *him*. And don't say it came from me."
+
+* "Not a word, Mara. Thank you." -> hub
+    do flag(TSC_MaraCryptTip); grant_xp(25)
+
+== crypt_miss ==
+Mara pulls the next weed with perfect rhythm, and the one after.
+
+"If crypts were near my rows, I'd have weeded them. No."
+
+There is nothing else to read in her. Possibly there was never anything at all.
+
+* "Right. Carry on." -> hub
+
+== journal ==
+Mara's hands still for a moment.
+
+"Can't help you with a journal. But I'll say it once more: Old Wick talks in his doze. Old words, old places." She goes back to the row. "If anyone in this valley has an old story written down, it's him."
+
+* "Alright, Mara." -> hub
+
+== patch_offer ==
+Mara stops weeding. On any other day that would be remarkable.
+
+"There's a patch. Field's edge, by the boundary stone." She wipes her hands, slowly. "I pull it, it's back by morning. I pull it with the root, it's back by morning. I salted a handspan of it, and it came back *through* the salt." She looks at you without any expression at all. "I don't lose to weeds. So it isn't a weed. Which makes it yours."
+
+* "I'll look at your patch, Mara." -> hub
+    do give_quest(TSC_Side_WeedPatch)
+* "Everything loses to weeds eventually." -> hub
+
+== patch_look ==
+The patch sits at the field's edge: a handspan of pale growth, silver-veined, threading up through turned earth and salt line alike. It is, you realize, growing in a rough circle.
+
+* "Kneel and read it properly." -> patch_id
+    check Nature 7 -> patch_id | patch_dumb
+* "Rip it out and be done." -> patch_dumb
+
+== patch_id ==
+You know it before your knee touches the dirt: remembrance moss. Silver veins, the smell of rain on old stone. The barrow-growth, the grave-growth - the moss that grows *only* where the dead lie long undisturbed.
+
+Growing at the edge of Mara Thistledown's potato field. Where nothing is buried. That anyone knows of.
+
+* "Burn it, Mara. Salt won't answer what this is." -> patch_burned
+* "Dig at the roots first. Carefully." -> patch_dig
+    check Investigation 7 -> patch_dig | patch_shallow
+
+== patch_dig ==
+A hand's depth. Two. Then your fingers find it: bone. Old bone, laid straight, undisturbed - the corner of something *orderly*. Not a lost lamb, not a plague pit. A grave, made properly, by people who knew what they were doing, older than the village that doesn't remember it.
+
+The moss circle marks it exactly.
+
+* "Burn the moss. Let them lie unmarked, as someone intended." -> patch_burned
+    do flag(TSC_PatchGrave); grant_xp(25)
+* "Take a cutting first. Knowledge shouldn't burn." -> patch_cutting
+    do flag(TSC_PatchGrave); grant_xp(25)
+
+== patch_shallow ==
+You dig a polite hole and find roots, worms, and the strong impression that the ground is more patient than you are.
+
+* "Burn it, then. Whatever it is." -> patch_burned
+
+== patch_dumb ==
+It comes up easy, roots and all, the way it apparently always does. By the look Mara gives the cleared ground, you both know it's a rehearsal.
+
+* "If it's back tomorrow, burn the patch whole." -> patch_burned
+
+== patch_burned ==
+It burns wrong: slow, blue at the root, with a smell like rain on old stone. When it's done, the circle of ash sits on the field edge, still and gray.
+
+Mara watches until the last of it goes out, then takes up her hoe.
+
+"Good," she says. And then, because she is fair: "Thank you."
+
+* "Watch that ground, Mara. If it returns, I want to know." -> hub
+    do signal(TSC_Side_WeedPatch, TSC_PatchDone); flag(TSC_PatchBurned); affinity(+5)
+
+== patch_cutting ==
+You take a cutting, roots wrapped in wet cloth, and Mara watches you pocket it with the expression of a woman filing paperwork about it.
+
+"Burn the rest," she says. It is not a request.
+
+The rest burns wrong: slow, blue at the root. Mara watches until the last of it goes out.
+
+* "The rest is ash, Mara. My word on it." -> hub
+    do signal(TSC_Side_WeedPatch, TSC_PatchDone); give_item(TSC_RemembranceMoss, 3)

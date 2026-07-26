@@ -46,6 +46,41 @@ namespace TheShatteredCrown
         /// </summary>
         public System.Collections.Generic.List<TSC_MinSkill> minSkills;
 
+        /// <summary>Fixed age (biological AND chronological). 0 = roll normally. Villager children use ~13-14 (teens work without Biotech).</summary>
+        public float biologicalAge;
+
+        /// <summary>Set on ONE side of a married pair: when this character generates and the partner already exists, the spouse relation is linked (order-safe - whichever generates second completes the link).</summary>
+        public NamedNpcDef spouse;
+
+        /// <summary>Makes this character a standing trader (Haldor the smith): vanilla "Trade with X" right-click, stock from this TraderKindDef, restocked whenever they respawn sold out.</summary>
+        public TraderKindDef traderKind;
+
+        /// <summary>Companion animal (Old Wick's cat Betsy): spawned beside them, bonded, and sharing their daily routine. Regenerated each map visit like the grove crows.</summary>
+        public PawnKindDef petKind;
+        public string petName;
+
+        /// <summary>Stays home around the clock (Old Wick): no day work spot, just the hearth. Their pet stays in with them.</summary>
+        public bool homebody;
+
+        /// <summary>While a quest from this script is ongoing, this character does NOT spawn as a village resident - the quest owns their whereabouts (the Root children in the hills).</summary>
+        public QuestScriptDef awayWhileQuestActive;
+
+        /// <summary>
+        /// Goes missing between visits: once this flag is set, the character
+        /// no longer spawns as a resident (until backAfterQuest succeeds).
+        /// The kids slip the fence after the player has met Hessa; the next
+        /// map regeneration finds them gone - no on-screen vanish.
+        /// </summary>
+        [NoTranslate]
+        public string awayIfFlag;
+
+        /// <summary>Ends the awayIfFlag absence: once this quest has SUCCEEDED, they spawn at home again (rescued).</summary>
+        public QuestScriptDef backAfterQuest;
+
+        /// <summary>Set when the genstep skips them as away - the "they're actually gone" announcement that gates the quest offer.</summary>
+        [NoTranslate]
+        public string setFlagWhenAway;
+
         /// <summary>
         /// Optional exact weapon, replacing whatever the pawn kind generates.
         /// Keeps the character's gear consistent with how dialogue describes them.

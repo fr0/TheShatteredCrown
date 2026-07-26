@@ -16,6 +16,8 @@ namespace TheShatteredCrown
     public class DialogueStateManager : WorldComponent
     {
         private HashSet<string> flags = new HashSet<string>();
+        /// <summary>Failed retryable checks: key -> game tick when retrying is allowed again.</summary>
+        private Dictionary<string, int> retryAtTicks = new Dictionary<string, int>();
         private Dictionary<string, Pawn> namedNpcs = new Dictionary<string, Pawn>();
         private HashSet<string> firedInitiations = new HashSet<string>();
         private Pawn protagonist;
@@ -54,6 +56,24 @@ namespace TheShatteredCrown
             }
         }
 
+        // ------------------------------------------------ retryable check cooldowns
+
+        /// <summary>Starts a retry cooldown: the check stays hidden for this many in-game hours.</summary>
+        public void StartRetryCooldown(string key, float hours)
+        {
+            if (!key.NullOrEmpty())
+            {
+                retryAtTicks[key] = Find.TickManager.TicksGame + (int)(hours * GenDate.TicksPerHour);
+            }
+        }
+
+        public bool IsCoolingDown(string key)
+        {
+            return !key.NullOrEmpty()
+                && retryAtTicks.TryGetValue(key, out int at)
+                && Find.TickManager.TicksGame < at;
+        }
+
         /// <summary>
         /// The one true pawn for this story character. Generated (with the def's
         /// fixed name/gender) on first request and kept alive as a world pawn;
@@ -78,7 +98,31 @@ namespace TheShatteredCrown
             {
                 request.FixedGender = def.gender;
             }
+            if (def.biologicalAge > 0f)
+            {
+                request.FixedBiologicalAge = def.biologicalAge;
+                request.FixedChronologicalAge = def.biologicalAge;
+            }
             Pawn pawn = PawnGenerator.GeneratePawn(request);
+            // Married pairs: whichever half generates second completes the
+            // link (the def sets spouse on one side only).
+            Pawn partner = def.spouse != null ? GetNamedNpcIfExists(def.spouse) : null;
+            if (partner == null)
+            {
+                foreach (NamedNpcDef other in DefDatabase<NamedNpcDef>.AllDefsListForReading)
+                {
+                    if (other.spouse == def)
+                    {
+                        partner = GetNamedNpcIfExists(other);
+                        break;
+                    }
+                }
+            }
+            if (partner != null && !partner.Dead && pawn.relations != null && partner.relations != null
+                && !pawn.relations.DirectRelationExists(PawnRelationDefOf.Spouse, partner))
+            {
+                pawn.relations.AddDirectRelation(PawnRelationDefOf.Spouse, partner);
+            }
             pawn.Name = def.MakeName();
             // Fixed backstories: bio text and work-tags follow the def; the
             // rolled skills stay (our proficiency/class systems carry the
@@ -241,6 +285,46 @@ namespace TheShatteredCrown
 
         // ---------------------------------------------------------------- initiated dialogue
 
+        /// <summary>
+        /// Named characters must KEEP their unique pawn kinds: the whole
+        /// dialogue layer (talk trees, initiated camp talks, the trader and
+        /// trade-discount lookups) hangs off kindDef. Some recruit paths
+        /// normalize a joined pawn's kind to Colonist (observed in play: Bran
+        /// and Maewyn both drifted, which silently killed their camp talks
+        /// forever), so drift is healed on load and before each hourly
+        /// initiation check.
+        /// </summary>
+        private void HealNamedNpcKinds()
+        {
+            foreach (KeyValuePair<string, Pawn> entry in namedNpcs)
+            {
+                Pawn pawn = entry.Value;
+                if (pawn == null || pawn.Dead)
+                {
+                    continue;
+                }
+                NamedNpcDef def = DefDatabase<NamedNpcDef>.GetNamedSilentFail(entry.Key);
+                if (def?.kind != null && pawn.kindDef != def.kind)
+                {
+                    Log.Message($"[The Shattered Crown] Restoring {pawn.LabelShortCap}'s pawn kind ({pawn.kindDef?.defName ?? "null"} -> {def.kind.defName}).");
+                    pawn.ChangeKind(def.kind);
+                    // Kind changes on a spawned pawn can leave the render tree
+                    // uninitialized ("Node is null ... EnsureGraphicsInitialized"
+                    // during parallel pre-draw); force a rebuild.
+                    if (pawn.Spawned)
+                    {
+                        pawn.Drawer?.renderer?.SetAllGraphicsDirty();
+                    }
+                }
+            }
+        }
+
+        public override void FinalizeInit(bool fromLoad)
+        {
+            base.FinalizeInit(fromLoad);
+            HealNamedNpcKinds();
+        }
+
         public override void WorldComponentTick()
         {
             base.WorldComponentTick();
@@ -248,6 +332,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            HealNamedNpcKinds();
             // Wherever the party is: home maps, quest sites, encampments. This
             // scenario is a traveling one, so home-only would almost never fire.
             // Threats pause it.
@@ -317,7 +402,10 @@ namespace TheShatteredCrown
                     {
                         continue;
                     }
-                    if (!Rand.MTBEventOccurs(init.mtbDays, GenDate.TicksPerDay, CheckIntervalTicks))
+                    // Rolls only happen during night rest (~6 of 24 hourly
+                    // checks), so compress the mtb to keep the road cadence
+                    // matching the camp cadence.
+                    if (!Rand.MTBEventOccurs(init.mtbDays * 0.25f, GenDate.TicksPerDay, CheckIntervalTicks))
                     {
                         continue;
                     }
@@ -387,7 +475,12 @@ namespace TheShatteredCrown
                 }
                 pendingInitiations[npc] = init.dialogue;
                 Verse.AI.Job job = JobMaker.MakeJob(TSC_DefOf.TSC_InitiateTalk, target);
-                npc.jobs.TryTakeOrderedJob(job, Verse.AI.JobTag.Misc);
+                if (!npc.jobs.TryTakeOrderedJob(job, Verse.AI.JobTag.Misc))
+                {
+                    // Job refused: clear the pending entry or this pawn's
+                    // initiations would be blocked for the rest of the session.
+                    pendingInitiations.Remove(npc);
+                }
                 return;
             }
         }
@@ -450,6 +543,11 @@ namespace TheShatteredCrown
         {
             base.ExposeData();
             Scribe_Collections.Look(ref flags, "flags", LookMode.Value);
+            Scribe_Collections.Look(ref retryAtTicks, "retryAtTicks", LookMode.Value, LookMode.Value);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && retryAtTicks == null)
+            {
+                retryAtTicks = new Dictionary<string, int>();
+            }
             // Tolerant manual scribing: reference-valued dictionaries REQUIRE
             // working lists (the plain Look overload errors and the dict was
             // silently never saved). Null pawns (long-gone characters) are

@@ -30,7 +30,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            float remaining = Props.healAmount;
+            float remaining = Props.healAmount * TSC_SpellScaling.Factor(parent.pawn, parent.def);
             List<Hediff_Injury> injuries = new List<Hediff_Injury>();
             pawn.health.hediffSet.GetHediffs(ref injuries);
             injuries.SortByDescending(injury => injury.Severity);
@@ -135,6 +135,8 @@ namespace TheShatteredCrown
         public bool includeCaster = true;
         /// <summary>Spell energy granted to each affected pawn (never the caster - no self-refunds).</summary>
         public float energyRestore;
+        /// <summary>Per-pawn fleck on application (the psycast skip distortion). Turn OFF for spells with their own visual identity.</summary>
+        public bool touchMark = true;
 
         public CompProperties_TSC_AreaHediff()
         {
@@ -189,11 +191,13 @@ namespace TheShatteredCrown
                     pawn.health.RemoveHediff(existing);
                 }
                 pawn.health.AddHediff(Props.hediff);
+                float scale = TSC_SpellScaling.Factor(caster, parent.def);
+                TSC_SpellScaling.SetMagnitude(pawn, Props.hediff, scale);
                 if (Props.energyRestore > 0f && pawn != caster)
                 {
-                    TSC_ProgressionManager.Current.RestoreEnergy(pawn, Props.energyRestore);
+                    TSC_ProgressionManager.Current.RestoreEnergy(pawn, Props.energyRestore * scale);
                 }
-                if (pawn.Spawned)
+                if (Props.touchMark && pawn.Spawned)
                 {
                     FleckMaker.ThrowMetaIcon(pawn.Position, map, Props.enemiesOnly ? FleckDefOf.IncapIcon : FleckDefOf.PsycastSkipInnerExit);
                 }
@@ -203,11 +207,28 @@ namespace TheShatteredCrown
 
     // ---------------------------------------------------------------- vfx
 
+    /// <summary>
+    /// Visual identity per spell family - the psycast distortion ring reads
+    /// as "generic magic" and loses meaning when every buff pops it.
+    /// </summary>
+    public enum TSC_VfxStyle
+    {
+        /// <summary>Tinted psycast-style distortion ring (the default).</summary>
+        Ring,
+        /// <summary>Leaf swirl and loam puffs: nature magic (Barkskin).</summary>
+        Leaves,
+        /// <summary>Low dust stomp with a boundary ring: braced defense (Stand Fast). No shimmer.</summary>
+        Braced,
+    }
+
     public class CompProperties_TSC_Vfx : CompProperties_AbilityEffect
     {
         public Color color = Color.white;
         /// <summary>Ring size; vanilla psycasts pass their effect radius here, so area spells should use theirs.</summary>
         public float scale = 1.5f;
+        public TSC_VfxStyle style = TSC_VfxStyle.Ring;
+        /// <summary>Float the ability's name over the target in the effect color - outlives the pause that follows a cast.</summary>
+        public bool showLabel;
         public bool atCaster;
         public bool line;
         public bool sparks;
@@ -245,10 +266,18 @@ namespace TheShatteredCrown
                 : target.Cell.IsValid ? target.Cell.ToVector3Shifted()
                 : casterPos;
             bool apart = (targetPos - casterPos).sqrMagnitude > 0.1f;
-            Ring(targetPos, map);
+            if (Prefs.DevMode)
+            {
+                Log.Message($"[TSC] Vfx {parent.def.defName}: style={Props.style} at {targetPos}");
+            }
+            if (Props.showLabel)
+            {
+                MoteMaker.ThrowText(targetPos, map, parent.def.LabelCap, Props.color);
+            }
+            Burst(targetPos, map);
             if (Props.atCaster && apart)
             {
-                Ring(casterPos, map);
+                Burst(casterPos, map);
             }
             if (Props.line && apart && PsychicLine != null)
             {
@@ -268,6 +297,22 @@ namespace TheShatteredCrown
             }
         }
 
+        private void Burst(Vector3 pos, Map map)
+        {
+            switch (Props.style)
+            {
+                case TSC_VfxStyle.Leaves:
+                    Leaves(pos, map);
+                    return;
+                case TSC_VfxStyle.Braced:
+                    Braced(pos, map);
+                    return;
+                default:
+                    Ring(pos, map);
+                    return;
+            }
+        }
+
         private void Ring(Vector3 pos, Map map)
         {
             if (FleckDefOf.PsycastAreaEffect == null)
@@ -280,6 +325,111 @@ namespace TheShatteredCrown
             data.instanceColor = Props.color;
             map.flecks.CreateFleck(data);
         }
+
+        private static readonly Color LeafGreen = new Color(0.42f, 0.58f, 0.25f);
+        private static readonly Color LoamBrown = new Color(0.45f, 0.35f, 0.22f);
+
+        // Same creation path as Ring() - the one pathway PROVEN to render.
+        // FleckMaker.ThrowDustPuff* helpers gate on camera view and mote
+        // saturation, either of which can silently eat the whole effect.
+        private static readonly FleckDef PuffDef =
+            DefDatabase<FleckDef>.GetNamedSilentFail("DustPuffThick")
+            ?? DefDatabase<FleckDef>.GetNamedSilentFail("DustPuff");
+
+        private static void Puff(Vector3 pos, Map map, float scale, Color color)
+        {
+            if (PuffDef == null)
+            {
+                return;
+            }
+            FleckCreationData data = FleckMaker.GetDataStatic(pos, map, PuffDef, scale);
+            data.instanceColor = color;
+            data.rotationRate = Rand.Range(-30f, 30f);
+            data.velocityAngle = Rand.Range(0f, 360f);
+            data.velocitySpeed = Rand.Range(0.35f, 0.7f);
+            map.flecks.CreateFleck(data);
+        }
+
+        private static readonly FleckDef SmokeDef = DefDatabase<FleckDef>.GetNamedSilentFail("Smoke");
+
+        /// <summary>Tinted smoke: lives ~2.5s, so the effect survives the re-pause that follows a cast (puffs alone fade in under a second).</summary>
+        private static void Plume(Vector3 pos, Map map, float scale, Color color)
+        {
+            if (SmokeDef == null)
+            {
+                return;
+            }
+            FleckCreationData data = FleckMaker.GetDataStatic(pos, map, SmokeDef, scale);
+            data.instanceColor = color;
+            data.rotationRate = Rand.Range(-15f, 15f);
+            data.velocityAngle = Rand.Range(0f, 360f);
+            data.velocitySpeed = Rand.Range(0.15f, 0.35f);
+            map.flecks.CreateFleck(data);
+        }
+
+        /// <summary>Random offset on the GROUND plane (map is X-Z; a Vector2 cast puts scatter into altitude).</summary>
+        private static Vector3 PlaneOffset(float radius)
+        {
+            Vector2 c = Rand.InsideUnitCircle * radius;
+            return new Vector3(c.x, 0f, c.y);
+        }
+
+        /// <summary>Foliage whirls up around the target: green and bark-brown puffs low and close, lingering green haze behind them.</summary>
+        private void Leaves(Vector3 pos, Map map)
+        {
+            float radius = Mathf.Max(0.5f, Props.scale * 0.55f);
+            for (int i = 0; i < 12; i++)
+            {
+                Color color = i % 3 == 0 ? Props.color : i % 3 == 1 ? LeafGreen : LoamBrown;
+                Puff(pos + PlaneOffset(radius), map, Rand.Range(2.2f, 3.2f), color);
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                Plume(pos + PlaneOffset(radius * 0.7f), map, Rand.Range(1.8f, 2.6f), LeafGreen);
+            }
+        }
+
+        // An EffecterDef (15-puff dust burst), not a fleck - triggered by hand.
+        private static readonly EffecterDef StompCloud = DefDatabase<EffecterDef>.GetNamedSilentFail("ImpactSmallDustCloud");
+
+        /// <summary>A grounded stomp: dust slams out at the center, and puffs mark the effect's edge where walls allow. Nothing shimmers.</summary>
+        private void Braced(Vector3 pos, Map map)
+        {
+            IntVec3 cell = pos.ToIntVec3();
+            if (StompCloud != null && cell.InBounds(map))
+            {
+                // Both targets must be valid: a sprayer sub-effecter keyed to
+                // the B target silently spawns nothing at TargetInfo.Invalid.
+                TargetInfo info = new TargetInfo(cell, map);
+                Effecter effecter = StompCloud.Spawn();
+                effecter.Trigger(info, info);
+                effecter.Cleanup();
+            }
+            // The stomp itself, in the buff's color - guaranteed visible even
+            // in a corridor where the boundary ring hits nothing but wall,
+            // with lingering haze so the re-pause doesn't erase it.
+            for (int i = 0; i < 8; i++)
+            {
+                Puff(pos + PlaneOffset(1.1f), map, Rand.Range(2.6f, 3.6f), Props.color);
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                Plume(pos + PlaneOffset(1.2f), map, Rand.Range(1.8f, 2.4f), Props.color);
+            }
+            // Boundary ring: for an area buff the scale IS the radius, so the
+            // puffs show exactly who stands inside the wall.
+            float radius = Mathf.Max(0.8f, Props.scale);
+            int points = Mathf.Clamp(Mathf.RoundToInt(radius * 2.5f), 6, 16);
+            for (int i = 0; i < points; i++)
+            {
+                float angle = (360f / points) * i + Rand.Range(-8f, 8f);
+                Vector3 at = pos + Quaternion.AngleAxis(angle, Vector3.up) * Vector3.forward * radius;
+                if (at.ToIntVec3().InBounds(map))
+                {
+                    Puff(at, map, Rand.Range(1.6f, 2.2f), Props.color);
+                }
+            }
+        }
     }
 
     // ---------------------------------------------------------------- direct damage
@@ -291,6 +441,9 @@ namespace TheShatteredCrown
         public DamageDef damageDef;
         /// <summary>0 = single target; otherwise every ENEMY pawn within radius of the target point.</summary>
         public float radius;
+        /// <summary>Optional level scaling: +damagePerLevel per caster level in scaleClass (Magic Missile).</summary>
+        public TSC_ClassDef scaleClass;
+        public float damagePerLevel;
 
         public CompProperties_TSC_Damage()
         {
@@ -313,9 +466,25 @@ namespace TheShatteredCrown
                 return;
             }
             DamageDef damageDef = Props.damageDef ?? DamageDefOf.Burn;
+            float damage = Props.damage;
+            if (Props.scaleClass != null && Props.damagePerLevel > 0f)
+            {
+                // Explicit per-level curve (Magic Missile): replaces the
+                // generic percentage factor, never stacks with it.
+                TSC_ClassRecord record = TSC_ProgressionManager.Current.RecordOf(caster);
+                int index = record.classes.IndexOf(Props.scaleClass);
+                if (index >= 0)
+                {
+                    damage += record.levels[index] * Props.damagePerLevel;
+                }
+            }
+            else
+            {
+                damage *= TSC_SpellScaling.Factor(caster, parent.def);
+            }
             if (Props.radius <= 0.01f)
             {
-                target.Thing?.TakeDamage(new DamageInfo(damageDef, Props.damage, Props.armorPenetration, -1f, caster));
+                target.Thing?.TakeDamage(new DamageInfo(damageDef, damage, Props.armorPenetration, -1f, caster));
                 return;
             }
             IntVec3 center = target.Cell.IsValid ? target.Cell : caster.Position;
@@ -331,7 +500,7 @@ namespace TheShatteredCrown
             }
             foreach (Pawn pawn in hit)
             {
-                pawn.TakeDamage(new DamageInfo(damageDef, Props.damage, Props.armorPenetration, -1f, caster));
+                pawn.TakeDamage(new DamageInfo(damageDef, damage, Props.armorPenetration, -1f, caster));
             }
         }
 
@@ -346,6 +515,98 @@ namespace TheShatteredCrown
                 return false;
             }
             return base.Valid(target, throwMessages);
+        }
+    }
+
+    // ---------------------------------------------------------------- weapon strike
+
+    public class CompProperties_TSC_WeaponStrike : CompProperties_AbilityEffect
+    {
+        /// <summary>Damage as a multiple of the caster's average weapon damage (3 = Ambush's 300%).</summary>
+        public float multiplier = 1f;
+        /// <summary>0 = the targeted thing; otherwise every ENEMY pawn within radius of the CASTER (Whirlwind).</summary>
+        public float radius;
+        public float armorPenetration = 0.25f;
+        public DamageDef damageDef;
+
+        public CompProperties_TSC_WeaponStrike()
+        {
+            compClass = typeof(CompAbilityEffect_TSC_WeaponStrike);
+        }
+    }
+
+    /// <summary>
+    /// Martial arts: damage derived from the caster's own weapon (average tool
+    /// power; race tools when unarmed), scaled by a multiplier - Ambush's
+    /// triple strike, Whirlwind's all-around blow.
+    /// </summary>
+    public class CompAbilityEffect_TSC_WeaponStrike : CompAbilityEffect
+    {
+        public new CompProperties_TSC_WeaponStrike Props => (CompProperties_TSC_WeaponStrike)props;
+
+        public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
+        {
+            base.Apply(target, dest);
+            Pawn caster = parent.pawn;
+            Map map = caster?.Map;
+            if (map == null)
+            {
+                return;
+            }
+            float damage = AverageWeaponDamage(caster) * Props.multiplier
+                * TSC_SpellScaling.Factor(caster, parent.def);
+            DamageDef damageDef = Props.damageDef ?? DamageDefOf.Stab;
+            if (Props.radius <= 0.01f)
+            {
+                target.Thing?.TakeDamage(new DamageInfo(damageDef, damage, Props.armorPenetration, -1f, caster));
+                return;
+            }
+            List<Pawn> hit = new List<Pawn>();
+            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+                if (!pawn.Dead && pawn.HostileTo(caster) && pawn.Position.InHorDistOf(caster.Position, Props.radius))
+                {
+                    hit.Add(pawn); // collect first: damage can despawn pawns mid-iteration
+                }
+            }
+            foreach (Pawn pawn in hit)
+            {
+                pawn.TakeDamage(new DamageInfo(damageDef, damage, Props.armorPenetration, -1f, caster));
+            }
+        }
+
+        public override bool Valid(LocalTargetInfo target, bool throwMessages = false)
+        {
+            if (Props.radius <= 0.01f && target.Thing == null)
+            {
+                if (throwMessages)
+                {
+                    Messages.Message("Must target a creature.", MessageTypeDefOf.RejectInput, historical: false);
+                }
+                return false;
+            }
+            return base.Valid(target, throwMessages);
+        }
+
+        private static float AverageWeaponDamage(Pawn pawn)
+        {
+            List<Tool> tools = pawn.equipment?.Primary?.def.tools;
+            if (tools.NullOrEmpty())
+            {
+                tools = pawn.def.tools; // unarmed: fists, headbutts, whatever the race has
+            }
+            if (tools.NullOrEmpty())
+            {
+                return 8f;
+            }
+            float total = 0f;
+            foreach (Tool tool in tools)
+            {
+                total += tool.power;
+            }
+            return total / tools.Count;
         }
     }
 
@@ -378,7 +639,8 @@ namespace TheShatteredCrown
                 return;
             }
             GenExplosion.DoExplosion(target.Cell, map, Props.radius,
-                Props.damageDef ?? DamageDefOf.Flame, caster, Props.damage);
+                Props.damageDef ?? DamageDefOf.Flame, caster,
+                Mathf.RoundToInt(Props.damage * TSC_SpellScaling.Factor(caster, parent.def)));
         }
     }
 

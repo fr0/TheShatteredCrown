@@ -1,0 +1,25 @@
+{
+  "name": "agd-dialogue",
+  "displayName": "AGD Dialogue",
+  "description": "Syntax highlighting for The Shattered Crown dialogue DSL (.agd)",
+  "version": "0.1.0",
+  "publisher": "the-shattered-crown",
+  "engines": { "vscode": "^1.50.0" },
+  "contributes": {
+    "languages": [
+      {
+        "id": "agd",
+        "extensions": [".agd"],
+        "aliases": ["AGD Dialogue", "agd"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "agd",
+        "scopeName": "source.agd",
+        "path": "./syntaxes/agd.tmLanguage.json"
+      }
+    ]
+  }
+}

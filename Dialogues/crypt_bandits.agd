@@ -1,0 +1,40 @@
+# The looting party at the survey gallery mouth (crypt surface map).
+# Auto-opens when a colonist gets near the captain (MapComponent_TSC_
+# CryptParley). Every exit resolves the group: parley_hostile = the crew
+# turns bandit and attacks; parley_flee = the Arcana 10 scare sends them
+# running. One encounter per save (TSC_CryptBanditsMet).
+
+dialogue TSC_Dialogue_CryptBandits
+
+== start ==
+There are armed men at the gallery mouth, and they have brought picks and shovels as well as blades. Their captain steps out to meet you.
+
+"More diggers," he says. "No. This hole is claimed, friends. Everything in it is spoken for. Walk away and keep your boots."
+
+* "Feel the air coming out of that hole. The magic below is unstable. Dig, and you won't come back up."
+    check Arcana 10 -> scared | called_bluff
+    on success do parley_flee()
+    on fail do parley_hostile()
+* "It's claimed, all right. By the Wayfarers' Guild. Draw or walk." -> fight
+    do parley_hostile()
+* [Say nothing. Draw steel.] -> fight
+    do parley_hostile()
+
+== scared ==
+The captain's eyes go to the gallery mouth. The air rising out of it is warm, and it should not be, and every man behind him knows it.
+
+"Told you this hole smelled wrong," someone mutters.
+
+"Keep it," the captain says. "Dig your own graves." They go, and they do not look back.
+
+* [Watch them leave.] -> end
+
+== called_bluff ==
+"Unstable magic." The captain smiles. "I've heard better from fortune tellers at half the price. The only thing unstable here is your odds. Take them."
+
+* [Steel.] -> end
+
+== fight ==
+"Wrong answer," the captain says, and the picks come down and the blades come out.
+
+* [Steel.] -> end

@@ -101,4 +101,47 @@
     </genStep>
   </GenStepDef>
 
+
+  <!-- The caves under Harrowfield's well: an extensive natural system with
+       critter packs, the years-dead delver, and their chest (loot + the
+       sanguophage's unsigned journal). Entered via TSC_WellDescent. -->
+  <MapGeneratorDef>
+    <defName>TSC_WellCaves</defName>
+    <label>caves under the well</label>
+    <isUnderground>true</isUnderground>
+    <forceCaves>true</forceCaves>
+    <ignoreAreaRevealedLetter>true</ignoreAreaRevealedLetter>
+    <disableCallAid>true</disableCallAid>
+    <pocketMapProperties>
+      <biome>Underground</biome>
+      <temperature>6</temperature>
+      <canBeCleaned>true</canBeCleaned>
+      <tileMutators>
+        <li>UndergroundCave</li>
+      </tileMutators>
+    </pocketMapProperties>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_WellCaveContent</li>
+      <li>Plants</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <GenStepDef>
+    <defName>TSC_WellCaveContent</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_WellCaveContent">
+      <groupCount>2~3</groupCount>
+      <groupSize>2~4</groupSize>
+    </genStep>
+  </GenStepDef>
+
 </Defs>

@@ -1,0 +1,17 @@
+# Narration prompt: the hidden Perception success at Harrowfield's well.
+# Opened from code (MapComponent_TSC_WellWatcher) in the conversation
+# window; the "NPC" is the colonist who noticed, so their portrait frames
+# the moment. {PLAYER} is that same pawn.
+
+dialogue TSC_Dialogue_WellLedge
+
+== start ==
+Waiting by the well, {PLAYER} leans on the cobble rim and looks down. Then looks again.
+
+A few feet below the rim, between the top of the shaft and the dark shine of the water, there is a *ledge*. And behind the ledge, where no light reaches, the wall does not stop. It opens.
+
+Old vines grow down the inside of the shaft, rooted in the stone seams, thick as tarred rope.
+
+Someone could try to jump down to the ledge, if they trust their legs (Athletics). Or trust the vines to hold a climber's weight (Nature). The first one down will not have an easy time of it. After that, the way could be rigged properly for everyone.
+
+* [Step back from the rim.] -> end

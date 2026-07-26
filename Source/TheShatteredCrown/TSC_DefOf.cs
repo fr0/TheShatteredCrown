@@ -12,8 +12,11 @@ namespace TheShatteredCrown
         public static JobDef TSC_PickChest;
         public static JobDef TSC_ForceChest;
         public static JobDef TSC_Perform;
+        public static JobDef TSC_UseCheckSpot;
+        public static JobDef TSC_BeatFlames;
         public static HediffDef TSC_Hediff_AdventurerLevel;
         public static HediffDef TSC_Hediff_Performed;
+        public static HediffDef TSC_Hediff_Summoned;
         public static PawnKindDef TSC_Ettersnap;
         public static ThingDef TSC_RemembranceMoss;
         public static ThingDef TSC_MossCache;

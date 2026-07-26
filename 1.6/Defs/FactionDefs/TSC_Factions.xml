@@ -11,6 +11,12 @@
     <description>Deserters, outlaws, and the simply unlucky, living knife-first in the dead kingdom's margins. They keep the old roads dangerous.</description>
     <pawnSingular>bandit</pawnSingular>
     <pawnsPlural>bandits</pawnsPlural>
+    <!-- REQUIRED: FactionGenerator name-rolls any faction without a
+         fixedName, and with no factionNameMaker either that is an NRE -
+         which crashed this faction OUT OF WORLD GENERATION silently (worlds
+         had no bandit faction at all) and later crashed the find-or-create
+         path visibly. Every vanilla hidden faction sets fixedName. -->
+    <fixedName>The Crownless</fixedName>
     <categoryTag>Pirate</categoryTag>
     <techLevel>Medieval</techLevel>
     <hidden>true</hidden>
@@ -22,10 +28,14 @@
     <basicMemberKind>TSC_Bandit_Brigand</basicMemberKind>
     <factionIconPath>World/WorldObjects/Expanding/Sites/AncientComplex</factionIconPath>
     <allowedArrivalTemperatureRange>-40~45</allowedArrivalTemperatureRange>
+    <!-- "Raider" is not a real spawn category (zero backstories carry it;
+         it error-logged on EVERY bandit generated and fell back to random).
+         Vanilla outlaws use Pirate; Tribal mixes in low-tech flavor. -->
     <backstoryFilters>
       <li>
         <categories>
-          <li>Raider</li>
+          <li>Pirate</li>
+          <li>Tribal</li>
         </categories>
       </li>
     </backstoryFilters>

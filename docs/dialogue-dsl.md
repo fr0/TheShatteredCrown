@@ -84,13 +84,23 @@ display text. Indented lines under an option add behavior:
   option permanently - no re-roll fishing, no repeat rewards. The compiler
   enforces this via an auto-generated `onceKey` flag
   (`TSC_Rolled_<dialogue>_<node>_<index>`); append `retryable` after the fail
-  node to opt out: `check Athletics 7 -> open | holds retryable`. Proficiencies only (vanilla skills contribute via synergy):
+  node to opt out: `check Athletics 7 -> open | holds retryable`. A FAILED
+  retryable roll hides the option for 8 in-game hours before it can be
+  attempted again (no click-spam re-rolling; write the fail node so "come
+  back later" makes sense). `retryable(N)` sets a custom cooldown of N
+  hours: `check Performance 7 -> landed | flat retryable(24)`. Proficiencies only (vanilla skills contribute via synergy):
   **Lore, Thievery, Nature, Athletics, Persuasion, Arcana, Investigation,
   Insight, Perception, Survival, Performance**. Effective value = trained points
   + class training + related vanilla skill / 5. e.g. `check Lore 7 -> deep | shallow`.
   DC ladder: **6** easy, **8** standard, **10** hard, **12+** heroic
   (specialists only).
 - `on success do ...` / `on fail do ...` - effects for each check outcome.
+
+## Emphasis in dialogue text
+
+`*word*` renders **bold** in the conversation window (stress in speech:
+"What *did* happen out here?"). ALL-CAPS is reserved for actual shouting
+("IS IT BANDITS?"). Unpaired asterisks stay literal.
 
 ## Conditions
 
@@ -99,11 +109,15 @@ display text. Indented lines under an option add behavior:
 | `flag(Name)` | persistent flag is set |
 | `not flag(Name)` | persistent flag is not set |
 | `quest_active(QuestScriptDefName)` | a quest from that script is ongoing/offered |
+| `not quest_active(QuestScriptDefName)` | NO quest from that script is ongoing/offered - the "trail went cold" gate for re-offering a lost objective |
 | `quest_succeeded(QuestScriptDefName)` | a quest from that script ended in success |
+| `not quest_succeeded(QuestScriptDefName)` | no quest from that script has succeeded yet |
+| `min_quests_succeeded(N, QuestA, QuestB, ...)` | at least N of the listed quest scripts ended in success - the "earn the village's trust" gate (Old Wick's crypt reveal needs 3 of the 6 Harrowfield sidequests). `not min_quests_succeeded(...)` gates the "not yet trusted" branch |
 | `in_party()` | the NPC being talked to is in the player faction |
 | `in_party(NamedNpcDefName)` | that named character is in the player faction |
 | `nearby(NamedNpcDefName)` | that named character is spawned on this conversation's map within 20 tiles of the NPC - pair with `in_party(...)` for "your companion is standing right here" reactions |
 | `kind_on_map(PawnKindDefName)` | a living player-owned pawn of that kind is spawned on this conversation's map - use for "you brought the creature HERE" gates (e.g. Oswin's rites need the ettersnap at camp) |
+| `sleeping()` / `not sleeping()` | the NPC being talked to is asleep - put `entry asleep if sleeping()` FIRST (entries are evaluated in order) to preempt the whole tree with a night node; pair with the `wake()` effect |
 | `dead(NamedNpcDefName)` / `not dead(...)` | that named character has died (destroyed-but-living, e.g. a despawned site, does NOT count) - use for delivering news of a death |
 | `passive(Insight, 8)` | passive check: 5 + party's best effective proficiency ≥ DC (no die; stable visibility - use for noticing things) |
 | `affinity(>=10)` | the NPC being talked to is at least that warm (also `<=`, `>`, `<`; tiers: hostile <=-20, cold <0, neutral 0-9, warm 10-24, devoted 25+) |
@@ -121,6 +135,9 @@ display text. Indented lines under an option add behavior:
 | `message(any text here)` | top-left in-game message |
 | `goodwill(-10)` | shift NPC faction goodwill |
 | `join_party()` | the NPC being talked to joins the player faction (companion recruit) |
+| `trade()` | opens the vanilla trade window with the NPC being talked to (they must be a standing trader - NamedNpcDef `traderKind`, e.g. Haldor); the talking colonist negotiates. Link the option back to the same node so the conversation resumes behind the trade screen |
+| `depart(NamedNpcDefName)` | sends that named character WALKING off their current map ("they left") - they leave their lord and jog for the map edge (vanilla exit lord), worldify on arrival, and respawn wherever the story next places them. Pair with NamedNpcDef `awayWhileQuestActive` to keep village regeneration from respawning them mid-quest |
+| `wake()` | wakes the sleeping NPC being talked to. The asleep-node pattern ends the conversation after waking (`-> end`); the next talk enters the normal tree |
 | `grant_xp(50)` | grants XP to the whole party (levels/class unlocks) |
 | `learn_class(TSC_Class_Cleric)` | the TALKING COLONIST learns a class (level 1; banked levels are assigned via the Level up! dialog) |
 | `teach_class(TSC_Class_Bard)` | the NPC being talked to learns a class |

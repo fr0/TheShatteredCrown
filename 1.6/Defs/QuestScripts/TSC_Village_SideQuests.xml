@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Harrowfield sidequests, given by villagers via "I'm looking for
+       work" dialogue: Wilf (Wet Plot), Col (Ridge Light), Haldor (Cold
+       Iron), Hessa (the children), Bryn (True Story), Mara (Weed Patch).
+       Dialogue arcs live in Dialogues/village_*.agd.
+       ================================================================ -->
+
+  <!-- Grave-iron: old-kingdom metal, the Cold Iron quest objective -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_GraveIron</defName>
+    <label>grave-iron</label>
+    <description>Iron of the old kingdom, worked with rites nobody remembers and cold to the touch in any weather. Smiths prize it; graves resent losing it.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Steel</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <!-- Pale silver-blue: dark slate (115,120,135) vanished into unlit
+           ruin interiors - the quest objective was nearly invisible. -->
+      <color>(205,212,232)</color>
+    </graphicData>
+    <stackLimit>25</stackLimit>
+    <statBases>
+      <MaxHitPoints>120</MaxHitPoints>
+      <Mass>0.7</Mass>
+      <MarketValue>14</MarketValue>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0.5</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+  </ThingDef>
+
+  <!-- Cold Iron site: a collapsed waystation of the old kingdom -->
+  <SitePartDef>
+    <defName>TSC_ColdIronSite</defName>
+    <label>ruined waystation</label>
+    <description>A collapsed waystation of the dead kingdom's road network. Its grave-iron fittings survived what its keepers did not.</description>
+    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
+    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <approachOrderString>Search {0}</approachOrderString>
+    <approachingReportString>Searching {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ColdIronSite</li>
+    </tags>
+    <!-- Quest objective site: scouting and leaving empty-handed must not
+         delete it (the player may need several trips for the iron). The
+         scatter genstep re-lays the stacks when the map regenerates.
+         Persists only while the quest runs - no infinite iron farm. -->
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Side_ColdIron</whileQuestActive>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_ColdIronSite</defName>
+    <linkWithSite>TSC_ColdIronSite</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Waystation</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ColdIronScatter</defName>
+    <linkWithSite>TSC_ColdIronSite</linkWithSite>
+    <order>560</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_ScatterItems">
+      <thingDef>TSC_GraveIron</thingDef>
+      <stacks>5~7</stacks>
+      <stackSize>3~6</stackSize>
+      <radius>20</radius>
+    </genStep>
+  </GenStepDef>
+
+  <!-- Children site: a wild stretch of hills where the Root children went adventuring -->
+  <SitePartDef>
+    <defName>TSC_ChildrenSite</defName>
+    <label>hills above Harrowfield</label>
+    <description>Rough hill country an hour above the village. Pip's kind of country, which is precisely the problem.</description>
+    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
+    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <approachOrderString>Search {0}</approachOrderString>
+    <approachingReportString>Searching {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ChildrenSite</li>
+    </tags>
+    <!-- Quest objective site: leaving without finding the kids must not
+         delete it (their spawn node re-places them on regeneration).
+         Persists only while the quest runs. -->
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Side_Children</whileQuestActive>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <!-- ============ Wilf: The Wet Plot ============ -->
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Side_WetPlot</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Wet Plot</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Wilf Thistledown's middle plot floods because the old culvert feeding past his field is blocked, and has been blocked, in Wilf's telling, since before the village existed. He has asked you to wade in and clear it.\n\nTalk to Wilf when you're ready to get wet. Expect an Athletics roll, and expect to earn it.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_WetPlotDone</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelWetPlot">The culvert, cleared</label>
+                <text TKey="LetterTextWetPlot">The culvert runs clear for the first time in years, and Wilf's field is merely damp, which for Wilf constitutes rapture.\n\nWhat was blocking it is more interesting: a carved stone that was never farmwork. It washed DOWN from the hills.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>100</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Col: The Light on the Ridge ============ -->
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Side_RidgeLight</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Light on the Ridge</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Col Fenwick has watched a light on the ridge above Harrowfield for three nights running. Lights on that ridge mean crownless bandits, and bandits watching a village are measuring it.\n\nClimb to the ridge camp and end whatever is being planned there.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>points</name>
+          <value>140</value>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>2~6</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>BanditCamp</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetBanditFaction">
+          <storeAs>siteFaction</storeAs>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelRidgeGone">Quest failed: [resolvedQuestName]</label>
+                <text TKey="LetterTextRidgeGone">The ridge watchers slipped away before the job was done. Col will keep counting lights.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+        <li Class="QuestNode_Signal">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelRidgeDone">The ridge, dark</label>
+                <text TKey="LetterTextRidgeDone">The ridge camp is finished and its signal fire is out.\n\nCol will want to know. He may even use whole sentences.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>150</xp>
+              </li>
+            </nodes>
+          </node>
+        </li>
+        <li Class="QuestNode_End">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <outcome>Success</outcome>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Haldor: Cold Iron ============ -->
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Side_ColdIron</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Cold Iron</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Haldor wants grave-iron: old-kingdom metal, worked with rites nobody remembers, the same stuff Oswin's grave-iron circle was made of. A collapsed waystation of the old road network should still have its fittings.\n\nSearch the ruined waystation and gather ten pieces of grave-iron. Haldor pays in craft, not coin: a commissioned piece, forged properly.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>3~8</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_ColdIronSite</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+          <item>TSC_GraveIron</item>
+          <minCount>10</minCount>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelColdIron">Cold iron</label>
+                <text TKey="LetterTextColdIron">Grave-iron, cold in the hand in any weather. Haldor will want it at his forge - and he promised payment in craft, not coin.\n\nTalk to Haldor about the commission.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>150</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Hessa: The Two Loud Things ============ -->
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Side_Children</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Two Loud Things</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Pip finally did it: took his sister and snuck into the hills to be an adventurer. Hessa Root asked you to bring her children home, in the even voice of a woman keeping herself very carefully together.\n\nSearch the hills above Harrowfield, find Pip and Nell, and send them home.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_GetFaction">
+          <storeAs>friendFaction</storeAs>
+          <allowNeutral>true</allowNeutral>
+          <allowAlly>true</allowAlly>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>1~4</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_ChildrenSite</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_SpawnNpcAtSite">
+          <inSignal>site.MapGenerated</inSignal>
+          <npc>TSC_Npc_Pip</npc>
+          <site>$site</site>
+          <faction>$friendFaction</faction>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_SpawnNpcAtSite">
+          <inSignal>site.MapGenerated</inSignal>
+          <npc>TSC_Npc_Nell</npc>
+          <site>$site</site>
+          <faction>$friendFaction</faction>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_OnNpcDeath">
+          <npc>TSC_Npc_Pip</npc>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NegativeEvent</letterDef>
+                <label TKey="LetterLabelPipDead">Pip Root is dead</label>
+                <text TKey="LetterTextPipDead">Pip Root wanted to be an adventurer. The hills obliged him the way hills do.\n\nHarrowfield will not be the same village after this.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_OnNpcDeath">
+          <npc>TSC_Npc_Nell</npc>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NegativeEvent</letterDef>
+                <label TKey="LetterLabelNellDead">Nell Root is dead</label>
+                <text TKey="LetterTextNellDead">Nell Root followed her brother into the hills because that is what little sisters do.\n\nHarrowfield will not be the same village after this.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_KidsFound</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelKidsFound">The two loud things</label>
+                <text TKey="LetterTextKidsFound">Found: one adventurer, one accomplice, both intact and marched home under protest.\n\nWhatever Pip found up there, Old Wick went very quiet about it.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>150</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Bryn: One True Story ============ -->
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Side_TrueStory</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->One True Story</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Bryn Fenwick's price for friendship was always one true story, told properly, by somebody who was there. Fence-post rumors don't count. Do something worth the telling, then come back and TELL it - with the fire it deserves.\n\n(Deeds that qualify: the rites, the raider camp, the barrow. Telling it is a Performance roll, retryable - stories improve with practice.)</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_StoryTold</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelStoryTold">One true story</label>
+                <text TKey="LetterTextStoryTold">The story landed. By evening Bryn had retold it twice with improvements, and Harrowfield's opinion of you rose with each version.\n\n(All the villagers think a little better of you now.)</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>100</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Mara: What Grows Back ============ -->
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Side_WeedPatch</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->What Grows Back</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->At the edge of Mara Thistledown's field there is a patch that regrows overnight no matter how she pulls it. Mara does not lose to weeds. She has decided the problem is beyond farming, which makes it yours.\n\nTalk to Mara at her field and deal with the patch.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_PatchDone</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelPatch">What grows back</label>
+                <text TKey="LetterTextPatch">The patch is dealt with, one way or another. Mara returned to her rows without ceremony, which from Mara is a parade.\n\nWhat it WAS is the more interesting question, and it does not have a farming answer.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>100</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+
+  <!-- The dead delver's hoard in the well caves: medieval valuables. The
+       weathered journal is added on top by the genstep (always present). -->
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_WellCache</defName>
+    <root Class="ThingSetMaker_Sum">
+      <options>
+        <li>
+          <thingSetMaker Class="ThingSetMaker_Count">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Silver</li>
+                </thingDefs>
+              </filter>
+              <countRange>120~260</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <chance>0.6</chance>
+          <thingSetMaker Class="ThingSetMaker_Count">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Gold</li>
+                </thingDefs>
+              </filter>
+              <countRange>15~40</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <thingSetMaker Class="ThingSetMaker_Count">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>MedicineHerbal</li>
+                </thingDefs>
+              </filter>
+              <countRange>4~8</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+</Defs>

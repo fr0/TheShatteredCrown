@@ -4,8 +4,14 @@
 #
 # Usage:  powershell -ExecutionPolicy Bypass -File scripts\Launch-TestMode.ps1
 # Optional: -QuickTest  (skips the main menu, generates a small dev test map)
+#           -AutoClose  (unattended load checks: kill the game after
+#                        -AutoCloseSeconds [default 90] - long enough to load
+#                        defs and write errors to Player.log - then restore.
+#                        Kill/restore ordering hardened: poll until the process
+#                        is really gone, then grace time for any config flush,
+#                        THEN restore, and verify the restored entry count.)
 
-param([switch]$QuickTest)
+param([switch]$QuickTest, [switch]$AutoClose, [int]$AutoCloseSeconds = 90)
 
 $gameDir = "X:\SteamLibrary\steamapps\common\RimWorld"
 $cfgDir  = "$env:USERPROFILE\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios"
@@ -32,6 +38,7 @@ Write-Host "Backed up your mod list to $backup"
     <li>ludeon.rimworld.biotech</li>
     <li>ludeon.rimworld.anomaly</li>
     <li>ludeon.rimworld.odyssey</li>
+    <li>mlie.nwnrealfogofwar</li>
     <li>cfrolik.theshatteredcrown</li>
   </activeMods>
   <knownExpansions>
@@ -54,9 +61,31 @@ try {
     } else {
         $proc = Start-Process "$gameDir\RimWorldWin64.exe" -PassThru
     }
-    $proc.WaitForExit()
+    if ($AutoClose) {
+        Write-Host "Auto-close in $AutoCloseSeconds seconds (unattended load check)."
+        $deadline = (Get-Date).AddSeconds($AutoCloseSeconds)
+        while ((Get-Date) -lt $deadline -and -not $proc.HasExited) {
+            Start-Sleep -Seconds 5
+        }
+        if (-not $proc.HasExited) {
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+        }
+        # The dying process can flush ModsConfig.xml AFTER a too-early
+        # restore: wait until it is truly gone, then a grace period.
+        while (Get-Process RimWorldWin64 -ErrorAction SilentlyContinue) {
+            Start-Sleep -Seconds 2
+        }
+        Start-Sleep -Seconds 6
+    } else {
+        $proc.WaitForExit()
+    }
 }
 finally {
     Copy-Item $backup $cfg -Force
-    Write-Host "Restored your original mod list." -ForegroundColor Green
+    $entryCount = (Select-String -Path $cfg -Pattern "<li>" -AllMatches).Matches.Count
+    if ($entryCount -lt 100) {
+        Write-Host "WARNING: restored mod list has only $entryCount entries - check $backup!" -ForegroundColor Red
+    } else {
+        Write-Host "Restored your original mod list ($entryCount entries)." -ForegroundColor Green
+    }
 }

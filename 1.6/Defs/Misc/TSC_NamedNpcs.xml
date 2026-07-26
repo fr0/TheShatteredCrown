@@ -78,6 +78,163 @@
     <adulthood>TSC_Backstory_HedgeDruid</adulthood>
     <classDef>TSC_Class_Druid</classDef>
     <plotArmor>true</plotArmor>
+    <!-- Corvus: bonded, at her shoulder, and he comes with her when she
+         throws in with the party (see DialogueEffect_JoinParty). The rest
+         of the grove's crows stay wild scenery. -->
+    <petKind>Crow</petKind>
+    <petName>Corvus</petName>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <!-- Act 2: the bard whose verses know too much. Spawned in the lead's
+       city by TSC_Act2_BardLead; recurring Act 2 character. -->
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Bard</defName>
+    <label>Wren Ashdown</label>
+    <description>A city bard singing verses about a forgotten crown that nobody alive should know.</description>
+    <firstName>Wren</firstName>
+    <lastName>Ashdown</lastName>
+    <kind>TSC_Bard</kind>
+    <gender>Female</gender>
+    <classDef>TSC_Class_Bard</classDef>
+    <plotArmor>true</plotArmor>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <!-- Harrowfield village residents (Act 1). Ordinary folk: no plot
+       armor, no classes. Dialogue stubs in Dialogues/village_*.agd. -->
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Tam</defName>
+    <label>Tam Root</label>
+    <description>Farmer of Harrowfield.</description>
+    <firstName>Tam</firstName>
+    <lastName>Root</lastName>
+    <kind>TSC_Villager_Tam</kind>
+    <gender>Male</gender>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Hessa</defName>
+    <label>Hessa Root</label>
+    <description>Farmer of Harrowfield.</description>
+    <firstName>Hessa</firstName>
+    <lastName>Root</lastName>
+    <kind>TSC_Villager_Hessa</kind>
+    <gender>Female</gender>
+    <spouse>TSC_Npc_Tam</spouse>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Wilf</defName>
+    <label>Wilf Thistledown</label>
+    <description>Farmer of Harrowfield.</description>
+    <firstName>Wilf</firstName>
+    <lastName>Thistledown</lastName>
+    <kind>TSC_Villager_Wilf</kind>
+    <gender>Male</gender>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Mara</defName>
+    <label>Mara Thistledown</label>
+    <description>Farmer of Harrowfield.</description>
+    <firstName>Mara</firstName>
+    <lastName>Thistledown</lastName>
+    <kind>TSC_Villager_Mara</kind>
+    <gender>Female</gender>
+    <spouse>TSC_Npc_Wilf</spouse>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Col</defName>
+    <label>Col Fenwick</label>
+    <description>Farmer of Harrowfield.</description>
+    <firstName>Col</firstName>
+    <lastName>Fenwick</lastName>
+    <kind>TSC_Villager_Col</kind>
+    <gender>Male</gender>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Bryn</defName>
+    <label>Bryn Fenwick</label>
+    <description>Farmer of Harrowfield.</description>
+    <firstName>Bryn</firstName>
+    <lastName>Fenwick</lastName>
+    <kind>TSC_Villager_Bryn</kind>
+    <gender>Female</gender>
+    <spouse>TSC_Npc_Col</spouse>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Pip</defName>
+    <label>Pip Root</label>
+    <description>Farm child of Harrowfield.</description>
+    <firstName>Pip</firstName>
+    <lastName>Root</lastName>
+    <kind>TSC_Villager_Pip</kind>
+    <gender>Male</gender>
+    <biologicalAge>14</biologicalAge>
+    <!-- In the hills while Hessa's quest runs; slips the fence between
+         visits once the player has met Hessa (no on-screen vanish), and
+         comes home once the rescue succeeds. -->
+    <awayWhileQuestActive>TSC_Side_Children</awayWhileQuestActive>
+    <awayIfFlag>TSC_MetHessa</awayIfFlag>
+    <backAfterQuest>TSC_Side_Children</backAfterQuest>
+    <setFlagWhenAway>TSC_KidsGone</setFlagWhenAway>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Nell</defName>
+    <label>Nell Root</label>
+    <description>Farm child of Harrowfield.</description>
+    <firstName>Nell</firstName>
+    <lastName>Root</lastName>
+    <kind>TSC_Villager_Nell</kind>
+    <gender>Female</gender>
+    <biologicalAge>13</biologicalAge>
+    <!-- In the hills while Hessa's quest runs; slips the fence between
+         visits once the player has met Hessa (no on-screen vanish), and
+         comes home once the rescue succeeds. -->
+    <awayWhileQuestActive>TSC_Side_Children</awayWhileQuestActive>
+    <awayIfFlag>TSC_MetHessa</awayIfFlag>
+    <backAfterQuest>TSC_Side_Children</backAfterQuest>
+    <setFlagWhenAway>TSC_KidsGone</setFlagWhenAway>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Haldor</defName>
+    <label>Haldor Coalbrand</label>
+    <description>Blacksmith of Harrowfield.</description>
+    <firstName>Haldor</firstName>
+    <lastName>Coalbrand</lastName>
+    <kind>TSC_Villager_Haldor</kind>
+    <gender>Male</gender>
+    <!-- Standing merchant: right-click -> Trade with Haldor -->
+    <traderKind>TSC_Trader_Smith</traderKind>
+    <!-- A smith's place is at his forge: in the smithy day and night,
+         not out in the yard with the farmers -->
+    <homebody>true</homebody>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_OldWick</defName>
+    <label>Wick Alderman</label>
+    <description>Village elder of Harrowfield.</description>
+    <firstName>Wick</firstName>
+    <nickName>Old Wick</nickName>
+    <lastName>Alderman</lastName>
+    <kind>TSC_Villager_OldWick</kind>
+    <!-- Journal route: once he says "meet me inside" he walks to the crypt
+         (spawned there by GenStep_TSC_CryptInterior) and stops spawning at
+         his hearth. -->
+    <awayIfFlag>TSC_WickAtCrypt</awayIfFlag>
+    <gender>Male</gender>
+    <biologicalAge>72</biologicalAge>
+    <!-- The elder's cat: bonded, keeps his routine -->
+    <petKind>Cat</petKind>
+    <petName>Betsy</petName>
+    <!-- Seventy-two winters have earned the hearth: indoors day and night -->
+    <homebody>true</homebody>
   </TheShatteredCrown.NamedNpcDef>
 
 </Defs>

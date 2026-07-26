@@ -1,0 +1,63 @@
+# Pip Root - farm child of Harrowfield (Act 1 village).
+
+dialogue TSC_Dialogue_Pip
+
+# Night visits: asleep node preempts everything (entries in order).
+entry asleep if sleeping()
+
+entry lostkids if quest_active(TSC_Side_Children)
+entry hub if flag(TSC_MetPip)
+
+== start ==
+A boy of about fourteen drops out of the woodpile's shadow directly into your path. He has his mother's counting eyes and his father's build waiting to happen, and he stares at your gear with fascination.
+
+"You're from the *pass*," he says. "I'm Pip. Pip Root. I'm not supposed to talk to armed strangers but you don't count because you're obviously an adventurer. Have you killed anything? Was it big?"
+
+* "Bigger than the woodpile. Well met, Pip." -> hub
+    do flag(TSC_MetPip); affinity(+5)
+* "The pass is no place for stories, lad. But well met." -> hub
+    do flag(TSC_MetPip)
+* "Go find your mother, boy." -> end
+
+== hub ==
+Pip materializes beside you, already mid-question.
+
+"Are you doing anything *dangerous* today?"
+
+* "Not today, Pip." -> end
+* "Off with you." -> end
+
+== asleep ==
+Pip is asleep with one boot still on, sprawled loose. "...take *that*," he mumbles, sword-arm twitching at some dream bandit. He is winning.
+
+* [Shake them awake.] -> woken
+    do wake()
+* [Leave them to their rest.] -> end
+
+== woken ==
+Pip bolts upright, instantly and totally awake.
+
+"IS IT BANDITS?" He looks genuinely hopeful. Then, seeing your face: "...It's not bandits." He deflates back onto the pillow. "Ma says night waking is for emergencies and you don't *look* like an emergency..."
+
+* "Sorry. Go back to sleep." -> end
+* "Morning, then." -> end
+
+# The Two Loud Things: Pip found in the hills (quest entry preempts).
+== lostkids ==
+You find Pip on a rock spur with a stick sword in his belt, a stolen heel of bread in his pocket, and the shock of an adventurer discovering how large hills are. Nell sits three careful paces behind him, aggressively unimpressed.
+
+He straightens when he sees you. Then his hand goes, casually, guiltily, to his other pocket.
+
+"We were *scouting*," he announces. "And also we found something. And also don't tell Ma about the bread."
+
+* "Show me what's in the pocket, Pip. Then home. *Both* of you." -> lostkids_token
+* "March. Now. Your mother is folding cloth at the door." -> end
+    do signal(TSC_Side_Children, TSC_KidsFound); flag(TSC_PipToken); depart(TSC_Npc_Nell); depart(TSC_Npc_Pip)
+
+== lostkids_token ==
+Pip produces it with reverence: a disc of dark metal, cold in his small hand, cold in yours. Stamped on one face: a crown. Broken.
+
+"It was just *lying* there," he says. "By the standing stone. Nell said leave it. Nell says leave everything."
+
+* "Nell was right. I'll keep it safe. Now *home*, adventurer. That's an order." -> end
+    do signal(TSC_Side_Children, TSC_KidsFound); flag(TSC_PipToken); affinity(+5); depart(TSC_Npc_Nell); depart(TSC_Npc_Pip)

@@ -116,6 +116,103 @@
     </parts>
   </LayoutRoomDef>
 
+  <!-- ============ Castle rooms (Adventure Mode's ruined fortress) ============ -->
+
+  <!-- The great hall: long boards, torch brackets, and whoever never left -->
+  <LayoutRoomDef>
+    <defName>TSC_CastleHall</defName>
+    <canMergeWithAdjacentRoom>true</canMergeWithAdjacentRoom>
+    <minSingleRectWidth>8</minSingleRectWidth>
+    <minSingleRectHeight>8</minSingleRectHeight>
+    <floorTypes>
+      <li>FlagstoneGranite</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_DiningSet>
+        <countPerHundredCells>2</countPerHundredCells>
+        <minMaxRange>2~3</minMaxRange>
+      </TSC_DiningSet>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>2~4</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+    <parts>
+      <Corpse>0.4</Corpse>
+    </parts>
+  </LayoutRoomDef>
+
+  <!-- The armory: racks stripped long ago, the chest they could not open -->
+  <LayoutRoomDef>
+    <defName>TSC_Armory</defName>
+    <floorTypes>
+      <li>FlagstoneGranite</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_Shelf_Wood>
+        <countPerTenEdgeCells>2</countPerTenEdgeCells>
+        <minMaxRange>2~6</minMaxRange>
+      </TSC_Shelf_Wood>
+      <TSC_ArmoryChestPrefab>
+        <countRange>1~1</countRange>
+      </TSC_ArmoryChestPrefab>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>0~2</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+    <parts>
+      <Corpse>0.2</Corpse>
+    </parts>
+  </LayoutRoomDef>
+
+  <!-- The chapel: marble underfoot and an altar that still answers -->
+  <LayoutRoomDef>
+    <defName>TSC_Chapel</defName>
+    <minSingleRectWidth>6</minSingleRectWidth>
+    <minSingleRectHeight>6</minSingleRectHeight>
+    <floorTypes>
+      <li>TileMarble</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_AltarNook>
+        <countRange>1~1</countRange>
+      </TSC_AltarNook>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>1~2</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+    <parts>
+      <Corpse>0.3</Corpse>
+    </parts>
+  </LayoutRoomDef>
+
+  <!-- The lord's chamber: the good bed, the locked chest, the last tenant -->
+  <LayoutRoomDef>
+    <defName>TSC_LordsChamber</defName>
+    <minSingleRectWidth>6</minSingleRectWidth>
+    <minSingleRectHeight>6</minSingleRectHeight>
+    <floorTypes>
+      <li>WoodPlankFloor</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_Bunk>
+        <countRange>1~1</countRange>
+      </TSC_Bunk>
+      <TSC_GuildChestPrefab>
+        <countRange>1~1</countRange>
+      </TSC_GuildChestPrefab>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>1~2</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+    <parts>
+      <Corpse>0.5</Corpse>
+    </parts>
+  </LayoutRoomDef>
+
   <!-- ============ Catacomb rooms (Chapter 2) ============ -->
 
   <!-- Crypt gallery: rows of stone sarcophagi. Something nests here. -->

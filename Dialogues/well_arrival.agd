@@ -1,0 +1,31 @@
+# First arrival at the bottom of Harrowfield's well (one-shot per save).
+# Opened from code (MapComponent_TSC_WellArrival) when the first colonist
+# lands in the TSC_WellCaves pocket map. TSC_WellFellHard is set by the
+# failed descent check and cleared after this plays: the fall entry
+# preempts the clean one. {PLAYER} is the descender.
+
+dialogue TSC_Dialogue_WellArrival
+
+# Failed the descent check: the fall comes first.
+entry fall if flag(TSC_WellFellHard)
+
+== start ==
+The vines hold. Hand under hand, boots finding the seams in the stone, {PLAYER} comes down past the ledge, through the opening, and drops the last distance onto dry rock. The circle of sky at the top of the shaft is already small enough to cover with a thumb.
+
+* [Look around.] -> below
+
+== fall ==
+It goes wrong a body-length past the ledge. A vine snaps, the wall leans away where it should lean in, and {PLAYER} is falling: dark, then rock, bones first.
+
+The pain hits sharp and total, and settles into something that will be walking wrong for a week. Above, impossibly far already, the circle of sky at the top of the shaft is small enough to cover with a thumb.
+
+* [Get up. Slowly.] -> below
+
+== below ==
+It is not a cave. It is *caves*.
+
+The dark goes out in three directions and does not come back. Water is moving somewhere below and to the left, steady and slow, and the air is not still: it draws past toward some far-off mouth that has never seen the sun. The well shaft above was never a well at all, or not only. It was a door left open.
+
+Something clicks, far off in the dark. Once. Then again, closer, answering.
+
+* [On your feet, then. Light, and steel.] -> end

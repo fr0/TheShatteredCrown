@@ -86,7 +86,10 @@ namespace TheShatteredCrown
         private static readonly List<Pawn> tmpEnergyPawns = new List<Pawn>();
 
         public const int MaxLevel = 20;
-        private const int XpPerLevelStep = 100;
+        // Level N -> N+1 costs XpPerLevelStep x N. Doubled from 100 (leveling
+        // felt too fast): first level-up at 200 XP (the camp quest alone),
+        // a full Act 1 run now lands around level 4-5 instead of 6.
+        private const int XpPerLevelStep = 200;
 
         public TSC_ProgressionManager(World world) : base(world)
         {
@@ -374,6 +377,86 @@ namespace TheShatteredCrown
 
         // ---------------------------------------------------------------- classes
 
+        /// <summary>
+        /// The company's library: classes whose manuals have been studied.
+        /// Party-wide - once a manual is read, ANY pawn may begin that class
+        /// at level-up (costing a class level). Mentors still teach a class
+        /// directly (LearnClass); manuals only unlock the choice.
+        /// </summary>
+        private List<string> unlockedClasses = new List<string>();
+
+        public bool IsClassUnlocked(TSC_ClassDef classDef)
+        {
+            return classDef != null && unlockedClasses.Contains(classDef.defName);
+        }
+
+        /// <summary>
+        /// Adds a class to the party's library of choosable classes. Pass an
+        /// announcement to describe how it was learned; the default is the
+        /// manual's wording.
+        /// </summary>
+        public void UnlockClass(TSC_ClassDef classDef, Pawn studier, string announcement = null)
+        {
+            if (classDef == null || IsClassUnlocked(classDef))
+            {
+                return;
+            }
+            unlockedClasses.Add(classDef.defName);
+            Messages.Message(
+                announcement
+                    ?? $"{studier?.LabelShortCap ?? "The party"} studies the {classDef.label}'s manual: {classDef.label} can now be chosen at level-up.",
+                studier, MessageTypeDefOf.PositiveEvent, historical: false);
+        }
+
+        /// <summary>Unlocked classes this pawn does not already have - the "(new class)" choices at level-up.</summary>
+        public List<TSC_ClassDef> NewClassChoicesFor(Pawn pawn)
+        {
+            List<TSC_ClassDef> result = new List<TSC_ClassDef>();
+            TSC_ClassRecord record = RecordOf(pawn);
+            foreach (string defName in unlockedClasses)
+            {
+                TSC_ClassDef def = DefDatabase<TSC_ClassDef>.GetNamedSilentFail(defName);
+                if (def != null && !record.Has(def))
+                {
+                    result.Add(def);
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Spends one pending class level to BEGIN an unlocked class at level 1
+        /// (the manual path; mentors grant level 1 free via LearnClass).
+        /// Proficiency rules match AssignPoint: +2 if the new class trains it.
+        /// </summary>
+        public void AssignPointNewClass(Pawn pawn, TSC_ClassDef classDef, TSC_ProficiencyDef proficiency)
+        {
+            TSC_ClassRecord record = RecordOf(pawn);
+            if (classDef == null || record.Has(classDef) || !IsClassUnlocked(classDef) || PendingPoints(pawn) <= 0)
+            {
+                return;
+            }
+            record.classes.Add(classDef);
+            record.levels.Add(1);
+            record.spentPoints++;
+            List<string> gained = classDef.ApplyTo(pawn, 1, record);
+            StringBuilder sb = new StringBuilder($"{pawn.LabelShortCap} takes up the {classDef.label}'s art ({classDef.label} 1).");
+            if (proficiency != null)
+            {
+                int points = classDef.proficiencies.Contains(proficiency) ? 2 : 1;
+                GrantProficiency(pawn, proficiency, points, announce: false);
+                sb.Append($" {proficiency.LabelCap} +{points}.");
+            }
+            foreach (string gain in gained)
+            {
+                sb.Append($" {gain}.");
+            }
+            Messages.Message(sb.ToString(), pawn, MessageTypeDefOf.PositiveEvent, historical: false);
+            UpdateLevelHediff(pawn);
+            // First class creates the energy pool; surface the Needs-tab bar now.
+            pawn.needs?.AddOrRemoveNeedsAsAppropriate();
+        }
+
         /// <summary>Adds a class at level 1 (no cost). A pawn's FIRST class also absorbs any banked level-ups.</summary>
         public void LearnClass(Pawn pawn, TSC_ClassDef classDef, bool announce = true)
         {
@@ -600,6 +683,11 @@ namespace TheShatteredCrown
             LookPawnDict(ref records, ref workingPawnsB, ref workingRecords, "records", LookMode.Deep);
             LookPawnDict(ref proficiencies, ref workingPawnsC, ref workingProfs, "proficiencies", LookMode.Deep);
             LookPawnDict(ref energy, ref workingPawnsD, ref workingEnergy, "energy", LookMode.Value);
+            Scribe_Collections.Look(ref unlockedClasses, "unlockedClasses", LookMode.Value);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && unlockedClasses == null)
+            {
+                unlockedClasses = new List<string>();
+            }
         }
 
         private static void LookPawnDict<V>(ref Dictionary<Pawn, V> dict, ref List<Pawn> keys, ref List<V> values,
@@ -694,7 +782,9 @@ namespace TheShatteredCrown
             TSC_ProgressionManager progression = TSC_ProgressionManager.Current;
             TSC_ClassRecord record = progression.RecordOf(pawn);
             int pending = progression.PendingPoints(pawn);
-            if (pending <= 0 || record.classes.Count < 1)
+            // Classless pawns still get the button when a studied manual has
+            // unlocked a class they could begin.
+            if (pending <= 0 || (record.classes.Count < 1 && progression.NewClassChoicesFor(pawn).Count == 0))
             {
                 yield break;
             }

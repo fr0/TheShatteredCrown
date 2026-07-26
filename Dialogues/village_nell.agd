@@ -1,0 +1,51 @@
+# Nell Root - farm child of Harrowfield (Act 1 village).
+
+dialogue TSC_Dialogue_Nell
+
+# Night visits: asleep node preempts everything (entries in order).
+entry asleep if sleeping()
+
+entry lostkids if quest_active(TSC_Side_Children)
+entry hub if flag(TSC_MetNell)
+
+== start ==
+There is a girl behind the woodpile. She has been behind the woodpile since you arrived, moving around it as you move, keeping precisely one woodpile between you at all times. What shows over the logs: two braids, two eyes, and wariness.
+
+"...I'm Nell," the woodpile says eventually. "Pip's sister. Ma says not to talk to armed strangers, and I *listen*, which is the difference between us." A pause. "Your sword is very big. Is that allowed?"
+
+* "The sword's allowed. Well met, Nell. The woodpile suits you." -> hub
+    do flag(TSC_MetNell); affinity(+5)
+* "Your ma gives good advice. I'm no danger to you, little one." -> hub
+    do flag(TSC_MetNell)
+* [Say nothing and walk away slowly.] -> end
+
+== hub ==
+Nell peeks out from behind the woodpile.
+
+"...You're back. That's probably fine."
+
+* "Hello, Nell." -> end
+* "Just passing through." -> end
+
+== asleep ==
+Nell is a small, tidy lump under the blanket, positioned so the woodpile is between her bed and the door. Even asleep, she plans her way out.
+
+* [Shake them awake.] -> woken
+    do wake()
+* [Leave them to their rest.] -> end
+
+== woken ==
+Nell wakes with a small precise squeak and relocates to the far edge of the bed in one motion, blanket up to her eyes.
+
+"...Is it monsters?" A pause while she studies you. "If it's not monsters, Ma says it can wait. And if it IS monsters, tell Pa, not me. I'm nine tenths asleep."
+
+* "Sorry. Go back to sleep." -> end
+* "Morning, then." -> end
+
+# The Two Loud Things: Nell found in the hills (quest entry preempts).
+== lostkids ==
+Nell is sitting with her back to a rock, arms around her knees, positioned - of course - so the rock is between her and most of the horizon. Relief crosses her face when she sees you, chased immediately by loyalty.
+
+"I *told* him," she says. "I told him hills are for looking at. Pip has the... thing he found. Talk to *him*. And then make him go home, because he won't listen to me, because I'm the *little* one."
+
+* "I'll deal with your brother. Stay in his shadow till we're home." -> end

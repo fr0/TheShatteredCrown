@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 
+  <!-- Severity carries the caster-level scale factor (1 = baseline;
+       TSC_Hediff_Leveled rebuilds the stage with scaled numbers). Hediffs
+       that use severity for something else (Charged Shot's charges) must
+       override hediffClass back to HediffWithComps. -->
   <HediffDef Name="TSC_TimedBuffBase" Abstract="True">
-    <hediffClass>HediffWithComps</hediffClass>
+    <hediffClass>TheShatteredCrown.TSC_Hediff_Leveled</hediffClass>
     <isBad>false</isBad>
     <everCurableByItem>false</everCurableByItem>
     <initialSeverity>1</initialSeverity>
@@ -57,15 +61,12 @@
     <description>Carried by the bard's war-song: faster feet and a surer blade.</description>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>7500</disappearsAfterTicks>
+        <disappearsAfterTicks>7200</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>PsycastAreaEffect</fleck>
-        <color>(1, 0.85, 0.3)</color>
-        <scale>0.9</scale>
-        <interval>160</interval>
-        <scatter>0</scatter>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_HymnNote</mote>
+        <offset>(-0.42, 0, 0.5)</offset>
       </li>
     </comps>
     <stages>
@@ -125,33 +126,66 @@
   <HediffDef ParentName="TSC_TimedBuffBase">
     <defName>TSC_Hediff_StandFast</defName>
     <label>standing fast</label>
-    <description>Braced behind the warden's line: harder to hurt, slower to move.</description>
+    <description>Braced behind the warden's line: markedly harder to hurt.</description>
     <comps>
       <li Class="HediffCompProperties_Disappears">
         <disappearsAfterTicks>2500</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>PsycastAreaEffect</fleck>
-        <color>(0.65, 0.75, 0.9)</color>
-        <scale>1</scale>
-        <interval>110</interval>
-        <scatter>0</scatter>
+      <!-- A small shield hangs at the shoulder while the line holds. -->
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_ShieldMark</mote>
+        <offset>(0.42, 0, 0.5)</offset>
       </li>
     </comps>
     <stages>
       <li>
-        <statOffsets>
-          <MoveSpeed>-1.0</MoveSpeed>
-        </statOffsets>
         <statFactors>
-          <IncomingDamageFactor>0.75</IncomingDamageFactor>
+          <IncomingDamageFactor>0.65</IncomingDamageFactor>
         </statFactors>
       </li>
     </stages>
   </HediffDef>
 
-  <!-- Warden: Challenge (enemy debuff) -->
+  <!-- Warden: Challenge (capstone enemy debuff - stronger than the shared
+       Shaken, which Dirge and War Cry keep) -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Challenged</defName>
+    <label>challenged</label>
+    <description>Dared to come and try by a soldier of the old watch, and found wanting: slow, unsteady, and swinging wide.</description>
+    <isBad>true</isBad>
+    <defaultLabelColor>(1, 0.55, 0.35)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>2500</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_CrossedSwords</mote>
+        <offset>(0.42, 0, 0.5)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <capMods>
+          <li>
+            <capacity>Consciousness</capacity>
+            <offset>-0.15</offset>
+          </li>
+          <li>
+            <capacity>Moving</capacity>
+            <offset>-0.15</offset>
+          </li>
+        </capMods>
+        <statOffsets>
+          <MeleeHitChance>-4</MeleeHitChance>
+          <ShootingAccuracyPawn>-4</ShootingAccuracyPawn>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Warden: Challenge (legacy shared shout debuff - Dirge and War Cry) -->
   <HediffDef ParentName="TSC_TimedBuffBase">
     <defName>TSC_Hediff_Shaken</defName>
     <label>shaken</label>
@@ -160,15 +194,12 @@
     <defaultLabelColor>(0.9, 0.5, 0.5)</defaultLabelColor>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>2500</disappearsAfterTicks>
+        <disappearsAfterTicks>2400</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>DustPuff</fleck>
-        <color>(0.6, 0.5, 0.7)</color>
-        <scale>0.8</scale>
-        <interval>60</interval>
-        <scatter>0.35</scatter>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_TremorLines</mote>
+        <offset>(-0.42, 0, 0.5)</offset>
       </li>
     </comps>
     <stages>
@@ -196,15 +227,12 @@
     <defaultLabelColor>(0.9, 0.5, 0.4)</defaultLabelColor>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>5000</disappearsAfterTicks>
+        <disappearsAfterTicks>3600</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>PsycastAreaEffect</fleck>
-        <color>(1, 0.3, 0.3)</color>
-        <scale>1</scale>
-        <interval>120</interval>
-        <scatter>0</scatter>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_TargetMark</mote>
+        <offset>(0, 0, 0.72)</offset>
       </li>
     </comps>
     <stages>
@@ -223,21 +251,18 @@
     <description>A humming lattice of old sigils turns aside blade and bolt alike.</description>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>7500</disappearsAfterTicks>
+        <disappearsAfterTicks>7200</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>PsycastAreaEffect</fleck>
-        <color>(0.4, 0.9, 1)</color>
-        <scale>1.1</scale>
-        <interval>100</interval>
-        <scatter>0</scatter>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_WardRune</mote>
+        <offset>(0, 0, 0.72)</offset>
       </li>
     </comps>
     <stages>
       <li>
         <statFactors>
-          <IncomingDamageFactor>0.65</IncomingDamageFactor>
+          <IncomingDamageFactor>0.50</IncomingDamageFactor>
         </statFactors>
       </li>
     </stages>
@@ -252,15 +277,12 @@
     <defaultLabelColor>(0.9, 0.5, 0.4)</defaultLabelColor>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>3750</disappearsAfterTicks>
+        <disappearsAfterTicks>2700</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>DustPuff</fleck>
-        <color>(0.5, 0.4, 0.7)</color>
-        <scale>0.9</scale>
-        <interval>70</interval>
-        <scatter>0.3</scatter>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_LeadWeight</mote>
+        <offset>(0.45, 0, 0.08)</offset>
       </li>
     </comps>
     <stages>
@@ -285,15 +307,12 @@
     <description>Fury with a heartbeat. Hits harder, feels less, aims worse.</description>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>3750</disappearsAfterTicks>
+        <disappearsAfterTicks>3600</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>HeatGlow</fleck>
-        <color>(1, 0.3, 0.2)</color>
-        <scale>1.2</scale>
-        <interval>35</interval>
-        <scatter>0.3</scatter>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_RageFlame</mote>
+        <offset>(0.45, 0, 0.08)</offset>
       </li>
     </comps>
     <stages>
@@ -317,15 +336,12 @@
     <description>Too stubborn to fall. Pain is a rumor; wounds are a later problem.</description>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>2500</disappearsAfterTicks>
+        <disappearsAfterTicks>2400</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>PsycastAreaEffect</fleck>
-        <color>(0.8, 0.85, 0.9)</color>
-        <scale>1.2</scale>
-        <interval>90</interval>
-        <scatter>0</scatter>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_AnvilMark</mote>
+        <offset>(-0.45, 0, 0.08)</offset>
       </li>
     </comps>
     <stages>
@@ -347,15 +363,13 @@
     <defaultLabelColor>(0.9, 0.5, 0.4)</defaultLabelColor>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>1875</disappearsAfterTicks>
+        <disappearsAfterTicks>1800</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>DustPuffThick</fleck>
-        <color>(0.4, 0.55, 0.3)</color>
-        <scale>1.1</scale>
-        <interval>25</interval>
-        <scatter>0.4</scatter>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_ThornSnare</mote>
+        <offset>(0, 0, -0.28)</offset>
+        <rotationRate>20</rotationRate>
       </li>
     </comps>
     <stages>
@@ -374,22 +388,21 @@
     <description>Skin like old oak. Cuts land shallow.</description>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>7500</disappearsAfterTicks>
+        <disappearsAfterTicks>7200</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>DustPuff</fleck>
-        <color>(0.55, 0.42, 0.3)</color>
-        <scale>0.8</scale>
-        <interval>140</interval>
-        <scatter>0.35</scatter>
+      <!-- The wreath: a slow-spinning ring of leaves around the warded. -->
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_BarkWreath</mote>
+        <rotationRate>35</rotationRate>
       </li>
     </comps>
     <stages>
       <li>
+        <!-- Single-target premium (was +25/+15 as an area buff) -->
         <statOffsets>
-          <ArmorRating_Sharp>0.25</ArmorRating_Sharp>
-          <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
+          <ArmorRating_Sharp>0.40</ArmorRating_Sharp>
+          <ArmorRating_Blunt>0.25</ArmorRating_Blunt>
         </statOffsets>
       </li>
     </stages>
@@ -402,15 +415,12 @@
     <description>Stillness spent; speed purchased. Strikes come like rain.</description>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>2500</disappearsAfterTicks>
+        <disappearsAfterTicks>2400</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>DustPuff</fleck>
-        <color>(1, 1, 0.95)</color>
-        <scale>0.7</scale>
-        <interval>30</interval>
-        <scatter>0.4</scatter>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_FlurryChevrons</mote>
+        <offset>(0.45, 0, 0.08)</offset>
       </li>
     </comps>
     <stages>
@@ -476,15 +486,12 @@
     <description>The bow becomes a heartbeat: draw, loose, draw.</description>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>3750</disappearsAfterTicks>
+        <disappearsAfterTicks>3600</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
-      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
-        <fleck>DustPuff</fleck>
-        <color>(0.95, 1, 0.75)</color>
-        <scale>0.7</scale>
-        <interval>45</interval>
-        <scatter>0.35</scatter>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_QuiverArrow</mote>
+        <offset>(0.45, 0, 0.08)</offset>
       </li>
     </comps>
     <stages>
@@ -494,6 +501,238 @@
         </statFactors>
         <statOffsets>
           <ShootingAccuracyPawn>4</ShootingAccuracyPawn>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Warden: Charge (5-second sprint; GiveHediff expiry comes from Ability_Duration) -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Charge</defName>
+    <label>charging</label>
+    <description>Legs remember the wall-sprints of the old watch. Briefly, nothing on two feet is faster.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>300</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_ChargeChevrons</mote>
+        <offset>(0, 0, 0.72)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>5</MoveSpeed>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Ranger: Charged Shot (severity = shots remaining; consumed per projectile impact) -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_ChargedShot</defName>
+    <label>charged shot</label>
+    <description>Every draw is measured, every loose is meant. The next arrows hit like judgment.</description>
+    <!-- Severity = CHARGES here, not the scale factor: plain hediff class.
+         The damage bonus scales with ranger level in the projectile patch. -->
+    <hediffClass>HediffWithComps</hediffClass>
+    <initialSeverity>3</initialSeverity>
+    <maxSeverity>3</maxSeverity>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>3600</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_ChargedArrow</mote>
+        <offset>(-0.45, 0, 0.08)</offset>
+      </li>
+    </comps>
+  </HediffDef>
+
+  <!-- Paladin: Righteous Brand (attack-falter debuff; replaced the old +30% damage mark) -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_RighteousBrand</defName>
+    <label>branded</label>
+    <description>Named for what it is, the branded thing fights like something that knows it is beaten.</description>
+    <isBad>true</isBad>
+    <defaultLabelColor>(1, 0.8, 0.4)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>3600</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_BrandFlame</mote>
+        <offset>(-0.45, 0, 0.08)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <MeleeHitChance>-4</MeleeHitChance>
+          <ShootingAccuracyPawn>-4</ShootingAccuracyPawn>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+
+  <!-- On a summoned creature: marks it conjured and shows the time left
+       (turn-order chip). TSC_SummonTracker owns the actual lifetime. -->
+  <HediffDef>
+    <defName>TSC_Hediff_Summoned</defName>
+    <label>summoned</label>
+    <description>A conjured creature. When the magic fades, it vanishes - and if it is slain, nothing of it remains.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(0.5, 0.85, 0.4)</defaultLabelColor>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>3600</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li />
+    </stages>
+  </HediffDef>
+
+
+  <!-- The hard landing at the bottom of the well: a broken bone in one limb.
+       Tendable; knits on its own in about a week. -->
+  <HediffDef>
+    <defName>TSC_Hediff_BrokenLimb</defName>
+    <label>broken bone</label>
+    <description>A cracked or broken bone from a hard fall. Painful and crippling for the limb until it knits, which takes a week or so. Tending eases it along.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(1, 0.55, 0.35)</defaultLabelColor>
+    <initialSeverity>1</initialSeverity>
+    <tendable>true</tendable>
+    <comps>
+      <li Class="HediffCompProperties_TendDuration">
+        <baseTendDurationHours>36</baseTendDurationHours>
+        <severityPerDayTended>-0.06</severityPerDayTended>
+      </li>
+      <li Class="HediffCompProperties_SeverityPerDay">
+        <severityPerDay>-0.14</severityPerDay>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <partEfficiencyOffset>-0.6</partEfficiencyOffset>
+        <painOffset>0.25</painOffset>
+      </li>
+    </stages>
+  </HediffDef>
+
+
+  <!-- What centuries actually mean when the stick comes off the chair:
+       applied by npc_hostile(TSC_Hediff_ElderBlood) if the player chooses
+       to make Old Wick pay. -->
+  <HediffDef>
+    <defName>TSC_Hediff_ElderBlood</defName>
+    <label>elder blood</label>
+    <description>The strength of something very old that has stopped pretending to be tired.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <initialSeverity>1</initialSeverity>
+    <stages>
+      <li>
+        <painFactor>0.15</painFactor>
+        <statOffsets>
+          <MeleeHitChance>6</MeleeHitChance>
+          <MeleeDodgeChance>18</MeleeDodgeChance>
+        </statOffsets>
+        <statFactors>
+          <MoveSpeed>1.35</MoveSpeed>
+          <MeleeDamageFactor>2.2</MeleeDamageFactor>
+          <IncomingDamageFactor>0.6</IncomingDamageFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- The sleeper behind the warm door, on its feet with the ember bow.
+       Elder blood is Old Wick's inheritance and reads as a swordsman's;
+       this is the source of it, and it fights at range: it aims faster and
+       truer than anything alive, moves like it is not carrying a body, and
+       does not care what you put through it.
+       Applied by MapComponent_TSC_ElderSleeper when the shard is lifted. -->
+  <HediffDef>
+    <defName>TSC_Hediff_KindledBlood</defName>
+    <label>kindled blood</label>
+    <description>The blood every other sanguophage is a copy of, awake for the first time in eight hundred years and holding a bow.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <initialSeverity>1</initialSeverity>
+    <stages>
+      <li>
+        <painFactor>0.15</painFactor>
+        <statOffsets>
+          <ShootingAccuracyPawn>8</ShootingAccuracyPawn>
+          <AimingDelayFactor>-0.35</AimingDelayFactor>
+          <MeleeDodgeChance>12</MeleeDodgeChance>
+        </statOffsets>
+        <statFactors>
+          <MoveSpeed>1.25</MoveSpeed>
+          <IncomingDamageFactor>0.6</IncomingDamageFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Reading beast sign done right (TSC_BeastTracks check spot): a few
+       days of the hunter's eye against everything, because knowing one
+       animal completely sharpens the eye for all of them. -->
+  <HediffDef>
+    <defName>TSC_Hediff_HuntersEye</defName>
+    <label>hunter's eye</label>
+    <description>The particular sharpness that follows reading a killing ground correctly: where weight lands, where things bolt, what a limp hides. It fades in a few days.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <initialSeverity>1</initialSeverity>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>180000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <ShootingAccuracyPawn>3</ShootingAccuracyPawn>
+          <MeleeDodgeChance>4</MeleeDodgeChance>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- The wayside shrines' answer: a few days of steadiness for whoever
+       speaks the rite correctly (TSC_ShrineAltar check spot). Deliberately
+       modest - a traveler's favor, not a war blessing. -->
+  <HediffDef>
+    <defName>TSC_Hediff_Blessed</defName>
+    <label>old rite's favor</label>
+    <description>A steadiness behind the eyes, left by a rite spoken correctly at an old shrine. It fades in a few days, the way all borrowed things go back.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <initialSeverity>1</initialSeverity>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>240000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <MeleeHitChance>2</MeleeHitChance>
+          <ShootingAccuracyPawn>2</ShootingAccuracyPawn>
+          <MentalBreakThreshold>-0.04</MentalBreakThreshold>
         </statOffsets>
       </li>
     </stages>

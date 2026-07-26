@@ -1,0 +1,124 @@
+# The crypt finale (one-shot per save): Old Wick steps out of the dark
+# when the party reaches his coffin and the shard. Opened from code
+# (MapComponent_TSC_CryptFinale); he is armed. Both routes end here:
+# the journal route enters at 'confessed' (he already owned the journal),
+# the trust route gets the full reveal cold. Every exit resolves him -
+# let him walk (npc_leave), make him pay (npc_hostile + elder blood),
+# or sentence him to the village: guard Harrowfield as recompense
+# (TSC_WickPenance; TSC_WickAtCrypt unflagged so he spawns at home again).
+
+dialogue TSC_Dialogue_WickFinale
+
+entry confessed if flag(TSC_WickConfessed)
+
+== start ==
+"That box you're standing over," says a dry voice from the dark, "is mine."
+
+Old Wick walks into the lamplight. He carries a sword now, and he carries it like a man who always has. He does not look tired anymore.
+
+"The survey story was true, courier, or at least part of it. The crew cut into this place sixty years ago. Three of them swore and went home. The fourth was me."
+
+"I was already in the box when they broke the seal." He taps the coffin lid, once. "I walked out with them anyway, and learned their names, and buried them one by one as old men. Wick Alderman, seventy-two years in the valley. I have had other names. I served the king who wore that crown whole. When they shattered it, each shard was buried where no thief would find it. This was one of the places."
+
+"The thing you seek is not in my box, courier. Deeper. Behind the warm door, laid at the head of a black sarcophagus, and the thing that made me is sealed inside that sarcophagus, because nothing else in the world would guard a shard well enough."
+
+* "The journal in the well caves. That was you." -> journal_owned
+    if flag(TSC_WeatheredJournalRead)
+* "And the body down there, under the well." -> victim_owned
+    if flag(TSC_WellBodyFound)
+* "Three hundred years in this valley's shadow. What did you do with them?" -> accounting
+    if not flag(TSC_WeatheredJournalRead)
+* "Say what you came to say." -> choice
+
+== confessed ==
+Old Wick is standing by the coffin when you reach it, sword at his side, hands folded on the hilt the way they used to fold on the stick.
+
+"I said I would be inside," he says. "This is what inside means. The box is mine. The shard is not; it is behind the warm door, at the head of the black sarcophagus that holds the thing that made me, and I have stood watch over both sixty years past the end of my orders."
+
+"You have read the journal. You have seen the well. There is nothing left of me you have not met. So."
+
+* "What is behind the warm door?" -> door_q
+* "Say it, then." -> choice
+
+== journal_owned ==
+"Every word. I wrote it across three hundred years and I buried it with the only honest thing I ever did, which was to be sorry." He does not look away. "You read it. Then you know the deeds I've done."
+
+* "And the body under the well." -> victim_owned
+    if flag(TSC_WellBodyFound)
+* "Enough. Finish it." -> choice
+
+== victim_owned ==
+"A shepherd. Forty years ago, in a bad winter, when I had gone too long." The words come out level, each one placed like a stone. "I carried them down where the water is, and I laid them out, and I left everything I owned worth leaving. It did not help them. It was not supposed to help me."
+
+* "What is behind the warm door?" -> door_q
+* "Enough. Finish it." -> choice
+
+== accounting ==
+"I served. That is the whole of it, and the whole crime." He does not raise his voice. "I put down the rising at the weirs. They were farmers. I held this pass for kings who never asked how. And forty years ago, in a bad winter, when I had gone too long, I killed a shepherd of this village and told the searchers where not to look."
+
+"There are caves below the village well. The shepherd is in them, and beside them a chest with a journal. Three hundred years of accounting, unsigned. If you want to check my ledger before you rule on it, courier, it is all written down."
+
+* "What is behind the warm door?" -> door_q
+* "Enough. Finish it." -> choice
+
+== door_q ==
+"The one who made me what I am. The one I served before I served kings." He does not turn his head toward it. "It does not die. It only sleeps, and it sleeps holding your shard, because they knew no lock would hold it and no guard would stay."
+
+"Understand what you are walking into, courier. The shard lies against its box, close enough that the stone stays warm. Lift it and it wakes, and there is no word you can say to it afterward. I have tried. I had three hundred years to think of the word. And courier - do not open the box yourself. That is the one mercy the arrangement allows you."
+
+* "Enough. Finish it." -> choice
+
+== choice ==
+"So," he says. "The door is down there and the shard is behind it, and I am not going to stop you. And then there is the matter of what will happen to me."
+
+He draws the sword and sets it point-down on the stone, both hands on the pommel, and waits.
+
+"I will not choose for you. I have had centuries of choosing."
+
+* "Don't you still get thirsty?" -> thirsty
+* "Walk, Wick Alderman. Don't come back." -> spared
+    do flag(TSC_WickSpared); grant_xp(200); npc_leave()
+* "No. Go back to the village. Guard them to the end of their days. That is your sentence." -> penance
+    do flag(TSC_WickPenance); unflag(TSC_WickAtCrypt); grant_xp(200); npc_leave()
+* "You pay. For your crimes, and for what you are." -> condemned
+    do flag(TSC_WickCondemned); grant_xp(200); npc_hostile(TSC_Hediff_ElderBlood)
+
+== thirsty ==
+
+"Of course I do, but I've learned how to lessen the pangs. And when it bubbles up inside me and I can't suppress it anymore, I find someone who no one will miss. I'm not proud of it."
+
+* "Walk, Wick Alderman. Don't come back." -> spared
+    do flag(TSC_WickSpared); grant_xp(200); npc_leave()
+* "No. Go back to the village. Guard them to the end of their days. That is your sentence." -> penance
+    do flag(TSC_WickPenance); unflag(TSC_WickAtCrypt); grant_xp(200); npc_leave()
+* "You pay. For your crimes, and for what you are." -> condemned
+    do flag(TSC_WickCondemned); grant_xp(200); npc_hostile(TSC_Hediff_ElderBlood)
+
+== spared ==
+He is still for a moment. Then he takes up the sword and sheathes it.
+
+"Mercy, from a courier, in a grave." He inclines his head, and it is not mockery. "I will not thank you. It would make it smaller. But I will be gone by the time you are up the rope, and no road you ride will cross mine again."
+
+At the edge of the lamplight he stops, without turning. "It will be awake by the time you are back up the tunnel, courier. Do not fight it in a corridor."
+
+Then he is gone.
+
+* [Go on to the door.] -> end
+
+== penance ==
+He is quiet for a long time. When he speaks, the dry voice has come back, and it is smaller.
+
+"A sentence of chairs and fences." He takes up the sword and sheathes it. "You understand what you are asking. Every year in that village is a year of hunger managed, watched, never trusted."
+
+"Very well. I will keep them. From wolves, from raiders, from whatever comes up this tunnel behind you once you have taken what you came for. From me, if it ever comes to that, and it will not." He turns toward the tunnel.
+
+* [Go on to the door.] -> end
+
+== condemned ==
+"Yes," he says, and there is something in it that has waited a long time to be said. "The weirs. The shepherd. All of it. I hoped, if it ever came, it would come from someone who meant it."
+
+He lifts the sword off the stone.
+
+"I will not make it easy."
+
+* [Steel.] -> end

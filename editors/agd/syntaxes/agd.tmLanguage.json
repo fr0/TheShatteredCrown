@@ -1,0 +1,163 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "AGD Dialogue",
+  "scopeName": "source.agd",
+  "fileTypes": ["agd"],
+  "patterns": [
+    {
+      "match": "^\\s*#.*$",
+      "name": "comment.line.number-sign.agd"
+    },
+    {
+      "match": "^(dialogue)\\s+(\\S+)",
+      "captures": {
+        "1": { "name": "keyword.control.agd" },
+        "2": { "name": "entity.name.class.agd" }
+      }
+    },
+    {
+      "begin": "^(entry)\\s+(\\w+)(?:\\s+(if)\\b)?",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.agd" },
+        "2": { "name": "entity.name.function.agd" },
+        "3": { "name": "keyword.control.agd" }
+      },
+      "end": "$",
+      "patterns": [{ "include": "#expressions" }]
+    },
+    {
+      "match": "^(==)\\s*(\\w+)\\s*(==)\\s*$",
+      "name": "markup.heading.agd",
+      "captures": {
+        "1": { "name": "punctuation.definition.heading.begin.agd" },
+        "2": { "name": "entity.name.function.agd" },
+        "3": { "name": "punctuation.definition.heading.end.agd" }
+      }
+    },
+    {
+      "begin": "^\\s*(\\*)(?=\\s)",
+      "beginCaptures": {
+        "1": { "name": "keyword.operator.list.agd" }
+      },
+      "end": "$",
+      "patterns": [{ "include": "#option" }]
+    },
+    {
+      "match": "^\\s+(check)\\s+(\\w+)\\s+(\\d+)\\s*(->)\\s*(\\w+)\\s*(\\|)\\s*(\\w+)\\s*$",
+      "captures": {
+        "1": { "name": "keyword.control.agd" },
+        "2": { "name": "storage.type.proficiency.agd" },
+        "3": { "name": "constant.numeric.agd" },
+        "4": { "name": "keyword.operator.arrow.agd" },
+        "5": { "name": "entity.name.label.agd" },
+        "6": { "name": "punctuation.separator.agd" },
+        "7": { "name": "entity.name.label.agd" }
+      }
+    },
+    {
+      "begin": "^\\s+(if|do)\\b",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.agd" }
+      },
+      "end": "$",
+      "patterns": [{ "include": "#expressions" }]
+    },
+    {
+      "match": "\\*[^*\\n]+\\*",
+      "name": "markup.italic.agd"
+    },
+    {
+      "match": "\\{\\w+\\}",
+      "name": "constant.other.placeholder.agd"
+    }
+  ],
+  "repository": {
+    "expressions": {
+      "patterns": [
+        {
+          "match": "\\b(and|not)\\b",
+          "name": "keyword.operator.word.agd"
+        },
+        {
+          "begin": "(\\w+)\\s*(\\()",
+          "beginCaptures": {
+            "1": { "name": "support.function.agd" },
+            "2": { "name": "punctuation.section.parens.begin.agd" }
+          },
+          "end": "(\\))|$",
+          "endCaptures": {
+            "1": { "name": "punctuation.section.parens.end.agd" }
+          },
+          "patterns": [{ "include": "#args" }]
+        },
+        {
+          "match": ";",
+          "name": "punctuation.separator.sequence.agd"
+        }
+      ]
+    },
+    "args": {
+      "patterns": [
+        {
+          "match": ">=|<=|==|>|<",
+          "name": "keyword.operator.comparison.agd"
+        },
+        {
+          "match": "[+-]?\\d+\\b",
+          "name": "constant.numeric.agd"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.agd"
+        },
+        {
+          "match": "[A-Za-z_]\\w*",
+          "name": "variable.parameter.agd"
+        }
+      ]
+    },
+    "option": {
+      "patterns": [
+        {
+          "begin": "\"",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.agd" }
+          },
+          "end": "\"",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.agd" }
+          },
+          "name": "string.quoted.double.agd",
+          "patterns": [
+            {
+              "match": "\\*[^*\"\\n]+\\*",
+              "name": "markup.italic.agd"
+            },
+            {
+              "match": "\\{\\w+\\}",
+              "name": "constant.other.placeholder.agd"
+            }
+          ]
+        },
+        {
+          "match": "\\[[^\\]\\n]*\\]",
+          "name": "string.other.action.agd"
+        },
+        {
+          "match": "(->)\\s*(end)\\b",
+          "captures": {
+            "1": { "name": "keyword.operator.arrow.agd" },
+            "2": { "name": "constant.language.end.agd" }
+          }
+        },
+        {
+          "match": "(->)\\s*(\\w+)",
+          "captures": {
+            "1": { "name": "keyword.operator.arrow.agd" },
+            "2": { "name": "entity.name.label.agd" }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -14,10 +14,11 @@ namespace TheShatteredCrown
     }
 
     /// <summary>
-    /// Class manuals: studying the book teaches the class (level 1, like a
-    /// mentor's teaching) and consumes it. Scenario-gated with a reason string,
-    /// and refuses pawns who already know the class, so a duplicate book stays
-    /// useful for another colonist.
+    /// Class manuals: studying the book UNLOCKS the class for the whole
+    /// company - it becomes a "(new class)" choice in the level-up dialog,
+    /// where beginning it costs a class level. It does NOT grant a level
+    /// directly (user decision), and neither do mentors' in-story teachings.
+    /// Consumed on study; a second copy of an unlocked manual is just paper.
     /// </summary>
     public class CompUseEffect_TSC_LearnClass : CompUseEffect
     {
@@ -37,10 +38,9 @@ namespace TheShatteredCrown
             {
                 return "Only a free colonist can study it.";
             }
-            TSC_ClassRecord record = TSC_ProgressionManager.Current.RecordOf(p);
-            if (record != null && record.Has(Props.classDef))
+            if (TSC_ProgressionManager.Current.IsClassUnlocked(Props.classDef))
             {
-                return $"{p.LabelShortCap} already knows the {Props.classDef.label}'s art.";
+                return $"The company already keeps the {Props.classDef.label}'s teachings.";
             }
             return true;
         }
@@ -48,7 +48,7 @@ namespace TheShatteredCrown
         public override void DoEffect(Pawn usedBy)
         {
             base.DoEffect(usedBy);
-            TSC_ProgressionManager.Current.LearnClass(usedBy, Props.classDef);
+            TSC_ProgressionManager.Current.UnlockClass(Props.classDef, usedBy);
         }
     }
 }

@@ -8,8 +8,8 @@
     <defName>TSC_BranRuin</defName>
     <label>old border ruin</label>
     <description>A crumbling ruin of the dead kingdom's border works. The missing party's trail ends here.</description>
-    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
-    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
     <approachOrderString>Search {0}</approachOrderString>
     <approachingReportString>Searching {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
@@ -34,8 +34,8 @@
     <defName>TSC_PartyCamp</defName>
     <label>wayfarers' camp</label>
     <description>The missing party's campsite: a firepit, bedrolls, and months of stubborn patience aimed at an ettersnap.</description>
-    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
-    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCamp</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCamp</expandingIconTexture>
     <approachOrderString>Visit {0}</approachOrderString>
     <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
@@ -46,7 +46,9 @@
     </tags>
     <!-- Story hub: survives being visited and left (the rites require returning) -->
     <modExtensions>
-      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension" />
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <noDetectionRaids>true</noDetectionRaids>
+      </li>
     </modExtensions>
   </SitePartDef>
 
@@ -72,8 +74,8 @@
     <defName>TSC_MossBarrowSite</defName>
     <label>mosskeepers' barrow</label>
     <description>A low barrow of the old kingdom's mosskeepers. Remembrance moss grows in its cold cellars, and things nest among the sarcophagi.</description>
-    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
-    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</expandingIconTexture>
     <approachOrderString>Explore {0}</approachOrderString>
     <approachingReportString>Exploring {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
@@ -84,6 +86,16 @@
     <tags>
       <li>TSC_MossBarrowSite</li>
     </tags>
+    <!-- Quest objective site: scouting and leaving must not delete it
+         (softlocked the moss quest). Everything on it is genstep-driven,
+         so the regenerated map comes back complete - crypt, loot,
+         shamblers. Persists only while the quest runs (else it would be
+         an infinitely re-farmable moss/manual mine); raids stay. -->
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Side_Moss</whileQuestActive>
+      </li>
+    </modExtensions>
   </SitePartDef>
 
   <!-- Surface half: just the barrow mouth; the crypt (and its shamblers)
@@ -103,8 +115,8 @@
     <defName>TSC_DruidGrove</defName>
     <label>druid's grove</label>
     <description>A quiet hollow with a single stone cottage. The local druid keeps ravens, and opinions.</description>
-    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
-    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteGrove</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteGrove</expandingIconTexture>
     <approachOrderString>Visit {0}</approachOrderString>
     <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
@@ -115,7 +127,9 @@
     </tags>
     <!-- Story location: persists across visits (Maewyn respawns via genstep) -->
     <modExtensions>
-      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension" />
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <noDetectionRaids>true</noDetectionRaids>
+      </li>
     </modExtensions>
   </SitePartDef>
 
@@ -139,8 +153,8 @@
     <defName>TSC_EttersnapCave</defName>
     <label>ettersnap cave</label>
     <description>A cave in the deep hills where the party finally cornered their quarry. Quiet, cold, and full of old bones.</description>
-    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
-    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</expandingIconTexture>
     <approachOrderString>Enter {0}</approachOrderString>
     <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
@@ -156,49 +170,138 @@
     <forceMutators>
       <li>Cavern</li>
     </forceMutators>
+    <!-- Quest objective site: must survive scouting visits (leaving before
+         the capture used to DELETE it, softlocking the hunt). The spawn
+         node re-dens the ettersnap when the map regenerates. Persists only
+         while the hunt runs; detection raids stay (dungeon pressure). -->
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Act1_Ettersnap</whileQuestActive>
+      </li>
+    </modExtensions>
   </SitePartDef>
 
-  <!-- Side site: the village of Underhill, Bram's home -->
+  <!-- Side site: the farming village of Harrowfield -->
   <SitePartDef>
-    <defName>TSC_UnderhillVillage</defName>
-    <label>village of Underhill</label>
-    <description>A small farming village under the hills: a handful of stone cottages, a smithy, and an inn whose fire never quite goes out.</description>
-    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
-    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <defName>TSC_HarrowfieldVillage</defName>
+    <label>village of Harrowfield</label>
+    <description>A small farming village under the hills: potato farms, a smithy, and an elder who remembers more than he tells.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteVillage</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteVillage</expandingIconTexture>
     <approachOrderString>Visit {0}</approachOrderString>
     <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <gravShipsCanLandOn>true</gravShipsCanLandOn>
     <considerEnteringAsAttack>false</considerEnteringAsAttack>
     <tags>
-      <li>TSC_UnderhillVillage</li>
+      <li>TSC_HarrowfieldVillage</li>
     </tags>
     <!-- Story location: persists across visits -->
     <modExtensions>
-      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension" />
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <noDetectionRaids>true</noDetectionRaids>
+      </li>
     </modExtensions>
   </SitePartDef>
 
   <GenStepDef>
-    <defName>TSC_UnderhillVillage</defName>
-    <linkWithSite>TSC_UnderhillVillage</linkWithSite>
+    <defName>TSC_HarrowfieldVillage</defName>
+    <linkWithSite>TSC_HarrowfieldVillage</linkWithSite>
     <order>470</order>
-    <!-- Residents were cut with the old design's NPCs; the geography remains
-         for future acts, and new NamedNpcDefs can slot into these fields. -->
+    <!-- Harrowfield, populated (Act 1): three farm households (fields south
+         of each farmhouse), the smith at the forge, Old Wick in his own
+         small cottage (no inn - user decision).
+         Everyone runs the villager routine: work spot by day, indoors at
+         night. FARMS FIRST - the genstep's southern building slots come
+         first so the fields land in open ground. -->
     <genStep Class="TheShatteredCrown.GenStep_TSC_Village">
-      <innPrefab>TSC_Inn</innPrefab>
+      <well>TSC_Well</well>
+      <!-- The fence the dialogue keeps pointing at: Bryn mends it and holds
+           court on the rail, Serra camps outside it. Rings the houses and
+           fields with a gate on each side; people step over it, the chickens
+           and goats do not. -->
+      <fence>Fence</fence>
+      <fenceGate>FenceGate</fenceGate>
+      <fenceStuff>WoodLog</fenceStuff>
+      <!-- The Wayfarers keep the rites' promise: from the SECOND visit on
+           (and only after the rites), Serra and Oswin are camped just north
+           of the village square, beyond the fence. -->
+      <campPrefab>TSC_CampSite</campPrefab>
+      <campResidents>
+        <li>TSC_Npc_Serra</li>
+        <li>TSC_Npc_Oswin</li>
+      </campResidents>
+      <campVisitedFlag>TSC_HarrowfieldVisited</campVisitedFlag>
+      <campRequireFlag>TSC_RitesDone</campRequireFlag>
+      <campArrivedFlag>TSC_CampAtVillage</campArrivedFlag>
       <buildings>
         <li>
           <prefab>TSC_Cottage</prefab>
+          <cropField>true</cropField>
+          <residents>
+            <li>TSC_Npc_Tam</li>
+            <li>TSC_Npc_Hessa</li>
+            <li>TSC_Npc_Pip</li>
+            <li>TSC_Npc_Nell</li>
+          </residents>
+          <yardProp>TSC_Woodpile</yardProp>
+          <!-- "The children. Not the chickens." - and the goat Hessa argues with -->
+          <livestock>
+            <li>
+              <kind>Chicken</kind>
+              <count>4~6</count>
+            </li>
+            <li>
+              <kind>Goat</kind>
+              <count>1~2</count>
+            </li>
+          </livestock>
         </li>
         <li>
-          <prefab>TSC_Smithy</prefab>
+          <prefab>TSC_Cottage</prefab>
+          <cropField>true</cropField>
+          <residents>
+            <li>TSC_Npc_Wilf</li>
+            <li>TSC_Npc_Mara</li>
+          </residents>
         </li>
         <li>
           <prefab>TSC_CottageSmall</prefab>
+          <cropField>true</cropField>
+          <residents>
+            <li>TSC_Npc_Col</li>
+            <li>TSC_Npc_Bryn</li>
+          </residents>
+          <!-- Bryn's story-time audience -->
+          <livestock>
+            <li>
+              <kind>Chicken</kind>
+              <count>2~3</count>
+            </li>
+          </livestock>
+        </li>
+        <li>
+          <prefab>TSC_Smithy</prefab>
+          <resident>TSC_Npc_Haldor</resident>
+        </li>
+        <li>
+          <prefab>TSC_CottageSmall</prefab>
+          <resident>TSC_Npc_OldWick</resident>
         </li>
       </buildings>
     </genStep>
+  </GenStepDef>
+
+  <!-- Cat-and-Mouse bandit camps: vanilla's BanditCamp machinery adds POWER
+       (solar generator + conduits) and can place other industrial gear.
+       This purge genstep links to the vanilla site type but self-gates on
+       the site faction being TSC_Faction_Bandits, so only OUR quest's camps
+       are stripped medieval - vanilla bandit camps stay vanilla. -->
+  <GenStepDef>
+    <defName>TSC_BanditCampMedievalPurge</defName>
+    <linkWithSite>BanditCamp</linkWithSite>
+    <order>800</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_MedievalPurge" />
   </GenStepDef>
 
   <!-- Chapter 2 site: the sunken cellars -->
@@ -206,8 +309,8 @@
     <defName>TSC_SunkenCellars</defName>
     <label>sunken cellars</label>
     <description>The catacombs beneath a village lost to war. The guild's map marks a reliquary in its depths, and warns that something nests in the dark.</description>
-    <siteTexture>World/WorldObjects/Sites/GenericSite</siteTexture>
-    <expandingIconTexture>World/WorldObjects/Expanding/Sites/AncientComplex</expandingIconTexture>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCellars</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCellars</expandingIconTexture>
     <approachOrderString>Explore {0}</approachOrderString>
     <approachingReportString>Exploring {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
@@ -226,6 +329,61 @@
     <order>470</order>
     <genStep Class="GenStep_AncientRuins">
       <layoutDef>TSC_Catacombs</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_HarrowfieldUnfog</defName>
+    <linkWithSite>TSC_HarrowfieldVillage</linkWithSite>
+    <!-- After GenStep_Fog (1230): reveal the villagers' homes -->
+    <order>1300</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Unfog" />
+  </GenStepDef>
+
+
+  <!-- Act 1 finale: the old survey gallery over the sanguophage crypt.
+       Surface = gallery mouth portal; everything real is in the
+       TSC_CryptUnderground pocket map (1.6/Defs/Misc/TSC_Crypt.xml). -->
+  <SitePartDef>
+    <defName>TSC_CryptSite</defName>
+    <label>old survey gallery</label>
+    <description>A Crown-survey gallery cut into the Harrow hills sixty years ago, and abandoned in a hurry. Whatever the crew found at the end of it, they bricked it up and never spoke of it sober.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteGallery</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteGallery</expandingIconTexture>
+    <approachOrderString>Explore {0}</approachOrderString>
+    <approachingReportString>Exploring {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>150</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_CryptSite</li>
+    </tags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Act1_Crypt</whileQuestActive>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_CryptSite</defName>
+    <linkWithSite>TSC_CryptSite</linkWithSite>
+    <order>470</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BarrowSurface">
+      <entranceDef>TSC_CryptEntrance</entranceDef>
+    </genStep>
+  </GenStepDef>
+
+
+  <!-- The looting party at the gallery mouth (parley -> fight or Arcana scare). -->
+  <GenStepDef>
+    <defName>TSC_CryptBandits</defName>
+    <linkWithSite>TSC_CryptSite</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CryptBandits">
+      <count>3~5</count>
     </genStep>
   </GenStepDef>
 

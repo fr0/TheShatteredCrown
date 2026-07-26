@@ -1,0 +1,93 @@
+# Col Fenwick - farmer of Harrowfield (Act 1 village).
+# First talk: descriptive INTRO (start); completing it sets TSC_MetCol
+# and later visits enter at hub. Flesh out the hub freely.
+# Compile with:  scripts\Compile-Dialogue.ps1
+
+dialogue TSC_Dialogue_Col
+
+# Night visits: asleep node preempts everything (entries in order).
+entry asleep if sleeping()
+
+entry hub if flag(TSC_MetCol)
+
+== start ==
+The man by the small cottage is doing nothing at all, and doing it with great skill: arms crossed, back to the wall, watching the road. He nods when you're close enough, unhurried, as if he had seen you coming since yesterday.
+
+"Col Fenwick. The small plot's ours, mine and Bryn's." He considers, and evidently decides you've earned one more sentence. "You walk like the pass. Rough country makes that walk."
+
+* "It does. Well met, Col." -> hub
+    do flag(TSC_MetCol)
+* "You watch that road like you're expecting something." -> hub
+    do flag(TSC_MetCol)
+* "Just passing." -> end
+
+== hub ==
+Col nods at you, unhurried.
+
+"Roads bring all sorts lately. Hope you're one of the better sorts."
+
+* "What do you know about a nearby sanguophage crypt?" -> crypt
+    if flag(TSC_RitesDone)
+* "I found an old journal in the caves under the well. Unsigned. Does it mean anything to you?" -> journal
+    if flag(TSC_WeatheredJournalRead)
+* "I'm looking for work." -> ridge_offer_survivor
+    if quest_succeeded(TSC_Side_Raiders) and not quest_active(TSC_Side_RidgeLight) and not quest_succeeded(TSC_Side_RidgeLight)
+* "I'm looking for work." -> ridge_offer_band
+    if not quest_succeeded(TSC_Side_Raiders) and not quest_active(TSC_Side_RidgeLight) and not quest_succeeded(TSC_Side_RidgeLight)
+* "The ridge light still burns, Col." -> ridge_progress
+    if quest_active(TSC_Side_RidgeLight)
+* "Just passing through." -> end
+
+== asleep ==
+Col sleeps facing the door. Of course he does. His breathing doesn't change as you approach, but you'd bet a day's rations he knows exactly where you're standing.
+
+* [Shake them awake.] -> woken
+    do wake()
+* [Leave them to their rest.] -> end
+
+== woken ==
+Col's eyes are open before your hand leaves his shoulder. His grip finds something under the bedroll that isn't a blanket, then relaxes.
+
+"...Courier." He settles back. "Don't do that to a man who's stood watches. Morning will do."
+
+* "Sorry. Go back to sleep." -> end
+* "Morning, then." -> end
+
+== crypt ==
+Col is quiet for a moment longer than the question needs. When he answers, it's flat and final.
+
+"No. I watch the road, not the hills." A beat. "And I'd keep it that way, if I were you."
+
+* "Noted, Col." -> hub
+
+== journal ==
+Col's jaw tightens.
+
+"Caves under the well," he repeats, flat. "I stand watch on this village and I did not know the ground under it was hollow."
+
+"A journal is paper. Paper doesn't worry me. Take it to the elder; old things are his."
+
+* "I understand." -> hub
+
+== ridge_offer_survivor ==
+Col considers you for a while, then makes a decision you can watch happen.
+
+"Three nights now, there's been a light on the ridge." He nods at the hills without looking at them. "You broke the raider band in the pass; I heard. But somebody walked away from that, and whoever it is has found friends, and now they sit up there. Counting our chimneys."
+
+* "I'll go put the light out." -> hub
+    do give_quest(TSC_Side_RidgeLight); affinity(+5)
+* "Maybe it's shepherds." -> hub
+
+== ridge_offer_band ==
+Col considers you for a while, then makes a decision you can watch happen.
+
+"Three nights now, there's been a light on the ridge." He nods at the hills without looking at them. "The crownless bandits work the pass roads. A light that comes back three nights running isn't a campfire, it's a *post*. And a post above a village is a measuring stick."
+
+* "I'll go put the light out." -> hub
+    do give_quest(TSC_Side_RidgeLight); affinity(+5)
+* "Maybe it's shepherds." -> hub
+
+== ridge_progress ==
+"Aye." Col doesn't need it explained. "Burned again last night, two fingers left of the notch rock. They're patient." A beat. "Be less patient than them."
+
+* "Working on it." -> hub

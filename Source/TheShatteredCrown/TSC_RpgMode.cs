@@ -31,7 +31,9 @@ namespace TheShatteredCrown
                 }
                 foreach (ScenPart part in scenario.AllParts)
                 {
-                    if (part is ScenPart_TSC_IntroSetup)
+                    // Either of the mod's scenarios: the hand-crafted campaign
+                    // (Lone Adventurer) or procedural Adventure Mode.
+                    if (part is ScenPart_TSC_IntroSetup || part is ScenPart_TSC_AdventureSetup)
                     {
                         return true;
                     }

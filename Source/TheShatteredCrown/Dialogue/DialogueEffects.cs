@@ -1,5 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
+using RimWorld.Planet;
 using Verse;
+using Verse.AI;
 using Verse.AI.Group;
 
 namespace TheShatteredCrown
@@ -27,6 +31,15 @@ namespace TheShatteredCrown
     {
         public QuestScriptDef quest;
         public bool sendLetter;
+        /// <summary>
+        /// Taking the job in conversation IS accepting it: the player already
+        /// said yes, and a second confirmation in the quest tab is not just
+        /// redundant, it is unreachable. Vanilla refuses to accept a quest
+        /// without a permanent colony ("Cannot accept this quest without a
+        /// permanent colony"), and this mod's party never founds one - so an
+        /// un-accepted quest never initiates and its site never spawns.
+        /// </summary>
+        public bool autoAccept = true;
 
         public override void Apply(DialogueContext context)
         {
@@ -36,9 +49,18 @@ namespace TheShatteredCrown
             }
             float points = StorytellerUtility.DefaultThreatPointsNow(Find.World);
             Quest newQuest = QuestUtility.GenerateQuestAndMakeAvailable(quest, points);
-            if (sendLetter && newQuest != null && !newQuest.hidden)
+            if (newQuest == null)
+            {
+                return;
+            }
+            if (sendLetter && !newQuest.hidden)
             {
                 QuestUtility.SendLetterQuestAvailable(newQuest);
+            }
+            if (autoAccept && !newQuest.EverAccepted)
+            {
+                // The pawn doing the talking is the one who took the job.
+                newQuest.Accept(context.interactor);
             }
         }
     }
@@ -114,24 +136,368 @@ namespace TheShatteredCrown
     /// </summary>
     public class DialogueEffect_JoinParty : DialogueEffect
     {
+        // Optional: join this named NPC instead of the speaker (they must be
+        // standing somewhere - a dead or absent companion is skipped).
+        public NamedNpcDef npc;
+
         public override void Apply(DialogueContext context)
         {
-            Pawn npc = context.npc;
-            if (npc == null || npc.Dead || npc.Faction == Faction.OfPlayer)
+            Pawn joiner = npc != null
+                ? DialogueStateManager.Current.GetNamedNpcIfExists(npc)
+                : context.npc;
+            ApplyTo(joiner);
+        }
+
+        private static void ApplyTo(Pawn npc)
+        {
+            if (npc == null || npc.Dead || !npc.Spawned || npc.Faction == Faction.OfPlayer)
             {
                 return;
             }
             npc.GetLord()?.Notify_PawnLost(npc, PawnLostCondition.ForcedByQuest);
             npc.guest?.SetGuestStatus(null);
             npc.SetFaction(Faction.OfPlayer);
-            Find.LetterStack.ReceiveLetter(
-                $"{npc.LabelShortCap} joins the party",
-                $"{npc.LabelShortCap} has thrown in with your company and will follow you from here on.",
+            List<Pawn> animals = BringBondedAnimals(npc);
+            string text = $"{npc.LabelShortCap} has thrown in with your company and will follow you from here on.";
+            if (animals.Count > 0)
+            {
+                text += $"\n\n{animals.Select(a => a.LabelShortCap).ToCommaList(useAnd: true)} comes along, "
+                    + $"bonded to {npc.LabelShort} and now yours to keep.";
+            }
+            Find.LetterStack.ReceiveLetter($"{npc.LabelShortCap} joins the party", text,
                 LetterDefOf.PositiveEvent, npc);
+        }
+
+        /// <summary>
+        /// A companion's bonded animal comes with them (Maewyn's Corvus): the
+        /// bird is already tame to the grove's faction, so it hands over as a
+        /// fully trained player pet mastered to its own bonded human rather
+        /// than being left behind as someone else's property.
+        /// </summary>
+        private static List<Pawn> BringBondedAnimals(Pawn npc)
+        {
+            if (npc.relations == null || npc.MapHeld == null)
+            {
+                return new List<Pawn>();
+            }
+            // Snapshot first: SetFaction re-enters the relations tracker.
+            List<Pawn> bonded = new List<Pawn>();
+            foreach (DirectPawnRelation relation in npc.relations.DirectRelations)
+            {
+                Pawn other = relation.otherPawn;
+                if (relation.def == PawnRelationDefOf.Bond && other != null && !other.Dead
+                    && other.RaceProps.Animal && other.Faction != Faction.OfPlayer
+                    && other.MapHeld == npc.MapHeld)
+                {
+                    bonded.Add(other);
+                }
+            }
+            foreach (Pawn animal in bonded)
+            {
+                animal.GetLord()?.Notify_PawnLost(animal, PawnLostCondition.ForcedByQuest);
+                animal.SetFaction(Faction.OfPlayer);
+                TSC_CompanionPets.MakePlayerPet(animal, npc);
+            }
+            return bonded;
+        }
+    }
+
+    /// <summary>
+    /// Turning a story character's bonded animal into a player pet, shared by
+    /// the recruit effect and the save-compat heal in TSC_StoryHubGuard.
+    /// </summary>
+    public static class TSC_CompanionPets
+    {
+        /// <summary>
+        /// Trains the animal up and masters it to its bonded human. Obedience
+        /// is a HARD requirement for mastering: vanilla's Master setter logs
+        /// "Attempted to set master for non-obedient pawn" and refuses
+        /// otherwise, so animals too dim to learn it (trainability None) are
+        /// left tame but masterless rather than erroring every attempt.
+        /// </summary>
+        public static void MakePlayerPet(Pawn animal, Pawn owner)
+        {
+            if (animal?.training == null || owner == null)
+            {
+                return;
+            }
+            animal.training.Train(TrainableDefOf.Tameness, owner, complete: true);
+            if (animal.training.CanBeTrained(TrainableDefOf.Obedience))
+            {
+                animal.training.Train(TrainableDefOf.Obedience, owner, complete: true);
+            }
+            if (animal.playerSettings == null || !animal.training.HasLearned(TrainableDefOf.Obedience))
+            {
+                return;
+            }
+            animal.playerSettings.Master = owner;
+            animal.playerSettings.followDrafted = true;
+            animal.playerSettings.followFieldwork = true;
         }
     }
 
     /// <summary>Sets (or clears) a persistent conversation flag.</summary>
+    /// <summary>
+    /// Opens the vanilla trade window with the NPC being talked to (they must
+    /// be a standing trader - NamedNpcDef traderKind, e.g. Haldor). The
+    /// talking colonist is the negotiator. DSL: trade().
+    /// </summary>
+    /// <summary>
+    /// Hands the talking colonist an item (Haldor's commission, Mara's moss
+    /// cutting): made from default stuff, optional quality, added to their
+    /// inventory (falls to the ground beside them if full).
+    /// DSL: give_item(Def[, count[, Quality]]).
+    /// </summary>
+    public class DialogueEffect_GiveThing : DialogueEffect
+    {
+        public ThingDef def;
+        public int count = 1;
+        public QualityCategory quality = QualityCategory.Normal;
+
+        public override void Apply(DialogueContext context)
+        {
+            Pawn receiver = context.interactor;
+            if (def == null || receiver == null || count <= 0)
+            {
+                return;
+            }
+            ThingDef stuff = def.MadeFromStuff ? GenStuff.DefaultStuffFor(def) : null;
+            Thing thing = ThingMaker.MakeThing(def, stuff);
+            thing.stackCount = count;
+            thing.TryGetComp<CompQuality>()?.SetQuality(quality, ArtGenerationContext.Outsider);
+            bool taken = receiver.inventory != null && receiver.inventory.innerContainer.TryAdd(thing, false);
+            if (!taken && receiver.SpawnedOrAnyParentSpawned)
+            {
+                GenPlace.TryPlaceThing(thing, receiver.PositionHeld, receiver.MapHeld, ThingPlaceMode.Near);
+            }
+            Messages.Message($"{receiver.LabelShortCap} receives {thing.LabelCap}.",
+                receiver, MessageTypeDefOf.PositiveEvent, historical: false);
+        }
+    }
+
+    /// <summary>
+    /// The party's pooled goods on one map: every free colonist's inventory
+    /// and carried stack, plus loose spawned items. What quest hand-overs
+    /// (has_item / take_item) count and consume.
+    /// </summary>
+    public static class TSC_PartyItems
+    {
+        public static int Count(Map map, ThingDef def)
+        {
+            if (map == null || def == null)
+            {
+                return 0;
+            }
+            int total = 0;
+            foreach (Pawn pawn in map.mapPawns.FreeColonistsSpawned)
+            {
+                if (pawn.carryTracker?.CarriedThing?.def == def)
+                {
+                    total += pawn.carryTracker.CarriedThing.stackCount;
+                }
+                if (pawn.inventory?.innerContainer != null)
+                {
+                    foreach (Thing thing in pawn.inventory.innerContainer)
+                    {
+                        if (thing.def == def)
+                        {
+                            total += thing.stackCount;
+                        }
+                    }
+                }
+            }
+            foreach (Thing thing in map.listerThings.ThingsOfDef(def))
+            {
+                if (thing.Spawned)
+                {
+                    total += thing.stackCount;
+                }
+            }
+            return total;
+        }
+
+        public static int Consume(Map map, ThingDef def, int count)
+        {
+            if (map == null || def == null || count <= 0)
+            {
+                return 0;
+            }
+            int remaining = count;
+            foreach (Pawn pawn in map.mapPawns.FreeColonistsSpawned)
+            {
+                if (remaining <= 0)
+                {
+                    break;
+                }
+                Thing carried = pawn.carryTracker?.CarriedThing;
+                if (carried != null && carried.def == def)
+                {
+                    remaining -= Take(carried, remaining);
+                }
+                ThingOwner inventory = pawn.inventory?.innerContainer;
+                if (inventory != null)
+                {
+                    for (int i = inventory.Count - 1; i >= 0 && remaining > 0; i--)
+                    {
+                        if (inventory[i].def == def)
+                        {
+                            remaining -= Take(inventory[i], remaining);
+                        }
+                    }
+                }
+            }
+            List<Thing> loose = new List<Thing>(map.listerThings.ThingsOfDef(def));
+            foreach (Thing thing in loose)
+            {
+                if (remaining <= 0)
+                {
+                    break;
+                }
+                if (thing.Spawned)
+                {
+                    remaining -= Take(thing, remaining);
+                }
+            }
+            return count - remaining;
+        }
+
+        private static int Take(Thing thing, int wanted)
+        {
+            int taken = System.Math.Min(thing.stackCount, wanted);
+            if (taken >= thing.stackCount)
+            {
+                thing.Destroy();
+            }
+            else
+            {
+                thing.stackCount -= taken;
+            }
+            return taken;
+        }
+    }
+
+    /// <summary>
+    /// Hands quest goods OVER: consumes items from the party's pooled goods
+    /// on the talking colonist's map (Haldor's grave-iron leaves with
+    /// Haldor). Gate the option with has_item so it can't fire short.
+    /// DSL: take_item(Def[, count]).
+    /// </summary>
+    public class DialogueEffect_TakeThing : DialogueEffect
+    {
+        public ThingDef def;
+        public int count = 1;
+
+        public override void Apply(DialogueContext context)
+        {
+            Map map = context.interactor?.MapHeld;
+            if (def == null || map == null)
+            {
+                return;
+            }
+            int taken = TSC_PartyItems.Consume(map, def, count);
+            if (taken > 0 && context.interactor != null)
+            {
+                Messages.Message($"{context.interactor.LabelShortCap} hands over {def.label} x{taken}.",
+                    context.interactor, MessageTypeDefOf.NeutralEvent, historical: false);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Sends a named character walking OFF their current map - "they left"
+    /// (the Root children heading for the hills when Hessa's quest begins,
+    /// or marching home when found). Visible: they leave their lord and jog
+    /// for the map edge under vanilla's exit lord, worldifying on arrival;
+    /// they respawn wherever the story next places them. Factionless pawns
+    /// fall back to an instant despawn. DSL: depart(Npc).
+    /// </summary>
+    public class DialogueEffect_DespawnNpc : DialogueEffect
+    {
+        public NamedNpcDef npc;
+
+        public override void Apply(DialogueContext context)
+        {
+            Pawn pawn = npc != null ? DialogueStateManager.Current.GetNamedNpcIfExists(npc) : null;
+            if (pawn == null || pawn.Dead || !pawn.Spawned)
+            {
+                return;
+            }
+            pawn.GetLord()?.Notify_PawnLost(pawn, PawnLostCondition.ForcedToJoinOtherLord);
+            if (pawn.Faction != null)
+            {
+                LordMaker.MakeNewLord(pawn.Faction,
+                    new LordJob_ExitMapBest(LocomotionUrgency.Jog), pawn.Map, Gen.YieldSingle(pawn));
+                return;
+            }
+            pawn.DeSpawn();
+            if (!Find.WorldPawns.Contains(pawn))
+            {
+                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.KeepForever);
+            }
+        }
+    }
+
+    /// <summary>Wakes the NPC being talked to (the "shake them awake" option in asleep nodes). DSL: wake().</summary>
+    public class DialogueEffect_Wake : DialogueEffect
+    {
+        public override void Apply(DialogueContext context)
+        {
+            if (context.npc != null && !context.npc.Awake())
+            {
+                RestUtility.WakeUp(context.npc);
+            }
+        }
+    }
+
+    public class DialogueEffect_OpenTrade : DialogueEffect
+    {
+        public override void Apply(DialogueContext context)
+        {
+            Pawn trader = context.npc;
+            Pawn negotiator = context.interactor;
+            if (trader == null || negotiator == null)
+            {
+                return;
+            }
+            // Self-heal at the counter: attach the tracker and roll stock if
+            // this merchant somehow lacks them (generated pre-feature, sold
+            // bare, save/load quirk...). The NamedNpcDef is found via the
+            // pawn's kind - named NPCs have unique kinds.
+            NamedNpcDef npcDef = null;
+            foreach (NamedNpcDef candidate in DefDatabase<NamedNpcDef>.AllDefsListForReading)
+            {
+                if (candidate.kind == trader.kindDef)
+                {
+                    npcDef = candidate;
+                    break;
+                }
+            }
+            if (npcDef?.traderKind != null)
+            {
+                GenStep_TSC_Village.EnsureTrader(trader, npcDef, trader.MapHeld);
+            }
+            // Custom shopkeeper adapter: vanilla's Pawn_TraderTracker assumes
+            // trade caravans and reports villagers as having no goods.
+            if (trader.trader == null || trader.trader.traderKind == null
+                || trader.inventory == null || !trader.inventory.innerContainer.Any)
+            {
+                Messages.Message($"{trader.LabelShortCap} has nothing to trade right now.",
+                    trader, MessageTypeDefOf.RejectInput, historical: false);
+                return;
+            }
+            // The trade UI computes the negotiator's TradePriceImprovement
+            // every frame; a social-incapable pawn has that stat DISABLED and
+            // spams a consistency error. Same gate vanilla's trade option uses.
+            if (StatDefOf.TradePriceImprovement.Worker.IsDisabledFor(negotiator))
+            {
+                Messages.Message($"{negotiator.LabelShortCap} is incapable of negotiating trades (social disabled). Talk to {trader.LabelShortCap} with another colonist to trade.",
+                    negotiator, MessageTypeDefOf.RejectInput, historical: false);
+                return;
+            }
+            Find.WindowStack.Add(new Dialog_Trade(negotiator, new TSC_ShopTrader(trader)));
+        }
+    }
+
     public class DialogueEffect_SetFlag : DialogueEffect
     {
         public string flag;
@@ -163,10 +529,21 @@ namespace TheShatteredCrown
         public override void Apply(DialogueContext context)
         {
             Pawn learner = teachNpc ? context.npc : context.interactor;
-            if (learner != null && classDef != null)
+            if (learner == null || classDef == null)
             {
-                TSC_ProgressionManager.Current.LearnClass(learner, classDef);
+                return;
             }
+            if (teachNpc)
+            {
+                // An NPC picking up a class is a story fact: grant it outright.
+                TSC_ProgressionManager.Current.LearnClass(learner, classDef);
+                return;
+            }
+            // A mentor teaching the party opens the path rather than walking
+            // it for you: the class becomes choosable at level-up, same as a
+            // studied manual, and taking it still costs a class level.
+            TSC_ProgressionManager.Current.UnlockClass(classDef, learner,
+                $"The {classDef.label} class is now available at level-up.");
         }
     }
 

@@ -1,0 +1,100 @@
+# Wilf Thistledown - farmer of Harrowfield (Act 1 village).
+
+dialogue TSC_Dialogue_Wilf
+
+# Night visits: asleep node preempts everything (entries in order).
+entry asleep if sleeping()
+
+entry hub if flag(TSC_MetWilf)
+
+== start ==
+A long, thin man leans on his hoe like it holds him up. Everything droops: shoulders, mustache, a hat worn to shapelessness. His eyes are sharp.
+
+"Wilf Thistledown," he says, in the tone of a man confessing to something. "I farm the middle plot. The wet one. Mara will tell you it's good land, and Mara is right about everything except that."
+
+* "Every village has a wet plot. Somebody's got to love it." -> hub
+    do flag(TSC_MetWilf); affinity(+5)
+* "Well met, Wilf. I'm passing through from the guild." -> hub
+    do flag(TSC_MetWilf)
+* "I'll leave you to your drainage." -> end
+
+== hub ==
+Wilf leans on his hoe like it is the only thing holding him up.
+
+"What do you need?"
+
+* "What do you know about a nearby sanguophage crypt?" -> crypt
+    if flag(TSC_RitesDone)
+* "I found an old journal in the caves under the well. Unsigned. Does it mean anything to you?" -> journal
+    if flag(TSC_WeatheredJournalRead)
+* "I'm looking for work." -> wetplot_offer
+    if not quest_active(TSC_Side_WetPlot) and not quest_succeeded(TSC_Side_WetPlot)
+* "About that culvert of yours." -> wetplot_work
+    if quest_active(TSC_Side_WetPlot)
+* "Just passing through." -> end
+
+== asleep ==
+Wilf sleeps with a frown. "...drainage," he mutters. "...told her about the... drainage..."
+
+* [Shake them awake.] -> woken
+    do wake()
+* [Leave them to their rest.] -> end
+
+== woken ==
+Wilf opens his eyes and stares at the ceiling, resigned.
+
+"Of course. Of course there's a stranger shaking me in the dark. No, no, don't apologize; the night was going too well." He pulls the blanket up. "Morning. Like civilized people."
+
+* "Sorry. Go back to sleep." -> end
+* "Morning, then." -> end
+
+== crypt ==
+Wilf receives the question like all his news: with resignation.
+
+"A crypt. Of course there's a crypt. One more thing under these fields, seeping into my drainage, no doubt." He shakes his head slowly. "No, I know nothing. That's the one blessing of the wet plot: nothing worth burying in it."
+
+* "I'll leave you to it, Wilf." -> hub
+
+== journal ==
+Wilf leans harder on his hoe.
+
+"Caves under the well. Of course there are. The water's drained wrong for years, and nobody listens." He sighs. "Don't know any journal. Ask Old Wick. Bad news is his department."
+
+* "I see." -> hub
+
+== wetplot_offer ==
+Wilf looks at you like a drowning man looking at a rope.
+
+"Work. Well. There's the culvert." He gestures at the wet plot with his whole arm, in despair. "Old kingdom drain, feeds past my field, blocked for years. Clear it and the plot merely seeps instead of floods. I'd do it myself, but I did, twice, and the culvert won."
+
+* "I'll clear your culvert, Wilf." -> hub
+    do give_quest(TSC_Side_WetPlot)
+* "I don't wrestle drains. Good luck." -> hub
+
+== wetplot_work ==
+The culvert mouth is exactly as advertised: a stone opening of the old kingdom, half-drowned, with cold air and bad water. Something is jammed deep in it, and the only way is in and under.
+
+* "Strip down and get in there." -> wetplot_clear
+    check Athletics 7 -> wetplot_clear | wetplot_soaked retryable
+* "Another day. When it's warmer. Or never." -> hub
+
+== wetplot_clear ==
+It takes bracing both boots on the arch stones and hauling hard, but the blockage comes free in a flood of black water, and the culvert clears.
+
+The blockage itself: a carved stone the size of a bread loaf. Not farmwork. Old, deliberate, and washed *down* from the hills.
+
+Wilf stares at the running water. Something eases in his face. It might be hope.
+
+"...It'll flood again," he says at last, loyally. "But thank you."
+
+* "Keep the field, Wilf. I'll keep the stone." -> hub
+    do signal(TSC_Side_WetPlot, TSC_WetPlotDone); flag(TSC_WetPlotStone); affinity(+5)
+
+== wetplot_soaked ==
+The culvert wins round three. You surface soaked through, boots full, and the blockage still there.
+
+Wilf nods slowly, unsurprised.
+
+"Aye. That's the culvert."
+
+* "I'll be back for it." -> hub

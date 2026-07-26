@@ -1,0 +1,134 @@
+# Haldor Coalbrand - blacksmith of Harrowfield (Act 1 village).
+
+dialogue TSC_Dialogue_Haldor
+
+# Night visits: asleep node preempts everything (entries in order).
+entry asleep if sleeping()
+
+entry hub if flag(TSC_MetHaldor)
+
+== start ==
+The smithy announces its owner before you see him: steady hammerfalls. The man at the anvil is built to match it, soot to the elbows, with burn-scarred forearms and the squint of twenty years reading hot metal. He finishes the piece before he looks up.
+
+"Haldor Coalbrand. Smith, and merchant when the roads allow, which lately they don't." He quenches the work and sets the hammer down with surprising gentleness. "I shod the militia's horses once, and armed a few of the riders. Now it's plow blades and hinges. The pass sent you, by the look of that gear. It sends me customers or trouble, and they dress the same."
+
+* "Customer, mostly. Well met, Haldor." -> hub
+    do flag(TSC_MetHaldor)
+* "That militia work shows. This is better steel than a village needs." -> hub
+    do flag(TSC_MetHaldor); affinity(+5)
+* "Just warming my hands." -> end
+
+== hub ==
+Haldor sets down his hammer, and the ringing fades.
+
+"Coalbrand. Smith. Buying, selling, or just warming yourself at my forge?"
+
+* "What do you know about a nearby sanguophage crypt?" -> crypt
+    if flag(TSC_RitesDone)
+* "I found an old journal in the caves under the well. Unsigned. Does it mean anything to you?" -> journal
+    if flag(TSC_WeatheredJournalRead)
+* "Do you have any stock?" -> stock
+* "Any work for a capable blade?" -> coldiron_offer
+    if not quest_active(TSC_Side_ColdIron) and not quest_succeeded(TSC_Side_ColdIron)
+* "Still hunting your grave-iron." -> coldiron_progress
+    if quest_active(TSC_Side_ColdIron)
+* "About that commission, Haldor." -> commission
+    if quest_succeeded(TSC_Side_ColdIron) and not flag(TSC_ColdIronForged) and has_item(TSC_GraveIron, 10)
+* "About that commission, Haldor." -> commission_short
+    if quest_succeeded(TSC_Side_ColdIron) and not flag(TSC_ColdIronForged) and not has_item(TSC_GraveIron, 10)
+* "Just passing through." -> end
+
+== stock ==
+
+"I mostly forge tools for our farmers. But my experience working for the militia might pay off for you."
+
+He sighs, considering how much time and materials your requests might need.
+
+"I can craft you some armor and weapons, if you're not too picky. And I have some other goods in stock too, if you've got the coin to spend."
+
+* "[Trade] Show me what you've got." -> stock
+    do trade()
+* "Guild work keeps these roads open, Haldor. Militia rates?" -> discount_yes
+    check Persuasion 8 -> discount_yes | discount_no
+* "Maybe some other time." -> end
+
+# One-time haggle (the check's once-per-save key handles the "one attempt
+# ever"): success = 15% off everything he sells, applied by the
+# TSC_TraderDiscount_<kind> flag convention.
+== discount_yes ==
+Haldor looks at you for a long moment. Then he snorts.
+
+"Militia rates. Aye, fair enough. The roads you clear carry my iron." He chalks a mark on the beam above the forge. "Fifteen off the hundred, and don't go advertising it."
+
+* "Your secret's safe. Your coin purse won't regret it." -> stock
+    do flag(TSC_TraderDiscount_TSC_Villager_Haldor); affinity(+5); grant_xp(25)
+
+== discount_no ==
+"Militia rates were for the militia, and the militia paid in escort duty and frostbite." He taps the anvil once. "Your coin's good, courier. Same as everyone's. That's the compliment."
+
+* "[Trade] Worth asking." -> stock
+* "Never mind, then." -> end
+
+== asleep ==
+Haldor sleeps like something forged and left to cool: massive, still, radiating the day's warmth. One scarred hand stays curled, even now, around a hammer that isn't there.
+
+* [Shake them awake.] -> woken
+    do wake()
+* [Leave them to their rest.] -> end
+
+== woken ==
+Haldor wakes slowly, then with sharp irritation.
+
+"If the smithy's burning, speak. If you want a blade at this hour, the answer is the flat of one." He settles back down, muttering something about militia habits and other people's schedules.
+
+* "Sorry. Go back to sleep." -> end
+* "Morning, then." -> end
+
+== crypt ==
+Haldor keeps working. Two hammerfalls pass before he answers.
+
+"Miners' tales. Old iron in the hills, older doors, and men who went looking for one and found the other." He quenches the piece. "I sell the shovels, courier. I don't follow them. No."
+
+* "Fair enough, smith." -> hub
+
+== journal ==
+Haldor stops hammering.
+
+"Can't read," he says. "Never needed to. If it's answers you want, the anvil's got none." He wipes his hands. "Wick's the oldest thing in this valley. Ask him."
+
+* "Understood." -> hub
+
+== coldiron_offer ==
+Haldor wipes his hands and gives you the look he gives promising ore.
+
+"Work. Aye, there's work, if you've the legs for it. *Grave-iron*." He says the word with respect. "Old-kingdom metal. There's a waystation of the old road, collapsed these two hundred years, and its fittings will still be in the rubble because grave-iron doesn't rust and looters can't sell what markets fear."
+
+He taps the anvil.
+
+"Bring me ten pieces and I'll pay in the only coin that matters at a forge: I'll make you something. Properly."
+
+* "A commission from a militia smith? Deal." -> hub
+    do give_quest(TSC_Side_ColdIron)
+* "I don't rob the dead's architecture. Ask another." -> hub
+
+== coldiron_progress ==
+"The waystation will still be there. Grave-iron waits; it's the one thing it does." He goes back to the bellows. "So can I."
+
+* "On my way." -> hub
+
+== commission ==
+Haldor takes the grave-iron with reverence, and for a while you don't exist. When he looks up:
+
+"Cold as the day it was buried. Aye. *Aye*." He clears the anvil with one sweep of his arm. "The bargain stands: one piece, my best work, your choice. Choose what you'll trust your life to, because that's what you're choosing."
+
+* "A longsword, Haldor. The best you've ever made." -> hub
+    do take_item(TSC_GraveIron, 10); flag(TSC_ColdIronForged); give_item(MeleeWeapon_LongSword, 1, Excellent); affinity(+5)
+* "A greatbow, drawn hard and true." -> hub
+    do take_item(TSC_GraveIron, 10); flag(TSC_ColdIronForged); give_item(Bow_Great, 1, Excellent); affinity(+5)
+* "Plate armor. I plan on being hit." -> hub
+    do take_item(TSC_GraveIron, 10); flag(TSC_ColdIronForged); give_item(Apparel_PlateArmor, 1, Excellent); affinity(+5)
+
+== commission_short ==
+"The bargain was ten pieces, courier." He doesn't stop working the bellows. "I count with my hands, and your hands aren't carrying them. Grave-iron keeps. So does the offer. Come back heavy."
+
+* "I'll fetch it." -> hub

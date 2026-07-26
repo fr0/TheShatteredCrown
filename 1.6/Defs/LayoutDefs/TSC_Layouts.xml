@@ -45,6 +45,47 @@
     </parts>
   </StructureLayoutDef>
 
+  <!-- Cold Iron sidequest: the ruined waystation. Same bones as the
+       watchtower but NO vault - the vault holds the intro's map-case
+       chest, which belongs to the watchtower alone. The grave-iron here
+       is scattered loose by GenStep_TSC_ScatterItems, not chested. -->
+  <StructureLayoutDef>
+    <defName>TSC_Waystation</defName>
+    <workerClass>LayoutWorker_AncientRuins</workerClass>
+    <canHaveMultipleLayoutsInRoom>true</canHaveMultipleLayoutsInRoom>
+    <shouldDamage>true</shouldDamage>
+    <areaPrunePercent>0.05</areaPrunePercent>
+    <minRoomWidth>7</minRoomWidth>
+    <minRoomHeight>7</minRoomHeight>
+    <wallDef>Wall</wallDef>
+    <wallStuffDef>BlocksGranite</wallStuffDef>
+    <doorStuffDef>WoodLog</doorStuffDef>
+    <wallLampChancePerPosition>0</wallLampChancePerPosition>
+    <ensureOneDoorUnlocked>true</ensureOneDoorUnlocked>
+    <roomDefs>
+      <TSC_GreatRoom>1</TSC_GreatRoom>
+      <TSC_Barracks>1</TSC_Barracks>
+      <TSC_Storeroom>2</TSC_Storeroom>
+      <TSC_RubbleChamber>3</TSC_RubbleChamber>
+    </roomDefs>
+    <junkScaterrers>
+      <RubblePile>
+        <groupsPerHundredCells>1~3</groupsPerHundredCells>
+        <itemsPerGroup>2~4</itemsPerGroup>
+        <groupDistRange>3~5</groupDistRange>
+      </RubblePile>
+      <Filth_RubbleRock>
+        <groupsPerHundredCells>1~3</groupsPerHundredCells>
+        <itemsPerGroup>3~8</itemsPerGroup>
+        <groupDistRange>3~5</groupDistRange>
+      </Filth_RubbleRock>
+    </junkScaterrers>
+    <parts>
+      <Breached>0.15</Breached>
+      <Gore>0.05</Gore>
+    </parts>
+  </StructureLayoutDef>
+
   <!-- Act 1 sidequest: a small barrow holding remembrance moss caches -->
   <StructureLayoutDef>
     <defName>TSC_MossBarrow</defName>
@@ -78,6 +119,49 @@
   </StructureLayoutDef>
 
   <!-- Chapter 2: the sunken cellars. Intact stone catacombs under a dead village. -->
+  <!-- The ruined fortress: Adventure Mode's castle, procedurally roomed.
+       Great hall, chapel (altar rite), armory (war-gear chest), the lord's
+       chamber (guild chest - manuals ride in its loot), barracks and stores
+       and collapse. Spawned by GenStep_TSC_Layout at castle footprint;
+       threat points from the discovering site. -->
+  <StructureLayoutDef>
+    <defName>TSC_Castle</defName>
+    <workerClass>LayoutWorker_AncientRuins</workerClass>
+    <canHaveMultipleLayoutsInRoom>true</canHaveMultipleLayoutsInRoom>
+    <shouldDamage>true</shouldDamage>
+    <areaPrunePercent>0.05</areaPrunePercent>
+    <minRoomWidth>7</minRoomWidth>
+    <minRoomHeight>7</minRoomHeight>
+    <wallDef>Wall</wallDef>
+    <wallStuffDef>BlocksGranite</wallStuffDef>
+    <doorStuffDef>WoodLog</doorStuffDef>
+    <wallLampChancePerPosition>0</wallLampChancePerPosition>
+    <ensureOneDoorUnlocked>true</ensureOneDoorUnlocked>
+    <canDisconnectRooms>false</canDisconnectRooms>
+    <roomDefs>
+      <TSC_CastleHall>
+        <countRange>1~1</countRange>
+      </TSC_CastleHall>
+      <TSC_Chapel>
+        <countRange>1~1</countRange>
+      </TSC_Chapel>
+      <TSC_Armory>
+        <countRange>1~1</countRange>
+      </TSC_Armory>
+      <TSC_LordsChamber>
+        <countRange>1~1</countRange>
+      </TSC_LordsChamber>
+      <TSC_Barracks>2</TSC_Barracks>
+      <TSC_Storeroom>2</TSC_Storeroom>
+      <TSC_RubbleChamber>2</TSC_RubbleChamber>
+    </roomDefs>
+    <junkScaterrers>
+      <RubblePile>
+        <groupsPerHundredCells>1~3</groupsPerHundredCells>
+      </RubblePile>
+    </junkScaterrers>
+  </StructureLayoutDef>
+
   <StructureLayoutDef>
     <defName>TSC_Catacombs</defName>
     <workerClass>LayoutWorker_AncientRuins</workerClass>

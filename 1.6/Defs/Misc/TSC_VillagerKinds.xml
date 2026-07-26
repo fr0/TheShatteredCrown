@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Harrowfield villagers: one kind per named resident so each
+       carries their own DialogueExtension. Unarmed-ish civilians. -->
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Tam</defName>
+    <label>farmer</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Tam</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Hessa</defName>
+    <label>farmer</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Hessa</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Wilf</defName>
+    <label>farmer</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Wilf</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Mara</defName>
+    <label>farmer</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Mara</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Col</defName>
+    <label>farmer</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Col</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Bryn</defName>
+    <label>farmer</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Bryn</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Pip</defName>
+    <label>farm child</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Pip</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Nell</defName>
+    <label>farm child</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Nell</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Haldor</defName>
+    <label>blacksmith</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Haldor</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_OldWick</defName>
+    <label>village elder</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_OldWick</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <!-- Haldor's stock: weapons, armor, and general goods, all medieval.
+       He also BUYS what these generators handle (weapons/armor of the
+       listed kinds) plus expensive simple goods. -->
+  <TraderKindDef>
+    <defName>TSC_Trader_Smith</defName>
+    <label>village smith</label>
+    <stockGenerators>
+      <li Class="StockGenerator_SingleDef">
+        <thingDef>Silver</thingDef>
+        <countRange>400~700</countRange>
+      </li>
+      <li Class="StockGenerator_MultiDef">
+        <thingDefs>
+          <li>MeleeWeapon_LongSword</li>
+          <li>MeleeWeapon_Gladius</li>
+          <li>MeleeWeapon_Mace</li>
+          <li>MeleeWeapon_Spear</li>
+        </thingDefs>
+        <countRange>3~5</countRange>
+      </li>
+      <li Class="StockGenerator_MultiDef">
+        <thingDefs>
+          <li>MeleeWeapon_Knife</li>
+          <li>MeleeWeapon_Club</li>
+        </thingDefs>
+        <countRange>2~3</countRange>
+      </li>
+      <li Class="StockGenerator_MultiDef">
+        <thingDefs>
+          <li>Bow_Short</li>
+          <li>Bow_Recurve</li>
+          <li>Bow_Great</li>
+        </thingDefs>
+        <countRange>2~4</countRange>
+      </li>
+      <li Class="StockGenerator_SingleDef">
+        <thingDef>Apparel_PlateArmor</thingDef>
+        <countRange>1~2</countRange>
+      </li>
+      <li Class="StockGenerator_SingleDef">
+        <thingDef>Apparel_SimpleHelmet</thingDef>
+        <countRange>2~3</countRange>
+      </li>
+      <li Class="StockGenerator_SingleDef">
+        <thingDef>TSC_Apparel_Gambeson</thingDef>
+        <countRange>2~4</countRange>
+      </li>
+      <li Class="StockGenerator_SingleDef">
+        <thingDef>Steel</thingDef>
+        <countRange>75~150</countRange>
+      </li>
+      <li Class="StockGenerator_SingleDef">
+        <thingDef>WoodLog</thingDef>
+        <countRange>100~200</countRange>
+      </li>
+      <li Class="StockGenerator_SingleDef">
+        <thingDef>Cloth</thingDef>
+        <countRange>60~120</countRange>
+      </li>
+      <li Class="StockGenerator_SingleDef">
+        <thingDef>MedicineHerbal</thingDef>
+        <countRange>6~10</countRange>
+      </li>
+      <li Class="StockGenerator_SingleDef">
+        <thingDef>Pemmican</thingDef>
+        <countRange>50~100</countRange>
+      </li>
+      <li Class="StockGenerator_BuyExpensiveSimple" />
+    </stockGenerators>
+  </TraderKindDef>
+
+</Defs>

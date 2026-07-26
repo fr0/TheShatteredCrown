@@ -5,7 +5,7 @@
 dialogue TSC_Dialogue_Maewyn_CellarTheft
 
 == start ==
-The lock has barely finished yielding when you feel it: the particular silence of being watched by a druid and her raven.
+The lock has barely finished yielding when you feel it: the silence of being watched by a druid and her raven.
 
 "I know my own lock's voice, rider."
 
@@ -26,7 +26,7 @@ She looks at you for a long moment. Some of the frost goes out of it. Not all.
 * "It won't happen again." -> end
 
 == defiant ==
-"For the company's good, was it." Her voice could frost the hives.
+"For the company's good, was it." Her voice is sharp as winter.
 
 "Then the company can carry its own opinion of it. Keep the book. My locks are done being polite about the rest."
 
@@ -35,6 +35,6 @@ She looks at you for a long moment. Some of the frost goes out of it. Not all.
 == silence ==
 The silence stretches, and she lets it. Corvus does the judging for both of them.
 
-"The book you may keep. Knowledge wants feet. The trust, rider, walks slower."
+"The book you may keep. Knowledge wants legs. Trust, rider, walks slower."
 
 * "..." -> end

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using RimWorld;
 using RimWorld.Planet;
 using RimWorld.QuestGen;
@@ -52,11 +53,12 @@ namespace TheShatteredCrown
         public MapParent mapParent;
         public string questTagToAdd;
         private bool spawned;
+        private List<Pawn> spawnedPawns = new List<Pawn>();
 
         public override void Notify_QuestSignalReceived(Signal signal)
         {
             base.Notify_QuestSignalReceived(signal);
-            if (spawned || signal.tag != inSignal || kind == null)
+            if (signal.tag != inSignal || kind == null)
             {
                 return;
             }
@@ -65,6 +67,11 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            if (spawned && !AllPreviousGoneWithoutDying())
+            {
+                return;
+            }
+            spawnedPawns.Clear();
             spawned = true;
             // On cavern maps (the ettersnap site forces the Cavern mutator)
             // the center is usually solid rock, and RandomClosewalkCellNear
@@ -91,7 +98,33 @@ namespace TheShatteredCrown
                 }
                 IntVec3 cell = CellFinder.RandomClosewalkCellNear(root, map, 12);
                 GenSpawn.Spawn(pawn, cell, map);
+                spawnedPawns.Add(pawn);
             }
+        }
+
+        /// <summary>
+        /// Persistent sites regenerate their map on revisit, and the despawn
+        /// DESTROYS (not kills) the creature. Re-den it only when every
+        /// previously spawned one vanished that way: a DEAD one means the
+        /// story consequence already fired (ettersnap.Killed fails the hunt),
+        /// and a living one (tamed, in a caravan, still spawned) means the
+        /// creature is simply elsewhere.
+        /// </summary>
+        private bool AllPreviousGoneWithoutDying()
+        {
+            for (int i = 0; i < spawnedPawns.Count; i++)
+            {
+                Pawn pawn = spawnedPawns[i];
+                if (pawn == null || pawn.Discarded)
+                {
+                    continue; // gone entirely: eligible for respawn
+                }
+                if (pawn.Dead || !pawn.Destroyed)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public override void ExposeData()
@@ -103,6 +136,15 @@ namespace TheShatteredCrown
             Scribe_References.Look(ref mapParent, "mapParent");
             Scribe_Values.Look(ref questTagToAdd, "questTagToAdd");
             Scribe_Values.Look(ref spawned, "spawned", defaultValue: false);
+            Scribe_Collections.Look(ref spawnedPawns, "spawnedPawns", LookMode.Reference);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                if (spawnedPawns == null)
+                {
+                    spawnedPawns = new List<Pawn>();
+                }
+                spawnedPawns.RemoveAll(p => p == null);
+            }
         }
     }
 }

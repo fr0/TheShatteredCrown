@@ -8,7 +8,7 @@ entry joined if in_party()
 entry sent if flag(TSC_MaewynSent)
 
 == start ==
-The cottage door opens before you knock. The woman in it has grey-green eyes, a raven on her shoulder, and the expression of someone who knew you were coming and expected better.
+The cottage door opens before you knock. The woman in it has grey-green eyes, a raven on her shoulder, and the expression of someone who knew you were coming but is still unimpressed.
 
 "Boots on my moss. Steel on your hip. And the smell of the guild's ink about you." The raven clicks its beak. "Well. The wind said someone was coming. Speak your business, rider, and mind the beds."
 
@@ -21,7 +21,7 @@ The cottage door opens before you knock. The woman in it has grey-green eyes, a 
 == bees ==
 Maewyn stops. Actually stops, hand on the doorframe, and looks at you properly for the first time.
 
-"...They are. Six weeks early, and the hills won't say why." Something in her posture unknots: not trust yet, but the shape trust would take. "A rider who reads bees. Well. Come in, then, properly, and wipe your boots. Whatever your business is, it just got easier to hear."
+"...They are. Six weeks early, and the hills won't say why." Her shoulders ease. "A rider who reads bees. Well. Come in, then, properly, and wipe your boots. Whatever your business is, it just got easier to hear."
 
 * "The business is a message for the guild." -> message
     do flag(TSC_MaewynBees); grant_xp(25); affinity(+5)
@@ -89,7 +89,7 @@ The raven goes very still. So does Maewyn.
     do flag(TSC_MaewynSent); signal(TSC_Side_Druid, TSC_MessageSent); affinity(+5)
 
 == recruit ==
-Maewyn looks at her grove (the beds, the hives, the mossy quiet) for the space of ten heartbeats.
+Maewyn looks at her grove (the beds, the hives, the mossy quiet) for a long moment.
 
 "Thirty years I've kept this hollow. The hills will keep it thirty more without me." She whistles; the second raven drops from the eaves to her shoulder. "Very well, rider. The grove-cat hunts for herself, the bees answer to nobody, and I... apparently answer to you. Try to deserve it."
 
@@ -146,7 +146,7 @@ Maewyn is quiet long enough that you think she won't answer.
 == druid_teaching ==
 "I'm glad you realized I have something to teach." She settles onto a stone as if she'd picked it out an hour ago. "Good. Sit. The first lesson is sitting."
 
-That evening, and for several after, she teaches: how to sit until the birds forget you; which silences mean weather and which mean wolves; what the green things trade with each other under the soil, and what they'll trade with you.
+That evening, and for several after, she teaches: how to sit until the birds forget you; which silences mean weather and which mean wolves; what the green things say under the soil, and what they'll say to you.
 
 * [Learn the Druid's way] "I hear it now. Faintly." -> end
     if not flag(TSC_MaewynTaught)

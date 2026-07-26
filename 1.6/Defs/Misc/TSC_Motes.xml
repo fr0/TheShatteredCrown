@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Buff overlay motes: persistent icons attached to a buffed pawn for the
+       hediff's duration (HediffComp_TSC_AttachedOverlay). Long solidTime on
+       purpose - lifetime is managed by the comp, not the clock. -->
+
+  <ThingDef ParentName="MoteBase">
+    <defName>TSC_Mote_BarkWreath</defName>
+    <thingClass>TheShatteredCrown.TSC_MoteSpinAttached</thingClass>
+    <altitudeLayer>MoteOverhead</altitudeLayer>
+    <mote>
+      <fadeInTime>0.4</fadeInTime>
+      <solidTime>99999</solidTime>
+      <fadeOutTime>0.5</fadeOutTime>
+    </mote>
+    <graphicData>
+      <texPath>Things/Mote/TSC_BarkWreath</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>1.55</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="MoteBase">
+    <defName>TSC_Mote_ShieldMark</defName>
+    <thingClass>TheShatteredCrown.TSC_MoteSpinAttached</thingClass>
+    <altitudeLayer>MoteOverhead</altitudeLayer>
+    <mote>
+      <fadeInTime>0.3</fadeInTime>
+      <solidTime>99999</solidTime>
+      <fadeOutTime>0.4</fadeOutTime>
+    </mote>
+    <graphicData>
+      <texPath>Things/Mote/TSC_ShieldMark</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.5</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <!-- Glyph marks: one per combat buff/debuff, all the same shape. The
+       abstract base keeps each concrete def to a name and a texture. -->
+  <ThingDef Name="TSC_GlyphMarkBase" ParentName="MoteBase" Abstract="True">
+    <thingClass>TheShatteredCrown.TSC_MoteSpinAttached</thingClass>
+    <altitudeLayer>MoteOverhead</altitudeLayer>
+    <mote>
+      <fadeInTime>0.3</fadeInTime>
+      <solidTime>99999</solidTime>
+      <fadeOutTime>0.4</fadeOutTime>
+    </mote>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_HymnNote</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_HymnNote</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_WardRune</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_WardRune</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_RageFlame</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_RageFlame</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_AnvilMark</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_AnvilMark</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_FlurryChevrons</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_FlurryChevrons</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_ChargeChevrons</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_ChargeChevrons</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_QuiverArrow</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_QuiverArrow</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_ChargedArrow</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_ChargedArrow</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_CrossedSwords</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_CrossedSwords</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_TremorLines</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_TremorLines</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_TargetMark</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_TargetMark</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_LeadWeight</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_LeadWeight</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_ThornSnare</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_ThornSnare</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.6</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_BrandFlame</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_BrandFlame</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+</Defs>

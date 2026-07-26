@@ -142,4 +142,65 @@
     </things>
   </PrefabDef>
 
+  <!-- Castle room fittings (Adventure Mode's ruined fortress) -->
+  <PrefabDef>
+    <defName>TSC_AltarNook</defName>
+    <size>(1,1)</size>
+    <things>
+      <TSC_ShrineAltar>
+      </TSC_ShrineAltar>
+    </things>
+  </PrefabDef>
+
+  <PrefabDef>
+    <defName>TSC_ArmoryChestPrefab</defName>
+    <size>(1,1)</size>
+    <things>
+      <TSC_ArmoryChest>
+      </TSC_ArmoryChest>
+    </things>
+  </PrefabDef>
+
+  <PrefabDef>
+    <defName>TSC_GuildChestPrefab</defName>
+    <size>(1,1)</size>
+    <things>
+      <TSC_ContractChest>
+      </TSC_ContractChest>
+    </things>
+  </PrefabDef>
+
+  <!-- The wayside shrine: a ring of standing stones (marble pillar walls at
+       the corners), marble floor, the altar at center. Discovered in the
+       wilds (GenStep_TSC_Shrine). -->
+  <PrefabDef>
+    <defName>TSC_ShrineRing</defName>
+    <size>(7,7)</size>
+    <things>
+      <Wall>
+        <positions>
+          <li>(1,0,1)</li>
+          <li>(5,0,1)</li>
+          <li>(1,0,5)</li>
+          <li>(5,0,5)</li>
+          <li>(3,0,0)</li>
+          <li>(3,0,6)</li>
+          <li>(0,0,3)</li>
+          <li>(6,0,3)</li>
+        </positions>
+        <stuff>BlocksMarble</stuff>
+      </Wall>
+      <TSC_ShrineAltar>
+        <position>(3,0,3)</position>
+      </TSC_ShrineAltar>
+    </things>
+    <terrain>
+      <TileMarble>
+        <rects>
+          <li>(2,2,4,4)</li>
+        </rects>
+      </TileMarble>
+    </terrain>
+  </PrefabDef>
+
 </Defs>

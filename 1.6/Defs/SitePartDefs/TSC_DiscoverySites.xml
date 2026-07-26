@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Adventure Mode's discoverable wilderness: site parts carrying
+       TSC_DiscoverySiteExtension are sighted by traveling caravans
+       (TSC_DiscoveryManager). None persist: enter and leave, or let the
+       mark fade. Weights are relative sighting odds. -->
+
+  <!-- A wild cave: skittish fauna, lost goods, no fight required. -->
+  <SitePartDef>
+    <defName>TSC_WildCave</defName>
+    <label>wild cave</label>
+    <description>A cave mouth in broken country, half-hidden and older than any road. Things get lost in places like this, and some of them were worth losing.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</expandingIconTexture>
+    <approachOrderString>Enter {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <forceMutators>
+      <li>Cavern</li>
+    </forceMutators>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_DiscoverySiteExtension">
+        <weight>1.2</weight>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_WildCave_Contents</defName>
+    <linkWithSite>TSC_WildCave</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_ScatterItems">
+      <thingDef>Silver</thingDef>
+      <stacks>2~3</stacks>
+      <stackSize>25~60</stackSize>
+      <radius>24</radius>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildCave_Fauna</defName>
+    <linkWithSite>TSC_WildCave</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_WildBeasts">
+      <kinds>
+        <li>Warg</li>
+      </kinds>
+      <count>1~2</count>
+      <defendDen>false</defendDen>
+    </genStep>
+  </GenStepDef>
+
+  <!-- A predator's lair: the den defends itself. The hoard is deeper in. -->
+  <SitePartDef>
+    <defName>TSC_WildLair</defName>
+    <label>beast lair</label>
+    <description>A den worn smooth by use, ringed with old kills. Whatever keeps it has been keeping it a long time, and it has collected more than bones.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</expandingIconTexture>
+    <approachOrderString>Enter {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <forceMutators>
+      <li>Cavern</li>
+    </forceMutators>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_DiscoverySiteExtension">
+        <weight>1</weight>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_WildLair_Hoard</defName>
+    <linkWithSite>TSC_WildLair</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_ScatterItems">
+      <thingDef>Silver</thingDef>
+      <stacks>3~4</stacks>
+      <stackSize>40~90</stackSize>
+      <radius>20</radius>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildLair_Beasts</defName>
+    <linkWithSite>TSC_WildLair</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_WildBeasts">
+      <kinds>
+        <li>Bear_Grizzly</li>
+        <li>Warg</li>
+      </kinds>
+      <count>2~3</count>
+      <defendDen>true</defendDen>
+    </genStep>
+  </GenStepDef>
+
+  <!-- A collapsed tower of the old road network: mundane variant. -->
+  <SitePartDef>
+    <defName>TSC_WildTower</defName>
+    <label>collapsed tower</label>
+    <description>A watchtower of the old kingdom, roof long fallen, walls holding out of habit. Garrisons leave things behind, and so does whatever quartered here after them.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Explore {0}</approachOrderString>
+    <approachingReportString>Exploring {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>100</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_DiscoverySiteExtension">
+        <weight>1</weight>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_WildTower_Structure</defName>
+    <linkWithSite>TSC_WildTower</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Waystation</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildTower_Spots</defName>
+    <linkWithSite>TSC_WildTower</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li>
+          <def>TSC_GravenStone</def>
+          <count>0~1</count>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The magical variant: same bones, but the tower kept its secrets -
+       a sealed chest (manuals ride in its loot), graven stones, and an
+       altar whose rite still answers. Rarer sighting. -->
+  <SitePartDef>
+    <defName>TSC_WildTowerMagical</defName>
+    <label>sorcerer's tower</label>
+    <description>A tower that does not read like garrison work: the stones are set in patterns, and the air inside is too still. Whoever raised it studied things the road-builders did not, and left some of them behind.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Explore {0}</approachOrderString>
+    <approachingReportString>Exploring {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>150</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_DiscoverySiteExtension">
+        <weight>0.5</weight>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_WildTowerMagical_Structure</defName>
+    <linkWithSite>TSC_WildTowerMagical</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Waystation</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildTowerMagical_Spots</defName>
+    <linkWithSite>TSC_WildTowerMagical</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li>
+          <def>TSC_ContractChest</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_GravenStone</def>
+          <count>1~2</count>
+        </li>
+        <li>
+          <def>TSC_ShrineAltar</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_RuneWard</def>
+          <count>1~1</count>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- A bandit hole with a captive: the rescue route into a bigger party.
+       The Crownless hold the cave; the captive joins on rescue (no silver,
+       unlike a guild-hall hireling - you fought instead of paying). -->
+  <SitePartDef>
+    <defName>TSC_WildCaptive</defName>
+    <label>bandit hole</label>
+    <description>A cave the Crownless are using as a den, and they are not alone in it: someone is being held in the deep chamber, and the ransom notes stopped mattering when nobody answered them.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</expandingIconTexture>
+    <approachOrderString>Enter {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <forceMutators>
+      <li>Cavern</li>
+    </forceMutators>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_DiscoverySiteExtension">
+        <weight>0.6</weight>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_WildCaptive_Guards</defName>
+    <linkWithSite>TSC_WildCaptive</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>3~4</count>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildCaptive_Captive</defName>
+    <linkWithSite>TSC_WildCaptive</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Captive" />
+  </GenStepDef>
+
+  <!-- A ruined fortress: the biggest and rarest discovery. Procedurally
+       roomed castle (great hall, chapel, armory, lord's chamber, barracks,
+       stores, collapse), garrisoned at party-scaled threat points. -->
+  <SitePartDef>
+    <defName>TSC_WildCastle</defName>
+    <label>ruined fortress</label>
+    <description>A fortress of the old kingdom, breached once and abandoned rather than retaken. Halls, chapel, armory, and the lord's own chambers, all holding what the sack missed. Places like this are never as empty as they look.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Explore {0}</approachOrderString>
+    <approachingReportString>Exploring {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>250</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_DiscoverySiteExtension">
+        <weight>0.35</weight>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_WildCastle_Structure</defName>
+    <linkWithSite>TSC_WildCastle</linkWithSite>
+    <order>470</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Layout">
+      <layoutDef>TSC_Castle</layoutDef>
+      <size>46</size>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildCastle_Spots</defName>
+    <linkWithSite>TSC_WildCastle</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li>
+          <def>TSC_GravenStone</def>
+          <count>1~2</count>
+        </li>
+        <li>
+          <def>TSC_RuneWard</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_CollapsedPassage</def>
+          <count>1~2</count>
+        </li>
+      </spots>
+      <radius>26</radius>
+    </genStep>
+  </GenStepDef>
+
+  <!-- A wayside shrine: no fight, just the old stones and their rite. -->
+  <SitePartDef>
+    <defName>TSC_WildShrine</defName>
+    <label>wayside shrine</label>
+    <description>A ring of standing stones off the old road, kept clear of growth by nothing anyone can point to. Travelers used to stop here and speak the rites. Some of them were answered.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteGrove</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteGrove</expandingIconTexture>
+    <approachOrderString>Visit {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_DiscoverySiteExtension">
+        <weight>0.8</weight>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_WildShrine_Ring</defName>
+    <linkWithSite>TSC_WildShrine</linkWithSite>
+    <order>470</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Shrine">
+      <prefab>TSC_ShrineRing</prefab>
+    </genStep>
+  </GenStepDef>
+
+
+  <GenStepDef>
+    <defName>TSC_WildCave_Tracks</defName>
+    <linkWithSite>TSC_WildCave</linkWithSite>
+    <order>486</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li>
+          <def>TSC_BeastTracks</def>
+          <count>1~1</count>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildLair_Tracks</defName>
+    <linkWithSite>TSC_WildLair</linkWithSite>
+    <order>486</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li>
+          <def>TSC_BeastTracks</def>
+          <count>1~1</count>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildCaptive_Tracks</defName>
+    <linkWithSite>TSC_WildCaptive</linkWithSite>
+    <order>486</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li>
+          <def>TSC_BeastTracks</def>
+          <count>1~1</count>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+</Defs>

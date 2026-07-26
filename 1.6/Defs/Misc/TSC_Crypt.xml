@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- The sanguophage crypt: Act 1's finale. The surface site holds the old
+       survey gallery mouth (portal); the crypt itself generates in the
+       TSC_CryptUnderground pocket map - dressed marble, the sixty-year
+       brickwork across the survey tunnel, Old Wick's empty coffin, and the
+       WARM DOOR set into the far rock at the end of a single-file passage.
+       It is an ordinary door and the burial chamber is right behind it on
+       this same map: the elder sanguophage that made Wick, asleep, with the
+       crown shard it was buried to keep. Taking the shard wakes it.
+       Old Wick waits inside on the journal route. -->
+
+  <!-- The gallery mouth on the surface site (same portal machinery as the
+       barrow mouth; Building_TSC_BarrowEntrance self-heals the exit). -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_CryptEntrance</defName>
+    <label>survey gallery mouth</label>
+    <description>The mouth of a Crown-survey gallery, cut sixty years ago and shored with timber gone grey. The air rising out of it is warmer than it has any right to be.</description>
+    <size>(6,6)</size>
+    <useHitPoints>false</useHitPoints>
+    <thingClass>TheShatteredCrown.Building_TSC_BarrowEntrance</thingClass>
+    <rotatable>false</rotatable>
+    <tickerType>Normal</tickerType>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <canOverlapZones>false</canOverlapZones>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/CaveEntranceA</texPath>
+      <drawSize>(6,6)</drawSize>
+    </graphicData>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <fillPercent>0</fillPercent>
+    <passability>Impassable</passability>
+    <holdsRoof>true</holdsRoof>
+    <destroyable>false</destroyable>
+    <building>
+      <isEdifice>true</isEdifice>
+      <deconstructible>false</deconstructible>
+      <isTargetable>false</isTargetable>
+      <isInert>true</isInert>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <portal>
+      <pocketMapGenerator>TSC_CryptUnderground</pocketMapGenerator>
+      <exitDef>CaveExit</exitDef>
+      <pocketMapSize>90</pocketMapSize>
+    </portal>
+    <statBases>
+      <Flammability>0</Flammability>
+    </statBases>
+    <inspectorTabs>
+      <li>ITab_ContentsMapPortal</li>
+    </inspectorTabs>
+  </ThingDef>
+
+  <!-- The warm door: a REAL door (Building_Door), not a portal and not a
+       slab that vanishes. The burial chamber is on the other side of it, on
+       this same map. Pawns open it and walk through; it cannot be built,
+       deconstructed, or broken. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_WarmDoor</defName>
+    <label>warm door</label>
+    <description>A double door of dressed stone, older than the kingdom that found it. There is no handle and no hinge, and yet it moves for anyone who pushes. It is warm to the hand, in the deep of a hill, and the warmth does not fade. Something on the far side has been listening for a very long time.</description>
+    <thingClass>Building_Door</thingClass>
+    <size>(1,1)</size>
+    <useHitPoints>false</useHitPoints>
+    <destroyable>false</destroyable>
+    <rotatable>false</rotatable>
+    <tickerType>Normal</tickerType>
+    <drawerType>RealtimeOnly</drawerType>
+    <altitudeLayer>DoorMoveable</altitudeLayer>
+    <fillPercent>1</fillPercent>
+    <holdsRoof>true</holdsRoof>
+    <blockLight>true</blockLight>
+    <blockWind>true</blockWind>
+    <canOverlapZones>false</canOverlapZones>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <staticSunShadowHeight>1.0</staticSunShadowHeight>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_WarmDoor</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <damageData>
+        <enabled>false</enabled>
+      </damageData>
+    </graphicData>
+    <building>
+      <isEdifice>true</isEdifice>
+      <deconstructible>false</deconstructible>
+      <isInert>true</isInert>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+      <ai_chillDestination>false</ai_chillDestination>
+      <soundDoorOpenManual>Door_OpenManual</soundDoorOpenManual>
+      <soundDoorCloseManual>Door_CloseManual</soundDoorCloseManual>
+    </building>
+    <statBases>
+      <Flammability>0</Flammability>
+    </statBases>
+  </ThingDef>
+
+  <!-- The elder's sarcophagus: a WORKING casket with the sleeper inside
+       (Building_CryptosleepCasket holds living pawns). Opening it by hand
+       is one way to wake what is in it; lifting the shard is the other. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_ElderSarcophagus</defName>
+    <label>black sarcophagus</label>
+    <description>A sarcophagus of black marble, older than the crypt built around it. The lid is seamless and the stone is warm, and both of those facts are instructions.</description>
+    <thingClass>Building_CryptosleepCasket</thingClass>
+    <size>(1,2)</size>
+    <rotatable>true</rotatable>
+    <tickerType>Normal</tickerType>
+    <passability>Impassable</passability>
+    <fillPercent>0.9</fillPercent>
+    <castEdgeShadows>true</castEdgeShadows>
+    <useHitPoints>true</useHitPoints>
+    <!-- Vanilla's own numbers: the 1x2 sarcophagus DRAWS at (3,4) (big
+         sprite overhang), and the texture is a stuff-tinted mask - it needs
+         to be MadeFromStuff to render, not color-tinted. Spawned in slate:
+         the black sarcophagus. -->
+    <graphicData>
+      <texPath>Things/Building/Misc/Sarcophagus</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3,4)</drawSize>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <costStuffCount>60</costStuffCount>
+    <stuffCategories>
+      <li>Stony</li>
+    </stuffCategories>
+    <statBases>
+      <MaxHitPoints>400</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isEdifice>true</isEdifice>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+  </ThingDef>
+
+  <!-- The crown shard: what Act 1 was for. -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_CrownShard</defName>
+    <label>shard of the shattered crown</label>
+    <description>A broken third of a king's crown: two points and a band, gold that has not dulled, one gem the color of old blood. It was buried with a sanguophage, and it is heavier than gold should be. One of nine.</description>
+    <graphicData>
+      <texPath>Things/Item/TSC_CrownShard</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.9</drawSize>
+    </graphicData>
+    <techLevel>Medieval</techLevel>
+    <stackLimit>1</stackLimit>
+    <statBases>
+      <MaxHitPoints>250</MaxHitPoints>
+      <Mass>1.5</Mass>
+      <MarketValue>2500</MarketValue>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+  </ThingDef>
+
+  <!-- The crypt layout: marble the survey crew had no name for. -->
+  <StructureLayoutDef>
+    <defName>TSC_SanguophageCrypt</defName>
+    <workerClass>LayoutWorker_AncientRuins</workerClass>
+    <canHaveMultipleLayoutsInRoom>true</canHaveMultipleLayoutsInRoom>
+    <minRoomWidth>7</minRoomWidth>
+    <minRoomHeight>7</minRoomHeight>
+    <wallDef>Wall</wallDef>
+    <wallStuffDef>BlocksMarble</wallStuffDef>
+    <doorStuffDef>BlocksMarble</doorStuffDef>
+    <wallLampChancePerPosition>0</wallLampChancePerPosition>
+    <ensureOneDoorUnlocked>true</ensureOneDoorUnlocked>
+    <canDisconnectRooms>false</canDisconnectRooms>
+    <roomDefs>
+      <TSC_CryptReliquary>
+        <countRange>1~1</countRange>
+      </TSC_CryptReliquary>
+      <TSC_Crypt>2</TSC_Crypt>
+      <TSC_RubbleChamber>1</TSC_RubbleChamber>
+    </roomDefs>
+    <junkScaterrers>
+      <Filth_RubbleRock>
+        <groupsPerHundredCells>2~4</groupsPerHundredCells>
+      </Filth_RubbleRock>
+    </junkScaterrers>
+  </StructureLayoutDef>
+
+  <!-- The pocket map behind the gallery mouth. -->
+  <MapGeneratorDef>
+    <defName>TSC_CryptUnderground</defName>
+    <label>sanguophage crypt</label>
+    <isUnderground>true</isUnderground>
+    <forceCaves>true</forceCaves>
+    <ignoreAreaRevealedLetter>true</ignoreAreaRevealedLetter>
+    <disableCallAid>true</disableCallAid>
+    <pocketMapProperties>
+      <biome>Underground</biome>
+      <!-- The door is warm, and so is its hill. -->
+      <temperature>12</temperature>
+      <canBeCleaned>true</canBeCleaned>
+      <tileMutators>
+        <li>UndergroundCave</li>
+      </tileMutators>
+    </pocketMapProperties>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_CryptInterior</li>
+      <li>Plants</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <GenStepDef>
+    <defName>TSC_CryptInterior</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CryptInterior">
+      <layoutDef>TSC_SanguophageCrypt</layoutDef>
+      <size>29</size>
+    </genStep>
+  </GenStepDef>
+
+
+  <!-- The shard's own damage: ice, sharp, heavy. -->
+  <DamageDef>
+    <defName>TSC_IceShard</defName>
+    <label>ice shard</label>
+    <workerClass>DamageWorker_AddInjury</workerClass>
+    <externalViolence>true</externalViolence>
+    <deathMessage>{0} has been impaled by falling ice.</deathMessage>
+    <hediff>Cut</hediff>
+    <hediffSolid>Crack</hediffSolid>
+    <harmAllLayersUntilOutside>true</harmAllLayersUntilOutside>
+    <impactSoundType>Slice</impactSoundType>
+    <armorCategory>Sharp</armorCategory>
+    <overkillPctToDestroyPart>0~0.7</overkillPctToDestroyPart>
+    <defaultDamage>25</defaultDamage>
+    <soundExplosion>Explosion_Bomb</soundExplosion>
+    <explosionColorCenter>(0.75, 0.9, 1)</explosionColorCenter>
+    <explosionColorEdge>(0.85, 0.95, 1)</explosionColorEdge>
+  </DamageDef>
+
+  <!-- Shardfall: the crown shard's power. Granted to WHOEVER carries the
+       shard (TSC_ShardTracker), once a day - the cooldown belongs to the
+       shard, not the pawn. No energy cost: it is not the pawn's magic. -->
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Shardfall</defName>
+    <label>shardfall</label>
+    <description>Call down a rain of ice shards on an area. Heavy damage to everything beneath it, friend or foe, and snow after. The shard allows this once a day; carrying it is the only price.</description>
+    <iconPath>UI/TSC_Abilities/TSC_Shardfall</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <stunTargetWhileCasting>false</stunTargetWhileCasting>
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
+    <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
+    <verbProperties>
+      <warmupTime>2</warmupTime>
+      <range>34.9</range>
+      <requireLineOfSight>true</requireLineOfSight>
+      <targetParams>
+        <canTargetLocations>true</canTargetLocations>
+        <canTargetPawns>true</canTargetPawns>
+        <canTargetBuildings>true</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_IceStorm">
+        <radius>4.5</radius>
+        <damageAmount>25</damageAmount>
+        <armorPenetration>0.5</armorPenetration>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
+        <color>(0.75, 0.9, 1)</color>
+        <scale>2.5</scale>
+        <sparks>true</sparks>
+      </li>
+    </comps>
+  </AbilityDef>
+
+</Defs>

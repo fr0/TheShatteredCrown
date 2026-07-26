@@ -270,6 +270,12 @@ namespace TheShatteredCrown
                 else
                 {
                     SoundDefOf.ClickReject.PlayOneShotOnCamera();
+                    // Failed retryable check: cooldown before it can be
+                    // re-attempted - no click-until-it-lands re-rolling.
+                    if (!option.check.retryKey.NullOrEmpty())
+                    {
+                        DialogueStateManager.Current.StartRetryCooldown(option.check.retryKey, option.check.retryHours);
+                    }
                     foreach (DialogueEffect effect in option.check.failEffects)
                     {
                         effect.Apply(context);
@@ -294,16 +300,28 @@ namespace TheShatteredCrown
             PushNpcLine(current);
         }
 
+        // Emphasis convention: *word* renders bold (stress in speech); CAPS is
+        // reserved for actual shouting. Unpaired asterisks stay literal.
+        private static readonly System.Text.RegularExpressions.Regex EmphasisRegex =
+            new System.Text.RegularExpressions.Regex(@"\*([^\*\n]+)\*");
+
+        /// <summary>Applies the *emphasis* -> bold convention for any UI surface (message boxes, prompts).</summary>
+        public static string Stylize(string text)
+        {
+            return text.NullOrEmpty() ? text : EmphasisRegex.Replace(text, "<b>$1</b>");
+        }
+
         private string Resolve(string text)
         {
             if (text.NullOrEmpty())
             {
                 return string.Empty;
             }
-            return text
+            text = text
                 .Replace("{NPC}", context.npc != null ? context.npc.LabelShortCap : "the stranger")
                 .Replace("{PLAYER}", context.interactor != null ? context.interactor.LabelShortCap : "you")
                 .Replace("\\n", "\n");
+            return EmphasisRegex.Replace(text, "<b>$1</b>");
         }
     }
 }

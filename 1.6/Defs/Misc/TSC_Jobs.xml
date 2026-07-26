@@ -38,4 +38,28 @@
     <casualInterruptible>false</casualInterruptible>
   </JobDef>
 
+  <!-- Encounter mode's stop-drop-and-roll: visible, and certain -->
+  <JobDef>
+    <defName>TSC_BeatFlames</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_BeatFlames</driverClass>
+    <reportString>rolling out the flames.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
+  <!-- Generic check-spot attempt (procedural content; approach index rides in Job.count) -->
+  <JobDef>
+    <defName>TSC_UseCheckSpot</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_UseCheckSpot</driverClass>
+    <reportString>attempting TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
+
+  <JobDef>
+    <defName>TSC_DescendWell</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_DescendWell</driverClass>
+    <reportString>descending the well.</reportString>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
 </Defs>

@@ -1,0 +1,31 @@
+# The unsigned journal from the chest in the well caves: a sanguophage's
+# confession, read in the conversation window (the reader's portrait shows).
+# Re-readable any time; the item persists. Act 2 foreshadowing: the crypt,
+# Old Wick's warm door, Mara's blood-drinkers.
+
+dialogue TSC_Dialogue_WeatheredJournal
+
+== start ==
+The journal spans decades. The early pages are a young retainer's: drills, postings, the small pride of a first commendation. Then the entries begin to skip years at a time, and the hand never ages.
+
+* [Turn the pages.] -> middle
+* [Close the journal.] -> end
+
+== middle ==
+"Served three kings from the same shadow. The first knew what I was and used me gently. The second knew and used me hard. The third never knew, and I miss him most."
+
+"Put down the rising at the weirs today. They were farmers. I have written *they were farmers* in this book eleven times in a hundred years and the ink never gets any lighter."
+
+"A man who cannot die does not get to say the work was the times. The times died. I kept going."
+
+* [Read the last entry.] -> last
+* [Close the journal.] -> end
+
+== last ==
+The last entry is the shortest.
+
+"I have killed for centuries. Farmers at the weirs. A shepherd in this village. More than I can count. I was made for this and I did it well. Now I am done. I am going into the water and I will not come back up. If you are reading this, do what you will with it. I do not care anymore."
+
+It is not signed.
+
+* [Close the journal.] -> end

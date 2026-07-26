@@ -1,0 +1,65 @@
+# Tam Root - farmer of Harrowfield (Act 1 village).
+
+dialogue TSC_Dialogue_Tam
+
+# Night visits: asleep node preempts everything (entries in order).
+entry asleep if sleeping()
+
+entry hub if flag(TSC_MetTam)
+
+== start ==
+The man in the potato rows is built solid and weathered. He straightens with the slow care of a back that has earned every ache, wipes his hands on his smock, and looks you over once.
+
+"Tam Root. That's my field you're standing beside, that's my house, and the two loud things by the woodpile are mine as well." A pause. "The children. Not the chickens."
+
+* "A pleasure, Tam. I've come up from the pass road." -> hub
+    do flag(TSC_MetTam)
+* "Good rows. You fight the stones for every one of them, I'd wager." -> hub
+    do flag(TSC_MetTam); affinity(+5)
+* "Just looking around." -> end
+
+== hub ==
+Tam straightens up from the potato rows, one hand on his aching back.
+
+"Fair day to you. Mind the furrows."
+
+* "What do you know about a nearby sanguophage crypt?" -> crypt
+    if flag(TSC_RitesDone)
+* "I found an old journal in the caves under the well. Unsigned. Does it mean anything to you?" -> journal
+    if flag(TSC_WeatheredJournalRead)
+* "I'm looking for work." -> work
+* "Just passing through." -> end
+
+== work ==
+"Sorry. I've got nothing for you. Ask around, though, I'm sure someone needs help with something."
+
+* "Okay." -> hub
+
+== asleep ==
+Tam sleeps thoroughly, flat on his back. His snoring is steady, the sound of a man at peace.
+
+* [Shake them awake.] -> woken
+    do wake()
+* [Leave them to their rest.] -> end
+
+== woken ==
+Tam surfaces slowly, one eye at a time.
+
+"...Unless the field's on fire or the children are bleeding, friend, this had better be the king himself come back from the dead." He is already turning over. "Morning. Talk to me in the morning."
+
+* "Sorry. Go back to sleep." -> end
+* "Morning, then." -> end
+
+== crypt ==
+Tam frowns at the word, unrecognizing.
+
+"Sanguo... no. The dead kingdom left plenty of holes in these hills, and my whole art is plowing AROUND them. Whatever's down there kept to itself for eight hundred years. I'd take it kindly if you didn't change that."
+
+* "Fair enough, Tam." -> hub
+
+== journal ==
+Tam thinks about it for a while.
+
+"Can't read it for you. I read weather and stock." A pause. "Show it to the elder. Old Wick's been old as long as anyone remembers. Longer, maybe."
+
+* "I understand." -> hub

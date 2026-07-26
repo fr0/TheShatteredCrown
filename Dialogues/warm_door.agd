@@ -1,0 +1,20 @@
+# The warm door at the bottom of the crypt (one-shot per save). Opened
+# from code (MapComponent_TSC_WarmDoor) when a colonist first stands
+# within 5 cells of the door; {PLAYER} is that pawn. Plays on both routes,
+# and only after Old Wick's scene.
+#
+# The door is a REAL door on this same map, with the burial chamber behind
+# it. Nothing here opens it: that is the player's move, and the shard and
+# the sleeper are on the other side.
+
+dialogue TSC_Dialogue_WarmDoor
+
+== start ==
+The door is stone, and the stone is warm. Standing in front of it is like standing in front of a hearth with no fire.
+
+{PLAYER} puts out a hand. The warmth comes through the glove. There is no handle and no hinge, but the stone gives under the pressure, a finger's width, the way a door does when it is not locked and never has been.
+
+Something on the other side moves. Not footsteps. A weight, shifting, the way ice shifts on a lake.
+
+* [Step back from the door.] -> end
+* [It opens. Whatever is in there, it is not locked in.] -> end

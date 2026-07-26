@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Adventure Mode: the procedural counterpart to the campaign scenario.
+       Same RPG layer (classes, spells, proficiencies, turn-based
+       encounters); the content is generated. Guild contracts arrive on a
+       cadence (TSC_ContractManager) and the long goal is the shard hunt. -->
+
+  <ScenPartDef>
+    <defName>TSC_AdventureSetup</defName>
+    <label>adventure mode setup</label>
+    <category>Misc</category>
+    <scenPartClass>TheShatteredCrown.ScenPart_TSC_AdventureSetup</scenPartClass>
+    <maxUses>1</maxUses>
+  </ScenPartDef>
+
+  <ScenarioDef ParentName="ScenarioBase">
+    <defName>TSC_AdventureMode</defName>
+    <label>Wayfarers' Guild: Adventure Mode</label>
+    <description>Not every rider chases the crown. Most carry a guild charter and take the work as it comes: camps to clear, ruins to delve, beasts with a price on their hide.\n\nYou hold an open charter of the Wayfarers' Guild. Contracts will find you wherever the road takes you; pay is in silver and the guild asks no questions about method. Rumor says shards of the shattered crown still lie hidden in the world, for anyone good enough to follow the whispers to one.\n\nYou start alone, with a horse, crude gear, and basic supplies. Take contracts, grow into your classes, and hire the company you can afford.\n\nNote: starting with a single character makes the early game challenging.</description>
+    <scenario>
+      <summary>An open guild charter: endless generated contracts, a party built on the road, and shards hidden in the world. Difficult at first.</summary>
+      <playerFaction>
+        <def>PlayerFaction</def>
+        <factionDef>TSC_PlayerGuild</factionDef>
+      </playerFaction>
+      <parts>
+
+        <!-- The mode marker: switches on the RPG layer, the contract
+             generator, and the shard hunt. No Act 1 content. -->
+        <li Class="TheShatteredCrown.ScenPart_TSC_AdventureSetup">
+          <def>TSC_AdventureSetup</def>
+          <visible>false</visible>
+        </li>
+
+        <!-- Config pages -->
+        <li Class="ScenPart_ConfigPage_ConfigureStartingPawns">
+          <def>ConfigPage_ConfigureStartingPawns</def>
+          <pawnCount>1</pawnCount>
+          <pawnChoiceCount>8</pawnChoiceCount>
+        </li>
+
+        <!-- Walk on, no drop pods: you arrived by road -->
+        <li Class="ScenPart_PlayerPawnsArriveMethod">
+          <def>PlayerPawnsArriveMethod</def>
+          <visible>false</visible>
+          <method>Standing</method>
+        </li>
+
+        <!-- Crude gear and basic supplies -->
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>Silver</thingDef>
+          <count>200</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>Pemmican</thingDef>
+          <count>100</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>MedicineHerbal</thingDef>
+          <count>8</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>MeleeWeapon_Knife</thingDef>
+          <stuff>Steel</stuff>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>Bow_Short</thingDef>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>Bedroll</thingDef>
+          <stuff>Cloth</stuff>
+        </li>
+
+        <!-- The horse -->
+        <li Class="ScenPart_StartingAnimal">
+          <def>StartingAnimal</def>
+          <animalKind>Horse</animalKind>
+          <count>1</count>
+          <bondToRandomPlayerPawnChance>1.0</bondToRandomPlayerPawnChance>
+        </li>
+
+        <!-- Enough wood for a first shelter -->
+        <li Class="ScenPart_ScatterThingsNearPlayerStart">
+          <def>ScatterThingsNearPlayerStart</def>
+          <thingDef>WoodLog</thingDef>
+          <count>250</count>
+        </li>
+
+        <!-- Game start dialog -->
+        <li Class="ScenPart_GameStartDialog">
+          <def>GameStartDialog</def>
+          <text>The charter is a single page, guild-sealed, worn soft at the folds.\n\n"The bearer rides under the Wayfarers' mark. Work will be posted as work is found: honest rates, paid on completion, no questions kept. What the bearer takes from the world's forgotten places is the bearer's, save what the crown once wore, which the guild will always buy in blood or silver."\n\nOne rider, one horse, and every road on the map.</text>
+          <closeSound>GameStartSting</closeSound>
+        </li>
+
+      </parts>
+    </scenario>
+  </ScenarioDef>
+
+</Defs>

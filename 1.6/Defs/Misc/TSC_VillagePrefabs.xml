@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 
-  <!-- Underhill village buildings. Hand-authored: granite walls, wood doors,
+  <!-- Harrowfield village buildings. Hand-authored: granite walls, wood doors,
        plank floors. Local coords: (x,0,z) from the prefab's own origin.
        RECTS ARE INCLUSIVE CORNERS: (minX,minZ,maxX,maxZ) - the vanilla
        CellRect parse. NOT width/height (that mistake produced L-shaped
@@ -93,7 +93,8 @@
     </terrain>
   </PrefabDef>
 
-  <!-- The smithy: forge, workbench shelf, stone floor -->
+  <!-- The smithy: forge, workbench shelf, stone floor, and Haldor's bed in
+       the corner (he lives where he works) -->
   <PrefabDef>
     <defName>TSC_Smithy</defName>
     <size>(8,6)</size>
@@ -119,6 +120,10 @@
         <position>(2,0,1)</position>
         <stuff>WoodLog</stuff>
       </Shelf>
+      <Bed>
+        <position>(6,0,1)</position>
+        <stuff>WoodLog</stuff>
+      </Bed>
       <TorchLamp>
         <position>(6,0,3)</position>
       </TorchLamp>
@@ -180,7 +185,7 @@
     </terrain>
   </PrefabDef>
 
-  <!-- The Crossed Swords: Underhill's small inn. Common room with a long table
+  <!-- The Crossed Swords inn. CURRENTLY UNUSED (Harrowfield has no inn, user decision); kept for future settlements. Common room with a long table
        and hearth, guest beds along the north wall, barrels behind the counter. -->
   <PrefabDef>
     <defName>TSC_Inn</defName>

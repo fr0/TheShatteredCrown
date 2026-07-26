@@ -11,6 +11,21 @@ namespace TheShatteredCrown
     /// around it, each optionally housing a persistent named resident who stays
     /// near their own home. Configured entirely from the GenStepDef XML.
     /// </summary>
+    /// <summary>
+    /// Runs AFTER vanilla GenStep_Fog (order 1230 vs our 1300): clears all
+    /// fog so a friendly village's homes aren't black boxes on arrival. The
+    /// villagers live here openly; there is nothing to "discover".
+    /// </summary>
+    public class GenStep_TSC_Unfog : GenStep
+    {
+        public override int SeedPart => 190847313;
+
+        public override void Generate(Map map, GenStepParams parms)
+        {
+            map.fogGrid.ClearAllFog();
+        }
+    }
+
     public class GenStep_TSC_Village : GenStep
     {
         public PrefabDef innPrefab;
@@ -20,9 +35,24 @@ namespace TheShatteredCrown
         /// <summary>Optional: skep hives scattered around the inn's yard (Maewyn's bees).</summary>
         public ThingDef beehive;
         public IntRange beehiveCount = new IntRange(3, 5);
-        /// <summary>Optional: wild birds loitering around the inn (Maewyn's ravens; Odyssey crows). The first one is named Corvus.</summary>
+        /// <summary>Optional: wild birds loitering around the inn (Maewyn's ravens; Odyssey crows). Corvus himself is her bonded pet, spawned by SpawnResident.</summary>
         public PawnKindDef yardBird;
         public IntRange yardBirdCount = new IntRange(2, 4);
+        /// <summary>Optional centerpiece of the packed-dirt square (Harrowfield's well).</summary>
+        public ThingDef well;
+
+        /// <summary>
+        /// Optional perimeter fence drawn around everything the village spawns
+        /// (houses, yards, fields), with a gate at the middle of each side.
+        /// People step over fences and animals do not, so this pens the
+        /// livestock without walling anybody in. The dialogue leans on it:
+        /// Bryn holds court on the rail, Serra camps "outside the fence".
+        /// </summary>
+        public ThingDef fence;
+        public ThingDef fenceGate;
+        public ThingDef fenceStuff;
+        /// <summary>Open ground left between the outermost building or field and the fence line.</summary>
+        public int fenceMargin = 4;
         public List<VillageBuilding> buildings = new List<VillageBuilding>();
         /// <summary>
         /// Named residents around the inn, re-spawned on EVERY map generation -
@@ -34,12 +64,30 @@ namespace TheShatteredCrown
         [NoTranslate]
         public string residentsSkipIfFlag;
 
+        /// <summary>
+        /// Follow-on camp pitched just outside the village from the SECOND
+        /// visit on: Serra and Oswin keep the rites' promise and meet the
+        /// courier at Harrowfield. First generation marks campVisitedFlag;
+        /// later generations (with campRequireFlag met) raise the camp and
+        /// set campArrivedFlag, which gates their village dialogue.
+        /// </summary>
+        public PrefabDef campPrefab;
+        public List<NamedNpcDef> campResidents = new List<NamedNpcDef>();
+        [NoTranslate]
+        public string campVisitedFlag;
+        [NoTranslate]
+        public string campRequireFlag;
+        [NoTranslate]
+        public string campArrivedFlag;
+
         public override int SeedPart => 190847312;
 
         public override void Generate(Map map, GenStepParams parms)
         {
             IntVec3 center = map.Center;
             Faction faction = VillagerFaction();
+            // Everything the village occupies, for the fence line to enclose.
+            List<CellRect> footprint = new List<CellRect> { CellRect.CenteredOn(center, 5, 5) };
 
             // Village square
             foreach (IntVec3 cell in CellRect.CenteredOn(center, 5, 5))
@@ -49,20 +97,30 @@ namespace TheShatteredCrown
                     map.terrainGrid.SetTerrain(cell, TerrainDefOf.PackedDirt);
                 }
             }
+            // The well anchors the square (and gives "ask at the well" a place).
+            if (well != null)
+            {
+                GenSpawn.Spawn(ThingMaker.MakeThing(well), center, map);
+            }
 
             // The inn, north of the square
             if (innPrefab != null)
             {
                 IntVec3 innPos = center + new IntVec3(0, 0, 10);
                 SpawnBuilding(innPrefab, map, innPos);
-                SpawnResident(innkeeper, faction, map, innPos);
+                footprint.Add(CellRect.CenteredOn(innPos, innPrefab.size.x, innPrefab.size.z));
+                List<Building_Bed> innBeds = SpawnBedsFor(map, faction, innPos, innPrefab,
+                    (innkeeper != null ? 1 : 0) + residents.Count, CountCouples(Gen.YieldSingle(innkeeper), residents));
+                List<Pawn> innPawns = new List<Pawn>();
+                AddIfSpawned(innPawns, SpawnResident(innkeeper, faction, map, innPos, innPrefab, center));
                 if (residentsSkipIfFlag.NullOrEmpty() || !DialogueStateManager.Current.IsSet(residentsSkipIfFlag))
                 {
                     foreach (NamedNpcDef resident in residents)
                     {
-                        SpawnResident(resident, faction, map, innPos);
+                        AddIfSpawned(innPawns, SpawnResident(resident, faction, map, innPos, innPrefab, center));
                     }
                 }
+                AssignBeds(innPawns, innBeds);
                 if (cellarHatch != null)
                 {
                     if (!CellFinder.TryFindRandomCellNear(innPos, map, 3,
@@ -82,10 +140,6 @@ namespace TheShatteredCrown
                         Pawn bird = PawnGenerator.GeneratePawn(yardBird);
                         IntVec3 birdCell = CellFinder.RandomClosewalkCellNear(innPos, map, 8);
                         GenSpawn.Spawn(bird, birdCell, map);
-                        if (i == 0)
-                        {
-                            bird.Name = new NameSingle("Corvus");
-                        }
                     }
                 }
                 if (beehive != null)
@@ -107,20 +161,239 @@ namespace TheShatteredCrown
                 }
             }
 
-            // Buildings around the square
+            // Buildings around the square. SOUTHERN slots first: crop fields
+            // extend south of their building, so list field-bearing buildings
+            // (the farms) first and they take the outer ring where the fields
+            // have open ground.
             List<IntVec3> offsets = new List<IntVec3>
             {
-                new IntVec3(-16, 0, 0),
-                new IntVec3(16, 0, 0),
                 new IntVec3(-14, 0, -13),
                 new IntVec3(14, 0, -13),
                 new IntVec3(0, 0, -17),
+                new IntVec3(-16, 0, 0),
+                new IntVec3(16, 0, 0),
             };
             for (int i = 0; i < buildings.Count && i < offsets.Count; i++)
             {
+                VillageBuilding building = buildings[i];
                 IntVec3 pos = center + offsets[i];
-                SpawnBuilding(buildings[i].prefab, map, pos);
-                SpawnResident(buildings[i].resident, faction, map, pos);
+                SpawnBuilding(building.prefab, map, pos);
+                if (building.prefab != null)
+                {
+                    footprint.Add(CellRect.CenteredOn(pos, building.prefab.size.x, building.prefab.size.z));
+                }
+                List<Building_Bed> beds = SpawnBedsFor(map, faction, pos, building.prefab,
+                    (building.resident != null ? 1 : 0) + building.residents.Count,
+                    CountCouples(Gen.YieldSingle(building.resident), building.residents));
+                // Work spot: the farm's field, or the yard in front of the
+                // building (facing the square) for everyone else.
+                IntVec3 workSpot = pos + new IntVec3(0, 0, -((building.prefab?.size.z ?? 6) / 2 + 3));
+                if (building.cropField && building.prefab != null)
+                {
+                    CellRect field = new CellRect(pos.x - 5, pos.z - building.prefab.size.z / 2 - 10, 11, 8);
+                    SpawnCropField(map, field);
+                    footprint.Add(field);
+                    workSpot = field.CenterCell;
+                }
+                List<Pawn> housePawns = new List<Pawn>();
+                AddIfSpawned(housePawns, SpawnResident(building.resident, faction, map, pos, building.prefab, workSpot));
+                foreach (NamedNpcDef resident in building.residents)
+                {
+                    AddIfSpawned(housePawns, SpawnResident(resident, faction, map, pos, building.prefab, workSpot));
+                }
+                AssignBeds(housePawns, beds);
+                SpawnLivestock(map, faction, pos, building);
+                if (building.yardProp != null && building.prefab != null)
+                {
+                    // The woodpile: in the yard, clear of the door line.
+                    if (CellFinder.TryFindRandomCellNear(pos, map, building.prefab.size.x / 2 + 3,
+                        c => c.InBounds(map) && c.Standable(map)
+                            && c.GetFirstBuilding(map) == null && c.GetFirstItem(map) == null
+                            && c.DistanceTo(pos) > building.prefab.size.x / 2f + 1f,
+                        out IntVec3 propCell))
+                    {
+                        GenSpawn.Spawn(ThingMaker.MakeThing(building.yardProp), propCell, map);
+                    }
+                }
+            }
+
+            // Fence last: the camp's ground-clearing would chew through a line
+            // drawn before it, and the fence must read as enclosing what is
+            // already there.
+            SpawnFollowOnCamp(map, faction, center);
+            SpawnFence(map, faction, footprint);
+        }
+
+        /// <summary>
+        /// Runs a fence around the bounding box of everything the village
+        /// spawned, with a gate at the middle of each side. Skips cells that
+        /// are already built on or that cannot take a structure (water, the
+        /// crop fields' edges are fine), so a fence never cuts through a wall.
+        /// </summary>
+        private void SpawnFence(Map map, Faction faction, List<CellRect> footprint)
+        {
+            if (fence == null || footprint.Count == 0)
+            {
+                return;
+            }
+            int minX = int.MaxValue, maxX = int.MinValue, minZ = int.MaxValue, maxZ = int.MinValue;
+            foreach (CellRect part in footprint)
+            {
+                minX = System.Math.Min(minX, part.minX);
+                maxX = System.Math.Max(maxX, part.maxX);
+                minZ = System.Math.Min(minZ, part.minZ);
+                maxZ = System.Math.Max(maxZ, part.maxZ);
+            }
+            CellRect perimeter = new CellRect(
+                minX - fenceMargin, minZ - fenceMargin,
+                maxX - minX + 1 + fenceMargin * 2, maxZ - minZ + 1 + fenceMargin * 2)
+                .ClipInsideMap(map);
+            ThingDef stuff = fenceStuff ?? ThingDefOf.WoodLog;
+            HashSet<IntVec3> gates = new HashSet<IntVec3>();
+            if (fenceGate != null)
+            {
+                IntVec3 middle = perimeter.CenterCell;
+                gates.Add(new IntVec3(middle.x, 0, perimeter.maxZ));
+                gates.Add(new IntVec3(middle.x, 0, perimeter.minZ));
+                gates.Add(new IntVec3(perimeter.minX, 0, middle.z));
+                gates.Add(new IntVec3(perimeter.maxX, 0, middle.z));
+            }
+            foreach (IntVec3 cell in perimeter.EdgeCells)
+            {
+                if (!cell.InBounds(map))
+                {
+                    continue;
+                }
+                bool blocked = false;
+                List<Thing> things = cell.GetThingList(map);
+                for (int i = things.Count - 1; i >= 0; i--)
+                {
+                    Thing thing = things[i];
+                    if (thing.def.category == ThingCategory.Plant || thing.def.IsFilth)
+                    {
+                        thing.Destroy();
+                    }
+                    else if (thing.def.category == ThingCategory.Building)
+                    {
+                        blocked = true;
+                    }
+                }
+                if (blocked)
+                {
+                    continue;
+                }
+                ThingDef def = gates.Contains(cell) ? fenceGate : fence;
+                if (!GenConstruct.CanPlaceBlueprintAt(def, cell, Rot4.North, map).Accepted)
+                {
+                    continue;
+                }
+                Thing post = ThingMaker.MakeThing(def, def.MadeFromStuff ? stuff : null);
+                post.SetFaction(faction);
+                GenSpawn.Spawn(post, cell, map, Rot4.North);
+            }
+        }
+
+        /// <summary>The Wayfarers' camp outside the village, second visit onward.</summary>
+        private void SpawnFollowOnCamp(Map map, Faction faction, IntVec3 center)
+        {
+            if (campPrefab == null || campVisitedFlag.NullOrEmpty())
+            {
+                return;
+            }
+            DialogueStateManager state = DialogueStateManager.Current;
+            bool visitedBefore = state.IsSet(campVisitedFlag);
+            state.Set(campVisitedFlag);
+            if (!visitedBefore
+                || (!campRequireFlag.NullOrEmpty() && !state.IsSet(campRequireFlag)))
+            {
+                return;
+            }
+            // Act 2: the company settled in the bard's city - the Harrowfield
+            // camp does not quietly reclaim them on village regeneration.
+            if (state.IsSet("TSC_CompanionsSettled"))
+            {
+                return;
+            }
+            // North of the square, clear of the building ring: outside the
+            // village, within sight of the well.
+            IntVec3 campPos = center + new IntVec3(0, 0, 18);
+            SpawnBuilding(campPrefab, map, campPos);
+            List<Building_Bed> beds = SpawnBedsFor(map, faction, campPos, campPrefab,
+                campResidents.Count, CountCouples(new List<NamedNpcDef>(), campResidents));
+            List<Pawn> pawns = new List<Pawn>();
+            foreach (NamedNpcDef resident in campResidents)
+            {
+                AddIfSpawned(pawns, SpawnResident(resident, faction, map, campPos, campPrefab, campPos));
+            }
+            AssignBeds(pawns, beds);
+            if (!campArrivedFlag.NullOrEmpty() && pawns.Count > 0)
+            {
+                state.Set(campArrivedFlag);
+            }
+        }
+
+        /// <summary>
+        /// Yard animals (the chickens Tam disowns, Hessa's argumentative
+        /// goat): tame, villager faction, held near their building by a
+        /// stay-home villager lord. Regenerated per visit like the crows.
+        /// </summary>
+        private static void SpawnLivestock(Map map, Faction faction, IntVec3 pos, VillageBuilding building)
+        {
+            if (faction == null || building.livestock.NullOrEmpty())
+            {
+                return;
+            }
+            IntVec3 yard = pos + new IntVec3(0, 0, -((building.prefab?.size.z ?? 6) / 2 + 2));
+            Lord lord = null;
+            foreach (LivestockEntry entry in building.livestock)
+            {
+                if (entry?.kind == null)
+                {
+                    continue;
+                }
+                int count = entry.count.RandomInRange;
+                for (int i = 0; i < count; i++)
+                {
+                    Pawn animal = PawnGenerator.GeneratePawn(entry.kind, faction);
+                    GenSpawn.Spawn(animal, CellFinder.RandomClosewalkCellNear(yard, map, 6), map);
+                    if (lord == null)
+                    {
+                        lord = LordMaker.MakeNewLord(faction,
+                            new LordJob_TSC_Villager(yard, yard, stayHome: true), map, Gen.YieldSingle(animal));
+                    }
+                    else
+                    {
+                        lord.AddPawn(animal);
+                    }
+                }
+            }
+        }
+
+        /// <summary>A worked field: soil and half-grown potatoes in neat misery.</summary>
+        private static void SpawnCropField(Map map, CellRect field)
+        {
+            foreach (IntVec3 cell in field)
+            {
+                if (!cell.InBounds(map) || cell.GetEdifice(map) != null)
+                {
+                    continue;
+                }
+                List<Thing> things = cell.GetThingList(map);
+                for (int i = things.Count - 1; i >= 0; i--)
+                {
+                    if (things[i].def.category == ThingCategory.Plant || things[i].def.IsFilth)
+                    {
+                        things[i].Destroy();
+                    }
+                }
+                TerrainDef terrain = cell.GetTerrain(map);
+                if (terrain == null || terrain.IsWater)
+                {
+                    continue;
+                }
+                map.terrainGrid.SetTerrain(cell, TerrainDefOf.Soil);
+                Plant plant = (Plant)GenSpawn.Spawn(ThingDefOf.Plant_Potato, cell, map);
+                plant.Growth = Rand.Range(0.3f, 0.85f);
             }
         }
 
@@ -156,16 +429,57 @@ namespace TheShatteredCrown
             PrefabUtility.SpawnPrefab(prefab, map, pos, Rot4.North);
         }
 
-        private static void SpawnResident(NamedNpcDef npcDef, Faction faction, Map map, IntVec3 homePos)
+        private static Pawn SpawnResident(NamedNpcDef npcDef, Faction faction, Map map, IntVec3 homePos,
+            PrefabDef homePrefab, IntVec3 workSpot)
         {
             if (npcDef == null || faction == null)
             {
-                return;
+                return null;
+            }
+            // The quest owns their whereabouts while it runs (the Root
+            // children are IN THE HILLS, not at the woodpile).
+            if (npcDef.awayWhileQuestActive != null)
+            {
+                foreach (Quest quest in Find.QuestManager.QuestsListForReading)
+                {
+                    if (quest.root == npcDef.awayWhileQuestActive
+                        && (quest.State == QuestState.Ongoing || quest.State == QuestState.NotYetAccepted))
+                    {
+                        return null;
+                    }
+                }
+            }
+            // Gone missing between visits: after awayIfFlag is set they stop
+            // spawning at home (until backAfterQuest succeeds), and the skip
+            // announces itself via setFlagWhenAway - which is what gates the
+            // rescue quest's offer. No on-screen vanish, ever.
+            if (!npcDef.awayIfFlag.NullOrEmpty() && DialogueStateManager.Current.IsSet(npcDef.awayIfFlag))
+            {
+                bool rescued = false;
+                if (npcDef.backAfterQuest != null)
+                {
+                    foreach (Quest quest in Find.QuestManager.QuestsListForReading)
+                    {
+                        if (quest.root == npcDef.backAfterQuest && quest.State == QuestState.EndedSuccess)
+                        {
+                            rescued = true;
+                            break;
+                        }
+                    }
+                }
+                if (!rescued)
+                {
+                    if (!npcDef.setFlagWhenAway.NullOrEmpty())
+                    {
+                        DialogueStateManager.Current.Set(npcDef.setFlagWhenAway);
+                    }
+                    return null;
+                }
             }
             Pawn pawn = DialogueStateManager.Current.GetOrGenerateNamedNpc(npcDef, faction);
             if (pawn.Dead || pawn.Spawned || pawn.Faction == Faction.OfPlayer)
             {
-                return;
+                return null;
             }
             if (pawn.IsWorldPawn())
             {
@@ -173,13 +487,325 @@ namespace TheShatteredCrown
             }
             IntVec3 cell = CellFinder.RandomClosewalkCellNear(homePos, map, 5);
             GenSpawn.Spawn(pawn, cell, map);
+            // Persistent pawns respawn across many map generations; make sure
+            // the render tree rebuilds cleanly each time ("Node is null ...
+            // EnsureGraphicsInitialized" seen on revisits).
+            pawn.Drawer?.renderer?.SetAllGraphicsDirty();
             if (pawn.Faction != null)
             {
-                LordMaker.MakeNewLord(pawn.Faction, new LordJob_DefendPoint(homePos), map, Gen.YieldSingle(pawn));
+                // Day at the work spot, night indoors: the villager routine.
+                // Homebodies (Old Wick) keep to the hearth around the clock.
+                IntVec3 indoors = InteriorCell(map, homePos, homePrefab);
+                Lord lord = LordMaker.MakeNewLord(pawn.Faction,
+                    new LordJob_TSC_Villager(indoors, workSpot, npcDef.homebody), map, Gen.YieldSingle(pawn));
+                // Companion animal (Betsy): bonded, and in the same lord so
+                // the pet keeps its owner's daily routine.
+                if (npcDef.petKind != null)
+                {
+                    Pawn pet = PawnGenerator.GeneratePawn(npcDef.petKind, pawn.Faction);
+                    if (!npcDef.petName.NullOrEmpty())
+                    {
+                        pet.Name = new NameSingle(npcDef.petName);
+                    }
+                    GenSpawn.Spawn(pet, CellFinder.RandomClosewalkCellNear(cell, map, 3), map);
+                    if (pawn.relations != null && pet.relations != null)
+                    {
+                        // The owner persists across map generations but the pet
+                        // is remade each visit; drop the bonds to the retired
+                        // stand-ins so only the live one is ever "their" animal.
+                        DropStaleAnimalBonds(pawn);
+                        pawn.relations.AddDirectRelation(PawnRelationDefOf.Bond, pet);
+                    }
+                    lord.AddPawn(pet);
+                }
+            }
+            EnsureTrader(pawn, npcDef, map);
+            // Pantry top-up: villagers only eat from their pockets (the duty
+            // tree's GetFood; they can't harvest the growing crops), so every
+            // spawn guarantees a stock. TSC_StoryHubGuard also refeeds any
+            // named NPC who runs dry mid-visit - they never starve.
+            if (pawn.inventory != null)
+            {
+                bool hasFood = false;
+                foreach (Thing thing in pawn.inventory.innerContainer)
+                {
+                    if (thing.def.IsNutritionGivingIngestible)
+                    {
+                        hasFood = true;
+                        break;
+                    }
+                }
+                if (!hasFood)
+                {
+                    Thing pemmican = ThingMaker.MakeThing(ThingDefOf.Pemmican);
+                    pemmican.stackCount = 10;
+                    pawn.inventory.innerContainer.TryAdd(pemmican, false);
+                }
+            }
+            return pawn;
+        }
+
+        /// <summary>
+        /// Clears an owner's bonds to companion animals that are no longer in
+        /// play. Owners persist between visits but their pet is generated
+        /// fresh each time, so without this the bond list grows by one retired
+        /// animal per map generation - and "their" animal stops being singular.
+        /// </summary>
+        private static void DropStaleAnimalBonds(Pawn owner)
+        {
+            if (owner.relations == null)
+            {
+                return;
+            }
+            List<Pawn> stale = new List<Pawn>();
+            foreach (DirectPawnRelation relation in owner.relations.DirectRelations)
+            {
+                Pawn other = relation.otherPawn;
+                if (relation.def == PawnRelationDefOf.Bond && other != null
+                    && other.RaceProps.Animal && (other.Dead || !other.Spawned))
+                {
+                    stale.Add(other);
+                }
+            }
+            foreach (Pawn animal in stale)
+            {
+                owner.relations.RemoveDirectRelation(PawnRelationDefOf.Bond, animal);
             }
         }
 
-        private static Faction VillagerFaction()
+        /// <summary>
+        /// Standing merchants (Haldor): attach the trader tracker (as the
+        /// TraderKindDef carrier) and (re)generate stock from the def
+        /// whenever they lack signature goods. PUBLIC: the dialogue trade()
+        /// effect calls this too, so trading self-heals at the moment of
+        /// trading regardless of when/how the pawn was generated (map-gen-
+        /// only stocking left sold-out or pre-feature pawns stranded).
+        /// </summary>
+        public static void EnsureTrader(Pawn pawn, NamedNpcDef npcDef, Map map)
+        {
+            if (npcDef?.traderKind == null || pawn.inventory == null || map == null)
+            {
+                return;
+            }
+            if (pawn.trader == null)
+            {
+                pawn.trader = new Pawn_TraderTracker(pawn);
+            }
+            pawn.trader.traderKind = npcDef.traderKind;
+            // "Already stocked" means signature goods on hand - weapons or
+            // apparel - NOT merely a non-empty inventory: villagers spawn
+            // with pocket food, which once fooled this check into never
+            // stocking the shop at all (the browse-his-lunch bug).
+            foreach (Thing thing in pawn.inventory.innerContainer)
+            {
+                if (thing.def.IsWeapon || thing.def.IsApparel)
+                {
+                    return;
+                }
+            }
+            foreach (StockGenerator generator in npcDef.traderKind.stockGenerators)
+            {
+                foreach (Thing thing in generator.GenerateThings(map.Tile, pawn.Faction))
+                {
+                    if (thing is Pawn)
+                    {
+                        thing.Destroy(); // a smithy sells steel, not sheep
+                        continue;
+                    }
+                    pawn.inventory.innerContainer.TryAdd(thing, false);
+                }
+            }
+        }
+
+        /// <summary>Married residents of one building: pairs where one def names the other as spouse.</summary>
+        private static int CountCouples(IEnumerable<NamedNpcDef> single, List<NamedNpcDef> rest)
+        {
+            List<NamedNpcDef> all = new List<NamedNpcDef>();
+            foreach (NamedNpcDef def in single)
+            {
+                if (def != null)
+                {
+                    all.Add(def);
+                }
+            }
+            all.AddRange(rest);
+            int couples = 0;
+            for (int i = 0; i < all.Count; i++)
+            {
+                for (int j = i + 1; j < all.Count; j++)
+                {
+                    if (all[i].spouse == all[j] || all[j].spouse == all[i])
+                    {
+                        couples++;
+                    }
+                }
+            }
+            return couples;
+        }
+
+        private static void AddIfSpawned(List<Pawn> list, Pawn pawn)
+        {
+            if (pawn != null)
+            {
+                list.Add(pawn);
+            }
+        }
+
+        /// <summary>
+        /// Beds for the household, CLAIMED for the villagers' faction - NPC
+        /// rest-seeking only takes beds of the sleeper's own faction (the
+        /// same rule that beds sleeping raiders at outposts). Prefab-placed
+        /// beds (cottage furniture, camp bedrolls) are adopted first; then a
+        /// wooden DOUBLE bed per married couple, then singles until everyone
+        /// has a slot, greedily on free roofed interior cells. Returns every
+        /// bed of the building so residents can be assigned to their own home.
+        /// </summary>
+        private static List<Building_Bed> SpawnBedsFor(Map map, Faction faction, IntVec3 pos, PrefabDef prefab, int count, int couples)
+        {
+            List<Building_Bed> beds = new List<Building_Bed>();
+            if (prefab == null || faction == null)
+            {
+                return beds;
+            }
+            CellRect rect = CellRect.CenteredOn(pos, prefab.size.x, prefab.size.z).ContractedBy(1);
+            int capacity = 0;
+            foreach (IntVec3 cell in rect)
+            {
+                if (!cell.InBounds(map))
+                {
+                    continue;
+                }
+                foreach (Thing thing in cell.GetThingList(map))
+                {
+                    if (thing is Building_Bed existing && !beds.Contains(existing))
+                    {
+                        if (existing.Faction != faction)
+                        {
+                            existing.SetFaction(faction);
+                        }
+                        beds.Add(existing);
+                        capacity += existing.SleepingSlotsCount;
+                    }
+                }
+            }
+            ThingDef doubleBedDef = DefDatabase<ThingDef>.GetNamedSilentFail("DoubleBed");
+            int doublesToPlace = doubleBedDef != null ? couples : 0;
+            foreach (IntVec3 cell in rect)
+            {
+                if (doublesToPlace <= 0 && capacity >= count)
+                {
+                    break;
+                }
+                if (!cell.InBounds(map) || !cell.Roofed(map))
+                {
+                    continue;
+                }
+                ThingDef bedDef = doublesToPlace > 0 ? doubleBedDef : ThingDefOf.Bed;
+                if (!GenConstruct.CanPlaceBlueprintAt(bedDef, cell, Rot4.South, map).Accepted)
+                {
+                    continue;
+                }
+                Building_Bed bed = (Building_Bed)ThingMaker.MakeThing(bedDef, ThingDefOf.WoodLog);
+                bed.SetFaction(faction);
+                GenSpawn.Spawn(bed, cell, map, Rot4.South);
+                beds.Add(bed);
+                capacity += bed.SleepingSlotsCount;
+                if (doublesToPlace > 0)
+                {
+                    doublesToPlace--;
+                }
+            }
+            return beds;
+        }
+
+        /// <summary>
+        /// Bed OWNERSHIP ties each villager to their own house: rest-seeking
+        /// always prefers the owned bed, so Haldor no longer crosses the
+        /// square to crash in the Root farmhouse just because it is a few
+        /// cells closer to the forge yard at dusk. Couples claim the double
+        /// bed together; everyone else takes singles.
+        /// </summary>
+        private static void AssignBeds(List<Pawn> pawns, List<Building_Bed> beds)
+        {
+            HashSet<Pawn> bedded = new HashSet<Pawn>();
+            // Couples first, onto the widest unowned bed.
+            foreach (Pawn pawn in pawns)
+            {
+                if (bedded.Contains(pawn) || pawn.ownership == null || pawn.relations == null)
+                {
+                    continue;
+                }
+                Pawn mate = null;
+                foreach (Pawn other in pawns)
+                {
+                    if (other != pawn && !bedded.Contains(other)
+                        && pawn.relations.DirectRelationExists(PawnRelationDefOf.Spouse, other))
+                    {
+                        mate = other;
+                        break;
+                    }
+                }
+                if (mate?.ownership == null)
+                {
+                    continue;
+                }
+                foreach (Building_Bed bed in beds)
+                {
+                    if (bed.SleepingSlotsCount >= 2 && bed.OwnersForReading.Count == 0)
+                    {
+                        pawn.ownership.ClaimBedIfNonMedical(bed);
+                        mate.ownership.ClaimBedIfNonMedical(bed);
+                        bedded.Add(pawn);
+                        bedded.Add(mate);
+                        break;
+                    }
+                }
+            }
+            // Everyone else: prefer single beds, spill onto free double slots.
+            foreach (Pawn pawn in pawns)
+            {
+                if (bedded.Contains(pawn) || pawn.ownership == null)
+                {
+                    continue;
+                }
+                Building_Bed pick = null;
+                foreach (Building_Bed bed in beds)
+                {
+                    if (bed.OwnersForReading.Count >= bed.SleepingSlotsCount)
+                    {
+                        continue;
+                    }
+                    if (pick == null || (bed.SleepingSlotsCount < pick.SleepingSlotsCount))
+                    {
+                        pick = bed;
+                    }
+                }
+                if (pick != null)
+                {
+                    pawn.ownership.ClaimBedIfNonMedical(pick);
+                    bedded.Add(pawn);
+                }
+            }
+        }
+
+        /// <summary>A standable roofed cell inside the building; the spawn point itself when there is none (open camps).</summary>
+        private static IntVec3 InteriorCell(Map map, IntVec3 pos, PrefabDef prefab)
+        {
+            if (prefab != null)
+            {
+                CellRect rect = CellRect.CenteredOn(pos, prefab.size.x, prefab.size.z).ContractedBy(1);
+                foreach (IntVec3 cell in rect)
+                {
+                    if (cell.InBounds(map) && cell.Standable(map) && cell.Roofed(map))
+                    {
+                        return cell;
+                    }
+                }
+            }
+            return pos;
+        }
+
+        internal static Faction VillagerFaction()
         {
             Faction best = null;
             foreach (Faction faction in Find.FactionManager.AllFactionsListForReading)
@@ -205,5 +831,19 @@ namespace TheShatteredCrown
     {
         public PrefabDef prefab;
         public NamedNpcDef resident;
+        /// <summary>Whole households (the farm families): all spawn at this building and share its routine.</summary>
+        public List<NamedNpcDef> residents = new List<NamedNpcDef>();
+        /// <summary>Lay a worked potato field south of the building; residents work it by day.</summary>
+        public bool cropField;
+        /// <summary>Yard animals kept at this building (chickens, the goat) - tame, villager faction, wandering the yard.</summary>
+        public List<LivestockEntry> livestock = new List<LivestockEntry>();
+        /// <summary>A single yard fixture spawned beside the building (THE woodpile at the Root farm).</summary>
+        public ThingDef yardProp;
+    }
+
+    public class LivestockEntry
+    {
+        public PawnKindDef kind;
+        public IntRange count = new IntRange(2, 4);
     }
 }
