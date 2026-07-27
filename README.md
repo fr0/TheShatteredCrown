@@ -2,6 +2,8 @@
 
 This repo contains _The Shattered Crown_, a RimWorld mod.
 
+Workshop link: https://steamcommunity.com/sharedfiles/filedetails/?edit=true&id=3772466661
+
 This mod adds a new scenario, "The Shattered Crown", which includes:
 * Bespoke NPC characters, including some recruitable ones
 * Dialogue trees

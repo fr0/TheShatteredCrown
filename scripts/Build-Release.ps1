@@ -35,7 +35,17 @@ param(
     [switch]$SkipBuild,
     # Set the mod version (e.g. 1.1.0) in BOTH About.xml and the csproj
     # before building, so the two can never drift apart.
-    [string]$SetVersion
+    [string]$SetVersion,
+    # Build, stage, install to Mods, AND unhook the dev junction so RimWorld
+    # sees exactly one copy of this packageId while you upload.
+    [switch]$PrepareUpload,
+    # Undo -PrepareUpload: remove the release copy, restore the junction.
+    [switch]$RestoreDev,
+    # Open the published Workshop item in a browser (to set visibility etc).
+    [switch]$OpenItemPage,
+    # Put About\WorkshopDescription.txt on the clipboard, ready to paste into
+    # the Steam item page's description box.
+    [switch]$CopyDescription
 )
 
 $ErrorActionPreference = 'Stop'
@@ -44,6 +54,30 @@ if (-not $OutputPath) { $OutputPath = Join-Path $root 'dist\TheShatteredCrown' }
 
 $modsDir = 'X:\SteamLibrary\steamapps\common\RimWorld\Mods'
 $releaseFolderName = 'TheShatteredCrown_Release'
+$devLinkName = 'TheShatteredCrown'
+
+function Get-DevJunction {
+    $p = Join-Path $modsDir $devLinkName
+    if (-not (Test-Path $p)) { return $null }
+    $item = Get-Item $p -Force
+    if ($item.LinkType -ne 'Junction' -and $item.LinkType -ne 'SymbolicLink') { return $null }
+    return $item
+}
+
+function Remove-DevJunction {
+    <#
+        Deletes the LINK ONLY. Never Remove-Item -Recurse on a junction:
+        that can follow the reparse point and delete the repository it
+        points at. Directory.Delete(path,$false) removes the reparse point
+        and leaves the target untouched.
+    #>
+    $item = Get-DevJunction
+    if (-not $item) { return $null }
+    $target = $item.Target
+    if ($target -is [array]) { $target = $target[0] }
+    [System.IO.Directory]::Delete($item.FullName, $false)
+    return $target
+}
 
 # Everything the GAME loads. Anything not listed here does not ship.
 $shipItems = @('About', '1.6', 'CE', 'Textures', 'LoadFolders.xml')
@@ -57,6 +91,73 @@ function Write-Warn2($text){ Write-Host "    WARNING: $text" -ForegroundColor Ye
 Write-Host "The Shattered Crown - release build" -ForegroundColor White
 Write-Host "repo:   $root"
 Write-Host "output: $OutputPath"
+
+# ---------------------------------------------------------------- description
+if ($CopyDescription) {
+    $descFile = Join-Path $root 'About\WorkshopDescription.txt'
+    if (-not (Test-Path $descFile)) { throw "Not found: $descFile" }
+    $text = Get-Content $descFile -Raw
+    Set-Clipboard -Value $text
+    Write-Host "`nWorkshop description copied to clipboard ($($text.Length) chars)." -ForegroundColor Green
+    Write-Host @"
+
+RimWorld only sends a description when it CREATES the item, and it sends the
+short <description> from About.xml - not this file. So the full page text is
+always pasted by hand:
+
+  1. .\scripts\Build-Release.ps1 -OpenItemPage
+  2. On the item page: Edit -> Description
+  3. Select all, paste, Save.
+
+Steam renders the BBCode ([h1], [b], [list], [url]) in this file.
+Repeat this whenever you change WorkshopDescription.txt - uploading a new
+build will never update the page text.
+"@
+    return
+}
+
+# ---------------------------------------------------------------- item page
+if ($OpenItemPage) {
+    $idPaths = @(
+        (Join-Path $root 'About\PublishedFileId.txt'),
+        (Join-Path $modsDir "$releaseFolderName\About\PublishedFileId.txt"),
+        (Join-Path $OutputPath 'About\PublishedFileId.txt')
+    )
+    $id = $null
+    foreach ($p in $idPaths) {
+        if ((-not $id) -and (Test-Path $p)) { $id = (Get-Content $p -Raw).Trim() }
+    }
+    if (-not $id) {
+        throw "No PublishedFileId.txt found yet. Upload the mod once first, then re-run this."
+    }
+    $url = "https://steamcommunity.com/sharedfiles/filedetails/?id=$id"
+    Write-Host "`nWorkshop item: $url" -ForegroundColor Green
+    Write-Host "Use Edit -> Change Visibility there (Private / Unlisted / Public)."
+    Start-Process $url
+    return
+}
+
+# ---------------------------------------------------------------- restore
+if ($RestoreDev) {
+    Write-Step 'Restoring the development junction'
+    $rel = Join-Path $modsDir $releaseFolderName
+    if (Test-Path $rel) {
+        Remove-Item $rel -Recurse -Force
+        Write-Ok "removed $releaseFolderName"
+    }
+    if (Get-DevJunction) {
+        Write-Ok 'dev junction already in place'
+    } else {
+        $link = Join-Path $modsDir $devLinkName
+        if (Test-Path $link) { throw "$link exists and is not a junction. Move it aside first." }
+        New-Item -ItemType Junction -Path $link -Target $root | Out-Null
+        Write-Ok "junction restored: $link -> $root"
+    }
+    Write-Host "`nBack to development." -ForegroundColor Green
+    return
+}
+
+if ($PrepareUpload) { $InstallToMods = $true }
 
 # ---------------------------------------------------------------- version
 $aboutFile = Join-Path $root 'About\About.xml'
@@ -225,24 +326,68 @@ if ($InstallToMods) {
     if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
     Copy-Item $OutputPath -Destination $dest -Recurse -Force
     Write-Ok "installed to $dest"
+
+    # The dev junction and the release copy carry the SAME packageId. With
+    # both present RimWorld sees a duplicate and the upload button can point
+    # at the wrong one - which would publish the whole source tree.
+    $devJunction = Get-DevJunction
+    if ($devJunction) {
+        if ($PrepareUpload) {
+            $target = Remove-DevJunction
+            Set-Content -Path (Join-Path $root '.upload-junction-target.txt') -Value $target -Encoding ascii -NoNewline
+            Write-Ok "dev junction unhooked (target remembered: $target)"
+        } else {
+            Write-Warn2 "The dev junction '$devLinkName' is still in Mods and shares this packageId."
+            Write-Warn2 "Use -PrepareUpload to unhook it automatically before publishing."
+        }
+    }
 }
 
 Write-Host "`nDone." -ForegroundColor Green
 Write-Host "Package: $OutputPath"
-if ($InstallToMods) {
+if ($PrepareUpload) {
     Write-Host @"
 
-To publish:
-  1. Launch RimWorld with development mode ON.
-  2. Open the mod list. Enable "$modName" ($releaseFolderName).
-  3. Click "Upload to Steam Workshop".
-  4. Paste About\WorkshopDescription.txt into the Steam page description.
+READY TO PUBLISH
+  1. Start RimWorld (Steam must be running and signed in).
+  2. Options -> check "Development mode".
+  3. Mods list: select "$modName". It is the only copy loaded now.
+  4. Click the workshop button at the bottom of its info panel:
+       "Upload to Steam Workshop"  (first time)
+       "Update on Steam Workshop"  (afterwards)
+  5. Wait for "Upload succeeded". Do not close the game before it appears.
 
-The first upload writes About\PublishedFileId.txt into the RELEASE folder.
-Re-run this script with -InstallToMods afterwards and that id is carried
-forward automatically, so later uploads UPDATE the item instead of
-creating a duplicate.
+FIRST THING AFTERWARDS - SET VISIBILITY
+  RimWorld does not set visibility when it uploads (it only sends title,
+  description, preview, tags and files), so the item lands on whatever
+  Steam defaults to. Do not rely on that: set it yourself straight away.
+
+     .\scripts\Build-Release.ps1 -OpenItemPage
+
+  opens the item on Steam. There, use Edit -> Change Visibility:
+       Private   only you can see it            <- start here
+       Unlisted  anyone with the link           <- good for testers
+       Public    listed and searchable          <- when you are ready
+
+  You can move between these freely at any time, as often as you like, and
+  updates can be uploaded while it is Private. Note that Steam will not let
+  an item go Public until you have accepted the Workshop Legal Agreement
+  (a checkbox on the item page the first time).
+
+ALSO AFTER THE FIRST UPLOAD
+  - RimWorld writes About\PublishedFileId.txt into the release folder. Copy
+    it back into the repo so future builds keep updating the SAME item:
+       copy "$modsDir\$releaseFolderName\About\PublishedFileId.txt" "$root\About\"
+  - Add the gallery images from docs\workshop\ on the item page.
+  - The description is only sent on the FIRST upload; later edits are made
+    on the Steam page directly.
+
+WHEN YOU ARE DONE
+     .\scripts\Build-Release.ps1 -RestoreDev
+  removes the release copy and restores the dev junction.
 "@
+} elseif ($InstallToMods) {
+    Write-Host "Installed. Use -PrepareUpload instead to also unhook the dev junction before publishing."
 } else {
-    Write-Host "Re-run with -InstallToMods to place it where RimWorld's uploader can see it."
+    Write-Host "Re-run with -PrepareUpload to install it and get publishing steps."
 }

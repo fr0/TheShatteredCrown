@@ -23,6 +23,22 @@ if (Get-Process RimWorldWin64 -ErrorAction SilentlyContinue) {
     exit 1
 }
 
+# GUARD: never let a failed run destroy the real mod list.
+#
+# The backup is overwritten on every launch. If a previous run died before
+# restoring, ModsConfig.xml still holds the small TEST list - and backing
+# THAT up would overwrite the only copy of the real one. So: refuse to
+# clobber an existing backup with something that looks like a test list.
+$existingCount = (Select-String -Path $cfg -Pattern "<li>" -AllMatches).Matches.Count
+if ((Test-Path $backup) -and $existingCount -lt 40) {
+    $backupCount = (Select-String -Path $backup -Pattern "<li>" -AllMatches).Matches.Count
+    Write-Host "Current mod list has only $existingCount entries - looks like a leftover TEST list." -ForegroundColor Yellow
+    Write-Host "Not overwriting the backup ($backupCount entries). Restoring from it instead." -ForegroundColor Yellow
+    Copy-Item $backup $cfg -Force
+    $existingCount = $backupCount
+}
+$originalCount = $existingCount
+
 Copy-Item $cfg $backup -Force
 Write-Host "Backed up your mod list to $backup"
 
@@ -83,8 +99,8 @@ try {
 finally {
     Copy-Item $backup $cfg -Force
     $entryCount = (Select-String -Path $cfg -Pattern "<li>" -AllMatches).Matches.Count
-    if ($entryCount -lt 100) {
-        Write-Host "WARNING: restored mod list has only $entryCount entries - check $backup!" -ForegroundColor Red
+    if ($entryCount -lt $originalCount) {
+        Write-Host "WARNING: restored $entryCount entries but started with $originalCount - check $backup!" -ForegroundColor Red
     } else {
         Write-Host "Restored your original mod list ($entryCount entries)." -ForegroundColor Green
     }

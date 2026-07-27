@@ -35,12 +35,20 @@
        Every ability icon is this mod's own art, and the psycast-flavored
        defs we use (PsychicShock, PsycastAreaEffect, Ability_Duration) all
        live in Core. -->
-  <description>A medieval-themed epic quest chain. The Wayfarers' Guild, a roving band of adventurers, recruits you into the hunt for the Shattered Crown: finding companions, and delving into bespoke dungeons and ruins across the rim.
+  <!-- Plain text: RimWorld's mod list does not render BBCode. The rich
+       Steam page version lives in About/WorkshopDescription.txt and is
+       pasted onto the item page by hand (RimWorld only sends a description
+       when it first CREATES the workshop item, never on updates). -->
+  <description>A medieval party RPG. You do not build a colony: you ride out with a handful of companions, take work from the Wayfarers' Guild, and hunt the nine pieces of a dead king's crown.
 
 Features:
-- A multi-part quest chain with an overarching story
-- Hand-crafted dungeon and ruin locations to explore
-- Medieval flavor: swords, bows, plate armor, and ancient secrets
+- Companions who are written characters, with their own voices and opinions of you
+- Hand-written dialogue, with options gated behind skill checks that show their odds
+- A d10 proficiency system across eleven skills, rolled in conversation and out in the world
+- Eleven classes and forty-one abilities, freely multiclassed, powered by Energy
+- Optional turn-based tactical combat: initiative order, action points, real numbers
+- Multi-level dungeons you descend by finding the stairs
+- Two scenarios: the authored campaign, or Adventure Mode's procedural contracts
 
 Requires the Odyssey expansion (openable containers, tile mutators, and underground structures). All other expansions are optional.
 
