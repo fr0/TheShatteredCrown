@@ -3,9 +3,55 @@ using RimWorld;
 using RimWorld.Planet;
 using RimWorld.QuestGen;
 using Verse;
+using Verse.Grammar;
 
 namespace TheShatteredCrown
 {
+    /// <summary>
+    /// Names for the beasts the countryside has already had to name: a
+    /// man-eater with a bounty on it is never "a grizzly bear", it is
+    /// Ashfang, or Old Mirejaw the Widowmaker. Built from parts so every
+    /// contract's quarry is its own animal, and the name reaches the quest
+    /// title, the description, and the thing itself.
+    /// </summary>
+    public static class TSC_BeastNamer
+    {
+        private static readonly string[] Heads =
+        {
+            "Ash", "Grim", "Iron", "Mire", "Thorn", "Black", "Grey", "Red",
+            "Salt", "Bone", "Storm", "Rook", "Wither", "Hollow", "Frost",
+            "Cinder", "Gall", "Rust", "Slake", "Bram",
+        };
+
+        private static readonly string[] Tails =
+        {
+            "fang", "claw", "maw", "hide", "tooth", "back", "jaw", "paw",
+            "mane", "gullet", "shank", "hackle", "brow", "gut",
+        };
+
+        private static readonly string[] Titles =
+        {
+            "the Widowmaker", "the Drover's Grief", "the Roadless",
+            "Nine Toes", "the Quiet", "the Long Winter", "the Tithe",
+            "the Shepherd's Debt", "Old Sorrow", "the Gate-Breaker",
+        };
+
+        public static string Generate()
+        {
+            string core = Heads.RandomElement() + Tails.RandomElement();
+            float roll = Rand.Value;
+            if (roll < 0.25f)
+            {
+                return "Old " + core;
+            }
+            if (roll < 0.6f)
+            {
+                return core + ", " + Titles.RandomElement();
+            }
+            return core;
+        }
+    }
+
     /// <summary>
     /// Spawns wild animals of a kind on a quest site's map when a signal fires
     /// (typically site.MapGenerated) - e.g. the Ettersnap in its cave.
@@ -24,10 +70,30 @@ namespace TheShatteredCrown
         [NoTranslate]
         public SlateRef<string> tag;
 
+        /// <summary>
+        /// Give the quarry a generated name and publish it as a grammar rule
+        /// under this key, so the quest title and description can say it
+        /// ("Contract: Ashfang"). The name is rolled HERE, at quest
+        /// generation, because the text resolves long before the map (and
+        /// therefore the animal) exists.
+        /// </summary>
+        [NoTranslate]
+        public SlateRef<string> nameAs;
+
         protected override void RunInt()
         {
             Slate slate = QuestGen.slate;
             string rawTag = tag.GetValue(slate);
+            string nameKey = nameAs.GetValue(slate);
+            string beastName = null;
+            if (!nameKey.NullOrEmpty())
+            {
+                beastName = TSC_BeastNamer.Generate();
+                slate.Set(nameKey, beastName);
+                List<Rule> rules = new List<Rule> { new Rule_String(nameKey, beastName) };
+                QuestGen.AddQuestNameRules(rules);
+                QuestGen.AddQuestDescriptionRules(rules);
+            }
             QuestPart_TSC_SpawnAnimalAtSite part = new QuestPart_TSC_SpawnAnimalAtSite
             {
                 kind = kind.GetValue(slate),
@@ -35,6 +101,7 @@ namespace TheShatteredCrown
                 mapParent = site.GetValue(slate) as MapParent,
                 inSignal = QuestGenUtility.HardcodedSignalWithQuestID(inSignal.GetValue(slate)) ?? slate.Get<string>("inSignal"),
                 questTagToAdd = rawTag.NullOrEmpty() ? null : QuestGenUtility.HardcodedTargetQuestTagWithQuestID(rawTag),
+                beastName = beastName,
             };
             QuestGen.quest.AddPart(part);
         }
@@ -52,6 +119,8 @@ namespace TheShatteredCrown
         public int count = 1;
         public MapParent mapParent;
         public string questTagToAdd;
+        /// <summary>The name the contract was written against; hung on the first beast spawned.</summary>
+        public string beastName;
         private bool spawned;
         private List<Pawn> spawnedPawns = new List<Pawn>();
 
@@ -95,6 +164,12 @@ namespace TheShatteredCrown
                 if (!questTagToAdd.NullOrEmpty())
                 {
                     QuestUtility.AddQuestTag(pawn, questTagToAdd);
+                }
+                // The named one is the quarry itself (i == 0); anything else
+                // spawned alongside is just wildlife sharing its den.
+                if (i == 0 && !beastName.NullOrEmpty())
+                {
+                    pawn.Name = new NameSingle(beastName);
                 }
                 IntVec3 cell = CellFinder.RandomClosewalkCellNear(root, map, 12);
                 GenSpawn.Spawn(pawn, cell, map);

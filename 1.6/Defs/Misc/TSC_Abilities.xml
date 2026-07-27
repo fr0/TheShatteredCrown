@@ -2,7 +2,8 @@
 <Defs>
 
   <!-- Class abilities. Plain cooldown-based abilities (no psylink/psyfocus) so
-       they fit the medieval fiction; icons reuse Royalty's ability art. -->
+       they fit the medieval fiction. Icons are this mod's own art
+       (Textures/UI/TSC_Abilities), so no DLC is needed for them. -->
 
   <AbilityDef Name="TSC_AbilityBase" Abstract="True">
     <casterMustBeCapableOfViolence>false</casterMustBeCapableOfViolence>

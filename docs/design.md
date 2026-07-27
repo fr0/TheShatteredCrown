@@ -33,4 +33,4 @@ You start as a lone pawn with a horse, some crude gear, and basic supplies.
 
 ## Naming conventions
 - Def prefix: `TSC_`
-- Package ID: `cfrolik.theshatterdcrown`
+- Package ID: `fr0.theshatteredcrown`

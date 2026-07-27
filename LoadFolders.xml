@@ -3,5 +3,8 @@
   <v1.6>
     <li>/</li>
     <li>1.6</li>
+    <!-- Loaded ONLY when Combat Extended is active: CE stats for this mod's
+         four combat items. Non-CE players never see these defs. -->
+    <li IfModActive="CETeam.CombatExtended">CE</li>
   </v1.6>
 </loadFolders>

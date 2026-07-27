@@ -1,6 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- Kept in step with About/About.xml <modVersion> by
+         scripts\Build-Release.ps1 -SetVersion. -->
+    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>latest</LangVersion>
     <RootNamespace>TheShatteredCrown</RootNamespace>

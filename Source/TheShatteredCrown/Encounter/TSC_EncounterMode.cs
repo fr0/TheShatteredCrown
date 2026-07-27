@@ -2000,8 +2000,14 @@ namespace TheShatteredCrown
             // per-cell cumulative costs computed at preview time).
             float budget = ctrl.ApOf(activeForBudget);
             bool haveCum = previewCumAp.Count == previewNodes.Count;
-            // Dashed: draw every other segment. Nodes come dest -> start.
-            for (int i = previewNodes.Count - 1; i > 0; i -= 2)
+            // Dashed by DISTANCE, not by cell. Skipping every other cell made
+            // dashes a full cell long - and longer still on diagonals, which
+            // are 1.41 cells. Walking the path in world units gives short,
+            // evenly spaced ticks whatever direction the route takes.
+            // Nodes come dest -> start.
+            float phase = 0f;
+            bool inking = true;
+            for (int i = previewNodes.Count - 1; i > 0; i--)
             {
                 if (haveCum && previewCumAp[i - 1] > budget)
                 {
@@ -2009,9 +2015,38 @@ namespace TheShatteredCrown
                 }
                 Vector3 a = previewNodes[i].ToVector3ShiftedWithAltitude(AltitudeLayer.MetaOverlays);
                 Vector3 b = previewNodes[i - 1].ToVector3ShiftedWithAltitude(AltitudeLayer.MetaOverlays);
-                GenDraw.DrawLineBetween(a, b, lineColor);
+                float segLen = (b - a).magnitude;
+                if (segLen < 0.0001f)
+                {
+                    continue;
+                }
+                Vector3 dir = (b - a) / segLen;
+                float travelled = 0f;
+                while (travelled < segLen)
+                {
+                    float target = inking ? DashLength : DashGap;
+                    float step = Mathf.Min(target - phase, segLen - travelled);
+                    if (inking)
+                    {
+                        GenDraw.DrawLineBetween(a + dir * travelled, a + dir * (travelled + step),
+                            lineColor, DashWidth);
+                    }
+                    travelled += step;
+                    phase += step;
+                    if (phase >= target - 0.0001f)
+                    {
+                        inking = !inking;
+                        phase = 0f;
+                    }
+                }
             }
         }
+
+        // World units; a cell is 1.0. Short ink, shorter gap: reads as a
+        // dotted route rather than a chain of cell-long strokes.
+        private const float DashLength = 0.18f;
+        private const float DashGap = 0.14f;
+        private const float DashWidth = 0.14f;
 
         private void DrawPathPreviewLabel(TSC_EncounterController ctrl)
         {
@@ -2079,8 +2114,17 @@ namespace TheShatteredCrown
             float chance = -1f;
             if (verb.IsMeleeAttack)
             {
-                chance = TSC_EncounterController.EffectiveMeleeHitChance(active, target);
-                text = $"hit ~{chance:P0} (melee)";
+                // Under CE the swing is resolved by CE's own math; quoting
+                // vanilla's would be a confident wrong number.
+                if (TSC_Compat_CE.Active)
+                {
+                    text = "melee (CE resolves the swing)";
+                }
+                else
+                {
+                    chance = TSC_EncounterController.EffectiveMeleeHitChance(active, target);
+                    text = $"hit ~{chance:P0} (melee)";
+                }
             }
             else if (!verb.CanHitTarget(target))
             {
@@ -3249,9 +3293,18 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            string outcome = __result ? "connects" : "misses";
+            if (TSC_Compat_CE.Active)
+            {
+                // CE resolved it; report the OUTCOME, never a vanilla odds
+                // figure that did not produce it.
+                ctrl.AddLog($"{caster.LabelShortCap} → {victim.LabelShortCap}: melee {outcome}",
+                    TSC_EncounterController.LogWorldColor);
+                return;
+            }
             float effective = TSC_EncounterController.EffectiveMeleeHitChance(caster, victim);
             ctrl.AddLog(
-                $"{caster.LabelShortCap} → {victim.LabelShortCap}: melee {effective:P0} effective → {(__result ? "connects" : "misses")}",
+                $"{caster.LabelShortCap} → {victim.LabelShortCap}: melee {effective:P0} effective → {outcome}",
                 TSC_EncounterController.LogWorldColor);
         }
     }

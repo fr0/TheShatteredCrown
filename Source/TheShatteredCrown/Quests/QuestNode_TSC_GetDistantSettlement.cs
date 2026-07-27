@@ -95,10 +95,21 @@ namespace TheShatteredCrown
                 {
                     return map.Tile;
                 }
-                if (!viaPocket.Valid && map.Parent is PocketMapParent pocket
-                    && pocket.sourceMap != null && pocket.sourceMap.Tile.Valid)
+                if (!viaPocket.Valid)
                 {
-                    viaPocket = pocket.sourceMap.Tile;
+                    // Walk the WHOLE pocket chain: the sunken cellars are
+                    // three deep, so one hop up is not enough to reach a map
+                    // that has a world tile.
+                    Map surface = map;
+                    int guard = 8;
+                    while (surface != null && !surface.Tile.Valid && guard-- > 0)
+                    {
+                        surface = (surface.Parent as PocketMapParent)?.sourceMap;
+                    }
+                    if (surface != null && surface.Tile.Valid)
+                    {
+                        viaPocket = surface.Tile;
+                    }
                 }
             }
             foreach (Caravan caravan in Find.WorldObjects.Caravans)

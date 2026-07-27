@@ -37,6 +37,7 @@
           <site>$bardCity</site>
           <faction>$bardFaction</faction>
           <tag>bard</tag>
+          <announce>true</announce>
         </li>
 
         <!-- Serra and Oswin ride as temporary party members from the crypt
@@ -78,6 +79,85 @@
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>200</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ================================================================
+       Act 2 proper: the sunken cellars. Wren draws the way to the
+       cistern stairs she used to sing beside. Three floors down is the
+       chorister who taught the song to a beggar, the second shard, and
+       the sword of the last king of Aldruin.
+       Completes when the Kingsblade is in hand and the floor is quiet -
+       which covers BOTH routes past the chorister (laid to rest, or
+       fought for it).
+       ================================================================ -->
+  <QuestScriptDef ParentName="TSC_Act1Base">
+    <defName>TSC_Act2_Cellars</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Sunken Cellars</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Wren has drawn the way: a village the war erased, a cistern stairhead still standing in the square, and three floors of catacomb underneath it that a beggar walked into and never walked out of.\n\nThe song came up those stairs. Something down there taught it to a man who could not read.\n\nFind the source of the verses, and bring back what the old kingdom left in its reliquary: a shard of the crown, and the sword of the last king.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>5~14</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_SunkenCellars</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+          <item>TSC_Weapon_Kingsblade</item>
+          <requireNoHostiles>true</requireNoHostiles>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelKingsblade">The Kingsblade</label>
+                <text TKey="LetterTextKingsblade">Eight hundred years in a flooded reliquary and the edge is still true. The sword of the last crowned king of Aldruin rides with the company now, and so does the second shard of his crown.\n\nTwo of nine. And the ninth verse is out of the cellar for good.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>300</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>

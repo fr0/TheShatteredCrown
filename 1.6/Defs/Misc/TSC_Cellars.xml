@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       THE SUNKEN CELLARS - Act 2's dungeon.
+
+       Wren's beggar went DOWN the cistern stairs and never came back up,
+       and a month later she was singing verses nobody alive should know.
+       This is what is down there: three floors of catacomb under a village
+       the war erased, and at the bottom of them the last chorister of the
+       old kingdom, still singing beside a shard of the crown.
+
+       Structure: surface site -> stairhead portal -> L1 -> L2 -> L3, each
+       level its own pocket map, each stair placed at the FAR end of the
+       floor above it.
+       ================================================================== -->
+
+  <!-- ================================================================ stairs -->
+
+  <ThingDef Name="TSC_CellarStairsBase" ParentName="BuildingBase" Abstract="True">
+    <size>(3,3)</size>
+    <useHitPoints>false</useHitPoints>
+    <thingClass>TheShatteredCrown.Building_TSC_BarrowEntrance</thingClass>
+    <rotatable>false</rotatable>
+    <tickerType>Normal</tickerType>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <canOverlapZones>false</canOverlapZones>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/CaveEntranceA</texPath>
+      <drawSize>(3,3)</drawSize>
+      <color>(105,110,120)</color>
+    </graphicData>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <fillPercent>0</fillPercent>
+    <passability>Impassable</passability>
+    <holdsRoof>true</holdsRoof>
+    <destroyable>false</destroyable>
+    <building>
+      <isEdifice>true</isEdifice>
+      <deconstructible>false</deconstructible>
+      <isTargetable>false</isTargetable>
+      <isInert>true</isInert>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <statBases>
+      <Flammability>0</Flammability>
+    </statBases>
+    <inspectorTabs>
+      <li>ITab_ContentsMapPortal</li>
+    </inspectorTabs>
+  </ThingDef>
+
+  <!-- On the surface site: the cistern stairs Wren described. -->
+  <ThingDef ParentName="TSC_CellarStairsBase">
+    <defName>TSC_CisternStairs</defName>
+    <label>cistern stairs</label>
+    <description>A stone stair going down into the ground where the city forgets to sweep, worn into a curve by centuries of feet. The bottom steps are under water and the water is not moving. Somewhere far below, faintly, somebody is keeping time.</description>
+    <size>(4,4)</size>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/CaveEntranceA</texPath>
+      <drawSize>(4,4)</drawSize>
+      <color>(105,110,120)</color>
+    </graphicData>
+    <portal>
+      <pocketMapGenerator>TSC_Cellars_Undercroft</pocketMapGenerator>
+      <exitDef>CaveExit</exitDef>
+      <pocketMapSize>90</pocketMapSize>
+    </portal>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_CellarStairsBase">
+    <defName>TSC_CellarStairs_ToOssuary</defName>
+    <label>stair to the ossuary</label>
+    <description>A second stair, narrower than the first, cut straight down through the undercroft floor. The draft coming up it is dry, which after a floor of standing water is somehow worse.</description>
+    <portal>
+      <pocketMapGenerator>TSC_Cellars_Ossuary</pocketMapGenerator>
+      <exitDef>CaveExit</exitDef>
+      <pocketMapSize>90</pocketMapSize>
+    </portal>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_CellarStairsBase">
+    <defName>TSC_CellarStairs_ToReliquary</defName>
+    <label>stair to the reliquary</label>
+    <description>The last stair. It is dressed stone, not cut rock, and someone bothered to carve the risers: nine of them, each with a road on it. The singing is not faint here.</description>
+    <portal>
+      <pocketMapGenerator>TSC_Cellars_Reliquary</pocketMapGenerator>
+      <exitDef>CaveExit</exitDef>
+      <pocketMapSize>90</pocketMapSize>
+    </portal>
+  </ThingDef>
+
+  <!-- ================================================================ levels -->
+
+  <MapGeneratorDef Name="TSC_CellarLevelBase" Abstract="True">
+    <isUnderground>true</isUnderground>
+    <forceCaves>true</forceCaves>
+    <ignoreAreaRevealedLetter>true</ignoreAreaRevealedLetter>
+    <disableCallAid>true</disableCallAid>
+    <pocketMapProperties>
+      <biome>Underground</biome>
+      <temperature>7</temperature>
+      <canBeCleaned>true</canBeCleaned>
+      <tileMutators>
+        <li>UndergroundCave</li>
+      </tileMutators>
+    </pocketMapProperties>
+  </MapGeneratorDef>
+
+  <MapGeneratorDef ParentName="TSC_CellarLevelBase">
+    <defName>TSC_Cellars_Undercroft</defName>
+    <label>the weeping undercroft</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_CellarLevel1</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <MapGeneratorDef ParentName="TSC_CellarLevelBase">
+    <defName>TSC_Cellars_Ossuary</defName>
+    <label>the ossuary</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_CellarLevel2</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <MapGeneratorDef ParentName="TSC_CellarLevelBase">
+    <defName>TSC_Cellars_Reliquary</defName>
+    <label>the reliquary</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_CellarLevel3</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <GenStepDef>
+    <defName>TSC_CellarLevel1</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>1</level>
+      <layoutDef>TSC_Catacombs</layoutDef>
+      <size>44</size>
+      <stairsDef>TSC_CellarStairs_ToOssuary</stairsDef>
+      <vermin>Megascarab</vermin>
+      <verminCount>4~6</verminCount>
+      <spots>
+        <li>TSC_BeggarsCamp</li>
+        <li>TSC_SluiceWheel</li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_CellarLevel2</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>2</level>
+      <layoutDef>TSC_Ossuary</layoutDef>
+      <size>44</size>
+      <stairsDef>TSC_CellarStairs_ToReliquary</stairsDef>
+      <vermin>Spelopede</vermin>
+      <verminCount>2~4</verminCount>
+      <spots>
+        <li>TSC_ChoirBones</li>
+        <li>TSC_RottedSpan</li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_CellarLevel3</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>3</level>
+      <layoutDef>TSC_Ossuary</layoutDef>
+      <size>40</size>
+      <vermin>Megaspider</vermin>
+      <verminCount>1~2</verminCount>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ================================================================ encounters -->
+
+  <!-- L1: the beggar who carried the song up the stairs, at the end of the
+       trip he did not come back from. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_BeggarsCamp</defName>
+    <label>a beggar's last camp</label>
+    <description>A bedroll gone black with damp, a tin cup, and a man who sat down against the wall some time ago and did not get up. His hands are folded. Whatever came for him, he was not running from it, and someone who dies in a flooded cellar with his hands folded knew something the rest of us do not.</description>
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>30</pathCost>
+    <fillPercent>0.3</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BeastTracks</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(120,110,95)</color>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>120</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>7</dc>
+            <label>Read what he left</label>
+            <successXp>35</successXp>
+            <successMessage>Under the bedroll, a stub of chalk and a wall he wrote on until the chalk ran out. It is all one verse, over and over, in a meter eight hundred years dead - and at the bottom, in plain hand, the only line that is his own: I ONLY EVER REPEATED IT. Wren's song has a source, and the source is further down.</successMessage>
+            <failMessage>Damp has taken most of the wall, and what is left will not resolve into words. Whatever he was writing, the cellar has had it.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Survival</proficiency>
+            <dc>7</dc>
+            <label>Read how he died</label>
+            <successXp>25</successXp>
+            <successMessage>No wounds, no struggle, no vermin sign on him - and he is thin in the way of a man who stopped eating on purpose. He sat down facing DOWNWARD, toward the deeper stair, and waited for something. The scarabs kept off him, which is its own kind of report.</successMessage>
+            <failMessage>Too far gone and too wet to read. He has been here through several seasons of standing water.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- L1: the flood. Open the sluice and the floor drains. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_SluiceWheel</defName>
+    <label>sluice wheel</label>
+    <description>An iron wheel set in the wall above the waterline, green with age, geared to a gate somewhere under the flood. The undercroft was built to drain. Nobody has asked it to in a long time.</description>
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <fillPercent>0.4</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_ShrineAltar</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+      <color>(90,120,105)</color>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>8</dc>
+            <label>Work out the drain order</label>
+            <successXp>35</successXp>
+            <successRemoves>true</successRemoves>
+            <successMessage>Old works like this open in sequence or not at all. Two turns back, one forward, and hold: somewhere under the floor a gate lets go, and the undercroft starts to empty with a sound like a held breath finally let out.</successMessage>
+            <failMessage>The gearing takes the wrong turn and jams solid. The water stays exactly where it is.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>9</dc>
+            <label>Force the wheel</label>
+            <successXp>30</successXp>
+            <successRemoves>true</successRemoves>
+            <successWakesDormant>true</successWakesDormant>
+            <successMessage>The wheel gives with a shriek of iron that goes down the galleries and keeps going. The flood begins to drain - and everything down here now knows exactly where you are standing.</successMessage>
+            <failDamage>8</failDamage>
+            <failDamageDef>Blunt</failDamageDef>
+            <failWakesDormant>true</failWakesDormant>
+            <failMessage>The wheel turns half a foot and kicks back hard. The noise is enormous, the flood is unchanged, and something in the dark has begun moving.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- L2: the hollow choir. The dead here answer singing. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_ChoirBones</defName>
+    <label>the hollow choir</label>
+    <description>A gallery wall stacked to the roof with skulls, arranged with obvious care: rank on rank, all facing the same way, all facing DOWN the passage. They are not stacked like the dead of a plague. They are stacked like an audience.</description>
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>40</pathCost>
+    <fillPercent>0.4</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_ShrineAltar</texPath>
+      <drawSize>(1.15,1.15)</drawSize>
+      <color>(200,190,165)</color>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Persuasion</proficiency>
+            <dc>8</dc>
+            <label>Sing the response</label>
+            <successXp>40</successXp>
+            <successHediff>TSC_Hediff_Blessed</successHediff>
+            <successMessage>The verse that comes out is one of Wren's, and the meter fits the room the way a key fits a lock. Nothing rises. The skulls simply go on facing the passage, and the passage feels, for the first time since the stairs, like it is letting you through.</successMessage>
+            <failMessage>The note is wrong and the room takes it badly: a dry rattle runs the length of the stacks and settles. Nothing rises. Yet.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Arcana</proficiency>
+            <dc>8</dc>
+            <label>Read the arrangement</label>
+            <successXp>35</successXp>
+            <successMessage>Not an ossuary: a congregation, laid out to hear something in the room below and kept in position for eight centuries. Whoever did this was not burying the dead. They were seating them.</successMessage>
+            <failMessage>Bones, stacked by somebody with a system you cannot follow. The system is the point, and it stays closed to you.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>6</dc>
+            <label>Shove through the stacks</label>
+            <successXp>15</successXp>
+            <successRemoves>true</successRemoves>
+            <successWakesDormant>true</successWakesDormant>
+            <successMessage>The stacks come down in a roar of bone that echoes four floors. The way through is open. So is everything else.</successMessage>
+            <failDamage>10</failDamage>
+            <failDamageDef>Blunt</failDamageDef>
+            <failWakesDormant>true</failWakesDormant>
+            <failMessage>Half the wall comes down on top of you, and the noise goes everywhere at once.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- L2: the crossing. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_RottedSpan</defName>
+    <label>rotted span</label>
+    <description>A plank bridge over a cistern shaft that goes down further than a dropped stone will report. The timber is four centuries past sound. There is no other way across this gallery, and the far side has a lamp bracket on it, which means somebody once expected to come back.</description>
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>30</pathCost>
+    <fillPercent>0.2</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BeastTracks</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(110,90,70)</color>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>120</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Thievery</proficiency>
+            <dc>8</dc>
+            <label>Test every plank and cross light</label>
+            <successXp>30</successXp>
+            <successRemoves>true</successRemoves>
+            <successMessage>Weight on the joists, never the middle of a board, one at a time and slowly. The span complains and holds. On the far side, under the lamp bracket, someone's dropped purse has been waiting a long time for a careful crosser.</successMessage>
+            <failDamage>10</failDamage>
+            <failDamageDef>Blunt</failDamageDef>
+            <failMessage>A board lets go underfoot. The catch on the joist is the only thing between you and a shaft with no bottom worth mentioning, and it costs skin.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>7</dc>
+            <label>Run it before it can fall</label>
+            <successXp>25</successXp>
+            <successRemoves>true</successRemoves>
+            <successWakesDormant>true</successWakesDormant>
+            <successMessage>Four fast strides and the span goes into the dark behind you, one board at a time, all the way down. You are across. The noise it makes arriving at the bottom takes a while, and travels.</successMessage>
+            <failDamage>14</failDamage>
+            <failDamageDef>Blunt</failDamageDef>
+            <failWakesDormant>true</failWakesDormant>
+            <failMessage>The span goes while you are still on it. You land badly on the near lip with the whole gallery ringing.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- L3: the altar the shard was left on. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_ReliquaryAltar</defName>
+    <label>reliquary altar</label>
+    <description>A low table of white stone with nine sockets cut into its face. Eight are empty. It was made to hold a crown that no longer exists in one piece, by people who believed it would be brought back to them.</description>
+    <size>(2,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <fillPercent>0.4</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_ShrineAltar</texPath>
+      <drawSize>(2.1,1.1)</drawSize>
+      <color>(235,230,215)</color>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>400</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+  </ThingDef>
+
+  <!-- ================================================================ the Kingsblade -->
+
+  <!-- Parent is BaseWeapon, NOT BaseMeleeWeapon_*_Quality: those carry a
+       recipeMaker and smeltable=true, which config-error on an artifact
+       with no cost list and no stuff. Same reason the ember bow does it. -->
+  <ThingDef ParentName="BaseWeapon">
+    <defName>TSC_Weapon_Kingsblade</defName>
+    <label>Kingsblade</label>
+    <description>The sword of the last crowned king of Aldruin, laid in a cellar reliquary by men who expected to come back for it. The steel is folded past counting and has not pitted in eight hundred years of wet air.\n\nIt is a plain weapon, beautifully made, and it is asleep. It knows what it belonged to: bring pieces of that crown near it and it wakes by degrees, and the hand holding it starts to be obeyed by the room. With the whole crown gathered, it would be what it was made to be.</description>
+    <possessionCount>1</possessionCount>
+    <techLevel>Medieval</techLevel>
+    <graphicData>
+      <texPath>Things/Item/Equipment/WeaponMelee/LongSword</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <color>(235,215,150)</color>
+    </graphicData>
+    <thingCategories>
+      <li>WeaponsMelee</li>
+    </thingCategories>
+    <weaponClasses>
+      <li>MeleePiercer</li>
+    </weaponClasses>
+    <weaponTags>
+      <li>MedievalMeleeAdvanced</li>
+      <li>TSC_Kingsblade</li>
+    </weaponTags>
+    <tradeability>None</tradeability>
+    <relicChance>0</relicChance>
+    <destroyOnDrop>false</destroyOnDrop>
+    <burnableByRecipe>false</burnableByRecipe>
+    <smeltable>false</smeltable>
+    <equippedAngleOffset>-65</equippedAngleOffset>
+    <statBases>
+      <Mass>1.8</Mass>
+      <MarketValue>2400</MarketValue>
+      <Flammability>0</Flammability>
+      <MaxHitPoints>220</MaxHitPoints>
+    </statBases>
+    <tools>
+      <li>
+        <label>handle</label>
+        <capacities>
+          <li>Blunt</li>
+        </capacities>
+        <power>9</power>
+        <cooldownTime>1.8</cooldownTime>
+      </li>
+      <li>
+        <label>point</label>
+        <capacities>
+          <li>Stab</li>
+        </capacities>
+        <power>27</power>
+        <cooldownTime>2.2</cooldownTime>
+      </li>
+      <li>
+        <label>edge</label>
+        <capacities>
+          <li>Cut</li>
+        </capacities>
+        <power>27</power>
+        <cooldownTime>2</cooldownTime>
+      </li>
+    </tools>
+    <comps>
+      <!-- BaseWeapon carries no CompQuality; the reliquary spawns it
+           Excellent and the quest text promises exactly that. -->
+      <li>
+        <compClass>CompQuality</compClass>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Kingsblade">
+        <hediff>TSC_Hediff_Kingsblade</hediff>
+        <shardDef>TSC_CrownShard</shardDef>
+        <maxShards>9</maxShards>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- The blade's property: it wakes as the crown is gathered. Severity IS
+       the shard count, so the same sword grows from Act 2 to the end of the
+       campaign. Plain HediffWithComps (severity is a count here, not the
+       spell-scaling factor TSC_Hediff_Leveled expects). -->
+  <HediffDef>
+    <defName>TSC_Hediff_Kingsblade</defName>
+    <label>Kingsblade</label>
+    <description>The sword of Aldruin, answering to how much of its king's crown is close by.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <maxSeverity>9</maxSeverity>
+    <defaultLabelColor>(0.95, 0.85, 0.45)</defaultLabelColor>
+    <comps>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_CrownMark</mote>
+        <offset>(0, 0, 0.72)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <minSeverity>1</minSeverity>
+        <label>stirring</label>
+        <statOffsets>
+          <MeleeHitChance>2</MeleeHitChance>
+        </statOffsets>
+        <statFactors>
+          <MeleeDamageFactor>1.10</MeleeDamageFactor>
+        </statFactors>
+      </li>
+      <li>
+        <minSeverity>3</minSeverity>
+        <label>remembering</label>
+        <statOffsets>
+          <MeleeHitChance>4</MeleeHitChance>
+          <MentalBreakThreshold>-0.06</MentalBreakThreshold>
+        </statOffsets>
+        <statFactors>
+          <MeleeDamageFactor>1.25</MeleeDamageFactor>
+          <IncomingDamageFactor>0.92</IncomingDamageFactor>
+        </statFactors>
+      </li>
+      <li>
+        <minSeverity>6</minSeverity>
+        <label>crowned</label>
+        <statOffsets>
+          <MeleeHitChance>7</MeleeHitChance>
+          <MeleeDodgeChance>6</MeleeDodgeChance>
+          <MentalBreakThreshold>-0.12</MentalBreakThreshold>
+        </statOffsets>
+        <statFactors>
+          <MeleeDamageFactor>1.45</MeleeDamageFactor>
+          <IncomingDamageFactor>0.85</IncomingDamageFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ================================================================ the chorister -->
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Cantor</defName>
+    <label>chorister</label>
+    <combatPower>90</combatPower>
+    <isFighter>false</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Cantor</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Cantor</defName>
+    <label>Aldis Vaunt</label>
+    <description>The last chorister of Aldruin, left to keep nine verses in a cellar and still keeping them.</description>
+    <firstName>Aldis</firstName>
+    <lastName>Vaunt</lastName>
+    <kind>TSC_Cantor</kind>
+    <gender>Male</gender>
+    <!-- He does not die to a stray arrow before anyone can speak to him:
+         the fight route downs him rather than losing the scene entirely. -->
+    <plotArmor>true</plotArmor>
+  </TheShatteredCrown.NamedNpcDef>
+
+</Defs>

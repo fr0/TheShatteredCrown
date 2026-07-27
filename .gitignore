@@ -7,3 +7,4 @@ tools/**/bin/
 1.6/Defs/Dialogues/*.xml
 *.dll
 **/.vs/
+dist/

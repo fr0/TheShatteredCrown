@@ -323,12 +323,15 @@
     </tags>
   </SitePartDef>
 
+  <!-- The surface is only the way in: a ruined village square with the
+       cistern stairhead in it. Everything real is three pocket maps down
+       (1.6/Defs/Misc/TSC_Cellars.xml). -->
   <GenStepDef>
     <defName>TSC_SunkenCellars</defName>
     <linkWithSite>TSC_SunkenCellars</linkWithSite>
     <order>470</order>
-    <genStep Class="GenStep_AncientRuins">
-      <layoutDef>TSC_Catacombs</layoutDef>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BarrowSurface">
+      <entranceDef>TSC_CisternStairs</entranceDef>
     </genStep>
   </GenStepDef>
 

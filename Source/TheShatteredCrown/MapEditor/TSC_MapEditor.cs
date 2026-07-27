@@ -53,7 +53,7 @@ namespace TheShatteredCrown
             string defName = $"TSC_Export_{Find.TickManager.TicksGame}_{exportCounter}";
             string xml = PrefabExporter.Export(rect, map, defName);
 
-            ModContentPack pack = LoadedModManager.RunningModsListForReading.FirstOrDefault(m => m.PackageId == "cfrolik.theshatteredcrown");
+            ModContentPack pack = LoadedModManager.RunningModsListForReading.FirstOrDefault(m => m.PackageId == "fr0.theshatteredcrown");
             string dir = pack != null ? Path.Combine(pack.RootDir, "Exported") : Path.Combine(GenFilePaths.SaveDataFolderPath, "TSC_Exported");
             Directory.CreateDirectory(dir);
             string path = Path.Combine(dir, defName + ".xml");

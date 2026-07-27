@@ -276,6 +276,22 @@
     </genStep>
   </GenStepDef>
 
+  <!-- Some fortresses are built over something older. Roughly one castle in
+       three has a delve under it (1-4 floors, same machinery the guild's
+       deep-delve contracts use); the rest are just a castle. The stairhead
+       is only placed when the roll succeeds, so there is never a stair to
+       nowhere. Runs AFTER the structure so it can find real floor space. -->
+  <GenStepDef>
+    <defName>TSC_WildCastle_Undercroft</defName>
+    <linkWithSite>TSC_WildCastle</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_DelveDepth">
+      <chance>0.35</chance>
+      <depthRange>1~3</depthRange>
+      <entranceDef>TSC_DelveEntrance</entranceDef>
+    </genStep>
+  </GenStepDef>
+
   <GenStepDef>
     <defName>TSC_WildCastle_Spots</defName>
     <linkWithSite>TSC_WildCastle</linkWithSite>

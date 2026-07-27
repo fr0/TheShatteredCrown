@@ -1,8 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>The Shattered Crown</name>
   <author>cfrolik</author>
-  <packageId>cfrolik.theshatteredcrown</packageId>
+  <packageId>fr0.theshatteredcrown</packageId>
+  <!-- The mod's own version, independent of the RimWorld version it targets.
+       IgnoreIfNoMatchingField keeps older RimWorld builds (which have no
+       such field) from erroring on it. Bump with:
+           scripts\Build-Release.ps1 -SetVersion 1.1.0
+       which keeps this and the assembly version in step. -->
+  <modVersion IgnoreIfNoMatchingField="True">0.1.0</modVersion>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
@@ -12,11 +18,6 @@
       <displayName>Harmony</displayName>
       <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
       <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
-    </li>
-    <li>
-      <packageId>Ludeon.RimWorld.Royalty</packageId>
-      <displayName>RimWorld - Royalty</displayName>
-      <downloadUrl>https://store.steampowered.com/app/1149640/RimWorld__Royalty/</downloadUrl>
     </li>
     <li>
       <packageId>Ludeon.RimWorld.Odyssey</packageId>
@@ -29,6 +30,11 @@
     <li>Ludeon.RimWorld.Royalty</li>
     <li>Ludeon.RimWorld.Odyssey</li>
   </loadAfter>
+  <!-- Royalty is NOT required: it is only in loadAfter so the optional
+       MayRequire brazier in the village prefabs resolves when it is present.
+       Every ability icon is this mod's own art, and the psycast-flavored
+       defs we use (PsychicShock, PsycastAreaEffect, Ability_Duration) all
+       live in Core. -->
   <description>A medieval-themed epic quest chain. The Wayfarers' Guild, a roving band of adventurers, recruits you into the hunt for the Shattered Crown: finding companions, and delving into bespoke dungeons and ruins across the rim.
 
 Features:
@@ -36,7 +42,7 @@ Features:
 - Hand-crafted dungeon and ruin locations to explore
 - Medieval flavor: swords, bows, plate armor, and ancient secrets
 
-Requires the Royalty expansion (ability artwork and psychic effects) and the Odyssey expansion (openable containers and underground structures). All other expansions are optional.
+Requires the Odyssey expansion (openable containers, tile mutators, and underground structures). All other expansions are optional.
 
 Credits: spell icons by Lorc (https://lorcblog.blogspot.com), CC BY 3.0, via the 700+ RPG Icons pack on OpenGameArt / game-icons.net.</description>
 </ModMetaData>

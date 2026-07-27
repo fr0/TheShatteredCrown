@@ -187,8 +187,13 @@
           <worldObjects>$site</worldObjects>
         </li>
 
-        <li Class="QuestNode_Signal">
+        <!-- Leaving the ruin only LAPSES the contract if the strongbox is
+             still in it. Carrying it out through the reform-caravan UI
+             destroys the site instantly, which used to fail the job the
+             player had just finished. -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_FailUnlessHolding">
           <inSignal>site.Destroyed</inSignal>
+          <item>TSC_GuildStrongbox</item>
           <node Class="QuestNode_Sequence">
             <nodes>
               <li Class="QuestNode_Letter">
@@ -234,6 +239,105 @@
     </root>
   </QuestScriptDef>
 
+  <!-- ============ Contract: deep delve (three floors) ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_DeepDelve</defName>
+    <defaultChallengeRating>3</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [dd_name]</li>
+        <li>dd_name->Three Floors Down</li>
+        <li>dd_name->The Deep Works</li>
+        <li>dd_name->What the Road Left</li>
+        <li>dd_name->The Undercount</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[dd_flavor]\n\nNobody agrees how far down the works go. Every floor has been claimed by something since they were abandoned, and the guild's surveyor was not paid enough to write down what.\n\nThe coffer is on the lowest floor, whichever one that turns out to be. Bring it up.</li>
+        <li>dd_flavor->A ruin of the old road network sits on works that go down further than the ruin is wide. The guild filed a coffer as lost in them and has been embarrassed about it ever since.</li>
+        <li>dd_flavor->The last crew the guild sent down came back one short and would not go again for triple. Their report is one line long: it is not the same floor twice.</li>
+        <li>dd_flavor->The works were a staging depot before the war, which means a strongroom, which means the guild wants what is in it before someone else counts that far.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>4~14</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_ContractDeepDelve</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_FailUnlessHolding">
+          <inSignal>site.Destroyed</inSignal>
+          <item>TSC_GuildStrongbox</item>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelDeepDelveLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextDeepDelveLost">The delve was abandoned with the coffer still on the bottom floor. The guild strikes the contract; the works keep what they were keeping.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+          <item>TSC_GuildStrongbox</item>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="TheShatteredCrown.QuestNode_TSC_TakeItem">
+                <item>TSC_GuildStrongbox</item>
+                <count>1</count>
+              </li>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelDeepDelveDone">Contract complete</label>
+                <text TKey="LetterTextDeepDelveDone">Three floors down and three floors back up, with the coffer. The guild pays the deep rate and adds the party to a very short list of crews it will send down again.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>350</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
   <!-- ============ Contract: hunt a beast ============ -->
 
   <QuestScriptDef ParentName="TSC_ContractBase">
@@ -241,17 +345,12 @@
     <defaultChallengeRating>1</defaultChallengeRating>
     <questNameRules>
       <rulesStrings>
-        <li>questName->Contract: [ht_name]</li>
-        <li>ht_name->The Man-Eater</li>
-        <li>ht_name->Price on a Hide</li>
-        <li>ht_name->The Thing in the Hills</li>
-        <li>ht_name->Teeth in the Dark</li>
-        <li>ht_name->The Shepherds' Petition</li>
+        <li>questName->Contract: [beastName]</li>
       </rulesStrings>
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[ht_flavor]\n\nIts den is marked on your map. Go in and finish it; the guild pays on proof of the kill.</li>
+        <li>questDescription->[ht_flavor]\n\nThe locals have a name for it. They will not use it after dark, but they have one: [beastName].\n\nIts den is marked on your map. Go in and finish it; the guild pays on proof of the kill.</li>
         <li>ht_flavor->Something has been taking livestock in the marked hills, and last month it stopped bothering with livestock. The locals pooled a bounty and the guild matched it.</li>
         <li>ht_flavor->A beast has denned across a droving road and learned that drovers are slower than sheep. The guild wants the road back.</li>
         <li>ht_flavor->Hunters went after a killer in the hills and came back fewer. The bounty doubled. The guild is done waiting.</li>
@@ -298,6 +397,8 @@
           <count>1</count>
           <site>$site</site>
           <tag>prey</tag>
+          <!-- Rolled at generation: names the contract AND the animal. -->
+          <nameAs>beastName</nameAs>
         </li>
 
         <li Class="QuestNode_Signal">

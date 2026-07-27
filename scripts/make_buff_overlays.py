@@ -282,7 +282,26 @@ def make_brand():  # Righteous Brand: gold flame over a bar
     return _halo(img)
 
 
+def make_crown():  # Kingsblade: gold crown, gem in the band
+    img, d, s = _glyph()
+    gold, dark, gem = (240, 202, 88, 255), (168, 128, 36, 255), (176, 44, 48, 255)
+    # Band + three points, one closed silhouette.
+    pts = [
+        (s * 0.16, s * 0.74), (s * 0.16, s * 0.36), (s * 0.31, s * 0.54),
+        (s * 0.5, s * 0.22), (s * 0.69, s * 0.54), (s * 0.84, s * 0.36),
+        (s * 0.84, s * 0.74),
+    ]
+    d.polygon(pts, fill=gold)
+    d.line([(s * 0.16, s * 0.68), (s * 0.84, s * 0.68)], fill=dark, width=4)
+    for x in (0.16, 0.5, 0.84):
+        d.ellipse([s * x - 6, s * (0.3 if x == 0.5 else 0.4) - 6,
+                   s * x + 6, s * (0.3 if x == 0.5 else 0.4) + 6], fill=gold)
+    d.ellipse([s * 0.44, s * 0.7, s * 0.56, s * 0.82], fill=gem)
+    return _halo(img)
+
+
 GLYPHS = {
+    "TSC_CrownMark": make_crown,
     "TSC_HymnNote": make_hymn_note,
     "TSC_WardRune": make_ward_rune,
     "TSC_RageFlame": make_rage_flame,

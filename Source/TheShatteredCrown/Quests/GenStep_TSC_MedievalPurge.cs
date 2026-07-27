@@ -45,13 +45,26 @@ namespace TheShatteredCrown
                 Log.Message($"[The Shattered Crown] MedievalPurge: skipping bandit camp (site faction: {map.ParentFaction?.Name ?? "none"}) - not the crownless bandits.");
                 return;
             }
+            Purge(map, "the bandit camp");
+        }
+
+        /// <summary>Strips above-medieval buildings and modern floors from a map. Also used on peacefully visited cities.</summary>
+        public static void Purge(Map map, string context)
+        {
             // Collect first: destroying mutates the lister mid-iteration.
             List<Thing> anachronisms = new List<Thing>();
             foreach (Thing thing in map.listerThings.AllThings)
             {
-                if (thing.def.category == ThingCategory.Building
-                    && thing.def.destroyable
-                    && (int)thing.def.techLevel > (int)TechLevel.Medieval)
+                if (thing.def.category != ThingCategory.Building || !thing.def.destroyable)
+                {
+                    continue;
+                }
+                // Above-medieval tech goes - but many electrics (the
+                // wood-fired generator) ship with NO techLevel at all, so
+                // anything that generates, stores, uses, or carries POWER is
+                // anachronistic by definition.
+                if ((int)thing.def.techLevel > (int)TechLevel.Medieval
+                    || thing.def.HasAssignableCompFrom(typeof(CompPower)))
                 {
                     anachronisms.Add(thing);
                 }
@@ -60,7 +73,7 @@ namespace TheShatteredCrown
             {
                 thing.Destroy();
             }
-            Log.Message($"[The Shattered Crown] MedievalPurge: stripped {anachronisms.Count} above-medieval building(s) from the bandit camp.");
+            Log.Message($"[The Shattered Crown] MedievalPurge: stripped {anachronisms.Count} above-medieval building(s) from {context}.");
             // Modern floors go back to earth.
             foreach (IntVec3 cell in map.AllCells)
             {

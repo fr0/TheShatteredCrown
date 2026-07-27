@@ -50,6 +50,15 @@
   </ThingDef>
 
   <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_CrownMark</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_CrownMark</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.5</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
     <defName>TSC_Mote_HymnNote</defName>
     <graphicData>
       <texPath>Things/Mote/TSC_HymnNote</texPath>

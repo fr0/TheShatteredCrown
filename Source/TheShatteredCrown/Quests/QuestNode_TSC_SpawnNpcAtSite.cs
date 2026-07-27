@@ -31,6 +31,11 @@ namespace TheShatteredCrown
         [NoTranslate]
         public SlateRef<string> tag;
 
+        /// <summary>Send a letter with a jump-to link when the pawn spawns. For
+        /// story-critical characters in big fogged towns (the bard): spawning
+        /// silently near the center means the player never finds them.</summary>
+        public SlateRef<bool> announce;
+
         protected override void RunInt()
         {
             Slate slate = QuestGen.slate;
@@ -43,6 +48,7 @@ namespace TheShatteredCrown
                 inSignal = QuestGenUtility.HardcodedSignalWithQuestID(inSignal.GetValue(slate)) ?? slate.Get<string>("inSignal"),
                 setFlagOnSpawn = setFlagOnSpawn.GetValue(slate),
                 questTagToAdd = rawTag.NullOrEmpty() ? null : QuestGenUtility.HardcodedTargetQuestTagWithQuestID(rawTag),
+                announce = announce.GetValue(slate),
             };
             QuestGen.quest.AddPart(part);
         }
@@ -61,6 +67,7 @@ namespace TheShatteredCrown
         public Faction faction;
         public string setFlagOnSpawn;
         public string questTagToAdd;
+        public bool announce;
         private bool spawned;
 
         public override void Notify_QuestSignalReceived(Signal signal)
@@ -110,6 +117,14 @@ namespace TheShatteredCrown
             if (!setFlagOnSpawn.NullOrEmpty())
             {
                 DialogueStateManager.Current.Set(setFlagOnSpawn);
+            }
+            if (announce)
+            {
+                Find.LetterStack.ReceiveLetter(
+                    $"{pawn.LabelShortCap} is here",
+                    $"Asking around {mapParent.Label} turns up the one you came for: {pawn.LabelShortCap} is in town. "
+                    + "Follow this letter to where they are.",
+                    LetterDefOf.PositiveEvent, pawn);
             }
         }
 

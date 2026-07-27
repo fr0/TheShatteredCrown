@@ -45,8 +45,22 @@ She pauses at the edge of a thought.
 
 "Whatever taught a beggar Undercrown canon is still down there. Songs have to come from somewhere."
 
+She turns the lute over and draws on the back of it, in charcoal, without apology: a square, a stairhead, three lines going down.
+
+"That's the village. That's the stair. I've never been past the third step, and I've stood at the top of it more nights than I'll admit to."
+
+* "Then we go down. Mark it properly." -> lead_taken
+    do give_quest(TSC_Act2_Cellars); grant_xp(25)
 * "Come with us, Wren. The song isn't finished, and we need your help." -> recruit
 * [Take your leave.] -> end
+
+== lead_taken ==
+She blows the charcoal dust off the lute and hands you the map, which is to say she hands you her instrument, looks at what she has done, and takes it back to copy onto a scrap of paper like a sane person.
+
+"There'll be water. There was always water at the bottom of the steps, even in a dry year." She hesitates over the last thing, then says it anyway. "Courier - if there's someone still down there singing it, don't lead with the sword. That's all. Just don't lead with the sword."
+
+* "Understood." -> end
+* "Come with us and tell them yourself." -> recruit
 
 == met ==
 Wren is where the crowd is, as bards are. She lifts two fingers off the lute's neck in greeting.
@@ -60,7 +74,7 @@ Wren is where the crowd is, as bards are. She lifts two fingers off the lute's n
 == recruit ==
 She stops playing. For a while she looks at the lute instead of you, and when she answers it's quieter than her singing voice.
 
-"I've spent two winters being scared of this song. Singing it in warm rooms with the door in reach." Her thumb finds a worn spot on the lute's neck. "But it's MINE, isn't it. Whatever carried it up those stairs gave it to me, and I've been paying that debt in tavern coppers."
+"I've spent two winters being scared of this song. Singing it in taverns with the door in reach." Her thumb finds a worn spot on the lute's neck. "But it's *mine*, isn't it. Whatever carried it up those stairs gave it to me, and I've been paying that debt in tavern coppers."
 
 She stands, and the fear is still there, but it has moved to the back of the queue.
 

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <!-- ==================================================================
+       Combat Extended stats for The Shattered Crown's combat items.
+
+       This whole folder is gated behind IfModActive="CETeam.CombatExtended"
+       in LoadFolders.xml, so none of it exists for players without CE.
+
+       Numbers are scaled from CE's own patches for the nearest vanilla
+       equivalents: the short bow (Patches/Core/.../Weapons_RangedNeolithic)
+       and the longsword (Patches/Core/.../Weapons_Melee). Both artifacts
+       are deliberately a step above their mundane cousins, the same way
+       they are in vanilla balance.
+       ================================================================== -->
+
+  <!-- ================================================ the ember bow -->
+
+  <Operation Class="CombatExtended.PatchOperationMakeGunCECompatible">
+    <defName>TSC_Weapon_EmberBow</defName>
+    <statBases>
+      <SightsEfficiency>0.9</SightsEfficiency>
+      <ShotSpread>0.8</ShotSpread>
+      <SwayFactor>1.8</SwayFactor>
+      <Bulk>3.20</Bulk>
+      <RangedWeapon_Cooldown>1.1</RangedWeapon_Cooldown>
+    </statBases>
+    <Properties>
+      <verbClass>CombatExtended.Verb_ShootCE</verbClass>
+      <hasStandardCommand>true</hasStandardCommand>
+      <defaultProjectile>TSC_Projectile_FireArrow</defaultProjectile>
+      <warmupTime>1.1</warmupTime>
+      <range>26</range>
+      <soundCast>Bow_Small</soundCast>
+    </Properties>
+    <AmmoUser>
+      <ammoSet>AmmoSet_Arrow</ammoSet>
+      <AmmoGenPerMagOverride>5</AmmoGenPerMagOverride>
+    </AmmoUser>
+    <FireModes />
+    <weaponTags>
+      <li>CE_Bow</li>
+    </weaponTags>
+    <AllowWithRunAndGun>false</AllowWithRunAndGun>
+  </Operation>
+
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="TSC_Weapon_EmberBow"]/tools</xpath>
+    <value>
+      <tools>
+        <li Class="CombatExtended.ToolCE">
+          <label>limb</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>7</power>
+          <cooldownTime>1.6</cooldownTime>
+          <armorPenetrationBlunt>0.65</armorPenetrationBlunt>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+
+  <!-- The fire arrow becomes a CE bullet. Its Flame extraDamages are left
+       alone: that is what makes it the ember bow rather than a bow. -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="TSC_Projectile_FireArrow"]/thingClass</xpath>
+    <value>
+      <thingClass>CombatExtended.BulletCE</thingClass>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>Defs/ThingDef[defName="TSC_Projectile_FireArrow"]/projectile</xpath>
+    <attribute>Class</attribute>
+    <value>CombatExtended.ProjectilePropertiesCE</value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="TSC_Projectile_FireArrow"]/projectile</xpath>
+    <value>
+      <speed>55</speed>
+      <armorPenetrationSharp>1.8</armorPenetrationSharp>
+      <armorPenetrationBlunt>0.9</armorPenetrationBlunt>
+    </value>
+  </Operation>
+
+  <!-- ================================================ the Kingsblade -->
+  <!-- A king's sword: CE's longsword, sharpened. -->
+
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="TSC_Weapon_Kingsblade"]/tools</xpath>
+    <value>
+      <tools>
+        <li Class="CombatExtended.ToolCE">
+          <label>handle</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>4</power>
+          <cooldownTime>1.70</cooldownTime>
+          <chanceFactor>0.10</chanceFactor>
+          <armorPenetrationBlunt>1.0</armorPenetrationBlunt>
+          <linkedBodyPartsGroup>Handle</linkedBodyPartsGroup>
+        </li>
+        <li Class="CombatExtended.ToolCE">
+          <label>point</label>
+          <capacities>
+            <li>Stab</li>
+          </capacities>
+          <power>21</power>
+          <cooldownTime>1.70</cooldownTime>
+          <armorPenetrationBlunt>1.15</armorPenetrationBlunt>
+          <armorPenetrationSharp>2.40</armorPenetrationSharp>
+          <linkedBodyPartsGroup>Point</linkedBodyPartsGroup>
+        </li>
+        <li Class="CombatExtended.ToolCE">
+          <label>edge</label>
+          <capacities>
+            <li>Cut</li>
+          </capacities>
+          <power>46</power>
+          <cooldownTime>1.56</cooldownTime>
+          <armorPenetrationBlunt>3.60</armorPenetrationBlunt>
+          <armorPenetrationSharp>0.86</armorPenetrationSharp>
+          <linkedBodyPartsGroup>Edge</linkedBodyPartsGroup>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="TSC_Weapon_Kingsblade"]/statBases</xpath>
+    <value>
+      <Bulk>7.5</Bulk>
+      <MeleeCounterParryBonus>0.9</MeleeCounterParryBonus>
+    </value>
+  </Operation>
+
+  <!-- ================================================ the gambeson -->
+  <!-- Quilted linen: bulky for what it stops, good against a blade,
+       poor against a bolt. CE's whole point. -->
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="TSC_Apparel_Gambeson"]/statBases</xpath>
+    <value>
+      <Bulk>7</Bulk>
+      <WornBulk>4</WornBulk>
+    </value>
+  </Operation>
+
+</Patch>

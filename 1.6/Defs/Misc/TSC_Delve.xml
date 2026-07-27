@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       DEEP DELVES: the generic multi-level dungeon the guild sells
+       contracts on. Three pocket-map floors under a ruin, each floor's
+       occupants rolled independently - a Crownless crew squatting the
+       upper works, a nest in the middle, a predator's den at the bottom,
+       in whatever order the dice give. The sealed coffer is on the
+       deepest floor.
+
+       The cellars (TSC_Cellars.xml) are the hand-authored version of this
+       same machinery; these are its procedural cousins.
+       ================================================================== -->
+
+  <ThingDef Name="TSC_DelveStairsBase" ParentName="BuildingBase" Abstract="True">
+    <size>(3,3)</size>
+    <useHitPoints>false</useHitPoints>
+    <thingClass>TheShatteredCrown.Building_TSC_BarrowEntrance</thingClass>
+    <rotatable>false</rotatable>
+    <tickerType>Normal</tickerType>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <canOverlapZones>false</canOverlapZones>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/CaveEntranceA</texPath>
+      <drawSize>(3,3)</drawSize>
+      <color>(112,104,92)</color>
+    </graphicData>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <fillPercent>0</fillPercent>
+    <passability>Impassable</passability>
+    <holdsRoof>true</holdsRoof>
+    <destroyable>false</destroyable>
+    <building>
+      <isEdifice>true</isEdifice>
+      <deconstructible>false</deconstructible>
+      <isTargetable>false</isTargetable>
+      <isInert>true</isInert>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <statBases>
+      <Flammability>0</Flammability>
+    </statBases>
+    <inspectorTabs>
+      <li>ITab_ContentsMapPortal</li>
+    </inspectorTabs>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_DelveStairsBase">
+    <defName>TSC_DelveEntrance</defName>
+    <label>delve mouth</label>
+    <description>A stair going down under a ruin of the old road network, shored in timber by somebody who did not expect to be the last one to use it. The guild's map says how far down it goes. The guild's map has been wrong before.</description>
+    <size>(4,4)</size>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/CaveEntranceA</texPath>
+      <drawSize>(4,4)</drawSize>
+      <color>(112,104,92)</color>
+    </graphicData>
+    <portal>
+      <pocketMapGenerator>TSC_Delve_Level1</pocketMapGenerator>
+      <exitDef>CaveExit</exitDef>
+      <pocketMapSize>90</pocketMapSize>
+    </portal>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_DelveStairsBase">
+    <defName>TSC_DelveStairs_ToMiddle</defName>
+    <label>stair down</label>
+    <description>A second flight, cut later and worse than the first. Whatever is using the lower works did not build this.</description>
+    <portal>
+      <pocketMapGenerator>TSC_Delve_Level2</pocketMapGenerator>
+      <exitDef>CaveExit</exitDef>
+      <pocketMapSize>90</pocketMapSize>
+    </portal>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_DelveStairsBase">
+    <defName>TSC_DelveStairs_ToDeep</defName>
+    <label>stair to the deep floor</label>
+    <description>Another flight. The air coming up it is colder than the rock has any business being, and it moves, which means something down there is open to somewhere else.</description>
+    <portal>
+      <pocketMapGenerator>TSC_Delve_Level3</pocketMapGenerator>
+      <exitDef>CaveExit</exitDef>
+      <pocketMapSize>90</pocketMapSize>
+    </portal>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_DelveStairsBase">
+    <defName>TSC_DelveStairs_ToLowest</defName>
+    <label>stair to the sump</label>
+    <description>A shaft rather than a stair, with rungs hammered into the rock by somebody in a hurry. Nothing about the works above suggested there was a floor under them, and yet here are the rungs, and they are worn.</description>
+    <portal>
+      <pocketMapGenerator>TSC_Delve_Level4</pocketMapGenerator>
+      <exitDef>CaveExit</exitDef>
+      <pocketMapSize>90</pocketMapSize>
+    </portal>
+  </ThingDef>
+
+  <MapGeneratorDef Name="TSC_DelveLevelBase" Abstract="True">
+    <isUnderground>true</isUnderground>
+    <forceCaves>true</forceCaves>
+    <ignoreAreaRevealedLetter>true</ignoreAreaRevealedLetter>
+    <disableCallAid>true</disableCallAid>
+    <pocketMapProperties>
+      <biome>Underground</biome>
+      <temperature>9</temperature>
+      <canBeCleaned>true</canBeCleaned>
+      <tileMutators>
+        <li>UndergroundCave</li>
+      </tileMutators>
+    </pocketMapProperties>
+  </MapGeneratorDef>
+
+  <MapGeneratorDef ParentName="TSC_DelveLevelBase">
+    <defName>TSC_Delve_Level1</defName>
+    <label>upper works</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_DelveLevel1</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <MapGeneratorDef ParentName="TSC_DelveLevelBase">
+    <defName>TSC_Delve_Level2</defName>
+    <label>middle works</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_DelveLevel2</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <MapGeneratorDef ParentName="TSC_DelveLevelBase">
+    <defName>TSC_Delve_Level3</defName>
+    <label>deep floor</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_DelveLevel3</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <MapGeneratorDef ParentName="TSC_DelveLevelBase">
+    <defName>TSC_Delve_Level4</defName>
+    <label>the sump</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_DelveLevel4</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <!-- The occupant table, repeated per floor. Weights differ by depth:
+       bandits squat the upper works, the deep floor belongs to whatever
+       drove them up.
+
+       EVERY floor carries both a down-stair and the coffer, and decides at
+       generation which to use: the delve's depth is rolled 1-4 on the
+       surface, so whichever floor turns out to be the bottom has the prize
+       and no stair, and the party learns how deep it goes by descending. -->
+  <GenStepDef>
+    <defName>TSC_DelveLevel1</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>1</level>
+      <variableDepth>true</variableDepth>
+      <layoutDef>TSC_Catacombs</layoutDef>
+      <size>44</size>
+      <stairsDef>TSC_DelveStairs_ToMiddle</stairsDef>
+      <lootDef>TSC_GuildStrongbox</lootDef>
+      <spots>
+        <li>TSC_RottedSpan</li>
+      </spots>
+      <occupants>
+        <li>
+          <weight>2</weight>
+          <faction>bandits</faction>
+          <count>3~5</count>
+          <arrivalNote>Cook-fires, bedrolls, and a picket that has not been kept properly in weeks: the Crownless are squatting the upper works.</arrivalNote>
+          <kinds>
+            <li>TSC_Bandit_Brigand</li>
+            <li>TSC_Bandit_Archer</li>
+          </kinds>
+        </li>
+        <li>
+          <weight>1</weight>
+          <faction>insects</faction>
+          <count>4~6</count>
+          <arrivalNote>Chitin sign on every doorway, and the smell of a nest working somewhere ahead.</arrivalNote>
+          <kinds>
+            <li>Megascarab</li>
+          </kinds>
+        </li>
+      </occupants>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_DelveLevel2</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>2</level>
+      <variableDepth>true</variableDepth>
+      <layoutDef>TSC_Ossuary</layoutDef>
+      <size>44</size>
+      <stairsDef>TSC_DelveStairs_ToDeep</stairsDef>
+      <lootDef>TSC_GuildStrongbox</lootDef>
+      <spots>
+        <li>TSC_ChoirBones</li>
+        <li>TSC_SluiceWheel</li>
+      </spots>
+      <occupants>
+        <li>
+          <weight>2</weight>
+          <faction>insects</faction>
+          <count>3~5</count>
+          <arrivalNote>The middle works are a nest, and the nest has had this floor long enough to shape it.</arrivalNote>
+          <kinds>
+            <li>Spelopede</li>
+            <li>Megascarab</li>
+          </kinds>
+        </li>
+        <li>
+          <weight>2</weight>
+          <faction>bandits</faction>
+          <count>4~6</count>
+          <arrivalNote>Barricaded doorways and a spotter's stool: somebody down here is holding this floor on purpose.</arrivalNote>
+          <kinds>
+            <li>TSC_Bandit_Brigand</li>
+            <li>TSC_Bandit_Archer</li>
+            <li>TSC_BanditHexer</li>
+          </kinds>
+        </li>
+        <li>
+          <weight>1</weight>
+          <faction>wild</faction>
+          <count>2~3</count>
+          <arrivalNote>Drag marks, a bone midden, and a den smell. Something big uses this floor as a larder.</arrivalNote>
+          <kinds>
+            <li>Wolf_Timber</li>
+            <li>Cougar</li>
+          </kinds>
+        </li>
+      </occupants>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_DelveLevel3</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>3</level>
+      <variableDepth>true</variableDepth>
+      <layoutDef>TSC_Ossuary</layoutDef>
+      <size>40</size>
+      <stairsDef>TSC_DelveStairs_ToLowest</stairsDef>
+      <lootDef>TSC_GuildStrongbox</lootDef>
+      <occupants>
+        <li>
+          <weight>2</weight>
+          <faction>insects</faction>
+          <count>2~4</count>
+          <arrivalNote>The deep floor is the hive's heart, and it is awake.</arrivalNote>
+          <kinds>
+            <li>Megaspider</li>
+            <li>Spelopede</li>
+          </kinds>
+        </li>
+        <li>
+          <weight>2</weight>
+          <faction>bandits</faction>
+          <count>4~6</count>
+          <arrivalNote>Whoever took this contract before you got exactly this far. The crew that stopped them is still here, and better armed for it.</arrivalNote>
+          <kinds>
+            <li>TSC_Bandit_Brigand</li>
+            <li>TSC_BanditHexer</li>
+          </kinds>
+        </li>
+        <li>
+          <weight>1</weight>
+          <faction>wild</faction>
+          <count>1~2</count>
+          <arrivalNote>A den, and the thing that dug it is home.</arrivalNote>
+          <kinds>
+            <li>Bear_Grizzly</li>
+          </kinds>
+        </li>
+      </occupants>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_DelveLevel4</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>4</level>
+      <variableDepth>true</variableDepth>
+      <layoutDef>TSC_Ossuary</layoutDef>
+      <size>38</size>
+      <lootDef>TSC_GuildStrongbox</lootDef>
+      <occupants>
+        <li>
+          <weight>2</weight>
+          <faction>insects</faction>
+          <count>2~4</count>
+          <arrivalNote>The sump is the hive's heart, and nothing has disturbed it in a very long time.</arrivalNote>
+          <kinds>
+            <li>Megaspider</li>
+            <li>Spelopede</li>
+          </kinds>
+        </li>
+        <li>
+          <weight>1</weight>
+          <faction>bandits</faction>
+          <count>4~6</count>
+          <arrivalNote>Somebody made it this far and stopped going home. What is left of their crew has been down here long enough to stop being a crew.</arrivalNote>
+          <kinds>
+            <li>TSC_Bandit_Brigand</li>
+            <li>TSC_BanditHexer</li>
+          </kinds>
+        </li>
+        <li>
+          <weight>1</weight>
+          <faction>wild</faction>
+          <count>1~2</count>
+          <arrivalNote>Bones underfoot, ankle-deep, and something at the far end that grew large on them.</arrivalNote>
+          <kinds>
+            <li>Bear_Grizzly</li>
+          </kinds>
+        </li>
+      </occupants>
+    </genStep>
+  </GenStepDef>
+
+  <SitePartDef>
+    <defName>TSC_ContractDeepDelve</defName>
+    <label>deep delve</label>
+    <description>A ruin of the old road network with three floors of works underneath it, and a guild coffer on the lowest one.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Delve into {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ContractDeepDelve</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractDeepDelveDepth</defName>
+    <linkWithSite>TSC_ContractDeepDelve</linkWithSite>
+    <order>460</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_DelveDepth">
+      <depthRange>1~4</depthRange>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractDeepDelve</defName>
+    <linkWithSite>TSC_ContractDeepDelve</linkWithSite>
+    <order>470</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BarrowSurface">
+      <entranceDef>TSC_DelveEntrance</entranceDef>
+    </genStep>
+  </GenStepDef>
+
+</Defs>

@@ -198,4 +198,37 @@
     </parts>
   </StructureLayoutDef>
 
+  <!-- The lower cellar floors: tighter, meaner rooms than the undercroft,
+       wall to wall with the dead. Narrow minimums on purpose - the catacomb
+       feel is corridors and cells, not halls. -->
+  <StructureLayoutDef>
+    <defName>TSC_Ossuary</defName>
+    <workerClass>LayoutWorker_AncientRuins</workerClass>
+    <canHaveMultipleLayoutsInRoom>true</canHaveMultipleLayoutsInRoom>
+    <minRoomWidth>5</minRoomWidth>
+    <minRoomHeight>5</minRoomHeight>
+    <wallDef>Wall</wallDef>
+    <wallStuffDef>BlocksMarble</wallStuffDef>
+    <doorStuffDef>WoodLog</doorStuffDef>
+    <wallLampChancePerPosition>0</wallLampChancePerPosition>
+    <ensureOneDoorUnlocked>true</ensureOneDoorUnlocked>
+    <canDisconnectRooms>false</canDisconnectRooms>
+    <corridorShapes>Cross, T</corridorShapes>
+    <roomDefs>
+      <TSC_Crypt>6</TSC_Crypt>
+      <TSC_RubbleChamber>2</TSC_RubbleChamber>
+      <TSC_Storeroom>1</TSC_Storeroom>
+    </roomDefs>
+    <junkScaterrers>
+      <Filth_RubbleRock>
+        <groupsPerHundredCells>3~5</groupsPerHundredCells>
+        <itemsPerGroup>3~8</itemsPerGroup>
+        <groupDistRange>3~5</groupDistRange>
+      </Filth_RubbleRock>
+    </junkScaterrers>
+    <parts>
+      <Gore>0.25</Gore>
+    </parts>
+  </StructureLayoutDef>
+
 </Defs>

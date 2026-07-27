@@ -1,0 +1,134 @@
+# Aldis Vaunt, the last chorister of Aldruin, three floors under a drowned
+# village. He is the SOURCE: the song came up the cistern stairs because he
+# has been singing it down here without stopping for eight hundred years.
+# He is not hostile. The way past him is a choice, and the kind way is the
+# hard roll.
+
+dialogue TSC_Dialogue_Cantor
+
+entry rested if flag(TSC_CantorRested)
+
+== start ==
+The reliquary is a white stone room with nine sockets cut into the altar and one thing in it that is not stone.
+
+He is very old, and the word does not do the work: he is old the way the walls are old. Vestments gone to grey thread. Hands folded. Eyes open. And he is singing, quietly, in the meter you have been hearing in taverns and on the road and in your sleep since a bard in a distant city put it in your head.
+
+He does not stop when you enter. He gets to the end of the verse first. Then, in a voice like a door that has not been used:
+
+"You brought a piece of it back."
+
+* "You know what I'm carrying." -> knows
+* "Who are you?" -> who
+* [Say nothing. Listen to the verse.] -> listen
+
+== listen ==
+It is the ninth verse, the one Wren sings with her eyes closed and cannot translate. Down here, in the room it was written for, the meaning arrives without the words: a road, a rider, a piece of a crown going east into the dark.
+
+He finishes. He begins again. He has begun again a great many times.
+
+* "How long have you been singing?" -> who
+* "You know what I'm carrying." -> knows
+
+== who ==
+"Aldis Vaunt. Chorister to the crown of Aldruin, which is a small office in a kingdom that no longer exists, so call me what you like."
+
+His head turns, slightly. It is the first thing about him that moves like a living man.
+
+"When the crown broke, the men who carried the pieces out could not write. Nine roads, nine pieces, and nobody to remember which went where. So they left the record with the only man who could hold nine verses in his head, and they left him a piece of the crown to hold him together while he held them, and they said: sing it until we come back."
+
+"They did not come back. I have been very punctual about the rest of it."
+
+* "Nobody came for eight hundred years." -> knows
+* "There was a beggar who came down here." -> beggar
+    if flag(TSC_MetBard)
+
+== beggar ==
+Something behind the old face changes, and it takes a moment to recognize it as grief.
+
+"He sat where you are standing for eleven days. He could not read and he could not carry a tune, and he learned the ninth verse anyway, because I sang it and there was nobody else in the world to sing it to."
+
+"Then he went up the stairs with it. I had not managed that in eight hundred years." A pause. "I hoped he lived."
+
+* "He didn't. But the song did. A bard has it now, and she sings it in a full room every night." -> beggar_song
+* "He died on the stairs. I'm sorry." -> beggar_song
+
+== beggar_song ==
+He is quiet for a long moment. Somewhere in the room, water finds a lower place to be.
+
+"Then it is out." Something in his shoulders lets go, eight centuries late. "Then it is out, and it is being sung, and it is not only mine."
+
+* "It isn't. Which means your watch is over." -> rest_offer
+* "Tell me about the shard first." -> knows
+
+== knows ==
+"A piece of the crown, carried in a bag by someone who does not know what it does yet." He does not sound impressed; he sounds tired. "It keeps. That is all it does, courier. It keeps whatever is nearest to it exactly as it is, for as long as it is near. Stone. Air."
+
+He looks down at his own folded hands.
+
+"Men."
+
+* "It's been keeping you alive." -> keeping
+* "Then I'll take it and go." -> take_demand
+
+== keeping ==
+"It has been keeping me *here*. Those are different words and the difference is the whole of my situation." The voice does not rise; it has not risen in a long time. "I have wanted to stop since the third century. I cannot stop while it is on the altar, and I cannot take it off the altar, because I was told to keep it, and that instruction is the only part of me that still works properly."
+
+He almost smiles. It is a terrible thing to watch.
+
+"You, however, were told nothing."
+
+* "Then let me end this properly." -> rest_offer
+* "I'm sorry." -> rest_offer
+
+== rest_offer ==
+"Say the thing that is true," he says, "and say it in the right order, and I will believe it, and then I will be able to stop. That is how it has always worked with me. I am a chorister. I go where the words go."
+
+He waits. It is, you understand, an examination.
+
+* "The crown of Aldruin is being gathered again. Two pieces are in this room. Your watch ended the moment the road took it up." -> rested_scene
+    check Lore 9 -> rested_scene | rest_fumble
+* "The song is above ground, in a full tavern, in a living woman's voice. It doesn't need a cellar anymore. It doesn't need you." -> rested_scene
+    if flag(TSC_MetBard)
+    check Persuasion 9 -> rested_scene | rest_fumble
+* "I don't need your permission to take it." -> take_demand
+* [Leave him to it.] -> end
+
+== rest_fumble ==
+The words come out in the wrong order, or the wrong meter, or simply without the weight the room requires. He listens to all of it. He is unfailingly polite.
+
+"No," he says gently. "That is nearly it. Nearly is the same as no, in this work."
+
+He draws breath and begins the verse again, and the room settles back into the shape it has held for eight hundred years.
+
+* "Then I'll take it and be done." -> take_demand
+* [Leave him to it.] -> end
+
+== rested_scene ==
+He listens the whole way through without moving. Then he nods once, the way a man nods at a sum that finally balances.
+
+"Yes. That is the shape of it."
+
+He stands, and it is not the standing of an old man; it is a chorister taking position, and for one breath you see what this room looked like when it was new and full and lit. He sings the ninth verse from the top, at full voice, and the sound goes up through three floors of catacomb and a drowned village and out into the world it was written for.
+
+The last note is the longest. When it ends, the vestments settle to the floor, and the eight hundred years arrive all at once, and there is nothing left standing to arrive at.
+
+The altar is quiet. The shard and the old king's sword are yours to lift.
+
+* [Take up the Kingsblade and the shard.] -> end
+    do flag(TSC_CantorRested); signal(TSC_Act2_Cellars, TSC_CantorRested); grant_xp(150); affinity(+5)
+
+== take_demand ==
+"No," he says, with real regret. "I am sorry. I was told to keep it."
+
+He rises, and the sword he takes off the altar is not for show: it was a king's, and he has been standing beside it, alone, for a very long time.
+
+"I would have preferred the other way."
+
+* [Fight him for it.] -> end
+    do flag(TSC_CantorFought); npc_hostile()
+* [Step back.] -> end
+
+== rested ==
+Grey vestments on white stone, and the room finally quiet.
+
+* [Go.] -> end

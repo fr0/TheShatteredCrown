@@ -30,7 +30,7 @@ Write-Host "Backed up your mod list to $backup"
     <li>ludeon.rimworld.biotech</li>
     <li>ludeon.rimworld.anomaly</li>
     <li>ludeon.rimworld.odyssey</li>
-    <li>cfrolik.theshatteredcrown</li>
+    <li>fr0.theshatteredcrown</li>
   </activeMods>
   <knownExpansions>
     <li>ludeon.rimworld.royalty</li>

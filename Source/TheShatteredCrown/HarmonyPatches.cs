@@ -52,9 +52,63 @@ namespace TheShatteredCrown
     {
         static TSC_HarmonyInit()
         {
-            Harmony harmony = new Harmony("cfrolik.theshatteredcrown");
+            Harmony harmony = new Harmony("fr0.theshatteredcrown");
             harmony.PatchAll();
             TSC_Compat_RealFoW.TryPatch(harmony);
+            TSC_Compat_CE.Init();
+        }
+    }
+
+    /// <summary>
+    /// Combat Extended compatibility.
+    ///
+    /// What SURVIVES CE untouched (verified against CombatExtended.dll):
+    ///   - AP charging: patched on Verb.TryStartCastOn, the base class every
+    ///     CE verb still routes through.
+    ///   - All melee: Verb_MeleeAttackCE DERIVES from Verb_MeleeAttack, so
+    ///     the swing, the combat-log line, and the Miss text all still fire.
+    ///   - Damage scaling and hit feedback: hooked on Thing.TakeDamage,
+    ///     which is universal.
+    ///   - Turn order, freezing, AP, and every non-combat system.
+    ///
+    /// What CE REPLACES, so our hooks never run (harmless - the feature is
+    /// simply absent, not wrong):
+    ///   - ProjectileCE derives from ThingWithComps, NOT Projectile: no
+    ///     ranged Miss text.
+    ///   - Verb_ShootCE derives from Verb_LaunchProjectileCE, not the
+    ///     vanilla launcher: no ranged combat-log estimate line.
+    ///   - CE owns armor: the soak/deflect numbers stay empty.
+    ///
+    /// What would be WRONG rather than absent, and is therefore SUPPRESSED
+    /// here: the melee hit-chance preview. Vanilla's hit x (1 - dodge) is
+    /// not how CE resolves a swing, so a confident percentage would be a
+    /// lie. Under CE the preview says so instead of guessing.
+    /// </summary>
+    public static class TSC_Compat_CE
+    {
+        private static bool checkedFor;
+        private static bool active;
+
+        public static bool Active
+        {
+            get
+            {
+                if (!checkedFor)
+                {
+                    checkedFor = true;
+                    active = AccessTools.TypeByName("CombatExtended.Verb_MeleeAttackCE") != null;
+                }
+                return active;
+            }
+        }
+
+        public static void Init()
+        {
+            if (Active)
+            {
+                Log.Message("[The Shattered Crown] Combat Extended detected: melee stays fully supported; "
+                    + "ranged hit estimates and armor-soak readouts defer to CE.");
+            }
         }
     }
 
@@ -83,8 +137,98 @@ namespace TheShatteredCrown
             }
             harmony.Patch(target, prefix: new HarmonyMethod(typeof(TSC_Compat_RealFoW), nameof(SoundWaveInBoundsPrefix)));
             PrepareVisibilityRefresh();
+            PatchFriendlyMapDisable(harmony);
             Log.Message("[The Shattered Crown] Real Fog of War detected: sound-wave bounds shim applied (small pocket maps)"
-                + (visibilityRefreshReady ? "; turn-freeze visibility shim armed." : "."));
+                + (visibilityRefreshReady ? "; turn-freeze visibility shim armed" : "")
+                + (friendlyDisableApplied ? "; friendly-map disable armed." : "."));
+        }
+
+        // ---- friendly-map RFoW disable ------------------------------------
+        // On FRIENDLY maps (visited cities, Harrowfield) Real FoW turns OFF
+        // entirely: no shroud, no line-of-sight veil, no hidden pawns -
+        // while VANILLA fog stays untouched (interiors still reveal when
+        // entered). Mirrors the mod's own "OnlyOutsideColony" bypass, which
+        // short-circuits the same three seams for player home maps:
+        // IsShown (feeds pawn hiding and every detour), the veil layer's
+        // Visible, and its mesh Regenerate.
+        private static bool friendlyDisableApplied;
+
+        public static bool FriendlyRevealMap(Map map)
+        {
+            if (map?.Parent == null || Verse.Current.Game == null)
+            {
+                return false;
+            }
+            if (map.Parent is RimWorld.Planet.Site site)
+            {
+                for (int i = 0; i < site.parts.Count; i++)
+                {
+                    if (site.parts[i].def?.defName == "TSC_HarrowfieldVillage")
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            if (map.Parent is RimWorld.Planet.Settlement settlement)
+            {
+                Faction faction = settlement.Faction;
+                return faction != null && !faction.IsPlayer && !faction.HostileTo(Faction.OfPlayer);
+            }
+            return false;
+        }
+
+        private static void PatchFriendlyMapDisable(Harmony harmony)
+        {
+            System.Type seenFog = AccessTools.TypeByName("RimWorldRealFoW.MapComponentSeenFog");
+            System.Type veilLayer = AccessTools.TypeByName("RimWorldRealFoW.SectionLayerFoVLayer");
+            System.Reflection.MethodInfo isShown = seenFog == null ? null
+                : AccessTools.Method(seenFog, "IsShown", new[] { typeof(Faction), typeof(int), typeof(int) });
+            System.Reflection.MethodInfo visibleGetter = veilLayer == null ? null
+                : AccessTools.PropertyGetter(veilLayer, "Visible");
+            System.Reflection.MethodInfo regenerate = veilLayer == null ? null
+                : AccessTools.Method(veilLayer, "Regenerate");
+            if (isShown == null || visibleGetter == null || regenerate == null)
+            {
+                Log.Warning("[The Shattered Crown] Real Fog of War internals changed; friendly-map disable not applied.");
+                return;
+            }
+            harmony.Patch(isShown, prefix: new HarmonyMethod(typeof(TSC_Compat_RealFoW), nameof(IsShownFriendlyPrefix)));
+            harmony.Patch(visibleGetter, postfix: new HarmonyMethod(typeof(TSC_Compat_RealFoW), nameof(VeilVisibleFriendlyPostfix)));
+            harmony.Patch(regenerate, prefix: new HarmonyMethod(typeof(TSC_Compat_RealFoW), nameof(VeilRegenerateFriendlyPrefix)));
+            friendlyDisableApplied = true;
+        }
+
+        private static bool IsShownFriendlyPrefix(MapComponent __instance, ref bool __result)
+        {
+            if (FriendlyRevealMap(__instance?.map))
+            {
+                __result = true;
+                return false;
+            }
+            return true;
+        }
+
+        // MapDrawLayer.Map is protected; cached reflection.
+        private static readonly System.Reflection.PropertyInfo LayerMapProp =
+            AccessTools.Property(typeof(MapDrawLayer), "Map");
+
+        private static Map LayerMap(object layer)
+        {
+            return layer is MapDrawLayer draw ? LayerMapProp?.GetValue(draw) as Map : null;
+        }
+
+        private static void VeilVisibleFriendlyPostfix(object __instance, ref bool __result)
+        {
+            if (__result && FriendlyRevealMap(LayerMap(__instance)))
+            {
+                __result = false;
+            }
+        }
+
+        private static bool VeilRegenerateFriendlyPrefix(object __instance)
+        {
+            return !FriendlyRevealMap(LayerMap(__instance));
         }
 
         // __args instead of named parameters: binds regardless of what the
