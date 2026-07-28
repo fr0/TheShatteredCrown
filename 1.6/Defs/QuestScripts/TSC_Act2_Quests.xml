@@ -154,7 +154,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelKingsblade">The Kingsblade</label>
-                <text TKey="LetterTextKingsblade">Eight hundred years in a flooded reliquary and the edge is still true. The sword of the last crowned king of Aldruin rides with the company now, and so does the second shard of his crown.\n\nTwo of nine. And the ninth verse is out of the cellar for good.</text>
+                <text TKey="LetterTextKingsblade">Eight hundred years in a flooded reliquary and the edge is still true. The sword of the last crowned king of Aldruin rides with the company now, and so does the second shard of his crown.\n\nTwo of five. And the fifth verse is out of the cellar for good.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>300</xp>

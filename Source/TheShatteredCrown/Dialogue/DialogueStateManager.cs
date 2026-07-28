@@ -85,6 +85,7 @@ namespace TheShatteredCrown
             if (namedNpcs.TryGetValue(def.defName, out Pawn existing) && existing != null && !existing.Dead && !existing.Destroyed)
             {
                 TSC_ProgressionManager.Current.SeedClass(existing, def.classDef);
+                TSC_ProgressionManager.Current.SeedLevel(existing, def.startingLevel);
                 return existing;
             }
             PawnGenerationRequest request = new PawnGenerationRequest(def.kind, factionIfNew, PawnGenerationContext.NonPlayer)
@@ -180,6 +181,7 @@ namespace TheShatteredCrown
                 }
             }
             TSC_ProgressionManager.Current.SeedClass(pawn, def.classDef);
+            TSC_ProgressionManager.Current.SeedLevel(pawn, def.startingLevel);
             if (!pawn.Spawned && !Find.WorldPawns.Contains(pawn))
             {
                 Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.KeepForever);

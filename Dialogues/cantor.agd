@@ -9,11 +9,13 @@ dialogue TSC_Dialogue_Cantor
 entry rested if flag(TSC_CantorRested)
 
 == start ==
-The reliquary is a white stone room with nine sockets cut into the altar and one thing in it that is not stone.
+The reliquary is a white stone room with five sockets cut into the altar and one thing in it that is not stone.
 
-He is very old, and the word does not do the work: he is old the way the walls are old. Vestments gone to grey thread. Hands folded. Eyes open. And he is singing, quietly, in the meter you have been hearing in taverns and on the road and in your sleep since a bard in a distant city put it in your head.
+He is very old, and the word does not do the work: he is old the way the walls are old.
 
-He does not stop when you enter. He gets to the end of the verse first. Then, in a voice like a door that has not been used:
+His hands are folded, and his eyes are open. And he is singing, quietly, in the meter you have been hearing in taverns and on the road and in your sleep since a bard in a distant city put it in your head.
+
+He does not stop immediately when you enter. He gets to the end of the verse first. Then, in a voice like a door that has not been used:
 
 "You brought a piece of it back."
 
@@ -22,7 +24,7 @@ He does not stop when you enter. He gets to the end of the verse first. Then, in
 * [Say nothing. Listen to the verse.] -> listen
 
 == listen ==
-It is the ninth verse, the one Wren sings with her eyes closed and cannot translate. Down here, in the room it was written for, the meaning arrives without the words: a road, a rider, a piece of a crown going east into the dark.
+It is the fifth verse, the one Wren sings with her eyes closed and cannot translate. Down here, in the room it was written for, the meaning arrives without the words: a road, a rider, a piece of a crown going east into the dark.
 
 He finishes. He begins again. He has begun again a great many times.
 
@@ -34,7 +36,7 @@ He finishes. He begins again. He has begun again a great many times.
 
 His head turns, slightly. It is the first thing about him that moves like a living man.
 
-"When the crown broke, the men who carried the pieces out could not write. Nine roads, nine pieces, and nobody to remember which went where. So they left the record with the only man who could hold nine verses in his head, and they left him a piece of the crown to hold him together while he held them, and they said: sing it until we come back."
+"When the crown broke, the men who carried the pieces out could not write. Five roads, five pieces, and nobody to remember which went where. So they left the record with the only man who could hold five verses in his head, and they left him a piece of the crown to hold him together while he held them, and they said: sing it until we come back."
 
 "They did not come back. I have been very punctual about the rest of it."
 
@@ -45,7 +47,7 @@ His head turns, slightly. It is the first thing about him that moves like a livi
 == beggar ==
 Something behind the old face changes, and it takes a moment to recognize it as grief.
 
-"He sat where you are standing for eleven days. He could not read and he could not carry a tune, and he learned the ninth verse anyway, because I sang it and there was nobody else in the world to sing it to."
+"He sat where you are standing for eleven days. He could not read and he could not carry a tune, and he learned the fifth verse anyway, because I sang it and there was nobody else in the world to sing it to."
 
 "Then he went up the stairs with it. I had not managed that in eight hundred years." A pause. "I hoped he lived."
 
@@ -85,6 +87,7 @@ He almost smiles. It is a terrible thing to watch.
 
 He waits. It is, you understand, an examination.
 
+* "Do you know where the other shards are?" -> other_shards
 * "The crown of Aldruin is being gathered again. Two pieces are in this room. Your watch ended the moment the road took it up." -> rested_scene
     check Lore 9 -> rested_scene | rest_fumble
 * "The song is above ground, in a full tavern, in a living woman's voice. It doesn't need a cellar anymore. It doesn't need you." -> rested_scene
@@ -92,6 +95,16 @@ He waits. It is, you understand, an examination.
     check Persuasion 9 -> rested_scene | rest_fumble
 * "I don't need your permission to take it." -> take_demand
 * [Leave him to it.] -> end
+
+== other_shards ==
+
+"No. I only knew about this one. And now, the one you have too. You ask me because you want to find all of them, but that is exactly what the shatterers were trying to prevent."
+
+He continues speaking in a low voice.
+
+"I would advise that you forget about your quest; it will not end well for you."
+
+* "Thanks for the advice." -> rest_offer
 
 == rest_fumble ==
 The words come out in the wrong order, or the wrong meter, or simply without the weight the room requires. He listens to all of it. He is unfailingly polite.
@@ -108,7 +121,7 @@ He listens the whole way through without moving. Then he nods once, the way a ma
 
 "Yes. That is the shape of it."
 
-He stands, and it is not the standing of an old man; it is a chorister taking position, and for one breath you see what this room looked like when it was new and full and lit. He sings the ninth verse from the top, at full voice, and the sound goes up through three floors of catacomb and a drowned village and out into the world it was written for.
+He stands, and it is not the standing of an old man; it is a chorister taking position, and for one breath you see what this room looked like when it was new and full and lit. He sings the fifth verse from the top, at full voice, and the sound goes up through three floors of catacomb and a drowned village and out into the world it was written for.
 
 The last note is the longest. When it ends, the vestments settle to the floor, and the eight hundred years arrive all at once, and there is nothing left standing to arrive at.
 

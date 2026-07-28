@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       CHECK SPOTS, ROUND 2.
+
+       An audit of Adventure Mode found the proficiency coverage badly
+       lopsided: Athletics had seven places to matter, while INSIGHT and
+       PERFORMANCE had none at all, and Perception only silently improved
+       the odds of finding things. A player who invested in those got
+       nothing back.
+
+       These twelve spots level that out. Every proficiency now has five to
+       seven places it is the right tool, spread across the sandbox's sites
+       rather than piled onto one. Insight reads people; Performance is
+       nerve and ceremony; Perception is noticing what the room is not
+       saying.
+
+       House rules, same as round one: one roll spends the spot, pass or
+       fail (no re-roll fishing); the [Proficiency DC] prefix is added by
+       code; the loud option is louder when it fails.
+       ================================================================== -->
+
+  <ThingDef Name="TSC_CheckSpotBase" ParentName="BuildingBase" Abstract="True">
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>30</pathCost>
+    <fillPercent>0.3</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <statBases>
+      <MaxHitPoints>150</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+  </ThingDef>
+
+  <!-- ================================================ what the beast left -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_GrislyRemains</defName>
+    <label>picked-over remains</label>
+    <description>Somebody came through here ahead of you and did not leave. What is left has been moved since it stopped moving on its own.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_GrislyRemains</texPath>
+      <drawSize>(1.15,1.15)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Performance</proficiency>
+            <dc>7</dc>
+            <label>Say the words over them</label>
+            <successXp>30</successXp>
+            <successHediff>TSC_Hediff_Blessed</successHediff>
+            <successMessage>You give them the verse owed to anyone who dies far from home, and you give it properly, out loud, in a place where nobody was ever going to. The company stops fidgeting. Whatever is further in, they will walk toward it steadier than they would have.</successMessage>
+            <failMessage>The words come out thin and stop early. It is worse than saying nothing, and everyone present knows it.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>8</dc>
+            <label>Reconstruct what happened</label>
+            <successXp>35</successXp>
+            <successMessage>Gear laid out for a rest, not a fight. A weapon still stowed. They were taken sitting down, by something that came from the direction you are about to walk in, and it was not in a hurry afterwards.</successMessage>
+            <failMessage>Too disturbed to read. Whatever order this scene had is long gone.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Nature</proficiency>
+            <dc>7</dc>
+            <label>Name what fed here</label>
+            <successXp>30</successXp>
+            <successHediff>TSC_Hediff_HuntersEye</successHediff>
+            <successMessage>Tooth spacing, the way the long bones were cracked, what was left behind as not worth eating. You know what it is now, and roughly how big, and that it will come back to a kill it has not finished.</successMessage>
+            <failMessage>Marks enough to be sure something ate, and nothing else. It could be half a dozen things, and half of those you would rather not meet.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ================================================ the abandoned picket -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_WatchPost</defName>
+    <label>abandoned watch post</label>
+    <description>A stool, a spear leaned against the wall, and a cloak still hanging where its owner left it. Somebody was posted here with a clear line down the approach, and then stopped being posted here.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_WatchPost</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Perception</proficiency>
+            <dc>7</dc>
+            <label>Sit where they sat and look</label>
+            <successXp>30</successXp>
+            <successMessage>From this stool, and only from this stool, you can see the whole approach and one thing else: a gap in the far wall that does not read as a gap from anywhere you have stood. That is what they were watching. That is where you should be looking.</successMessage>
+            <failMessage>A stool with a view of a corridor. If it told its watcher anything, it does not repeat itself.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>8</dc>
+            <label>Work out why they left</label>
+            <successXp>35</successXp>
+            <successMessage>The spear is still here. Nobody walks off a watch and leaves the spear, so they did not walk off: they went somewhere in a hurry, toward something, and they expected to come back for it. Which means whatever they went to deal with, they lost.</successMessage>
+            <failMessage>An empty post. People leave posts for a hundred reasons and this one is keeping its own counsel.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Survival</proficiency>
+            <dc>7</dc>
+            <label>Track where they went</label>
+            <successXp>30</successXp>
+            <successMessage>Two sets of prints leaving at speed, one of them dragging. They went deeper in. Only the drag mark comes back partway, and then stops.</successMessage>
+            <failMessage>The floor here has been walked over too many times by too many feet to hold one story.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ================================================ the crew's book -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_BanditLedger</defName>
+    <label>crew's ledger</label>
+    <description>A tally book in three hands, the last of them shakier than the first two. Whoever these people are, somebody among them was keeping accounts, which is not the sort of thing a happy band bothers with.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BanditLedger</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>8</dc>
+            <label>Read between the entries</label>
+            <successXp>35</successXp>
+            <successMessage>Shares written down, then crossed out, then written smaller. One name gets its full portion every week while the others shrink. That is not a captain: that is somebody the rest are afraid of, and the arithmetic says the others have noticed too.</successMessage>
+            <failMessage>Numbers and names, and no thread you can follow from one to the other.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>7</dc>
+            <label>Place the hand and the dates</label>
+            <successXp>30</successXp>
+            <successMessage>Chancery script, badly copied by someone taught to write in a place that no longer teaches. These are not road-born outlaws. They came from somewhere that had schools, and the dates say they have been out here longer than the war has been over.</successMessage>
+            <failMessage>The hand is crabbed and the dating system is nobody's you know.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Thievery</proficiency>
+            <dc>7</dc>
+            <label>Find the page about the good stuff</label>
+            <successXp>30</successXp>
+            <successMessage>Every crew keeps one page apart from the rest, and this one is sewn into the back board. It lists what they have not sold yet, and where they put it, in a hand that clearly expected nobody else to look.</successMessage>
+            <failMessage>You go through it twice. If there is a hidden page, it is hidden from you.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ================================================ somebody's burial -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_GraveMound</defName>
+    <label>grave mound</label>
+    <description>A mound with a stone at its head, dug by hand and dug properly, a long way from anywhere that buries people. Somebody carried a body out here and then took the trouble.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_GraveMound</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Nature</proficiency>
+            <dc>7</dc>
+            <label>Read the ground around it</label>
+            <successXp>30</successXp>
+            <successMessage>The turf took badly on one side: something has been at this mound and been driven off, more than once, by something else. There is a den within a few minutes' walk, and the mound is at the edge of its range, not the middle.</successMessage>
+            <failMessage>Grass, dirt, and the ordinary business of things growing over a hole.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Performance</proficiency>
+            <dc>7</dc>
+            <label>Sing the burial verse</label>
+            <successXp>35</successXp>
+            <successHediff>TSC_Hediff_Blessed</successHediff>
+            <successMessage>Whoever dug this got the digging right and could not do the rest. You do the rest. It takes four minutes and it costs nothing, and every person standing here walks away carrying it a little differently.</successMessage>
+            <failMessage>You start it, lose the meter, and finish quietly because stopping halfway would be worse.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Arcana</proficiency>
+            <dc>8</dc>
+            <label>Check the stone for work</label>
+            <successXp>35</successXp>
+            <successMessage>Cut into the underside of the headstone, where nobody would see it: a binding mark, of the sort used on a grave you want to stay shut. It is old and it is holding. Leave it that way.</successMessage>
+            <failMessage>A rough stone with a rougher mark on it. It could be a ward. It could be a mason's initials.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ================================================ the old well -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_OldWell</defName>
+    <label>disused well</label>
+    <description>A stone well with its winch rotted through and its rope gone. There is still water at the bottom, further down than the light reaches, and it is not entirely still.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_OldWell</texPath>
+      <drawSize>(1.25,1.25)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Perception</proficiency>
+            <dc>8</dc>
+            <label>Look properly down the shaft</label>
+            <successXp>35</successXp>
+            <successMessage>Halfway down, a ledge, and on the ledge a bundle that somebody lowered rather than dropped: wrapped, tied, and meant to be collected later by a person who never came back for it. That is what the ripples were.</successMessage>
+            <failMessage>Dark, and then darker, and then a suggestion of water. Nothing you can swear to.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Thievery</proficiency>
+            <dc>8</dc>
+            <label>Climb down after it</label>
+            <successXp>35</successXp>
+            <successRemoves>true</successRemoves>
+            <successMessage>Braced back and boots on the old stonework, one course at a time. The bundle comes up with you, and so do you, which was the harder half.</successMessage>
+            <failDamage>9</failDamage>
+            <failDamageDef>Blunt</failDamageDef>
+            <failMessage>The course you trusted is not stone any more, it is the memory of stone. You catch the lip on the way past and haul out with skinned hands and nothing to show.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Nature</proficiency>
+            <dc>6</dc>
+            <label>Test whether the water is dead</label>
+            <successXp>25</successXp>
+            <successMessage>No skin, no smell, and something small moving in it. The well is alive, which means it is fed from somewhere and the water is worth having - and it means the shaft connects to more than this hole.</successMessage>
+            <failMessage>Water. Wet. Beyond that, you would be guessing, and guessing about water is how companies die.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ================================================ the sealed door -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_SealedDoor</defName>
+    <label>sealed door</label>
+    <description>A door with no handle, closed from the far side by people who then went to some trouble about it. The seam is packed with lead and the whole thing has a look of deliberate finality.</description>
+    <passability>Impassable</passability>
+    <fillPercent>0.9</fillPercent>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_SealedDoor</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Arcana</proficiency>
+            <dc>9</dc>
+            <label>Unpick the seal</label>
+            <successXp>40</successXp>
+            <successRemoves>true</successRemoves>
+            <successMessage>The lead is decoration. The actual closure is a knot of intent laid into the jamb, and knots can be untied by anyone who can see which end is which. The door swings inward on the first push and the room behind it exhales.</successMessage>
+            <failMessage>You find the shape of the working and lose it again. It was made by someone better than you, on a day they were taking it seriously.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Perception</proficiency>
+            <dc>8</dc>
+            <label>Find the way they meant to reopen it</label>
+            <successXp>35</successXp>
+            <successRemoves>true</successRemoves>
+            <successMessage>Nobody seals a door they never intend to open. Third stone left of the frame sits a finger-width proud of its neighbours, and it moves when pushed, and the door moves with it.</successMessage>
+            <failMessage>You go over every stone within reach twice. If there is a catch, it is not within reach.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>9</dc>
+            <label>Put your shoulders through it</label>
+            <successXp>30</successXp>
+            <successRemoves>true</successRemoves>
+            <successWakesDormant>true</successWakesDormant>
+            <successMessage>Four bodies, one count, and the lead seam tears with a noise like a bell being dropped down a staircase. The way is open. So is the question of who heard.</successMessage>
+            <failDamage>10</failDamage>
+            <failDamageDef>Blunt</failDamageDef>
+            <failWakesDormant>true</failWakesDormant>
+            <failMessage>The door holds. Your shoulder does not, quite, and the noise carries anyway.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ================================================ the counted days -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_PrisonersMarks</defName>
+    <label>counted days</label>
+    <description>Scratches in a wall, grouped in fives, made by somebody with time and a hard edge and no other way to hold on to either.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_PrisonersMarks</texPath>
+      <drawSize>(1.15,1.15)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>7</dc>
+            <label>Read the hand that cut them</label>
+            <successXp>35</successXp>
+            <successMessage>The first weeks are neat, evenly spaced, cut with care. Then they get deeper and closer together. Then, for a stretch, none at all - and then they start again, shallow, in a different corner, as if beginning a second count was the only thing left to decide. Somebody was still deciding things in here. That is worth knowing about whoever it was.</successMessage>
+            <failMessage>Marks on a wall. However many days it was, the wall is not saying what they were like.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>7</dc>
+            <label>Total them and check the dates</label>
+            <successXp>30</successXp>
+            <successMessage>Two hundred and six days, and the last one is not finished. Cross that against the state of the ashes in the next room and it stops adding up: this place was abandoned long before the counting stopped.</successMessage>
+            <failMessage>You lose the tally twice and give it up. Somewhere over a hundred; that is the best you have.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>8</dc>
+            <label>Read what they wrote underneath</label>
+            <successXp>35</successXp>
+            <successMessage>Under the last group, in letters half a fingernail high, an old-kingdom prayer for safe roads - the traveller's one, the one nobody says any more because nobody remembers it. They were not from around here, and they had been keeping that to themselves for two hundred days.</successMessage>
+            <failMessage>There is lettering under the marks, small and worn, in a script that will not resolve for you.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ================================================ a singer's grave -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_MinstrelsGrave</defName>
+    <label>singer's grave</label>
+    <description>A shallow grave with a lute laid on top of it rather than buried with its owner, which is either respect or superstition. The strings have gone but the neck is unwarped, and somebody oiled it before they left it here.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_MinstrelsGrave</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Performance</proficiency>
+            <dc>8</dc>
+            <label>Play it once, properly</label>
+            <successXp>40</successXp>
+            <successHediff>TSC_Hediff_Blessed</successHediff>
+            <successMessage>You string it with what you have and it holds tune long enough for one piece. It is a better instrument than its owner could likely afford, and the sound it makes out here, over a grave, in front of nobody, is the finest thing that has happened in this place in a hundred years.</successMessage>
+            <failMessage>The neck takes the tension and the top does not. The crack runs the length of the belly and that is the end of it, and of the sound it had left.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>8</dc>
+            <label>Identify the maker</label>
+            <successXp>35</successXp>
+            <successMessage>A rose cut in the old style and a maker's brand inside the soundhole from a workshop that shut when the kingdom did. This was a court instrument. Whoever ended up out here holding it did not start out here.</successMessage>
+            <failMessage>Good work, old work, and no mark you can put a name or a place to.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Persuasion</proficiency>
+            <dc>7</dc>
+            <label>Talk the party into leaving it</label>
+            <successXp>30</successXp>
+            <successMessage>Somebody has already reached for it, and the argument for taking it is a good one: it is worth money and its owner is past caring. You make the other argument, and you make it well enough that the hand comes back empty and nobody resents you for it.</successMessage>
+            <failMessage>You say your piece. It is not enough, and the lute goes in a pack, and the mood does not recover for a while.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ================================================ a cold fire -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_CampfireCircle</defName>
+    <label>cold fire circle</label>
+    <description>A ring of stones with a dead fire in it. Somebody sat here recently enough that the ash has not blown away, and left in a manner you would like to know more about.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_CampfireCircle</texPath>
+      <drawSize>(1.25,1.25)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Survival</proficiency>
+            <dc>7</dc>
+            <label>Read the ash</label>
+            <successXp>30</successXp>
+            <successMessage>Cold through, but the crust has not been rained on: under two days. Wood chosen badly by someone who did not want smoke and did not know how to avoid it. Six or seven of them, and they were not confident enough to cook.</successMessage>
+            <failMessage>Cold ash. It could be two days or two months; the weather here has been kind to it either way.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Perception</proficiency>
+            <dc>7</dc>
+            <label>Check the ring of dark beyond it</label>
+            <successXp>30</successXp>
+            <successMessage>Everyone sat facing in except one, and that one sat with their back to the fire looking at the same stretch of dark you are looking at now. There is a reason they picked that direction, and it is still out there.</successMessage>
+            <failMessage>A circle of stones and a lot of darkness past it, all of it looking much the same.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>8</dc>
+            <label>Judge how it broke up</label>
+            <successXp>35</successXp>
+            <successMessage>Bedrolls on one side only, and on the far side the stones are scuffed out of true where somebody stood up fast. They did not break camp: they had an argument, and then a smaller number of them broke camp.</successMessage>
+            <failMessage>People sat, people left. The rest of it is a story you would be inventing.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ================================================ the truce marker -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_ParleyStone</defName>
+    <label>parley stone</label>
+    <description>A waist-high marker with two clasped hands cut into it, worn nearly smooth. Wherever these were set, the custom was that nobody drew a blade within sight of one. The custom is as dead as the kingdom that kept it, but the stone is still standing.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_ParleyStone</texPath>
+      <drawSize>(1.15,1.15)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Persuasion</proficiency>
+            <dc>8</dc>
+            <label>Invoke the old truce aloud</label>
+            <successXp>40</successXp>
+            <successHediff>TSC_Hediff_Blessed</successHediff>
+            <successMessage>You say the formula at the stone the way it was meant to be said, to an audience of your own people and whatever else is listening. It is theatre and everyone knows it, and it works anyway: the party settles the way people do when somebody has drawn a line and named it.</successMessage>
+            <failMessage>The words are close but not right, and said at a rock, and the moment lands as exactly what it is.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>7</dc>
+            <label>Read who has been here since</label>
+            <successXp>30</successXp>
+            <successMessage>Fresh chips off the top edge, struck deliberately, by somebody who wanted the hands defaced and did not want to be seen taking the time to finish. Whoever holds this ground now knows exactly what the stone means and would rather nobody else remembered.</successMessage>
+            <failMessage>An old stone with old damage. Weather does that. So do people.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Performance</proficiency>
+            <dc>7</dc>
+            <label>Tell them what these stones were</label>
+            <successXp>30</successXp>
+            <successMessage>You tell it as a story rather than a fact, which is the only way anybody remembers anything: the roads, the marker, the rule, and the century it held for. By the end even the mercenaries are looking at the thing differently, which is a small piece of a dead kingdom brought back for the length of one telling.</successMessage>
+            <failMessage>You get the shape of it out and lose the room halfway. Somebody asks if you are finished. You are.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ================================================ the hunter's blind -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_HuntersBlind</defName>
+    <label>hunter's blind</label>
+    <description>A screen of cut brush on stakes, set facing a game trail. Built by someone who knew what they were doing and left standing long enough that the brush has gone brown.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_HuntersBlind</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Nature</proficiency>
+            <dc>7</dc>
+            <label>Read the trail it watches</label>
+            <successXp>30</successXp>
+            <successHediff>TSC_Hediff_HuntersEye</successHediff>
+            <successMessage>The trail is still in use and the use has changed: what walks it now is heavier than what it was cut for, and it comes through at the same hour, from the same side. The blind is pointed at the right place. Its builder simply wanted a different animal than the one using it.</successMessage>
+            <failMessage>A trail through the brush with a lot of traffic on it and nothing that separates out.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Survival</proficiency>
+            <dc>7</dc>
+            <label>Judge whether it is still good</label>
+            <successXp>30</successXp>
+            <successMessage>Wind runs the right way across it for another hour yet, the sightline is clean, and the stakes will take weight. If anybody in this company wanted to take something on this trail from cover, this is where they would do it and now is when.</successMessage>
+            <failMessage>Brush and sticks. Whether it still works is a question you would be answering with optimism.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Perception</proficiency>
+            <dc>8</dc>
+            <label>Find what the hunter left</label>
+            <successXp>35</successXp>
+            <successMessage>Tucked into the base of the middle stake where a sitting man's hand would fall: a small oiled bundle, put there to be found by the next person patient enough to sit in it.</successMessage>
+            <failMessage>You take the blind apart with your eyes and find brush, stakes, and the ordinary litter of somebody waiting a long time.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ================================================ scattered baggage -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_StrewnBaggage</defName>
+    <label>strewn baggage</label>
+    <description>Packs and a broken chest, opened and gone through and left where they fell. Whoever did the going-through was in a hurry, and whoever owned it is not here to complain.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_StrewnBaggage</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>7</dc>
+            <label>Work out what was taken</label>
+            <successXp>35</successXp>
+            <successMessage>Coin gone, food gone, and a set of empty straps cut rather than unbuckled: they took something long and heavy and did not have time to work out the fastenings. Everything actually valuable is still here. They were not robbing this party. They were disarming it.</successMessage>
+            <failMessage>Somebody's belongings, thoroughly disordered. What is missing from a stranger's pack is a hard thing to say.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Survival</proficiency>
+            <dc>7</dc>
+            <label>Judge how far they got</label>
+            <successXp>30</successXp>
+            <successMessage>Rations for eight days packed for a journey of three. Whoever set out with this was going somewhere far past here, expected it to be hard, and got no further than this spot.</successMessage>
+            <failMessage>Wet cloth and spoiled stores, telling you only that time has passed.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Persuasion</proficiency>
+            <dc>6</dc>
+            <label>Settle who gets what</label>
+            <successXp>25</successXp>
+            <successMessage>Loose goods and no owner is how companies start arguing, and this one was about to. You divide it before anybody has to ask, aloud, in front of everyone, and nobody walks away feeling short.</successMessage>
+            <failMessage>You try to divide it fairly and manage to make two people feel cheated at once, which is a rare skill.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+</Defs>

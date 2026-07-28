@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       The Ledger, stages one and two. See 1.6/Defs/Misc/TSC_LedgerChain.xml
+       for the toll book and the site.
+       ================================================================ -->
+
+  <!-- ============ Stage 1: an ordinary contract, until it isn't ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Ledger</defName>
+    <defaultChallengeRating>2</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [lg_name]</li>
+        <li>lg_name->The Tidy Crew</li>
+        <li>lg_name->Tolls and Tallies</li>
+        <li>lg_name->They Kept Books</li>
+        <li>lg_name->The Regular Road</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[lg_flavor]\n\nClear the toll house. The guild also wants to know how this crew keeps hitting loaded caravans and missing empty ones, so read anything they wrote down before you burn it.\n\nCharter silver and guild coin, on the last of them.</li>
+        <li>lg_flavor->A crew has worked a stretch of guild road for two seasons and has never once stopped an empty wagon. That is harder to explain than the robberies.</li>
+        <li>lg_flavor->Four caravans taken, all of them loaded, all on days the road should have been quiet. The factor who posted the contract chose his words carefully.</li>
+        <li>lg_flavor->The guild has lost enough on this stretch to stop calling it bad luck. It has not said out loud what it is calling it instead.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
+        <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
+        <li Class="QuestNode_Set"><name>siteDistRange</name><value>3~11</value></li>
+        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags><li><tag>TSC_ContractLedger</tag></li></sitePartsTags>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetBanditFaction"><storeAs>siteFaction</storeAs></li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile><faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelLedgerLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextLedgerLost">The crew scattered before the job was done and took their books with them. The guild strikes the contract. No payment, no penalty.</text>
+              </li>
+              <li Class="QuestNode_End"><outcome>Fail</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelLedgerDone">Contract complete</label>
+                <text TKey="LetterTextLedgerDone">The toll house is cleared and the road is open. Payment as chartered.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>220</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>340</amount><coins>5</coins></li>
+
+              <!-- The branch. Only a party that actually read the book learns
+                   there was anything to learn; everyone else has just done a
+                   contract. -->
+              <li Class="TheShatteredCrown.QuestNode_TSC_IfFlag">
+                <flag>TSC_LedgerRead</flag>
+                <node Class="QuestNode_Sequence">
+                  <nodes>
+                    <li Class="QuestNode_Letter">
+                      <letterDef>NeutralEvent</letterDef>
+                      <label TKey="LetterLabelLedgerFound">The countersigned pages</label>
+                      <text TKey="LetterTextLedgerFound">The toll book names a guild factor, in a hand you can match to your own charter. He signed off every caravan this crew took, days before they took it.\n\nHe is at a guild hall, working, expecting nothing. What you do about it is your decision.</text>
+                    </li>
+                    <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                      <questDef>TSC_Quest_LedgerChoice</questDef>
+                    </li>
+                  </nodes>
+                </node>
+              </li>
+            </nodes>
+          </node>
+        </li>
+        <li Class="QuestNode_End"><inSignal>site.AllEnemiesDefeated</inSignal><outcome>Success</outcome></li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Stage 2: what you do about it ============ -->
+
+  <!-- Not on the contract board: this one is GIVEN, never offered, so it is
+       not randomlySelectable and does not expire. It ends when the player
+       speaks to a factor - see Dialogues/guild_factor.agd, which fires the
+       two signals below. -->
+  <QuestScriptDef>
+    <defName>TSC_Quest_LedgerChoice</defName>
+    <isRootSpecial>true</isRootSpecial>
+    <randomlySelectable>false</randomlySelectable>
+    <rootMinPoints>0</rootMinPoints>
+    <autoAccept>true</autoAccept>
+    <nameMustBeUnique>false</nameMustBeUnique>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Countersigned Pages</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->You are carrying a toll book that names a guild factor as the man who told bandits which caravans were worth stopping.\n\nTake it to a factor at any guild hall. Hand it in and let the guild deal with its own, or name a price for it. The guild pays in coin. He pays more, in silver, and will remember which you chose.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <!-- Turned the evidence in: the guild settles in its own scrip. -->
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_LedgerTurnIn</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelLedgerTurnIn">The guild deals with its own</label>
+                <text TKey="LetterTextLedgerTurnIn">The book goes into a strongbox and out of your hands. Nobody thanks you directly.\n\nThe next factor you meet already knows your company's name, and the back of the locker opens easier.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>250</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>200</amount><coins>10</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- Sold it back: more silver now, and a door closes. -->
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_LedgerSell</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NeutralEvent</letterDef>
+                <label TKey="LetterLabelLedgerSell">A private arrangement</label>
+                <text TKey="LetterTextLedgerSell">He pays without haggling, which tells you the pages were worth more than you asked. The book goes into his fire.\n\nHe stays civil about it. He also never shows your company the back of the locker again.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>250</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>900</amount><coins>0</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

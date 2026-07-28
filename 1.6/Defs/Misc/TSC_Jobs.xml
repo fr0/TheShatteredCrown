@@ -62,4 +62,19 @@
     <playerInterruptible>true</playerInterruptible>
   </JobDef>
 
+  <!-- Camp work: the deploy/pack buttons queue these on the party. -->
+  <JobDef>
+    <defName>TSC_DeployBedroll</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_DeployBedroll</driverClass>
+    <reportString>setting up camp.</reportString>
+    <allowOpportunisticPrefix>false</allowOpportunisticPrefix>
+  </JobDef>
+
+  <JobDef>
+    <defName>TSC_PackBedroll</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_PackBedroll</driverClass>
+    <reportString>packing up camp.</reportString>
+    <allowOpportunisticPrefix>false</allowOpportunisticPrefix>
+  </JobDef>
+
 </Defs>

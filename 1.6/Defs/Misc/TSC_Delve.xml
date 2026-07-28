@@ -202,6 +202,10 @@
       <lootDef>TSC_GuildStrongbox</lootDef>
       <spots>
         <li>TSC_RottedSpan</li>
+        <li>TSC_BanditLedger</li>
+        <li>TSC_CampfireCircle</li>
+        <li>TSC_OldWell</li>
+        <li>TSC_LootChest</li>
       </spots>
       <occupants>
         <li>
@@ -240,6 +244,9 @@
       <spots>
         <li>TSC_ChoirBones</li>
         <li>TSC_SluiceWheel</li>
+        <li>TSC_PrisonersMarks</li>
+        <li>TSC_GrislyRemains</li>
+        <li>TSC_LootChest</li>
       </spots>
       <occupants>
         <li>
@@ -287,6 +294,11 @@
       <size>40</size>
       <stairsDef>TSC_DelveStairs_ToLowest</stairsDef>
       <lootDef>TSC_GuildStrongbox</lootDef>
+      <spots>
+        <li>TSC_SealedDoor</li>
+        <li>TSC_StrewnBaggage</li>
+        <li>TSC_LootChest</li>
+      </spots>
       <occupants>
         <li>
           <weight>2</weight>
@@ -330,6 +342,11 @@
       <layoutDef>TSC_Ossuary</layoutDef>
       <size>38</size>
       <lootDef>TSC_GuildStrongbox</lootDef>
+      <spots>
+        <li>TSC_SealedDoor</li>
+        <li>TSC_GrislyRemains</li>
+        <li>TSC_LootChest</li>
+      </spots>
       <occupants>
         <li>
           <weight>2</weight>

@@ -7,21 +7,39 @@ using Verse;
 namespace TheShatteredCrown
 {
     /// <summary>
-    /// The level-up dialog: spend one class level by choosing which class
-    /// advances and which proficiency improves. Proficiencies the chosen class
-    /// is trained in increase by 2; everything else by 1. Stays open while the
-    /// pawn has more levels to assign.
+    /// The level-up window, in two pages.
+    ///
+    /// Page one spends a class level: which class advances, and which
+    /// proficiency improves. Page two takes a feat.
+    ///
+    /// A class point is granted at EVERY character level from 2 up, and a
+    /// feat at every third, so every feat level is also a class-level level:
+    /// when a feat is earned, both are owed at once. Two pages in one window
+    /// is therefore the normal path, not an edge case - assign the level,
+    /// then Next, then choose the feat, as one sequence rather than two
+    /// buttons on the gizmo bar competing for the same moment.
+    ///
+    /// The single-page cases are the leftovers: a class level owed on a
+    /// non-feat level, or a feat still unchosen after its class level was
+    /// already spent. The window opens on whichever page has something owed
+    /// and only shows the Next/Back pair when both do.
     /// </summary>
     public class Dialog_TSCLevelUp : Window
     {
         private readonly Pawn pawn;
         private int selectedClass;
         private TSC_ProficiencyDef selectedProficiency;
+        private TSC_FeatDef selectedFeat;
         private Vector2 scroll;
+        private Vector2 featScroll;
+
+        /// <summary>0 = class level, 1 = feat.</summary>
+        private int page;
 
         private const float RowHeight = 26f;
+        private const float FeatRowHeight = 58f;
 
-        public override Vector2 InitialSize => new Vector2(540f, 640f);
+        public override Vector2 InitialSize => new Vector2(560f, 660f);
 
         public Dialog_TSCLevelUp(Pawn pawn)
         {
@@ -36,16 +54,50 @@ namespace TheShatteredCrown
         {
             TSC_ProgressionManager progression = TSC_ProgressionManager.Current;
             TSC_ClassRecord record = progression.RecordOf(pawn);
-            int pending = progression.PendingPoints(pawn);
+            int pendingClass = progression.PendingPoints(pawn);
             // Studied manuals add "(new class)" rows: begin an unlocked class
             // at level 1 for the same one-point price as advancing one.
             List<TSC_ClassDef> newChoices = progression.NewClassChoicesFor(pawn);
-            int totalChoices = record.classes.Count + newChoices.Count;
-            if (pending <= 0 || totalChoices == 0)
+            bool canSpendClass = pendingClass > 0 && (record.classes.Count + newChoices.Count) > 0;
+
+            int pendingFeats = TSC_Feats.Pending(pawn);
+            List<TSC_FeatDef> featChoices = pendingFeats > 0
+                ? TSC_Feats.ChoicesFor(pawn)
+                : new List<TSC_FeatDef>();
+            bool canPickFeat = pendingFeats > 0 && featChoices.Count > 0;
+
+            if (!canSpendClass && !canPickFeat)
             {
                 Close();
                 return;
             }
+            // Open on, and stay on, whichever page still has something owed.
+            if (!canSpendClass)
+            {
+                page = 1;
+            }
+            else if (!canPickFeat)
+            {
+                page = 0;
+            }
+
+            if (page == 1)
+            {
+                DoFeatPage(inRect, featChoices, pendingFeats, canSpendClass);
+            }
+            else
+            {
+                DoClassPage(inRect, record, newChoices, pendingClass, canPickFeat);
+            }
+        }
+
+        // ---------------------------------------------------------------- page 1
+
+        private void DoClassPage(Rect inRect, TSC_ClassRecord record, List<TSC_ClassDef> newChoices,
+            int pending, bool canPickFeat)
+        {
+            TSC_ProgressionManager progression = TSC_ProgressionManager.Current;
+            int totalChoices = record.classes.Count + newChoices.Count;
             if (totalChoices == 1)
             {
                 selectedClass = 0;
@@ -58,7 +110,9 @@ namespace TheShatteredCrown
             y += 34f;
             Text.Font = GameFont.Small;
             GUI.color = Color.gray;
-            Widgets.Label(new Rect(0f, y, inRect.width, 24f), $"Class levels to assign: {pending}");
+            Widgets.Label(new Rect(0f, y, inRect.width, 24f), canPickFeat
+                ? $"Class levels to assign: {pending}   (a feat is waiting on the next page)"
+                : $"Class levels to assign: {pending}");
             GUI.color = Color.white;
             y += 30f;
 
@@ -139,8 +193,12 @@ namespace TheShatteredCrown
             }
             Widgets.EndScrollView();
 
-            // ---- confirm
-            Rect buttonRect = new Rect(inRect.width / 2f - 90f, inRect.height - 38f, 180f, 34f);
+            // ---- confirm, and Next when a feat is also owed
+            float buttonY = inRect.height - 38f;
+            float confirmWidth = canPickFeat ? 200f : 180f;
+            Rect buttonRect = canPickFeat
+                ? new Rect(0f, buttonY, confirmWidth, 34f)
+                : new Rect(inRect.width / 2f - 90f, buttonY, confirmWidth, 34f);
             bool ready = selectedProficiency != null;
             if (!ready)
             {
@@ -158,9 +216,115 @@ namespace TheShatteredCrown
                 }
                 selectedProficiency = null;
                 selectedClass = 0;
-                if (TSC_ProgressionManager.Current.PendingPoints(pawn) <= 0)
+                if (TSC_ProgressionManager.Current.PendingPoints(pawn) <= 0 && !canPickFeat)
                 {
                     Close();
+                }
+            }
+            GUI.color = Color.white;
+
+            if (canPickFeat)
+            {
+                Rect next = new Rect(inRect.width - 200f, buttonY, 200f, 34f);
+                if (Widgets.ButtonText(next, "Choose a feat  →"))
+                {
+                    page = 1;
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------- page 2
+
+        private void DoFeatPage(Rect inRect, List<TSC_FeatDef> choices, int pendingFeats, bool canGoBack)
+        {
+            float y = 0f;
+            Text.Font = GameFont.Medium;
+            Widgets.Label(new Rect(0f, y, inRect.width, 32f), $"Choose a feat: {pawn.LabelShortCap}");
+            y += 34f;
+            Text.Font = GameFont.Small;
+            GUI.color = Color.gray;
+            Widgets.Label(new Rect(0f, y, inRect.width, 40f),
+                pendingFeats > 1
+                    ? $"{pendingFeats} feats to choose. Feats are permanent, and come at character level 3 and every third level after."
+                    : "Feats are permanent, and come at character level 3 and every third level after.");
+            GUI.color = Color.white;
+            y += 42f;
+
+            Rect body = new Rect(0f, y, inRect.width, inRect.height - y - 46f);
+            Rect view = new Rect(0f, 0f, body.width - 16f, choices.Count * FeatRowHeight + 40f);
+            Widgets.BeginScrollView(body, ref featScroll, view);
+            float rowY = 0f;
+            string category = null;
+            foreach (TSC_FeatDef def in choices)
+            {
+                if (def.CategoryLabel != category)
+                {
+                    category = def.CategoryLabel;
+                    Text.Font = GameFont.Tiny;
+                    GUI.color = new Color(0.75f, 0.7f, 0.6f);
+                    Widgets.Label(new Rect(0f, rowY + 4f, view.width, 18f), category.ToUpperInvariant());
+                    GUI.color = Color.white;
+                    Text.Font = GameFont.Small;
+                    rowY += 22f;
+                }
+                Rect row = new Rect(0f, rowY, view.width, FeatRowHeight - 6f);
+                if (selectedFeat == def)
+                {
+                    Widgets.DrawHighlightSelected(row);
+                }
+                else if (Mouse.IsOver(row))
+                {
+                    Widgets.DrawHighlight(row);
+                }
+                Rect inner = row.ContractedBy(6f);
+                Widgets.Label(new Rect(inner.x, inner.y, inner.width, 22f), def.LabelCap);
+                Text.Font = GameFont.Tiny;
+                GUI.color = new Color(0.78f, 0.76f, 0.7f);
+                Widgets.Label(new Rect(inner.x, inner.y + 20f, inner.width, 30f), def.description);
+                string requirement = def.RequirementLine();
+                if (!requirement.NullOrEmpty())
+                {
+                    GUI.color = new Color(0.65f, 0.75f, 0.9f);
+                    Text.Anchor = TextAnchor.UpperRight;
+                    Widgets.Label(new Rect(inner.x, inner.y, inner.width, 20f), requirement);
+                    Text.Anchor = TextAnchor.UpperLeft;
+                }
+                GUI.color = Color.white;
+                Text.Font = GameFont.Small;
+                if (Widgets.ButtonInvisible(row))
+                {
+                    selectedFeat = def;
+                }
+                rowY += FeatRowHeight;
+            }
+            Widgets.EndScrollView();
+
+            float buttonY = inRect.height - 38f;
+            if (canGoBack)
+            {
+                Rect back = new Rect(0f, buttonY, 180f, 34f);
+                if (Widgets.ButtonText(back, "←  Class level"))
+                {
+                    page = 0;
+                }
+            }
+            Rect take = new Rect(inRect.width - 220f, buttonY, 220f, 34f);
+            bool ready = selectedFeat != null;
+            if (!ready)
+            {
+                GUI.color = Color.gray;
+            }
+            if (Widgets.ButtonText(take, ready ? $"Take {selectedFeat.LabelCap}" : "Choose a feat") && ready)
+            {
+                TSC_Feats.Take(pawn, selectedFeat);
+                selectedFeat = null;
+                if (TSC_Feats.Pending(pawn) <= 0 && !canGoBack)
+                {
+                    Close();
+                }
+                else if (TSC_Feats.Pending(pawn) <= 0)
+                {
+                    page = 0;
                 }
             }
             GUI.color = Color.white;

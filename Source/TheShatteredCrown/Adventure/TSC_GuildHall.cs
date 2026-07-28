@@ -19,6 +19,24 @@ namespace TheShatteredCrown
     /// restocks when asked in person; Adventure Mode also restocks on the
     /// world clock.
     /// </summary>
+    public static class TSC_GuildHallUtility
+    {
+        /// <summary>
+        /// A settlement map with a guild presence: any non-hostile humanlike
+        /// faction's town. This is the same test MapComponent_TSC_GuildFactor
+        /// spawns on, deliberately - the places you can hand a contract in
+        /// are exactly the places a factor is standing.
+        /// </summary>
+        public static bool IsGuildHall(Map map)
+        {
+            return map?.Parent is Settlement settlement
+                && settlement.Faction != null
+                && !settlement.Faction.def.hidden
+                && settlement.Faction.def.humanlikeFaction
+                && !settlement.Faction.HostileTo(Faction.OfPlayer);
+        }
+    }
+
     public class MapComponent_TSC_GuildFactor : MapComponent
     {
         private bool spawned;
@@ -29,12 +47,23 @@ namespace TheShatteredCrown
 
         public override void MapComponentTick()
         {
-            if (spawned || Find.TickManager.TicksGame % 250 != 0
-                || !TSC_RpgMode.Active)
+            if (Find.TickManager.TicksGame % 250 != 0 || !TSC_RpgMode.Active)
             {
                 return;
             }
+            HealMisfactionedFactor();
+            if (spawned)
+            {
+                return;
+            }
+            // NPC towns only. The player's own settled colony ALSO has a
+            // Settlement parent whose faction is humanlike, unhidden, and
+            // not hostile to itself - so without the ownership check this
+            // generated a "factor" IN THE PLAYER'S FACTION four seconds
+            // after settling: a free surprise colonist. The guild posts its
+            // factors to towns; your camp gets contracts by letter.
             if (!(map.Parent is Settlement settlement) || settlement.Faction == null
+                || settlement.Faction == Faction.OfPlayer
                 || settlement.Faction.def.hidden || !settlement.Faction.def.humanlikeFaction
                 || settlement.Faction.HostileTo(Faction.OfPlayer))
             {
@@ -57,6 +86,44 @@ namespace TheShatteredCrown
             }
             GenSpawn.Spawn(factor, cell, map);
             LordMaker.MakeNewLord(factor.Faction, new LordJob_DefendPoint(cell), map, Gen.YieldSingle(factor));
+        }
+
+        /// <summary>
+        /// Save repair: a factor spawned into the PLAYER's faction by the bug
+        /// above is handed back to the guild and walks off the map. Keyed on
+        /// kind + faction, which nothing legitimate produces - hirelings are
+        /// Villagers, and real factors belong to their town.
+        /// </summary>
+        private void HealMisfactionedFactor()
+        {
+            PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_GuildFactor");
+            if (kind == null)
+            {
+                return;
+            }
+            List<Pawn> strays = null;
+            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+            {
+                if (pawn.kindDef == kind && pawn.Faction == Faction.OfPlayer)
+                {
+                    (strays = strays ?? new List<Pawn>()).Add(pawn);
+                }
+            }
+            if (strays == null)
+            {
+                return;
+            }
+            Faction guild = GenStep_TSC_Village.VillagerFaction();
+            foreach (Pawn stray in strays)
+            {
+                stray.SetFaction(guild);
+                if (stray.Faction != null)
+                {
+                    LordMaker.MakeNewLord(stray.Faction, new LordJob_ExitMapBest(), map, Gen.YieldSingle(stray));
+                }
+                Messages.Message($"{stray.LabelShortCap} was never one of yours: a guild factor posted here by mistake. They take their ledger and go.",
+                    stray, MessageTypeDefOf.NeutralEvent, historical: false);
+            }
         }
 
         public override void ExposeData()

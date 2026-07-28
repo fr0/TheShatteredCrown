@@ -304,6 +304,35 @@
     <genStep Class="TheShatteredCrown.GenStep_TSC_MedievalPurge" />
   </GenStepDef>
 
+  <!-- Bandit camps get the human-readable spots: who these people are, how
+       they are holding together, and what they left lying about. The purge
+       genstep above already filters this to the mod's own crownless camps. -->
+  <GenStepDef>
+    <defName>TSC_BanditCampSpots</defName>
+    <linkWithSite>BanditCamp</linkWithSite>
+    <order>486</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li>
+          <def>TSC_BanditLedger</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_CampfireCircle</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_WatchPost</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_PrisonersMarks</def>
+          <count>0~1</count>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
   <!-- Chapter 2 site: the sunken cellars -->
   <SitePartDef>
     <defName>TSC_SunkenCellars</defName>

@@ -39,10 +39,30 @@
     <defName>TSC_ContractRuin_Strongbox</defName>
     <linkWithSite>TSC_ContractRuin</linkWithSite>
     <order>480</order>
-    <genStep Class="TheShatteredCrown.GenStep_TSC_ScatterItems">
-      <thingDef>TSC_GuildStrongbox</thingDef>
-      <stacks>1~1</stacks>
-      <radius>16</radius>
+    <!-- Was a centre-anchored scatter, which regularly left the strongbox
+         sitting in open desert a screen away from the ruin the contract says
+         it is buried under. Now placed in the deepest enclosed room the
+         layout actually built. -->
+    <!-- The strongbox lives INSIDE a sealed crate, not loose on the floor:
+         a loose item can be claimed straight off the reform-caravan screen
+         without anyone walking to it, which turned the contract into a
+         formality. Now it has to be reached and the lock has to be beaten. -->
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceInStructure">
+      <thingDef>TSC_StrongboxCrate</thingDef>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The ruin is HELD. The contract text promises "so is what stopped
+       them", and the waystation layout has no threat-consuming rooms of its
+       own, so nothing was ever spawning: these maps generated completely
+       empty. Crownless squatters, scaled to the party. -->
+  <GenStepDef>
+    <defName>TSC_ContractRuin_Squatters</defName>
+    <linkWithSite>TSC_ContractRuin</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>3~5</count>
+      <scaledClamp>2~8</scaledClamp>
     </genStep>
   </GenStepDef>
 
@@ -67,6 +87,26 @@
           <def>TSC_CollapsedPassage</def>
           <count>0~2</count>
         </li>
+        <li>
+          <def>TSC_OldWell</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_WatchPost</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_StrewnBaggage</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_MinstrelsGrave</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_ParleyStone</def>
+          <count>0~1</count>
+        </li>
       </spots>
     </genStep>
   </GenStepDef>
@@ -81,6 +121,22 @@
         <li>
           <def>TSC_BeastTracks</def>
           <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_GrislyRemains</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_HuntersBlind</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_CampfireCircle</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_GraveMound</def>
+          <count>0~1</count>
         </li>
       </spots>
     </genStep>

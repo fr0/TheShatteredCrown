@@ -1,4 +1,4 @@
-[h1]The Shattered Crown[/h1]
+[img]{{IMG_BANNER}}[/img]
 
 The Shattered Crown turns RimWorld into a medieval party RPG. You do not build a colony. You ride out with a handful of companions, take work from the Wayfarers' Guild, meet new NPCs, complete quests, and get loot.
 
@@ -7,15 +7,36 @@ The Shattered Crown turns RimWorld into a medieval party RPG. You do not build a
 
 [b]A party, not a colony.[/b] You start alone on the road. Companions are found and recruited. Each one is a written character with their own voice, their own opinion of you, and their own reasons for coming along.
 
-[b]Conversations that matter.[/b] Hand-written dialogue scenes. Talk a raider captain out of a fight, lie to a village elder, ask a scholar what he is not telling you. Options gated behind skill checks show their odds up front: [i][Persuasion 8] The guild doesn't doubt you, captain.[/i]
+[b]Conversations that matter.[/b] Hand-written dialogue scenes. Talk a raider captain out of a fight, lie to a village elder, ask a scholar what he is not telling you. Options gated behind skill checks show their odds up front.
 
-[b]Dice-based proficiency checks.[/b] A d10 proficiency system across eleven skills - Lore, Arcana, Thievery, Athletics, Persuasion, Survival, Perception, Insight, Investigation, Nature, Performance. Rolls happen in conversation, at locked chests, at shrines, at rotted bridges, and at anything else the world puts in your way.
+[img]{{IMG_DIALOGUE}}[/img]
+
+[b]Dice-based proficiency checks.[/b] A d10 system across eleven skills. Rolls happen in conversation, at locked chests, at shrines, at rotted bridges, and at anything else the world puts in your way.
+
+[table]
+[tr][th]Skill[/th][th]What it opens[/th][/tr]
+[tr][td]Lore[/td][td]Old scripts, makers' marks, who these people were[/td][/tr]
+[tr][td]Arcana[/td][td]Wards, seals, rites that still answer[/td][/tr]
+[tr][td]Thievery[/td][td]Locks, hidden pages, quiet crossings[/td][/tr]
+[tr][td]Athletics[/td][td]Forcing what will not open, and paying for it[/td][/tr]
+[tr][td]Persuasion[/td][td]Talking your way past, and talking your party down[/td][/tr]
+[tr][td]Performance[/td][td]Nerve and ceremony: the verse owed to the dead[/td][/tr]
+[tr][td]Insight[/td][td]Reading people through what they left behind[/td][/tr]
+[tr][td]Investigation[/td][td]Reconstructing what happened here[/td][/tr]
+[tr][td]Perception[/td][td]Noticing what the room is not saying[/td][/tr]
+[tr][td]Survival[/td][td]Tracks, ashes, how long ago and how many[/td][/tr]
+[tr][td]Nature[/td][td]What fed here, and whether it is coming back[/td][/tr]
+[/table]
+
+Difficulty classes rise as your party does, so a check never stops being a gamble.
 
 [b]Eleven classes, forty-one spells and abilities.[/b] Barbarian, Bard, Cleric, Druid, Monk, Paladin, Ranger, Rogue, Sorcerer, Warden, Wizard. Multiclass freely: every level-up offers a class level and a proficiency. Spells run on Energy, which recovers with sleep, and scale with your level in the class that granted them.
 
 [b]Turn-based tactical combat (optional).[/b] Flip on Turn-Based Mode and fights become initiative-order, action-point tactics: move, attack, cast, end turn, with a live hit-chance readout, an AP preview on every order, and a combat log that shows the actual numbers. Toggle it off and the game plays like ordinary RimWorld.
 
-[b]Dungeons with floors.[/b] Multi-level underground complexes you descend by finding the stairs: catacombs, flooded undercrofts, ossuaries, bandit-held works, hives. Each floor is generated fresh, and each one has been claimed by something different.
+[img]{{IMG_ACTIONPOINTS}}[/img]
+
+[b]Dungeons with floors.[/b] Multi-level underground complexes you descend by finding the stairs: catacombs, flooded undercrofts, ossuaries, bandit-held works, hives. Each floor is generated fresh, and each one has been claimed by something different - so you learn how deep it goes by running out of stairs.
 
 [hr][/hr]
 [h1]Two ways to play[/h1]

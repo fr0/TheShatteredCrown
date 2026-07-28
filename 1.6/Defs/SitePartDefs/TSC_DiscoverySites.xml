@@ -131,6 +131,19 @@
     </genStep>
   </GenStepDef>
 
+  <!-- Garrison. The waystation layout has no threat-consuming rooms, so
+       threat points alone spawned nothing and these towers generated empty
+       despite advertising a garrison. -->
+  <GenStepDef>
+    <defName>TSC_WildTower_Holders</defName>
+    <linkWithSite>TSC_WildTower</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>2~4</count>
+      <scaledClamp>2~6</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
   <GenStepDef>
     <defName>TSC_WildTower_Spots</defName>
     <linkWithSite>TSC_WildTower</linkWithSite>
@@ -140,6 +153,18 @@
         <li>
           <def>TSC_GravenStone</def>
           <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_MinstrelsGrave</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_ParleyStone</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_WatchPost</def>
+          <count>1~1</count>
         </li>
       </spots>
     </genStep>
@@ -177,6 +202,22 @@
     </genStep>
   </GenStepDef>
 
+  <!-- Something still keeps this tower. Same empty-map fix as the mundane
+       one, but the sorcerer's tower answers to what nested in it. -->
+  <GenStepDef>
+    <defName>TSC_WildTowerMagical_Keepers</defName>
+    <linkWithSite>TSC_WildTowerMagical</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_WildBeasts">
+      <kinds>
+        <li>Spelopede</li>
+        <li>Megascarab</li>
+      </kinds>
+      <count>2~4</count>
+      <defendDen>true</defendDen>
+    </genStep>
+  </GenStepDef>
+
   <GenStepDef>
     <defName>TSC_WildTowerMagical_Spots</defName>
     <linkWithSite>TSC_WildTowerMagical</linkWithSite>
@@ -198,6 +239,14 @@
         <li>
           <def>TSC_RuneWard</def>
           <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_SealedDoor</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_GraveMound</def>
+          <count>0~1</count>
         </li>
       </spots>
     </genStep>
@@ -281,6 +330,18 @@
        deep-delve contracts use); the rest are just a castle. The stairhead
        is only placed when the roll succeeds, so there is never a stair to
        nowhere. Runs AFTER the structure so it can find real floor space. -->
+  <!-- The fortress is held: castle rooms consume no threat points either,
+       so "garrisoned at party-scaled threat points" was spawning nobody. -->
+  <GenStepDef>
+    <defName>TSC_WildCastle_Garrison</defName>
+    <linkWithSite>TSC_WildCastle</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>5~7</count>
+      <scaledClamp>4~12</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
   <GenStepDef>
     <defName>TSC_WildCastle_Undercroft</defName>
     <linkWithSite>TSC_WildCastle</linkWithSite>
@@ -309,6 +370,22 @@
         <li>
           <def>TSC_CollapsedPassage</def>
           <count>1~2</count>
+        </li>
+        <li>
+          <def>TSC_WatchPost</def>
+          <count>1~2</count>
+        </li>
+        <li>
+          <def>TSC_SealedDoor</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_OldWell</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_StrewnBaggage</def>
+          <count>0~1</count>
         </li>
       </spots>
       <radius>26</radius>
@@ -354,6 +431,22 @@
           <def>TSC_BeastTracks</def>
           <count>1~1</count>
         </li>
+        <li>
+          <def>TSC_GrislyRemains</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_HuntersBlind</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_StrewnBaggage</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_GraveMound</def>
+          <count>0~1</count>
+        </li>
       </spots>
     </genStep>
   </GenStepDef>
@@ -368,6 +461,18 @@
           <def>TSC_BeastTracks</def>
           <count>1~1</count>
         </li>
+        <li>
+          <def>TSC_GrislyRemains</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_HuntersBlind</def>
+          <count>0~1</count>
+        </li>
+        <li>
+          <def>TSC_CampfireCircle</def>
+          <count>0~1</count>
+        </li>
       </spots>
     </genStep>
   </GenStepDef>
@@ -380,6 +485,18 @@
       <spots>
         <li>
           <def>TSC_BeastTracks</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_PrisonersMarks</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_BanditLedger</def>
+          <count>1~1</count>
+        </li>
+        <li>
+          <def>TSC_CampfireCircle</def>
           <count>1~1</count>
         </li>
       </spots>

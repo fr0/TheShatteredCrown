@@ -354,11 +354,9 @@ namespace TheShatteredCrown
             SpawnChest(map, hoard);
             map.GetComponent<MapComponent_TSC_CaveBody>()?.SetBodyPos(hoard);
 
-            // The critters: pack count scales with difficulty (difficulty
-            // should matter), each pack posted between the rope and the hoard.
-            float threatScale = Find.Storyteller?.difficulty?.threatScale ?? 1f;
-            int groups = Mathf.Clamp(Mathf.RoundToInt(groupCount.RandomInRange * threatScale),
-                scaledGroupClamp.min, scaledGroupClamp.max);
+            // The critters: pack count scales with difficulty AND party level,
+            // each pack posted between the rope and the hoard.
+            int groups = TSC_Threat.Count(map, groupCount, scaledGroupClamp);
             List<PawnKindDef> kinds = new List<PawnKindDef>();
             PawnKindDef scarab = DefDatabase<PawnKindDef>.GetNamedSilentFail("Megascarab");
             PawnKindDef spelopede = DefDatabase<PawnKindDef>.GetNamedSilentFail("Spelopede");

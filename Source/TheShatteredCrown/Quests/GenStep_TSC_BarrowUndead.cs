@@ -44,9 +44,7 @@ namespace TheShatteredCrown
             IntVec3 center = anchor != null ? anchor.Position : map.Center;
             PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_Bandit_Brigand")
                 ?? PawnKindDefOf.Villager;
-            float threatScale = Find.Storyteller?.difficulty?.threatScale ?? 1f;
-            int n = Mathf.Clamp(Mathf.RoundToInt(count.RandomInRange * threatScale),
-                scaledClamp.min, scaledClamp.max);
+            int n = TSC_Threat.Count(map, count, scaledClamp);
             for (int i = 0; i < n; i++)
             {
                 PawnGenerationRequest request = new PawnGenerationRequest(

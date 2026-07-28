@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       Guild coins: the second currency, paid only for finished guild
+       contracts and spent only at a guild factor's locker.
+
+       tradeability None is the whole design. Silver already arrives from
+       raids, loot, and every merchant on the map, so a silver-only reward
+       is just more of what the player already has. Coins cannot be bought,
+       sold, or minted - a stack of them is a receipt for work done - which
+       is what makes saving them up mean anything, and what lets the
+       quartermaster stock things no trader is allowed to carry.
+
+       MarketValue 0 keeps them out of caravan wealth and off the raid-point
+       calculation: earning them should never make the world harder.
+       ================================================================== -->
+
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_GuildCoin</defName>
+    <label>guild coin</label>
+    <description>A thick brass token struck with the Wayfarers' crown, milled on the edge so it cannot be shaved. The guild honours these at any factor's table for goods it does not sell for silver. Everyone else honours them at nothing: outside a guild locker it is a heavy brass disc with somebody else's crown on it.\n\nThey are paid for finished contracts and for nothing else, which is rather the point of them.</description>
+    <techLevel>Medieval</techLevel>
+    <graphicData>
+      <texPath>Things/Item/TSC_GuildCoin</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.75</drawSize>
+    </graphicData>
+    <soundInteract>Silver_Drop</soundInteract>
+    <soundDrop>Silver_Drop</soundDrop>
+    <useHitPoints>false</useHitPoints>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <resourceReadoutPriority>First</resourceReadoutPriority>
+    <resourceReadoutAlwaysShow>true</resourceReadoutAlwaysShow>
+    <alwaysHaulable>true</alwaysHaulable>
+    <tradeability>None</tradeability>
+    <burnableByRecipe>false</burnableByRecipe>
+    <smeltable>false</smeltable>
+    <stackLimit>500</stackLimit>
+    <smallVolume>true</smallVolume>
+    <statBases>
+      <MarketValue>0</MarketValue>
+      <Mass>0.006</Mass>
+    </statBases>
+    <thingCategories>
+      <li>ResourcesRaw</li>
+    </thingCategories>
+  </ThingDef>
+
+</Defs>

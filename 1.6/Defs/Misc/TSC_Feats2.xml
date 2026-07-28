@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       FEATS, batch two: the class feats.
+
+       Each requires levels in the class whose ability it modifies - always
+       at least the level that GRANTS the ability, so a feat can never be
+       owned before the thing it changes. The mods themselves are declared
+       here and consulted by the ability comps at cast time, so everything
+       works identically in turn-based and real-time combat.
+
+       Deferred to the starred batch (new combat hooks, not data): the
+       Warden's Opportunity Attacks, the Rogue's Backstab, the Monk's
+       Running Start, and the general Last Stand.
+       ================================================================== -->
+
+  <!-- ================================================ Warden -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Bulwark</defName>
+    <label>bulwark</label>
+    <description>Stand Fast's radius increases from 6.9 to 10.4 cells.</description>
+    <category>Warden</category>
+    <order>10</order>
+    <requirements><li><classDef>TSC_Class_Warden</classDef><level>2</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_StandFast</ability><radiusFactor>1.5</radiusFactor></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Unmoved</defName>
+    <label>unmoved</label>
+    <description>Second Wind heals 67% more and removes one timed affliction.</description>
+    <category>Warden</category>
+    <order>20</order>
+    <requirements><li><classDef>TSC_Class_Warden</classDef><level>3</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_SecondWind</ability><healBonusFactor>1.67</healBonusFactor><removesOneDebuff>true</removesOneDebuff></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Unignorable</defName>
+    <label>unignorable</label>
+    <description>Enemies caught in Challenge turn to attack the warden.</description>
+    <category>Warden</category>
+    <order>30</order>
+    <requirements><li><classDef>TSC_Class_Warden</classDef><level>5</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Challenge</ability><tauntCaster>true</tauntCaster></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ Cleric -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_SharedBlessing</defName>
+    <label>shared blessing</label>
+    <description>Blessing also applies to a second ally within 7 cells of the target, at full strength.</description>
+    <category>Cleric</category>
+    <order>10</order>
+    <requirements><li><classDef>TSC_Class_Cleric</classDef><level>2</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Blessing</ability><duplicateToNearbyAlly>true</duplicateToNearbyAlly><allyRadius>6.9</allyRadius></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_WarmHands</defName>
+    <label>warm hands</label>
+    <description>Healing Touch also stops all bleeding on the target.</description>
+    <category>Cleric</category>
+    <order>20</order>
+    <requirements><li><classDef>TSC_Class_Cleric</classDef><level>3</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_HealingTouch</ability><stopsBleeding>true</stopsBleeding></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Chaplain</defName>
+    <label>chaplain</label>
+    <description>Allies within 10 cells get -0.12 mental break threshold.</description>
+    <category>Cleric</category>
+    <order>30</order>
+    <requirements><li><classDef>TSC_Class_Cleric</classDef><level>3</level></li></requirements>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Purge</defName>
+    <label>purge</label>
+    <description>Cleanse's cooldown is reduced to a quarter.</description>
+    <category>Cleric</category>
+    <order>40</order>
+    <requirements><li><classDef>TSC_Class_Cleric</classDef><level>4</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Cleanse</ability><cooldownFactor>0.25</cooldownFactor></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ Bard -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_CarryingVoice</defName>
+    <label>carrying voice</label>
+    <description>Battle Hymn, Dirge, and Song of Rest radius +25%. Stacks with instrument bonuses.</description>
+    <category>Bard</category>
+    <order>10</order>
+    <requirements><li><classDef>TSC_Class_Bard</classDef><level>2</level></li></requirements>
+    <abilityMods>
+      <li><ability>TSC_Ability_BattleHymn</ability><radiusFactor>1.25</radiusFactor></li>
+      <li><ability>TSC_Ability_Dirge</ability><radiusFactor>1.25</radiusFactor></li>
+      <li><ability>TSC_Ability_SongOfRest</ability><radiusFactor>1.25</radiusFactor></li>
+    </abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_WarSong</defName>
+    <label>war song</label>
+    <description>Allies under Battle Hymn also gain +8% shooting accuracy.</description>
+    <category>Bard</category>
+    <order>20</order>
+    <requirements><li><classDef>TSC_Class_Bard</classDef><level>2</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_BattleHymn</ability><extraHediff>TSC_Hediff_Feat_WarSong</extraHediff></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_LingeringLament</defName>
+    <label>lingering lament</label>
+    <description>Dirge lasts 70 seconds instead of 40.</description>
+    <category>Bard</category>
+    <order>30</order>
+    <requirements><li><classDef>TSC_Class_Bard</classDef><level>3</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Dirge</ability><durationFactor>1.75</durationFactor></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Encore</defName>
+    <label>encore</label>
+    <description>Song of Rest restores the bard's own energy along with the company's.</description>
+    <category>Bard</category>
+    <order>40</order>
+    <requirements><li><classDef>TSC_Class_Bard</classDef><level>5</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_SongOfRest</ability><energyRestoreIncludesCaster>true</energyRestoreIncludesCaster></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ Rogue -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_LightFingers</defName>
+    <label>light fingers</label>
+    <description>+2 Thievery. Failed check-spot attempts never wake dormant creatures.</description>
+    <category>Rogue</category>
+    <order>10</order>
+    <requirements><li><classDef>TSC_Class_Rogue</classDef><level>2</level></li></requirements>
+    <proficiencyBonuses><li><proficiency>TSC_Prof_Thievery</proficiency><bonus>2</bonus></li></proficiencyBonuses>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_KillingWindow</defName>
+    <label>killing window</label>
+    <description>A target that dies while Marked for Death refunds the mark's energy cost.</description>
+    <category>Rogue</category>
+    <order>20</order>
+    <requirements><li><classDef>TSC_Class_Rogue</classDef><level>3</level></li></requirements>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Ghost</defName>
+    <label>ghost</label>
+    <description>Vanish's cooldown is reduced by 40%.</description>
+    <category>Rogue</category>
+    <order>30</order>
+    <requirements><li><classDef>TSC_Class_Rogue</classDef><level>5</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Vanish</ability><cooldownFactor>0.6</cooldownFactor></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ Wizard -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_FocusedWard</defName>
+    <label>focused ward</label>
+    <description>Arcane Ward reduces incoming damage by 65% instead of 50%.</description>
+    <category>Wizard</category>
+    <order>10</order>
+    <requirements><li><classDef>TSC_Class_Wizard</classDef><level>2</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_ArcaneWard</ability><extraHediff>TSC_Hediff_Feat_FocusedWard</extraHediff></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_HeavyCurse</defName>
+    <label>heavy curse</label>
+    <description>Leaden Curse also reduces the target's shooting accuracy by 25%.</description>
+    <category>Wizard</category>
+    <order>20</order>
+    <requirements><li><classDef>TSC_Class_Wizard</classDef><level>3</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_LeadenCurse</ability><extraHediff>TSC_Hediff_Feat_HeavyCurse</extraHediff></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_EfficientCasting</defName>
+    <label>efficient casting</label>
+    <description>Every spell costs 20% less energy.</description>
+    <category>Wizard</category>
+    <order>30</order>
+    <requirements><li><classDef>TSC_Class_Wizard</classDef><level>3</level></li></requirements>
+    <energyCostFactor>0.8</energyCostFactor>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_StepTwice</defName>
+    <label>step twice</label>
+    <description>Blink's cooldown is reduced by half.</description>
+    <category>Wizard</category>
+    <order>40</order>
+    <requirements><li><classDef>TSC_Class_Wizard</classDef><level>5</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Blink</ability><cooldownFactor>0.5</cooldownFactor></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ Sorcerer -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_ForkedLightning</defName>
+    <label>forked lightning</label>
+    <description>Arc Lightning's radius increases from 3.9 to 5.4 cells, with +25% armor penetration.</description>
+    <category>Sorcerer</category>
+    <order>10</order>
+    <requirements><li><classDef>TSC_Class_Sorcerer</classDef><level>2</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_ArcLightning</ability><radiusFactor>1.38</radiusFactor><armorPenetrationBonus>0.25</armorPenetrationBonus></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Kindled</defName>
+    <label>kindled</label>
+    <description>Scorch sets the target on fire.</description>
+    <category>Sorcerer</category>
+    <order>20</order>
+    <requirements><li><classDef>TSC_Class_Sorcerer</classDef><level>3</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Scorch</ability><igniteTarget>true</igniteTarget></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Overchannel</defName>
+    <label>overchannel</label>
+    <description>Spells can be cast without enough energy; the shortfall is paid in burn damage.</description>
+    <category>Sorcerer</category>
+    <order>30</order>
+    <requirements><li><classDef>TSC_Class_Sorcerer</classDef><level>3</level></li></requirements>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Wildfire</defName>
+    <label>wildfire</label>
+    <description>Firestorm's radius increases from 3.5 to 4.6 cells.</description>
+    <category>Sorcerer</category>
+    <order>40</order>
+    <requirements><li><classDef>TSC_Class_Sorcerer</classDef><level>4</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Firestorm</ability><radiusFactor>1.3</radiusFactor></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ Barbarian -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_BloodiedFury</defName>
+    <label>bloodied fury</label>
+    <description>Rage's strength increases with the barbarian's missing health when cast.</description>
+    <category>Barbarian</category>
+    <order>10</order>
+    <requirements><li><classDef>TSC_Class_Barbarian</classDef><level>2</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Rage</ability><scaleWithMissingHealth>true</scaleWithMissingHealth></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Reckless</defName>
+    <label>reckless</label>
+    <description>+15% melee damage, +10% damage taken.</description>
+    <category>Barbarian</category>
+    <order>20</order>
+    <requirements><li><classDef>TSC_Class_Barbarian</classDef><level>3</level></li></requirements>
+    <hediff>TSC_Hediff_Feat_Reckless</hediff>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_WontStayDown</defName>
+    <label>won't stay down</label>
+    <description>Unbreakable also removes any active stun when cast.</description>
+    <category>Barbarian</category>
+    <order>30</order>
+    <requirements><li><classDef>TSC_Class_Barbarian</classDef><level>4</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Unbreakable</ability><clearsStun>true</clearsStun></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Cleave</defName>
+    <label>cleave</label>
+    <description>Whirlwind's radius increases from 1.9 to 2.9 cells.</description>
+    <category>Barbarian</category>
+    <order>40</order>
+    <requirements><li><classDef>TSC_Class_Barbarian</classDef><level>5</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Whirlwind</ability><radiusFactor>1.5</radiusFactor></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ Druid -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Thorns</defName>
+    <label>thorns</label>
+    <description>Bramble Snare also deals 8 damage when applied.</description>
+    <category>Druid</category>
+    <order>10</order>
+    <requirements><li><classDef>TSC_Class_Druid</classDef><level>2</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_BrambleSnare</ability><extraDamageOnApply>8</extraDamageOnApply></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Herbcraft</defName>
+    <label>herbcraft</label>
+    <description>Nature's Balm also heals the nearest other injured ally within 5 cells, at half strength.</description>
+    <category>Druid</category>
+    <order>20</order>
+    <requirements><li><classDef>TSC_Class_Druid</classDef><level>2</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_NaturesBalm</ability><healSecondAllyHalf>true</healSecondAllyHalf></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_DeepRoots</defName>
+    <label>deep roots</label>
+    <description>Barkskin also grants 10% less incoming damage.</description>
+    <category>Druid</category>
+    <order>30</order>
+    <requirements><li><classDef>TSC_Class_Druid</classDef><level>4</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_Barkskin</ability><extraHediff>TSC_Hediff_Feat_DeepRoots</extraHediff></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_PackBond</defName>
+    <label>pack bond</label>
+    <description>The summoned bear lasts 50% longer and takes 20% less damage.</description>
+    <category>Druid</category>
+    <order>40</order>
+    <requirements><li><classDef>TSC_Class_Druid</classDef><level>6</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_SummonBear</ability><durationFactor>1.5</durationFactor><extraHediff>TSC_Hediff_Feat_PackBond</extraHediff></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ Monk -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_StillMind</defName>
+    <label>still mind</label>
+    <description>Inner Calm also restores 15 energy.</description>
+    <category>Monk</category>
+    <order>10</order>
+    <requirements><li><classDef>TSC_Class_Monk</classDef><level>2</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_InnerCalm</ability><restoreCasterEnergy>15</restoreCasterEnergy></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_OpenHand</defName>
+    <label>open hand</label>
+    <description>Unarmed strikes deal 20% more damage.</description>
+    <category>Monk</category>
+    <order>20</order>
+    <requirements><li><classDef>TSC_Class_Monk</classDef><level>3</level></li></requirements>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_PressurePoint</defName>
+    <label>pressure point</label>
+    <description>Stunning Palm lasts 50% longer.</description>
+    <category>Monk</category>
+    <order>30</order>
+    <requirements><li><classDef>TSC_Class_Monk</classDef><level>4</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_StunningPalm</ability><durationFactor>1.5</durationFactor></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ Paladin -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_GreaterLayOnHands</defName>
+    <label>greater lay on hands</label>
+    <description>Lay On Hands heals 50% more.</description>
+    <category>Paladin</category>
+    <order>10</order>
+    <requirements><li><classDef>TSC_Class_Paladin</classDef><level>2</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_LayOnHands</ability><healBonusFactor>1.5</healBonusFactor></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Judgement</defName>
+    <label>judgement</label>
+    <description>All player attacks deal 10% more damage against a Righteous Brand target.</description>
+    <category>Paladin</category>
+    <order>20</order>
+    <requirements><li><classDef>TSC_Class_Paladin</classDef><level>3</level></li></requirements>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Oathbound</defName>
+    <label>oathbound</label>
+    <description>The paladin gets -0.10 mental break threshold. Allies within 8 cells gain +10% sharp and blunt armor.</description>
+    <category>Paladin</category>
+    <order>30</order>
+    <requirements><li><classDef>TSC_Class_Paladin</classDef><level>3</level></li></requirements>
+    <hediff>TSC_Hediff_Feat_Oathbound</hediff>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_UnyieldingAura</defName>
+    <label>unyielding aura</label>
+    <description>Aura of Courage's radius increases from 9.9 to 14.9 cells.</description>
+    <category>Paladin</category>
+    <order>40</order>
+    <requirements><li><classDef>TSC_Class_Paladin</classDef><level>4</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_AuraOfCourage</ability><radiusFactor>1.5</radiusFactor></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ Ranger -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_CalledShot</defName>
+    <label>called shot</label>
+    <description>Charged Shot grants one additional empowered shot.</description>
+    <category>Ranger</category>
+    <order>10</order>
+    <requirements><li><classDef>TSC_Class_Ranger</classDef><level>2</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_ChargedShot</ability><severityBonus>1</severityBonus></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Trailcraft</defName>
+    <label>trailcraft</label>
+    <description>+2 Survival and +2 Nature.</description>
+    <category>Ranger</category>
+    <order>20</order>
+    <requirements><li><classDef>TSC_Class_Ranger</classDef><level>2</level></li></requirements>
+    <proficiencyBonuses>
+      <li><proficiency>TSC_Prof_Survival</proficiency><bonus>2</bonus></li>
+      <li><proficiency>TSC_Prof_Nature</proficiency><bonus>2</bonus></li>
+    </proficiencyBonuses>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_PredatorsFocus</defName>
+    <label>predator's focus</label>
+    <description>The ranger's attacks deal 15% more damage against a Hunted target.</description>
+    <category>Ranger</category>
+    <order>30</order>
+    <requirements><li><classDef>TSC_Class_Ranger</classDef><level>3</level></li></requirements>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Quickstring</defName>
+    <label>quickstring</label>
+    <description>Swift Quiver also grants +8% shooting accuracy.</description>
+    <category>Ranger</category>
+    <order>40</order>
+    <requirements><li><classDef>TSC_Class_Ranger</classDef><level>4</level></li></requirements>
+    <abilityMods><li><ability>TSC_Ability_SwiftQuiver</ability><extraHediff>TSC_Hediff_Feat_Quickstring</extraHediff></li></abilityMods>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ support hediffs -->
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_WarSong</defName>
+    <label>war song</label>
+    <description>The hymn keeps the hands honest.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears"><disappearsAfterTicks>7200</disappearsAfterTicks></li>
+    </comps>
+    <stages><li><statOffsets><ShootingAccuracyPawn>0.08</ShootingAccuracyPawn></statOffsets></li></stages>
+  </HediffDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_FocusedWard</defName>
+    <label>focused ward</label>
+    <description>The ward, wound tighter.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears"><disappearsAfterTicks>7200</disappearsAfterTicks></li>
+    </comps>
+    <stages><li><statFactors><IncomingDamageFactor>0.70</IncomingDamageFactor></statFactors></li></stages>
+  </HediffDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_HeavyCurse</defName>
+    <label>heavy curse</label>
+    <description>The lead is in the eyes now too.</description>
+    <isBad>true</isBad>
+    <defaultLabelColor>(0.6, 0.6, 0.75)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears"><disappearsAfterTicks>2700</disappearsAfterTicks></li>
+    </comps>
+    <stages><li><statOffsets><ShootingAccuracyPawn>-0.25</ShootingAccuracyPawn></statOffsets></li></stages>
+  </HediffDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_DeepRoots</defName>
+    <label>deep roots</label>
+    <description>The bark goes down to something older.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears"><disappearsAfterTicks>7200</disappearsAfterTicks></li>
+    </comps>
+    <stages><li><statFactors><IncomingDamageFactor>0.90</IncomingDamageFactor></statFactors></li></stages>
+  </HediffDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_Reckless</defName>
+    <label>reckless</label>
+    <description>All sword, no shield.</description>
+    <stages>
+      <li>
+        <statFactors>
+          <MeleeDamageFactor>1.15</MeleeDamageFactor>
+          <IncomingDamageFactor>1.10</IncomingDamageFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_PackBond</defName>
+    <label>pack bond</label>
+    <description>Called, and held.</description>
+    <stages><li><statFactors><IncomingDamageFactor>0.80</IncomingDamageFactor></statFactors></li></stages>
+  </HediffDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_Oathbound</defName>
+    <label>oathbound</label>
+    <description>The oath holds the mind still.</description>
+    <stages><li><statOffsets><MentalBreakThreshold>-0.10</MentalBreakThreshold></statOffsets></li></stages>
+  </HediffDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_Quickstring</defName>
+    <label>quickstring</label>
+    <description>Fast, and no less careful for it.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears"><disappearsAfterTicks>3600</disappearsAfterTicks></li>
+    </comps>
+    <stages><li><statOffsets><ShootingAccuracyPawn>0.08</ShootingAccuracyPawn></statOffsets></li></stages>
+  </HediffDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_ChaplainAura</defName>
+    <label>steadied</label>
+    <description>Somebody here has seen worse, and says so with their whole bearing.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears"><disappearsAfterTicks>300</disappearsAfterTicks></li>
+    </comps>
+    <stages><li><statOffsets><MentalBreakThreshold>-0.12</MentalBreakThreshold></statOffsets></li></stages>
+  </HediffDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_OathboundAura</defName>
+    <label>under the oath</label>
+    <description>Standing near the paladin, some of the discipline rubs off.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears"><disappearsAfterTicks>300</disappearsAfterTicks></li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <ArmorRating_Sharp>0.10</ArmorRating_Sharp>
+          <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ================================================ the starred four -->
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_OpportunityAttacks</defName>
+    <label>opportunity attacks</label>
+    <description>When an enemy moves out of melee range, the warden automatically makes one melee attack against them. At most once every 10 seconds.</description>
+    <category>Warden</category>
+    <order>15</order>
+    <requirements><li><classDef>TSC_Class_Warden</classDef><level>3</level></li></requirements>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Backstab</defName>
+    <label>backstab</label>
+    <description>Melee attacks deal 50% more damage against targets that are asleep, stunned, downed, fighting someone else, or attacked while the rogue is invisible.</description>
+    <category>Rogue</category>
+    <order>5</order>
+    <requirements><li><classDef>TSC_Class_Rogue</classDef><level>2</level></li></requirements>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_RunningStart</defName>
+    <label>running start</label>
+    <description>In turn-based combat, attacking after moving costs 1 less action point. In real time, melee attacks within 5 seconds of moving are 20% faster.</description>
+    <category>Monk</category>
+    <order>5</order>
+    <requirements><li><classDef>TSC_Class_Monk</classDef><level>2</level></li></requirements>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_LastStand</defName>
+    <label>last stand</label>
+    <description>When this pawn would be downed, they stay standing for 5 more seconds instead. At most once every 10 seconds.</description>
+    <order>110</order>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_RunningStart</defName>
+    <label>running start</label>
+    <description>Still carrying the speed of the last few steps.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears"><disappearsAfterTicks>300</disappearsAfterTicks></li>
+    </comps>
+    <stages><li><statFactors><MeleeCooldownFactor>0.8</MeleeCooldownFactor></statFactors></li></stages>
+  </HediffDef>
+
+</Defs>

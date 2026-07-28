@@ -239,6 +239,41 @@
     </parts>
   </LayoutRoomDef>
 
+  <!-- The same crypt gallery, for places built almost ENTIRELY out of crypt
+       galleries.
+
+       TSC_Crypt's 0.75 nest chance is tuned for the moss barrow, where the
+       room is one of three types on a small map and a low roll risks an
+       empty dungeon. The Sunken Cellars and the procedural delves give this
+       room a weight of 4 to 6 against a total of 7 to 9, so two rooms in
+       three ARE crypts - and at 0.75 that meant a nest in very nearly every
+       room, on top of the loose vermin the genstep scatters. Three floors of
+       unbroken insects is not a dungeon, it is a chore.
+
+       0.4 puts a nest in roughly every other crypt, which leaves quiet rooms
+       to search, corners to be ambushed from, and somewhere to retreat to. -->
+  <LayoutRoomDef>
+    <defName>TSC_CryptQuiet</defName>
+    <canMergeWithAdjacentRoom>true</canMergeWithAdjacentRoom>
+    <floorTypes>
+      <li>FlagstoneGranite</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_SarcophagusPair>
+        <countPerHundredCells>2</countPerHundredCells>
+        <minMaxRange>1~4</minMaxRange>
+      </TSC_SarcophagusPair>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>0~2</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+    <parts>
+      <Corpse>0.4</Corpse>
+      <DormantInsectCluster>0.4</DormantInsectCluster>
+    </parts>
+  </LayoutRoomDef>
+
   <!-- Mosskeeper's cell (Act 1 sidequest). The moss itself lies loose on
        the crypt floor - spawned by GenStep_TSC_BarrowCrypt, no chest. -->
   <LayoutRoomDef>

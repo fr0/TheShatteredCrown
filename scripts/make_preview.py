@@ -110,6 +110,16 @@ def plate(img, height_frac):
     return img, ph
 
 
+def fitted_font(d, text, name, size, max_w):
+    """Shrink until the line fits: a title clipped at the edges is worse than a smaller one."""
+    while size > 12:
+        f = font(name, size)
+        if d.textbbox((0, 0), text, font=f)[2] <= max_w:
+            return f
+        size -= 2
+    return font(name, 12)
+
+
 def centered(d, text, fnt, y, w, fill):
     tw = d.textbbox((0, 0), text, font=fnt)[2]
     x = (w - tw) // 2
@@ -124,8 +134,10 @@ def build_tile():
     img, ph = plate(img, 0.32)
     d = ImageDraw.Draw(img)
     top = h - ph + int(ph * 0.14)
-    centered(d, TITLE, font("georgiab.ttf", 74), top, w, GOLD)
-    centered(d, SUBTITLE, font("georgia.ttf", 30), top + 84, w, PARCHMENT)
+    tf = fitted_font(d, TITLE, "georgiab.ttf", 74, int(w * 0.90))
+    centered(d, TITLE, tf, top, w, GOLD)
+    centered(d, SUBTITLE, fitted_font(d, SUBTITLE, "georgia.ttf", 30, int(w * 0.82)),
+             top + tf.size + 12, w, PARCHMENT)
     out = os.path.join(ROOT, "About", "Preview.png")
     img.convert("RGB").save(out, optimize=True)
     return out
@@ -163,7 +175,42 @@ def build_gallery():
     return made
 
 
+def build_banner():
+    """
+    Wide header art for the top of the Steam DESCRIPTION (not the tile).
+    Steam renders description images at roughly 600-960px wide, so this is
+    built short and wide: title big, gameplay behind it, nothing important
+    near the edges where narrow browsers crop.
+    """
+    w, h = 1200, 400
+    src = Image.open(os.path.join(SHOTS, "turn_order.png")).convert("RGB")
+    scaled_w = int(src.width * (h / src.height) * 1.25)
+    src = src.resize((scaled_w, int(h * 1.25)), Image.LANCZOS)
+    left = max(0, (src.width - w) // 2)
+    img = src.crop((left, 0, left + w, h))
+    img = grade(img, brightness=1.25)
+    # Heavier scrim than the tile: the title has to win here.
+    scrim = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    sd = ImageDraw.Draw(scrim)
+    for y in range(h):
+        sd.line([(0, y), (w, y)], fill=(8, 7, 6, int(150 + 80 * (y / h))))
+    img = img.convert("RGBA")
+    img.alpha_composite(scrim)
+    d = ImageDraw.Draw(img)
+    tf = fitted_font(d, TITLE, "georgiab.ttf", 92, int(w * 0.88))
+    centered(d, TITLE, tf, int(h * 0.30), w, GOLD)
+    centered(d, SUBTITLE, fitted_font(d, SUBTITLE, "georgia.ttf", 34, int(w * 0.80)),
+             int(h * 0.30) + tf.size + 18, w, PARCHMENT)
+    d.line([(int(w * 0.18), int(h * 0.88)), (int(w * 0.82), int(h * 0.88))],
+           fill=GOLD + (150,), width=2)
+    out = os.path.join(SHOTS, "banner.png")
+    img.convert("RGB").save(out, optimize=True)
+    return out
+
+
 def main():
+    banner = build_banner()
+    print("banner:  %s (%.0f KB)" % (os.path.normpath(banner), os.path.getsize(banner) / 1024))
     tile = build_tile()
     print("tile:    %s (%.0f KB)" % (os.path.normpath(tile), os.path.getsize(tile) / 1024))
     for g in build_gallery():

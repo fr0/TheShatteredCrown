@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using RimWorld;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 using Verse.Sound;
@@ -15,12 +16,61 @@ namespace TheShatteredCrown
     /// </summary>
     public static class TSC_CheckUtility
     {
+        /// <summary>
+        /// DCs drift up as the party grows. Proficiencies climb every level,
+        /// so a fixed DC that read as a real gamble at level 1 becomes a
+        /// formality by level 10 and the whole system stops mattering. The
+        /// scaling is DELIBERATELY gentler than proficiency growth: the
+        /// party still gets meaningfully better at what it trained for, it
+        /// just never stops rolling.
+        ///
+        /// +1 DC per 3 levels of the party's best-in-that-skill member,
+        /// capped at +4 so nothing becomes unreachable, and never applied
+        /// below level 3 (the opening hours play exactly as authored).
+        /// </summary>
+        private const int LevelsPerStep = 3;
+        private const int MaxScaling = 4;
+        private const int FreeLevels = 2;
+
+        public static int ScaledDc(Pawn pawn, TSC_ProficiencyDef prof, int baseDc)
+        {
+            int level = PartyLevelFor(prof);
+            if (level <= FreeLevels)
+            {
+                return baseDc;
+            }
+            int step = Mathf.Min(MaxScaling, (level - FreeLevels) / LevelsPerStep);
+            return baseDc + step;
+        }
+
+        /// <summary>
+        /// The party's ceiling in this proficiency, not the roller's: the
+        /// world reacts to how capable the COMPANY has become, so sending
+        /// your worst reader at a Lore check is still a bad idea, but it
+        /// does not dodge the scaling either.
+        /// </summary>
+        private static int PartyLevelFor(TSC_ProficiencyDef prof)
+        {
+            if (Verse.Current.Game == null || prof == null)
+            {
+                return 0;
+            }
+            int best = 0;
+            foreach (Pawn pawn in PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists)
+            {
+                best = Mathf.Max(best, TSC_ProgressionManager.Current.EffectiveProficiency(pawn, prof));
+            }
+            return best;
+        }
+
         public static bool Roll(Pawn pawn, TSC_ProficiencyDef prof, int dc, out string line)
         {
+            int scaled = ScaledDc(pawn, prof, dc);
             int roll = Rand.RangeInclusive(1, 10);
             int bonus = TSC_ProgressionManager.Current.EffectiveProficiency(pawn, prof);
-            bool success = roll + bonus >= dc;
-            line = $"{prof.LabelCap} check ({pawn.LabelShortCap}): {roll} + {bonus} = {roll + bonus} vs {dc}: {(success ? "Success!" : "Failure")}";
+            bool success = roll + bonus >= scaled;
+            string drift = scaled != dc ? $" (DC {dc}+{scaled - dc})" : "";
+            line = $"{prof.LabelCap} check ({pawn.LabelShortCap}): {roll} + {bonus} = {roll + bonus} vs {scaled}{drift}: {(success ? "Success!" : "Failure")}";
             return success;
         }
     }

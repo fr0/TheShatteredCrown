@@ -96,7 +96,15 @@
     <kind>TSC_Bard</kind>
     <gender>Female</gender>
     <classDef>TSC_Class_Bard</classDef>
+    <!-- Two winters of singing the crown song in full rooms before the party
+         ever met her: she joins as a working bard, not an apprentice. Her
+         unspent level-up picks are waiting when she signs on. -->
+    <startingLevel>3</startingLevel>
     <plotArmor>true</plotArmor>
+    <!-- The lute is in almost every line she has: wrapped in oilcloth,
+         hugged rather than held, drawn on in charcoal. She has to actually
+         be carrying one. -->
+    <forcedWeapon>TSC_Instrument_Lute</forcedWeapon>
   </TheShatteredCrown.NamedNpcDef>
 
   <!-- Harrowfield village residents (Act 1). Ordinary folk: no plot

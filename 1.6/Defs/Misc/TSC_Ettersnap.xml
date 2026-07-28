@@ -48,7 +48,9 @@
       <baseHealthScale>0.8</baseHealthScale>
       <useMeatFrom>Megaspider</useMeatFrom>
       <lifeExpectancy>80</lifeExpectancy>
-      <trainability>None</trainability>
+      <!-- Advanced: a tamed ettersnap can learn obedience and release -
+           the cave companion who fights beside the party. -->
+      <trainability>Advanced</trainability>
       <lifeStageAges>
         <li>
           <def>EusocialInsectLarva</def>

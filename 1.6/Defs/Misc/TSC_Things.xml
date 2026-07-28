@@ -68,6 +68,113 @@
     </colorGenerator>
   </ThingDef>
 
+  <!-- An open helm, medieval. Vanilla has no head armor below Industrial: the
+       simple helmet and advanced helmet are both Industrial with a Smithing
+       recipe, and everything else at head height is a Neolithic mask or a hat.
+       So the guild's own, on the gambeson's pattern: vanilla helmet art (which
+       is just a plain metal cap, and which this mod already puts on its
+       medieval villagers), medieval techLevel, no recipeMaker and no trade
+       tags, so it stays off crafting benches and random trader stock and
+       reaches the player only through the guild locker. -->
+  <ThingDef ParentName="ApparelBase">
+    <defName>TSC_Apparel_Helm</defName>
+    <label>open helm</label>
+    <description>A one-piece iron helm with a riveted brow band and a short nasal, lined with a sweat-stained cap of quilted linen. It leaves the face open, which is how the wearer keeps track of a fight, and covers everything an overhand blow is likely to find.\n\nThe guild issues these by the crate and stamps the inside of the brow. They are not beautiful. They are the reason a fair number of charter riders still have opinions.</description>
+    <techLevel>Medieval</techLevel>
+    <graphicData>
+      <texPath>Things/Pawn/Humanlike/Apparel/SimpleHelmet/SimpleHelmet</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <uiIconScale>1.4</uiIconScale>
+    <costStuffCount>40</costStuffCount>
+    <stuffCategories>
+      <li>Metallic</li>
+    </stuffCategories>
+    <thingCategories>
+      <li>ApparelArmor</li>
+    </thingCategories>
+    <statBases>
+      <MaxHitPoints>110</MaxHitPoints>
+      <WorkToMake>3200</WorkToMake>
+      <Mass>1.9</Mass>
+      <StuffEffectMultiplierArmor>0.52</StuffEffectMultiplierArmor>
+      <StuffEffectMultiplierInsulation_Cold>0.15</StuffEffectMultiplierInsulation_Cold>
+      <StuffEffectMultiplierInsulation_Heat>0</StuffEffectMultiplierInsulation_Heat>
+      <EquipDelay>1.5</EquipDelay>
+    </statBases>
+    <apparel>
+      <countsAsClothingForNudity>false</countsAsClothingForNudity>
+      <bodyPartGroups>
+        <li>UpperHead</li>
+      </bodyPartGroups>
+      <wornGraphicPath>Things/Pawn/Humanlike/Apparel/SimpleHelmet/SimpleHelmet</wornGraphicPath>
+      <layers>
+        <li>Overhead</li>
+      </layers>
+      <tags>
+        <li>TSC_Helm</li>
+      </tags>
+      <defaultOutfitTags>
+        <li>Soldier</li>
+      </defaultOutfitTags>
+      <canBeDesiredForIdeo>false</canBeDesiredForIdeo>
+    </apparel>
+  </ThingDef>
+
+  <!-- Leg armor for the tier below plate. Vanilla leaves a hole here: plate
+       armor DOES cover Legs, but the only other leg wear is cloth pants
+       (OnSkin, no real armor) and Industrial flak pants. So a party in the
+       cheap kit - gambeson on the torso, helm on the head - had nothing at
+       all on the legs until they could afford full plate.
+
+       Middle layer, so these go over ordinary pants and are REPLACED by
+       plate armor (which claims Middle and Shell on the legs). Wearing both
+       is meant to be impossible; the plate is the upgrade. -->
+  <ThingDef ParentName="ApparelBase">
+    <defName>TSC_Apparel_Chausses</defName>
+    <label>chausses</label>
+    <description>Leg harness in the old style: riveted mail hanging from a belt, split for the saddle, with quilted padding beneath so the rings do not print themselves into the wearer. They are worn over whatever the rider already has on and buckled at the waist.\n\nEverything about them is a compromise. They are heavy, they are loud, and the first time something goes for a rider's legs under a shield they stop being a compromise.</description>
+    <techLevel>Medieval</techLevel>
+    <graphicData>
+      <texPath>Things/Pawn/Humanlike/Apparel/Pants/Pants</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <costStuffCount>60</costStuffCount>
+    <stuffCategories>
+      <li>Metallic</li>
+      <li>Leathery</li>
+    </stuffCategories>
+    <thingCategories>
+      <li>ApparelArmor</li>
+    </thingCategories>
+    <statBases>
+      <MaxHitPoints>130</MaxHitPoints>
+      <WorkToMake>4200</WorkToMake>
+      <Mass>3.4</Mass>
+      <StuffEffectMultiplierArmor>0.42</StuffEffectMultiplierArmor>
+      <StuffEffectMultiplierInsulation_Cold>0.25</StuffEffectMultiplierInsulation_Cold>
+      <StuffEffectMultiplierInsulation_Heat>0</StuffEffectMultiplierInsulation_Heat>
+      <EquipDelay>2.5</EquipDelay>
+    </statBases>
+    <apparel>
+      <countsAsClothingForNudity>false</countsAsClothingForNudity>
+      <bodyPartGroups>
+        <li>Legs</li>
+      </bodyPartGroups>
+      <wornGraphicPath>Things/Pawn/Humanlike/Apparel/Pants/Pants</wornGraphicPath>
+      <layers>
+        <li>Middle</li>
+      </layers>
+      <tags>
+        <li>TSC_Chausses</li>
+      </tags>
+      <defaultOutfitTags>
+        <li>Soldier</li>
+      </defaultOutfitTags>
+      <canBeDesiredForIdeo>false</canBeDesiredForIdeo>
+    </apparel>
+  </ThingDef>
+
   <!-- Sealed loot chests. Inherit the Odyssey openable-crate base so we get the
        open/close graphics and the "open" interaction for free; each variant just
        binds its own loot table. -->
@@ -505,6 +612,84 @@
     </comps>
   </ThingDef>
 
+  <!-- The delve objective, and only it: the strongbox rides inside a sealed
+       crate rather than lying on the floor, so recovering it means getting
+       the crate open. -->
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_Strongbox</defName>
+    <root Class="ThingSetMaker_Sum">
+      <options>
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>TSC_GuildStrongbox</li>
+                </thingDefs>
+              </filter>
+              <countRange>1</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Silver</li>
+                </thingDefs>
+              </filter>
+              <countRange>40~110</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+  <!-- The crate the contract is actually about. Same sealed-crate machinery
+       as the other chests (so the proficiency checks gate it), but its
+       contents are guaranteed: this is the job. -->
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_StrongboxCrate</defName>
+    <label>guild strongbox crate</label>
+    <description>A shipping crate under a guild lock, the kind couriers were told never to open. The seal is intact, which after all these years says something about the people who died around it.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_Strongbox</contents>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Thievery</proficiency>
+            <dc>8</dc>
+            <label>Pick the guild lock (quiet)</label>
+            <successOpens>true</successOpens>
+            <successXp>35</successXp>
+            <successMessage>Guild locks are made by guild locksmiths, and they all have the same conceit in the third ward. The lid comes up without a sound.</successMessage>
+            <failOpens>true</failOpens>
+            <failWakesDormant>true</failWakesDormant>
+            <failMessage>The pick binds and the hasp lets go all at once. The crate is open and the noise went everywhere.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>7</dc>
+            <label>Break the seal open (loud)</label>
+            <successOpens>true</successOpens>
+            <successXp>25</successXp>
+            <successWakesDormant>true</successWakesDormant>
+            <successMessage>The strapping gives on the third heave. The guild will dock you for the crate and pay you for the box.</successMessage>
+            <failOpens>true</failOpens>
+            <failDamage>8</failDamage>
+            <failDamageDef>Blunt</failDamageDef>
+            <failWakesDormant>true</failWakesDormant>
+            <failMessage>The lid goes, and so does your grip: the iron strap comes back across your hands. Open, at a price, loudly.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
   <ThingSetMakerDef>
     <defName>TSC_Loot_ContractChest</defName>
     <root Class="ThingSetMaker_Sum">
@@ -844,11 +1029,15 @@
   <ThingDef ParentName="ResourceBase">
     <defName>TSC_GuildStrongbox</defName>
     <label>guild strongbox</label>
-    <description>An iron-banded lockbox under the Wayfarers' seal, lost in transit years ago and written off. The guild pays for its return and does not discuss what is inside.</description>
+    <description>An iron-banded lockbox under the Wayfarers' seal, lost in transit years ago and written off. The guild pays for its return and does not discuss what is inside.\n\nThe brasswork is kept bright on purpose: a courier who cannot find their own strongbox in a dark room is no use to anybody.</description>
+    <!-- Its own sprite rather than the shared loot chest, and drawn larger:
+         near-black iron with bright brass banding and a red wax seal, so it
+         reads against both desert dirt and cave floor. It was getting lost
+         on both. -->
     <graphicData>
-      <texPath>Things/Building/TSC_LootChest</texPath>
+      <texPath>Things/Item/TSC_GuildStrongbox</texPath>
       <graphicClass>Graphic_Single</graphicClass>
-      <drawSize>0.8</drawSize>
+      <drawSize>1.15</drawSize>
     </graphicData>
     <techLevel>Medieval</techLevel>
     <stackLimit>1</stackLimit>

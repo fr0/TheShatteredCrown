@@ -56,6 +56,9 @@ namespace TheShatteredCrown
             harmony.PatchAll();
             TSC_Compat_RealFoW.TryPatch(harmony);
             TSC_Compat_CE.Init();
+            // Push the configured quest-completion mood into its thought def
+            // (defs load before settings are read).
+            TSC_QuestMood.ApplySetting();
         }
     }
 

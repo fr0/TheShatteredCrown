@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Adventure Mode contracts, round two. Parent is TSC_ContractBase,
+       declared in TSC_Contracts.xml.
+
+       The first four templates were three variations on "kill what is
+       there" plus a fetch. These two are neither: a nest that rewards
+       reading the building before entering it, and a rescue whose success
+       condition is a person rather than a body count.
+       ================================================================ -->
+
+  <!-- ============ Contract: burn out a nest ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Nest</defName>
+    <defaultChallengeRating>2</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [nt_name]</li>
+        <li>nt_name->Something in the Walls</li>
+        <li>nt_name->The Tenants</li>
+        <li>nt_name->Bad Ground</li>
+        <li>nt_name->What Took the Roof</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[nt_flavor]\n\nClear the building out. Look the place over before you commit to a room - whatever is in there knows the floor plan and you do not.\n\nPay is charter silver and guild coin.</li>
+        <li>nt_flavor->A waystation the guild still owns has stopped answering. The last rider to look through a window did not go inside.</li>
+        <li>nt_flavor->An old works on the guild's books has been filling up from underneath. Nobody noticed until the well went bad.</li>
+        <li>nt_flavor->Insects have taken a building the guild wants back before winter. When the roads close there is nowhere else to shelter on that stretch.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript">
+          <def>Util_AdjustPointsForDistantFight</def>
+        </li>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>3~11</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_ContractNest</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelNestLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextNestLost">The works came down before the job was done. The guild strikes the contract. No payment, no penalty.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelNestDone">Contract complete</label>
+                <text TKey="LetterTextNestDone">The building is empty. The guild will have masons in it before the month is out.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>200</xp>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver">
+                <amount>320</amount>
+                <coins>4</coins>
+              </li>
+            </nodes>
+          </node>
+        </li>
+        <li Class="QuestNode_End">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <outcome>Success</outcome>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Contract: get the rider back ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Rescue</defName>
+    <defaultChallengeRating>2</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [rs_name]</li>
+        <li>rs_name->The Missing Rider</li>
+        <li>rs_name->Paid For Breathing</li>
+        <li>rs_name->One of Ours</li>
+        <li>rs_name->The Overdue Charter</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[rs_flavor]\n\nThe holdfast is marked on your map. Get them out alive. The guild pays for the rider, not for the crew, so how you do it is your business.\n\nCharter silver and guild coin, on their return.</li>
+        <li>rs_flavor->A charter rider went out with a satchel and did not come back. A ransom demand did, in a hand the guild recognises.</li>
+        <li>rs_flavor->One of the guild's own is being held for a price the guild will not pay. The factor was careful to say that is not the same as leaving them there.</li>
+        <li>rs_flavor->A crew took a rider off the road three weeks ago and has fed them since. That means they want the money more than the trouble. It will not last.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript">
+          <def>Util_AdjustPointsForDistantFight</def>
+        </li>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="QuestNode_Set">
+          <name>siteDistRange</name>
+          <value>3~11</value>
+        </li>
+        <li Class="QuestNode_GetSiteTile">
+          <storeAs>siteTile</storeAs>
+          <preferCloserTiles>true</preferCloserTiles>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_ContractCaptive</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <!-- Medieval-only holders, same as the bandit camp contract -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetBanditFaction">
+          <storeAs>siteFaction</storeAs>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelRescueLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextRescueLost">The holdfast scattered and took the rider with them. The guild strikes the contract. No payment, no penalty.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- Completion is the RIDER, not the fight. Whether the holdfast is
+             cleared first, last, or talked around is the player's business;
+             the guild is paying for somebody walking back out. -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectPawnAcquired">
+          <kind>Villager</kind>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelRescueDone">Contract complete</label>
+                <text TKey="LetterTextRescueDone">The rider is out and on their feet. The guild pays the charter rate, and notes which company brought them back.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>200</xp>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver">
+                <amount>300</amount>
+                <coins>5</coins>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

@@ -85,7 +85,7 @@
   <ThingDef ParentName="TSC_CellarStairsBase">
     <defName>TSC_CellarStairs_ToReliquary</defName>
     <label>stair to the reliquary</label>
-    <description>The last stair. It is dressed stone, not cut rock, and someone bothered to carve the risers: nine of them, each with a road on it. The singing is not faint here.</description>
+    <description>The last stair. It is dressed stone, not cut rock, and someone bothered to carve the risers: five of them, each with a road on it. The singing is not faint here.</description>
     <portal>
       <pocketMapGenerator>TSC_Cellars_Reliquary</pocketMapGenerator>
       <exitDef>CaveExit</exitDef>
@@ -171,9 +171,11 @@
       <stairsDef>TSC_CellarStairs_ToOssuary</stairsDef>
       <vermin>Megascarab</vermin>
       <verminCount>4~6</verminCount>
+      <maxDormantPacks>2</maxDormantPacks>
       <spots>
         <li>TSC_BeggarsCamp</li>
         <li>TSC_SluiceWheel</li>
+        <li>TSC_LootChest</li>
       </spots>
     </genStep>
   </GenStepDef>
@@ -188,9 +190,11 @@
       <stairsDef>TSC_CellarStairs_ToReliquary</stairsDef>
       <vermin>Spelopede</vermin>
       <verminCount>2~4</verminCount>
+      <maxDormantPacks>2</maxDormantPacks>
       <spots>
         <li>TSC_ChoirBones</li>
         <li>TSC_RottedSpan</li>
+        <li>TSC_LootChest</li>
       </spots>
     </genStep>
   </GenStepDef>
@@ -204,6 +208,7 @@
       <size>40</size>
       <vermin>Megaspider</vermin>
       <verminCount>1~2</verminCount>
+      <maxDormantPacks>1</maxDormantPacks>
     </genStep>
   </GenStepDef>
 
@@ -333,9 +338,8 @@
     <altitudeLayer>Building</altitudeLayer>
     <graphicData>
       <graphicClass>Graphic_Single</graphicClass>
-      <texPath>Things/Building/TSC_ShrineAltar</texPath>
-      <drawSize>(1.15,1.15)</drawSize>
-      <color>(200,190,165)</color>
+      <texPath>Things/Building/TSC_ChoirBones</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
     </graphicData>
     <statBases>
       <MaxHitPoints>200</MaxHitPoints>
@@ -349,6 +353,12 @@
       <expandHomeArea>false</expandHomeArea>
     </building>
     <comps>
+      <!-- Seen before it is used: walking into the gallery with line of
+           sight opens the introduction once per save. -->
+      <li Class="TheShatteredCrown.CompProperties_TSC_ProximityDialogue">
+        <dialogue>TSC_Dialogue_ChoirSight</dialogue>
+        <radius>7.9</radius>
+      </li>
       <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
         <approaches>
           <li>
@@ -450,7 +460,7 @@
   <ThingDef ParentName="BuildingBase">
     <defName>TSC_ReliquaryAltar</defName>
     <label>reliquary altar</label>
-    <description>A low table of white stone with nine sockets cut into its face. Eight are empty. It was made to hold a crown that no longer exists in one piece, by people who believed it would be brought back to them.</description>
+    <description>A low table of white stone with five sockets cut into its face. Four are empty. It was made to hold a crown that no longer exists in one piece, by people who believed it would be brought back to them.</description>
     <size>(2,1)</size>
     <rotatable>false</rotatable>
     <passability>PassThroughOnly</passability>
@@ -549,7 +559,7 @@
       <li Class="TheShatteredCrown.CompProperties_TSC_Kingsblade">
         <hediff>TSC_Hediff_Kingsblade</hediff>
         <shardDef>TSC_CrownShard</shardDef>
-        <maxShards>9</maxShards>
+        <maxShards>5</maxShards>
       </li>
     </comps>
   </ThingDef>
@@ -565,7 +575,7 @@
     <hediffClass>HediffWithComps</hediffClass>
     <isBad>false</isBad>
     <everCurableByItem>false</everCurableByItem>
-    <maxSeverity>9</maxSeverity>
+    <maxSeverity>5</maxSeverity>
     <defaultLabelColor>(0.95, 0.85, 0.45)</defaultLabelColor>
     <comps>
       <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
@@ -585,7 +595,7 @@
         </statFactors>
       </li>
       <li>
-        <minSeverity>3</minSeverity>
+        <minSeverity>2</minSeverity>
         <label>remembering</label>
         <statOffsets>
           <MeleeHitChance>4</MeleeHitChance>
@@ -597,7 +607,7 @@
         </statFactors>
       </li>
       <li>
-        <minSeverity>6</minSeverity>
+        <minSeverity>4</minSeverity>
         <label>crowned</label>
         <statOffsets>
           <MeleeHitChance>7</MeleeHitChance>
@@ -632,7 +642,7 @@
   <TheShatteredCrown.NamedNpcDef>
     <defName>TSC_Npc_Cantor</defName>
     <label>Aldis Vaunt</label>
-    <description>The last chorister of Aldruin, left to keep nine verses in a cellar and still keeping them.</description>
+    <description>The last chorister of Aldruin, left to keep five verses in a cellar and still keeping them.</description>
     <firstName>Aldis</firstName>
     <lastName>Vaunt</lastName>
     <kind>TSC_Cantor</kind>
@@ -641,5 +651,106 @@
          the fight route downs him rather than losing the scene entirely. -->
     <plotArmor>true</plotArmor>
   </TheShatteredCrown.NamedNpcDef>
+
+
+  <!-- The reliquary's own shard: its OWN def since every shard of the
+       crown is a distinct artifact with a distinct power (and a distinct
+       label, so two shards in a pack are tellable apart). Same
+       indestructibility contract as the grave shard: the campaign's spine
+       runs through five of these. -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_CrownShard_Reliquary</defName>
+    <label>crown shard of the reliquary</label>
+    <description>A broken fifth of a king's crown: a curve of gold band and one tall point, bright as the day it was drowned. Eight hundred years under water that never touched it. One of five.
+
+Whoever carries it can invoke the Quickening once a day.</description>
+    <graphicData>
+      <texPath>Things/Item/TSC_CrownShard</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.9</drawSize>
+    </graphicData>
+    <techLevel>Medieval</techLevel>
+    <stackLimit>1</stackLimit>
+    <useHitPoints>false</useHitPoints>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <tradeability>None</tradeability>
+    <smeltable>false</smeltable>
+    <burnableByRecipe>false</burnableByRecipe>
+    <destroyOnDrop>false</destroyOnDrop>
+    <statBases>
+      <Mass>1.5</Mass>
+      <MarketValue>2500</MarketValue>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_ShardAbilityExtension">
+        <ability>TSC_Ability_Quickening</ability>
+      </li>
+    </modExtensions>
+  </ThingDef>
+
+  <!-- The reliquary shard's power: the whole party, briefly, at the dead
+       king's marching pace. -->
+  <AbilityDef>
+    <defName>TSC_Ability_Quickening</defName>
+    <label>quickening</label>
+    <description>The whole party moves at double speed and strikes a third faster for 20 seconds, on every floor of the location. The shard allows this once a day; carrying it is the only price.</description>
+    <iconPath>UI/TSC_Abilities/TSC_Quickening</iconPath>
+    <cooldownTicksRange>60000</cooldownTicksRange>
+    <stunTargetWhileCasting>false</stunTargetWhileCasting>
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
+    <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
+    <targetRequired>False</targetRequired>
+    <verbProperties>
+      <warmupTime>0.5</warmupTime>
+      <range>0.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_PartyHediff">
+        <hediff>TSC_Hediff_Quickening</hediff>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
+        <color>(1, 0.88, 0.5)</color>
+        <scale>2.5</scale>
+        <sparks>true</sparks>
+        <atCaster>true</atCaster>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Quickening</defName>
+    <label>quickened</label>
+    <description>The reliquary shard's day of grace, spent in one breath: double speed, and a third off every swing and shot.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>1200</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_ChargeChevrons</mote>
+        <offset>(0, 0, 0.72)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>2</MoveSpeed>
+          <MeleeCooldownFactor>0.77</MeleeCooldownFactor>
+          <RangedCooldownFactor>0.77</RangedCooldownFactor>
+          <AimingDelayFactor>0.77</AimingDelayFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
 
 </Defs>

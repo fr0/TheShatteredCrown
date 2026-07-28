@@ -175,6 +175,15 @@ namespace TheShatteredCrown
         /// <summary>Vermin nesting on this level; spawned in clusters away from the entrance.</summary>
         public PawnKindDef vermin;
         public IntRange verminCount = new IntRange(3, 5);
+
+        /// <summary>
+        /// Hard cap on dormant insect packs the LAYOUT may leave on this
+        /// floor. Room chances are probabilistic (each crypt gallery rolls
+        /// its own cluster), so a floor could come out wall-to-wall nests;
+        /// this prunes the excess after generation. The floor's total is
+        /// then this plus one roaming pack from `vermin`/`occupants`.
+        /// </summary>
+        public int maxDormantPacks = 2;
         /// <summary>Weighted occupant profiles; one is rolled per generated level. Takes precedence over `vermin`.</summary>
         public List<TSC_DungeonOccupant> occupants = new List<TSC_DungeonOccupant>();
         /// <summary>Set spots by def: check-spot props, the beggar's camp, the choir bones.</summary>
@@ -235,7 +244,12 @@ namespace TheShatteredCrown
                 SpawnStairs(map, deepest, entry);
             }
             PlaceSpots(map, rect, entry);
-            SpawnOccupants(map, rect, entry);
+            PruneDormantPacks(map, rect, deepest);
+            // On the reliquary floor the chorister is standing at `deepest`,
+            // and insects are hostile to him as much as to the party. Keep
+            // the loose ones away from his chamber.
+            bool hasReliquary = !variableDepth && level >= 3;
+            SpawnOccupants(map, rect, entry, hasReliquary ? deepest : IntVec3.Invalid);
             if (lootDef != null && (!variableDepth || isBottom))
             {
                 PlaceLoot(map, deepest);
@@ -264,6 +278,11 @@ namespace TheShatteredCrown
             GenSpawn.Spawn(stairsDef, cell, map);
         }
 
+        private void PruneDormantPacks(Map map, CellRect rect, IntVec3 deepest)
+        {
+            TSC_PackBudget.Prune(map, maxDormantPacks, deepest);
+        }
+
         private void PlaceSpots(Map map, CellRect rect, IntVec3 entry)
         {
             foreach (ThingDef spotDef in spots)
@@ -275,21 +294,63 @@ namespace TheShatteredCrown
                 // Spread the set pieces through the level rather than piling
                 // them at the door: each lands at least a room away from the
                 // entrance, in a spot a pawn can actually stand beside.
+                //
+                // Wall-adjacent first: these props DESCRIBE themselves as
+                // wall features (a skull-stacked gallery wall, a sluice wheel
+                // set in stone), and a "wall of skulls" standing alone in the
+                // middle of an open room reads as a spawn bug. Only if forty
+                // tries find no wall seat does it fall back to open floor.
                 IntVec3 cell = IntVec3.Invalid;
-                for (int attempt = 0; attempt < 40; attempt++)
+                IntVec3 fallback = IntVec3.Invalid;
+                for (int attempt = 0; attempt < 80 && !cell.IsValid; attempt++)
                 {
                     IntVec3 candidate = rect.RandomCell;
-                    if (candidate.Standable(map) && candidate.DistanceTo(entry) > 12f
-                        && map.reachability.CanReach(entry, candidate, PathEndMode.Touch,
+                    if (!candidate.Standable(map) || candidate.DistanceTo(entry) <= 12f
+                        || !map.reachability.CanReach(entry, candidate, PathEndMode.Touch,
                             TraverseParms.For(TraverseMode.PassDoors)))
                     {
-                        cell = candidate;
-                        break;
+                        continue;
                     }
+                    bool againstWall = false;
+                    foreach (IntVec3 adjacent in GenAdjFast.AdjacentCellsCardinal(candidate))
+                    {
+                        if (adjacent.InBounds(map) && adjacent.GetEdifice(map) != null)
+                        {
+                            againstWall = true;
+                            break;
+                        }
+                    }
+                    if (againstWall && attempt < 40)
+                    {
+                        cell = candidate;
+                    }
+                    else if (!fallback.IsValid)
+                    {
+                        fallback = candidate;
+                    }
+                }
+                if (!cell.IsValid)
+                {
+                    cell = fallback;
                 }
                 if (cell.IsValid)
                 {
-                    GenSpawn.Spawn(spotDef, cell, map);
+                    Thing spot = GenSpawn.Spawn(spotDef, cell, map);
+                    // Loot chests are empty shells filled by whoever places
+                    // them (the well caves pour their own table in). Ours get
+                    // the common cache - an empty reward chest is a taunt.
+                    if (spot is Building_Casket casket && casket.GetDirectlyHeldThings().Count == 0
+                        && spotDef.defName == "TSC_LootChest")
+                    {
+                        ThingSetMakerDef lootTable = DefDatabase<ThingSetMakerDef>.GetNamedSilentFail("TSC_Loot_CommonCache");
+                        if (lootTable != null)
+                        {
+                            foreach (Thing item in lootTable.root.Generate())
+                            {
+                                casket.GetDirectlyHeldThings().TryAdd(item);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -300,7 +361,10 @@ namespace TheShatteredCrown
         /// bandit crew on one floor and a nest on the next. `vermin` is the
         /// older single-kind path (the hand-authored cellars use it).
         /// </summary>
-        private void SpawnOccupants(Map map, CellRect rect, IntVec3 entry)
+        /// <summary>Cells within this of the reliquary stay empty: the chorister's ground.</summary>
+        public const float ReliquaryKeepClear = 14f;
+
+        private void SpawnOccupants(Map map, CellRect rect, IntVec3 entry, IntVec3 keepClear)
         {
             TSC_DungeonOccupant profile = null;
             if (occupants.Count > 0)
@@ -323,21 +387,29 @@ namespace TheShatteredCrown
             Faction faction = FactionFor(profile.faction);
             int count = profile.count.RandomInRange;
             List<Pawn> spawned = new List<Pawn>();
+            // One PACK, not a scatter: the same headcount strewn one-by-one
+            // across the floor reads as enemies everywhere, and every corner
+            // turned is another fight. Anchored together they are a single
+            // encounter the party can find, read, and take on its own terms.
+            IntVec3 anchor = IntVec3.Invalid;
+            for (int attempt = 0; attempt < 40; attempt++)
+            {
+                IntVec3 candidate = rect.RandomCell;
+                if (candidate.Standable(map) && candidate.DistanceTo(entry) > 18f
+                    && (!keepClear.IsValid || candidate.DistanceTo(keepClear) > ReliquaryKeepClear))
+                {
+                    anchor = candidate;
+                    break;
+                }
+            }
+            if (!anchor.IsValid)
+            {
+                return;
+            }
             for (int i = 0; i < count; i++)
             {
-                IntVec3 cell = IntVec3.Invalid;
-                for (int attempt = 0; attempt < 30; attempt++)
-                {
-                    IntVec3 candidate = rect.RandomCell;
-                    // Never IN the doorway: the party gets to set foot on the
-                    // level before anything is chewing on them.
-                    if (candidate.Standable(map) && candidate.DistanceTo(entry) > 18f)
-                    {
-                        cell = candidate;
-                        break;
-                    }
-                }
-                if (!cell.IsValid)
+                IntVec3 cell = CellFinder.RandomClosewalkCellNear(anchor, map, 5);
+                if (!cell.IsValid || (keepClear.IsValid && cell.DistanceTo(keepClear) <= ReliquaryKeepClear))
                 {
                     continue;
                 }
@@ -536,6 +608,7 @@ namespace TheShatteredCrown
             {
                 GenStep_TSC_CellarLevel.CarveCell(map, cell);
             }
+            ClearHostiles(at);
             altarPos = at;
             ThingDef altarDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_ReliquaryAltar");
             if (altarDef != null)
@@ -546,10 +619,60 @@ namespace TheShatteredCrown
             SpawnCantor(at);
         }
 
+        /// <summary>
+        /// Empty the chamber of anything that would eat the chorister.
+        ///
+        /// The layout's own dormant insect clusters are placed with the rooms,
+        /// long before this chamber is carved, so some of them end up standing
+        /// exactly where Aldis is about to. Insects are hostile to his faction
+        /// as much as to the party's, so left alone they simply kill him -
+        /// plot armor downs him instead, which loses the scene either way -
+        /// and their brawl drags the player into turn-based combat from the
+        /// far side of the map. The rest of the floor keeps its tenants; the
+        /// fight starts when the party opens this room, not before.
+        /// </summary>
+        private void ClearHostiles(IntVec3 at)
+        {
+            List<Pawn> doomed = new List<Pawn>();
+            // Snapshot: AllPawnsSpawned is a cached list and destroying from
+            // inside it rebuilds it mid-enumeration.
+            List<Pawn> present = new List<Pawn>(map.mapPawns.AllPawnsSpawned);
+            foreach (Pawn pawn in present)
+            {
+                if (pawn == null || pawn.Destroyed || pawn.Faction == Faction.OfPlayer
+                    || !pawn.HostileTo(Faction.OfPlayer))
+                {
+                    continue;
+                }
+                if (pawn.Position.InHorDistOf(at, GenStep_TSC_CellarLevel.ReliquaryKeepClear))
+                {
+                    doomed.Add(pawn);
+                }
+            }
+            foreach (Pawn pawn in doomed)
+            {
+                pawn.Destroy(DestroyMode.Vanish);
+            }
+            // A hive left in the chamber would just refill it.
+            List<Thing> hives = new List<Thing>();
+            foreach (Thing thing in map.listerThings.AllThings)
+            {
+                if (thing?.def != null && thing.def.defName == "Hive"
+                    && thing.Position.InHorDistOf(at, GenStep_TSC_CellarLevel.ReliquaryKeepClear))
+                {
+                    hives.Add(thing);
+                }
+            }
+            foreach (Thing hive in hives)
+            {
+                hive.Destroy(DestroyMode.Vanish);
+            }
+        }
+
         private void SpawnTreasure(IntVec3 at)
         {
             SpawnItem("TSC_Weapon_Kingsblade", at + new IntVec3(-1, 0, 1));
-            SpawnItem("TSC_CrownShard", at + new IntVec3(1, 0, 1));
+            SpawnItem("TSC_CrownShard_Reliquary", at + new IntVec3(1, 0, 1));
         }
 
         private void SpawnItem(string defName, IntVec3 cell)
@@ -630,7 +753,7 @@ namespace TheShatteredCrown
 
         private static readonly List<string> SongLines = new List<string>
         {
-            "...nine roads...",
+            "...five roads...",
             "...and the crown went down...",
             "...who carried it...",
             "...the water remembers...",

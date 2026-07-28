@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Collections.Generic;
 using RimWorld;
 using RimWorld.Planet;
 using RimWorld.QuestGen;
@@ -45,21 +47,40 @@ namespace TheShatteredCrown
 
         private const int CheckInterval = 250;
 
-        public override void QuestPartTick()
+        /// <summary>
+        /// Pawns of this kind the player ALREADY had when the watch began.
+        ///
+        /// Matching on kind alone completes the moment any pawn of that kind
+        /// is in the party - and the rescue captive is an ordinary Villager,
+        /// the same kind the guild hall sells hirelings from. A party that
+        /// had ever hired anyone, or rescued anyone before, would have
+        /// finished a rescue contract the instant they accepted it. Only a
+        /// pawn who was NOT here when the contract started counts.
+        /// </summary>
+        private HashSet<int> known;
+
+        private void EnsureSnapshot()
         {
-            base.QuestPartTick();
-            if (kind == null || Find.TickManager.TicksGame % CheckInterval != 0)
+            if (known != null)
             {
                 return;
             }
+            known = new HashSet<int>();
+            foreach (Pawn pawn in Matching())
+            {
+                known.Add(pawn.thingIDNumber);
+            }
+        }
+
+        private IEnumerable<Pawn> Matching()
+        {
             foreach (Map map in Find.Maps)
             {
                 foreach (Pawn pawn in map.mapPawns.PawnsInFaction(Faction.OfPlayer))
                 {
                     if (pawn.kindDef == kind && !pawn.Dead)
                     {
-                        Complete();
-                        return;
+                        yield return pawn;
                     }
                 }
             }
@@ -73,15 +94,38 @@ namespace TheShatteredCrown
                 {
                     if (pawn.kindDef == kind && !pawn.Dead)
                     {
-                        Complete();
-                        return;
+                        yield return pawn;
                     }
+                }
+            }
+        }
+
+        public override void QuestPartTick()
+        {
+            base.QuestPartTick();
+            if (kind == null || Find.TickManager.TicksGame % CheckInterval != 0)
+            {
+                return;
+            }
+            EnsureSnapshot();
+            foreach (Pawn pawn in Matching())
+            {
+                if (!known.Contains(pawn.thingIDNumber))
+                {
+                    Complete();
+                    return;
                 }
             }
         }
 
         public override void ExposeData()
         {
+            List<int> knownList = known?.ToList();
+            Scribe_Collections.Look(ref knownList, "known", LookMode.Value);
+            if (Scribe.mode == LoadSaveMode.LoadingVars)
+            {
+                known = knownList != null ? new HashSet<int>(knownList) : null;
+            }
             base.ExposeData();
             Scribe_Defs.Look(ref kind, "kind");
         }

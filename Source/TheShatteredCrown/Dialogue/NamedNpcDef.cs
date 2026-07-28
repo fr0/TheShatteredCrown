@@ -31,6 +31,14 @@ namespace TheShatteredCrown
         /// <summary>Optional class (bard, cleric, warden...) whose abilities this character carries.</summary>
         public TSC_ClassDef classDef;
 
+        /// <summary>
+        /// Adventuring level this character already has when first generated.
+        /// For veterans who were doing this before the party met them: Wren
+        /// has been singing the crown song in taverns for two winters. Their
+        /// unspent level-up picks are waiting when they join.
+        /// </summary>
+        public int startingLevel = 1;
+
         /// <summary>Story-critical: lethal events down this character instead of killing them (Harmony Pawn.Kill prefix).</summary>
         public bool plotArmor;
 

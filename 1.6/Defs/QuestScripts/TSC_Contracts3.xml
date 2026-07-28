@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Adventure Mode contracts, round three: six more board templates,
+       taking the rotation to twelve. Parent is TSC_ContractBase.
+
+       The engine gives four honest completion conditions - clear the site,
+       carry a thing out, bring a person back, kill a named target - so what
+       separates these is the LAYOUT, the tenants, and what the guild is
+       actually buying. A castle redoubt held by a hexer plays nothing like
+       an open-ground pack hunt even though both end in "everything hostile
+       is down".
+       ================================================================ -->
+
+  <!-- ============ 1. Redoubt: the hard clear ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Redoubt</defName>
+    <defaultChallengeRating>3</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [rd_name]</li>
+        <li>rd_name->The Toll House</li>
+        <li>rd_name->Mended Walls</li>
+        <li>rd_name->The Crown of the Ridge</li>
+        <li>rd_name->What the Road Pays</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[rd_flavor]\n\nThis is not a camp you can walk into. They have walls, a hexer, and time to have used both. The guild is paying the deep rate for a reason.\n\nCharter silver and guild coin, on the last of them.</li>
+        <li>rd_flavor->A crew holds a fortified ruin above the only road through the ridge, and charges for passage. Three smaller contracts have already lapsed on it.</li>
+        <li>rd_flavor->What started as a camp is now a holding. The walls are mended and there is a watch. This is not a job for one rider.</li>
+        <li>rd_flavor->The guild has lost two caravans and a factor to the same ruin. The factor is why the rate is this high.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
+        <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
+        <li Class="QuestNode_Set"><name>siteDistRange</name><value>4~13</value></li>
+        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags><li><tag>TSC_ContractRedoubt</tag></li></sitePartsTags>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetBanditFaction"><storeAs>siteFaction</storeAs></li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile><faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelRedoubtLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextRedoubtLost">The redoubt emptied before the job was done. The guild strikes the contract. No payment, no penalty.</text>
+              </li>
+              <li Class="QuestNode_End"><outcome>Fail</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Notify_PlayerRaidedSomeone">
+                <getRaidersFromMapParent>$site</getRaidersFromMapParent>
+              </li>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelRedoubtDone">Contract complete</label>
+                <text TKey="LetterTextRedoubtDone">The redoubt is taken and the road under it is open. Payment at the deep rate, and the factor writes your company's name where it will be read.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>350</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>600</amount><coins>8</coins></li>
+            </nodes>
+          </node>
+        </li>
+        <li Class="QuestNode_End"><inSignal>site.AllEnemiesDefeated</inSignal><outcome>Success</outcome></li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ 2. Warren: two tenants, one building ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Warren</defName>
+    <defaultChallengeRating>2</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [wr_name]</li>
+        <li>wr_name->Bad Neighbours</li>
+        <li>wr_name->The Understanding</li>
+        <li>wr_name->Two Sets of Tracks</li>
+        <li>wr_name->Nobody Owns It</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[wr_flavor]\n\nBoth lots are hostile to you and to each other. A patient crew can let them do some of the work. An impatient one ends up between them.\n\nPay is charter silver and guild coin, on the building being empty.</li>
+        <li>wr_flavor->A ruin the guild wants back has two occupants: squatters at one end, insects at the other. Neither has managed to shift the other.</li>
+        <li>wr_flavor->Squatters took a waystation, then found out what was already living under it. The stand-off has held for a season.</li>
+        <li>wr_flavor->There are two kinds of tracks going in and one kind coming out. The guild's surveyor did not stay to work out why.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
+        <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
+        <li Class="QuestNode_Set"><name>siteDistRange</name><value>3~11</value></li>
+        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags><li><tag>TSC_ContractWarren</tag></li></sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile><faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelWarrenLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextWarrenLost">The warren settled its own argument and scattered. The guild strikes the contract. No payment, no penalty.</text>
+              </li>
+              <li Class="QuestNode_End"><outcome>Fail</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelWarrenDone">Contract complete</label>
+                <text TKey="LetterTextWarrenDone">Both sets of tenants are dealt with. The guild will have the roof back on before the rains.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>220</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>360</amount><coins>5</coins></li>
+            </nodes>
+          </node>
+        </li>
+        <li Class="QuestNode_End"><inSignal>site.AllEnemiesDefeated</inSignal><outcome>Success</outcome></li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ 3. Pack: open ground, no walls ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Pack</defName>
+    <defaultChallengeRating>2</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [pk_name]</li>
+        <li>pk_name->The Pack on the Downs</li>
+        <li>pk_name->Nothing to Put Your Back To</li>
+        <li>pk_name->Thinning the Ground</li>
+        <li>pk_name->They Hunt in Company</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[pk_flavor]\n\nThere is no building to fight from and no door to hold. They hunt in company, so expect them from more than one side.\n\nPay is charter silver and guild coin, on the ground being clear.</li>
+        <li>pk_flavor->A pack has claimed a stretch of drove road and learned that drovers travel alone.</li>
+        <li>pk_flavor->Something has been working the downs in a group. The guild's surveyor counted the kills and stopped going out alone.</li>
+        <li>pk_flavor->Herders on the marked ground lost more animals this month than in the last two years. Last week they stopped losing animals and started losing herders.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
+        <li Class="QuestNode_Set"><name>siteDistRange</name><value>3~10</value></li>
+        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags><li><tag>TSC_ContractPack</tag></li></sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile><faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
+
+        <!-- The pack itself: manhunter from the first tick, so there is no
+             creeping up on a herd of neutral wildlife. -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_SpawnAnimalAtSite">
+          <kind>Warg</kind>
+          <countRange>3~4</countRange>
+          <scaledClamp>2~9</scaledClamp>
+          <site>$site</site>
+          <manhunter>true</manhunter>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelPackLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextPackLost">The pack moved on before the job was done. The guild strikes the contract. No payment, no penalty.</text>
+              </li>
+              <li Class="QuestNode_End"><outcome>Fail</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelPackDone">Contract complete</label>
+                <text TKey="LetterTextPackDone">The ground is clear and the drovers can use the road again. The guild pays on the tally.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>200</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>300</amount><coins>4</coins></li>
+            </nodes>
+          </node>
+        </li>
+        <li Class="QuestNode_End"><inSignal>site.AllEnemiesDefeated</inSignal><outcome>Success</outcome></li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ 4. Vault: the undercroft fetch ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Vault</defName>
+    <defaultChallengeRating>2</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [vt_name]</li>
+        <li>vt_name->The Undercroft</li>
+        <li>vt_name->Never Collected</li>
+        <li>vt_name->Under the Old Hall</li>
+        <li>vt_name->The Standing Debt</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[vt_flavor]\n\nThe cellars are marked on your map. Find the guild's coffer, carry it out, and bring it to a guild hall. Anything else down there is yours.\n\nCharter silver and guild coin, on delivery.</li>
+        <li>vt_flavor->There is a guild coffer in the undercroft of a castle nobody has held in three hundred years. The rider sent for it never came back.</li>
+        <li>vt_flavor->The guild keeps a ledger of what it is still owed. This entry is older than the guild hall.</li>
+        <li>vt_flavor->Somebody has been living in the cellars of the old hall. The guild found out when its coffer stopped being where the ledger says.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
+        <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
+        <li Class="QuestNode_Set"><name>siteDistRange</name><value>3~12</value></li>
+        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags><li><tag>TSC_ContractVault</tag></li></sitePartsTags>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetBanditFaction"><storeAs>siteFaction</storeAs></li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile><faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_FailUnlessHolding">
+          <inSignal>site.Destroyed</inSignal>
+          <item>TSC_GuildStrongbox</item>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelVaultLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextVaultLost">The undercroft was left with the coffer still in it. The guild strikes the contract and marks it undelivered.</text>
+              </li>
+              <li Class="QuestNode_End"><outcome>Fail</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+          <item>TSC_GuildStrongbox</item>
+          <deliverToGuild>true</deliverToGuild>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="TheShatteredCrown.QuestNode_TSC_TakeItem">
+                <item>TSC_GuildStrongbox</item>
+                <count>1</count>
+              </li>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelVaultDone">Contract complete</label>
+                <text TKey="LetterTextVaultDone">Three hundred years late, and set down on a factor's table at last. He strikes the line out himself.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>250</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>450</amount><coins>6</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ 5. Shrine: the cleansing ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Shrine</defName>
+    <defaultChallengeRating>2</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [sh_name]</li>
+        <li>sh_name->Fouled Ground</li>
+        <li>sh_name->The Pilgrim Road</li>
+        <li>sh_name->What Sits in the Shrine</li>
+        <li>sh_name->Consecrated, Once</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[sh_flavor]\n\nWhoever is using the shrine has written what they are doing on the stones. Read them before you break them - the guild wants to know what this was.\n\nCharter silver and guild coin, on the ground being clear.</li>
+        <li>sh_flavor->A roadside shrine on a pilgrim route has stopped being a shrine. The pilgrims have not stopped coming.</li>
+        <li>sh_flavor->Somebody is keeping an old-faith shrine in a way the old faith would not recognise, in sight of a road the guild is paid to keep open.</li>
+        <li>sh_flavor->Three pilgrims passed the marked shrine last month. Two came back, and neither will say what they saw.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
+        <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
+        <li Class="QuestNode_Set"><name>siteDistRange</name><value>3~11</value></li>
+        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags><li><tag>TSC_ContractShrine</tag></li></sitePartsTags>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetBanditFaction"><storeAs>siteFaction</storeAs></li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile><faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelShrineLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextShrineLost">Whoever was keeping the shrine has gone. The guild strikes the contract. No payment, no penalty.</text>
+              </li>
+              <li Class="QuestNode_End"><outcome>Fail</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.AllEnemiesDefeated</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelShrineDone">Contract complete</label>
+                <text TKey="LetterTextShrineDone">The shrine is clear and the road past it is safe again. What it was being used for goes into a ledger riders do not see.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>220</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>340</amount><coins>5</coins></li>
+            </nodes>
+          </node>
+        </li>
+        <li Class="QuestNode_End"><inSignal>site.AllEnemiesDefeated</inSignal><outcome>Success</outcome></li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ 6. Wreck: recovery in the open ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Wreck</defName>
+    <defaultChallengeRating>1</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [wk_name]</li>
+        <li>wk_name->The Caravan That Did Not Arrive</li>
+        <li>wk_name->Spread Across the Road</li>
+        <li>wk_name->Still Going Through the Boxes</li>
+        <li>wk_name->Overdue</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[wk_flavor]\n\nThe wreck is strung along the road. The locked coffer has been dragged into the old watch-post beside it, along with the people who dragged it. Recover it and bring it to a guild hall.\n\nCharter silver and guild coin, on delivery.</li>
+        <li>wk_flavor->A guild caravan did not arrive. A rider found it a week later, spread along half a mile of road, with scavengers still working it.</li>
+        <li>wk_flavor->The drivers are dead, the animals gone, the boxes open. The guild wants the one box that was locked.</li>
+        <li>wk_flavor->Whoever took the caravan has not moved on. They have settled into the ruined post beside it, which suggests something is still unopened.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
+        <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
+        <li Class="QuestNode_Set"><name>siteDistRange</name><value>2~9</value></li>
+        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags><li><tag>TSC_ContractWreck</tag></li></sitePartsTags>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetBanditFaction"><storeAs>siteFaction</storeAs></li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile><faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_FailUnlessHolding">
+          <inSignal>site.Destroyed</inSignal>
+          <item>TSC_GuildStrongbox</item>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelWreckLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextWreckLost">The wreck was picked clean and the coffer went with it. The guild strikes the contract. No payment, no penalty.</text>
+              </li>
+              <li Class="QuestNode_End"><outcome>Fail</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+          <item>TSC_GuildStrongbox</item>
+          <deliverToGuild>true</deliverToGuild>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="TheShatteredCrown.QuestNode_TSC_TakeItem">
+                <item>TSC_GuildStrongbox</item>
+                <count>1</count>
+              </li>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelWreckDone">Contract complete</label>
+                <text TKey="LetterTextWreckDone">The coffer is back under seal on a factor's table. The drivers are still dead, and he does not pretend that balances.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>180</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>280</amount><coins>3</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

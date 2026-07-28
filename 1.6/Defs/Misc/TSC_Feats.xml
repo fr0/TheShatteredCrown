@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       FEATS, batch one: the framework and the ten general feats.
+
+       One feat at character level 3 and every third level after, so a
+       level-20 character takes six. General feats have no requirements and
+       are open to anyone; class feats (a later batch) carry a
+       TSC_FeatRequirement and must ask for at least the class level that
+       grants the ability they modify.
+
+       Every feat here is a permanent hediff carrying stat offsets, with two
+       exceptions that read a flag in code (Versatile, Deep Reserves). That
+       is the point of the shape: a stat offset behaves identically in
+       turn-based and real time for free, with no parity work and nothing to
+       get wrong.
+
+       Deliberately NOT in this batch: Last Stand, which needs a Harmony hook
+       into the downing path. It ships with the starred batch rather than
+       half-working here.
+       ================================================================== -->
+
+  <HediffDef Name="TSC_FeatHediffBase" Abstract="True">
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <initialSeverity>1</initialSeverity>
+    <maxSeverity>1</maxSeverity>
+    <defaultLabelColor>(0.85, 0.78, 0.45)</defaultLabelColor>
+    <scenarioCanAdd>false</scenarioCanAdd>
+  </HediffDef>
+
+  <!-- ================================================ 1. Toughened -->
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Toughened</defName>
+    <label>toughened</label>
+    <description>All incoming damage is reduced by 8%.</description>
+    <order>10</order>
+    <hediff>TSC_Hediff_Feat_Toughened</hediff>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_Toughened</defName>
+    <label>toughened</label>
+    <description>Hard to hurt.</description>
+    <stages>
+      <li>
+        <statFactors>
+          <IncomingDamageFactor>0.92</IncomingDamageFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ================================================ 2. Fleet of Foot -->
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_FleetOfFoot</defName>
+    <label>fleet of foot</label>
+    <description>Moves 0.4 cells per second faster. In turn-based combat this means more ground covered per action point.</description>
+    <order>20</order>
+    <hediff>TSC_Hediff_Feat_FleetOfFoot</hediff>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_FleetOfFoot</defName>
+    <label>fleet of foot</label>
+    <description>Quick on the road and quicker off it.</description>
+    <stages>
+      <li>
+        <statOffsets>
+          <MoveSpeed>0.4</MoveSpeed>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ================================================ 3. Hardy -->
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Hardy</defName>
+    <label>hardy</label>
+    <description>Pain shock threshold raised by 0.15.</description>
+    <order>30</order>
+    <hediff>TSC_Hediff_Feat_Hardy</hediff>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_Hardy</defName>
+    <label>hardy</label>
+    <description>Goes down later than most.</description>
+    <stages>
+      <li>
+        <statOffsets>
+          <PainShockThreshold>0.15</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ================================================ 4. Armored -->
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Armored</defName>
+    <label>armored</label>
+    <description>+10% sharp armor and +15% blunt armor, on top of worn armor.</description>
+    <order>40</order>
+    <hediff>TSC_Hediff_Feat_Armored</hediff>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_Armored</defName>
+    <label>armored</label>
+    <description>Wears armor like it was fitted.</description>
+    <stages>
+      <li>
+        <statOffsets>
+          <ArmorRating_Sharp>0.10</ArmorRating_Sharp>
+          <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ================================================ 5. Duelist -->
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Duelist</defName>
+    <label>duelist</label>
+    <description>+4 melee hit chance and +5 melee dodge chance.</description>
+    <order>50</order>
+    <hediff>TSC_Hediff_Feat_Duelist</hediff>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_Duelist</defName>
+    <label>duelist</label>
+    <description>Sure with a blade, and hard to touch with one.</description>
+    <stages>
+      <li>
+        <statOffsets>
+          <MeleeHitChance>4</MeleeHitChance>
+          <MeleeDodgeChance>5</MeleeDodgeChance>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ================================================ 6. Marksman -->
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Marksman</defName>
+    <label>marksman</label>
+    <description>Shooting accuracy improved by 12%.</description>
+    <order>60</order>
+    <hediff>TSC_Hediff_Feat_Marksman</hediff>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_Marksman</defName>
+    <label>marksman</label>
+    <description>Steady at range.</description>
+    <stages>
+      <li>
+        <statOffsets>
+          <ShootingAccuracyPawn>0.12</ShootingAccuracyPawn>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ================================================ 7. Iron Will -->
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_IronWill</defName>
+    <label>iron will</label>
+    <description>Mental break threshold lowered by 0.15.</description>
+    <order>70</order>
+    <hediff>TSC_Hediff_Feat_IronWill</hediff>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_IronWill</defName>
+    <label>iron will</label>
+    <description>Not easily rattled.</description>
+    <stages>
+      <li>
+        <statOffsets>
+          <MentalBreakThreshold>-0.15</MentalBreakThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ================================================ 8. Versatile
+       No hediff: read directly in EffectiveProficiency, which is the single
+       choke point every check goes through - active rolls, passive checks
+       and the nearby-colonist assist search alike. -->
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_Versatile</defName>
+    <label>versatile</label>
+    <description>+1 to every proficiency check.</description>
+    <order>80</order>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ 9. Deep Reserves
+       Also codeside: read in MaxEnergy and in the regen tick. -->
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_DeepReserves</defName>
+    <label>deep reserves</label>
+    <description>+25 maximum spell energy, and energy regenerates 25% faster.</description>
+    <order>90</order>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <!-- ================================================ 10. Camp Doctor -->
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_CampDoctor</defName>
+    <label>camp doctor</label>
+    <description>+25% medical tend quality, and immunity is gained 20% faster.</description>
+    <order>100</order>
+    <hediff>TSC_Hediff_Feat_CampDoctor</hediff>
+  </TheShatteredCrown.TSC_FeatDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_CampDoctor</defName>
+    <label>camp doctor</label>
+    <description>Has bandaged more people than they would like to count.</description>
+    <stages>
+      <li>
+        <statOffsets>
+          <MedicalTendQuality>0.25</MedicalTendQuality>
+        </statOffsets>
+        <statFactors>
+          <ImmunityGainSpeed>1.20</ImmunityGainSpeed>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+</Defs>

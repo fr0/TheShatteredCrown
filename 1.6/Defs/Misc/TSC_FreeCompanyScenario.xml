@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       Free Company: Adventure Mode for a founded party of four.
+
+       The setup part SUBCLASSES the Adventure one, so both mode gates
+       (TSC_RpgMode and the Adventure gate) accept it via `is` and the
+       contract generator, shard hunt, and RPG layer all switch on without
+       any gate changes. Supplies are scaled for four riders; the founding
+       dialog at game start hands out up to four classes.
+       ================================================================== -->
+
+  <ScenPartDef>
+    <defName>TSC_FreeCompanySetup</defName>
+    <label>free company setup</label>
+    <category>Misc</category>
+    <scenPartClass>TheShatteredCrown.ScenPart_TSC_FreeCompanySetup</scenPartClass>
+    <maxUses>1</maxUses>
+  </ScenPartDef>
+
+  <ScenarioDef ParentName="ScenarioBase">
+    <defName>TSC_FreeCompany</defName>
+    <label>Wayfarers' Guild: Free Company</label>
+    <description>Some riders come to the guild alone. Some arrive as a company already sworn: four names on one charter, debts and histories included.\n\nYou hold an open charter of the Wayfarers' Guild for a company of four. Contracts will find you wherever the road takes you; pay is in silver and guild coin, and the guild asks no questions about method. Rumor says shards of the shattered crown still lie hidden in the world, for a company good enough to follow the whispers.\n\nAt the founding you may start up to four of your riders already trained in a class of your choosing. The rest learn on the road, as everyone does.</description>
+    <scenario>
+      <summary>An open guild charter for a company of four, with up to four classes chosen at the founding. The gentler start.</summary>
+      <playerFaction>
+        <def>PlayerFaction</def>
+        <factionDef>TSC_PlayerGuild</factionDef>
+      </playerFaction>
+      <parts>
+
+        <!-- The mode marker: inherits the Adventure gate, adds the founding. -->
+        <li Class="TheShatteredCrown.ScenPart_TSC_FreeCompanySetup">
+          <def>TSC_FreeCompanySetup</def>
+          <visible>false</visible>
+          <classCount>4</classCount>
+        </li>
+
+        <!-- Config pages -->
+        <li Class="ScenPart_ConfigPage_ConfigureStartingPawns">
+          <def>ConfigPage_ConfigureStartingPawns</def>
+          <pawnCount>4</pawnCount>
+          <pawnChoiceCount>10</pawnChoiceCount>
+        </li>
+
+        <!-- Walk on, no drop pods: you arrived by road -->
+        <li Class="ScenPart_PlayerPawnsArriveMethod">
+          <def>PlayerPawnsArriveMethod</def>
+          <visible>false</visible>
+          <method>Standing</method>
+        </li>
+
+        <!-- Supplies for four where the lone rider got supplies for one.
+             Deliberately NOT 4x the silver: a company earns faster too. -->
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>Silver</thingDef>
+          <count>400</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>Pemmican</thingDef>
+          <count>300</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>MedicineHerbal</thingDef>
+          <count>16</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>MeleeWeapon_Knife</thingDef>
+          <stuff>Steel</stuff>
+          <count>2</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>Bow_Short</thingDef>
+          <count>2</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>Bedroll</thingDef>
+          <stuff>Cloth</stuff>
+          <count>4</count>
+        </li>
+
+        <!-- The horses -->
+        <li Class="ScenPart_StartingAnimal">
+          <def>StartingAnimal</def>
+          <animalKind>Horse</animalKind>
+          <count>2</count>
+          <bondToRandomPlayerPawnChance>0.5</bondToRandomPlayerPawnChance>
+        </li>
+
+        <!-- Enough wood for a first shelter with four bunks -->
+        <li Class="ScenPart_ScatterThingsNearPlayerStart">
+          <def>ScatterThingsNearPlayerStart</def>
+          <thingDef>WoodLog</thingDef>
+          <count>400</count>
+        </li>
+
+        <!-- Game start dialog -->
+        <li Class="ScenPart_GameStartDialog">
+          <def>GameStartDialog</def>
+          <text>The charter is a single page, guild-sealed, with four names crowded onto a line ruled for one.\n\n"The bearers ride under the Wayfarers' mark, jointly and severally. Work will be posted as work is found: honest rates, paid on completion, no questions kept. What the bearers take from the world's forgotten places is theirs, save what the crown once wore, which the guild will always buy in blood or silver."\n\nFour riders, two horses, and every road on the map.</text>
+          <closeSound>GameStartSting</closeSound>
+        </li>
+
+      </parts>
+    </scenario>
+  </ScenarioDef>
+
+</Defs>

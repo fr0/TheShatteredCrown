@@ -62,6 +62,24 @@ namespace TheShatteredCrown
         public SlateRef<int> count;
         public SlateRef<WorldObject> site;
 
+        /// <summary>
+        /// Scaled alternative to `count`: rolled from this range and then
+        /// multiplied by difficulty, party level and party size, clamped by
+        /// scaledClamp. Set it and `count` is ignored.
+        ///
+        /// A fixed count is right for a NAMED quarry - there is one ettersnap
+        /// and one bountied man-eater however strong the party is. It is
+        /// wrong for a pack, where "four wargs" is a different contract at
+        /// level 1 than at level 8. Sized here at quest generation, the same
+        /// moment the contract's threat points are priced, so an offer's
+        /// difficulty is fixed when it is posted rather than drifting while
+        /// the party travels to it.
+        /// </summary>
+        public SlateRef<IntRange> countRange;
+
+        /// <summary>Floor and ceiling on the scaled count. Ignored unless countRange is set.</summary>
+        public SlateRef<IntRange> scaledClamp;
+
         [NoTranslate]
         public SlateRef<string> inSignal;
 
@@ -69,6 +87,13 @@ namespace TheShatteredCrown
         /// signals fire for them - e.g. tag "ettersnap" sends "ettersnap.Killed".</summary>
         [NoTranslate]
         public SlateRef<string> tag;
+
+        /// <summary>
+        /// Spawn the quarry already hunting: a bountied man-eater does not
+        /// wait to be provoked. Off by default - the Act 1 ettersnap has to
+        /// be taken ALIVE and must not come at the party on sight.
+        /// </summary>
+        public SlateRef<bool> manhunter;
 
         /// <summary>
         /// Give the quarry a generated name and publish it as a grammar rule
@@ -97,13 +122,29 @@ namespace TheShatteredCrown
             QuestPart_TSC_SpawnAnimalAtSite part = new QuestPart_TSC_SpawnAnimalAtSite
             {
                 kind = kind.GetValue(slate),
-                count = System.Math.Max(1, count.GetValue(slate)),
+                count = ResolveCount(slate),
                 mapParent = site.GetValue(slate) as MapParent,
                 inSignal = QuestGenUtility.HardcodedSignalWithQuestID(inSignal.GetValue(slate)) ?? slate.Get<string>("inSignal"),
                 questTagToAdd = rawTag.NullOrEmpty() ? null : QuestGenUtility.HardcodedTargetQuestTagWithQuestID(rawTag),
                 beastName = beastName,
+                manhunter = manhunter.GetValue(slate),
             };
             QuestGen.quest.AddPart(part);
+        }
+
+        private int ResolveCount(Slate slate)
+        {
+            IntRange range = countRange.GetValue(slate);
+            if (range.max <= 0)
+            {
+                return System.Math.Max(1, count.GetValue(slate));
+            }
+            IntRange clamp = scaledClamp.GetValue(slate);
+            if (clamp.max <= 0)
+            {
+                clamp = new IntRange(1, System.Math.Max(1, range.max * 3));
+            }
+            return System.Math.Max(1, TSC_Threat.Count(range, clamp));
         }
 
         protected override bool TestRunInt(Slate slate)
@@ -121,6 +162,8 @@ namespace TheShatteredCrown
         public string questTagToAdd;
         /// <summary>The name the contract was written against; hung on the first beast spawned.</summary>
         public string beastName;
+        /// <summary>Spawn already hunting the party rather than as ordinary wildlife.</summary>
+        public bool manhunter;
         private bool spawned;
         private List<Pawn> spawnedPawns = new List<Pawn>();
 
@@ -173,6 +216,14 @@ namespace TheShatteredCrown
                 }
                 IntVec3 cell = CellFinder.RandomClosewalkCellNear(root, map, 12);
                 GenSpawn.Spawn(pawn, cell, map);
+                if (manhunter)
+                {
+                    // Permanent, not the timed version: the contract is to end
+                    // a man-eater, and one that wandered off to graze halfway
+                    // through would make nonsense of the bounty.
+                    pawn.mindState?.mentalStateHandler?.TryStartMentalState(
+                        MentalStateDefOf.ManhunterPermanent, null, forceWake: true);
+                }
                 spawnedPawns.Add(pawn);
             }
         }
@@ -210,6 +261,12 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref count, "count", 1);
             Scribe_References.Look(ref mapParent, "mapParent");
             Scribe_Values.Look(ref questTagToAdd, "questTagToAdd");
+            // Both of these are decided at quest GENERATION but used at
+            // spawn time, which can be many sessions later - accept the
+            // contract, save, travel, arrive. Unsaved, the quarry came back
+            // nameless and tame.
+            Scribe_Values.Look(ref beastName, "beastName");
+            Scribe_Values.Look(ref manhunter, "manhunter", defaultValue: false);
             Scribe_Values.Look(ref spawned, "spawned", defaultValue: false);
             Scribe_Collections.Look(ref spawnedPawns, "spawnedPawns", LookMode.Reference);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)

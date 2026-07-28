@@ -5,8 +5,14 @@ namespace TheShatteredCrown
 {
     public class TSC_Settings : ModSettings
     {
-        /// <summary>Multiplies ALL damage dealt to pawns while turn-based combat is running (both sides; approach mode is real time and exempt).</summary>
-        public float tbDamageFactor = 1f;
+        /// <summary>
+        /// Multiplies ALL damage dealt to pawns while turn-based combat is
+        /// running (both sides; approach mode is real time and exempt).
+        /// Defaults above 1: a turn-based fight trades far fewer blows than a
+        /// real-time one, so vanilla damage makes exchanges feel weightless
+        /// and drags fights out well past the point they stay interesting.
+        /// </summary>
+        public float tbDamageFactor = 1.5f;
 
         /// <summary>When false, a player pawn's turn NEVER ends automatically - not on 0 AP, not on the turn timer. End turn is always manual.</summary>
         public bool autoEndTurn = true;
@@ -17,15 +23,23 @@ namespace TheShatteredCrown
         /// <summary>Reforming a caravan ignores hostiles that are fogged (never revealed). Visible threats still block.</summary>
         public bool reformIgnoresHiddenEnemies = true;
 
+        /// <summary>
+        /// Mood bonus the whole company gets for two days after finishing one of
+        /// this mod's quests. 0 = off (the default): the campaign is balanced
+        /// without it, and some players would rather a win be its own reward.
+        /// </summary>
+        public float questMoodBonus;
+
         public int EnemyBeatTicks => Mathf.RoundToInt(enemyBeatSeconds * 60f);
 
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Values.Look(ref tbDamageFactor, "tbDamageFactor", 1f);
+            Scribe_Values.Look(ref tbDamageFactor, "tbDamageFactor", 1.5f);
             Scribe_Values.Look(ref autoEndTurn, "autoEndTurn", defaultValue: true);
             Scribe_Values.Look(ref enemyBeatSeconds, "enemyBeatSeconds", 0.5f);
             Scribe_Values.Look(ref reformIgnoresHiddenEnemies, "reformIgnoresHiddenEnemies", defaultValue: true);
+            Scribe_Values.Look(ref questMoodBonus, "questMoodBonus", 0f);
         }
     }
 
@@ -36,6 +50,13 @@ namespace TheShatteredCrown
         public TSC_Mod(ModContentPack content) : base(content)
         {
             Settings = GetSettings<TSC_Settings>();
+        }
+
+        public override void WriteSettings()
+        {
+            base.WriteSettings();
+            // The thought def ships at 0; the setting is the source of truth.
+            TSC_QuestMood.ApplySetting();
         }
 
         public override string SettingsCategory()
@@ -68,6 +89,15 @@ namespace TheShatteredCrown
 
             listing.CheckboxLabeled("Reform caravan despite hidden enemies", ref Settings.reformIgnoresHiddenEnemies,
                 "When ON, hostiles sitting in fog you have never revealed (a sleeping guard in an unexplored corner) do not block reforming the caravan. Threats you can actually SEE still block it.");
+            listing.Gap();
+
+            listing.Label(Settings.questMoodBonus <= 0f
+                ? "Mood bonus on quest completion: off"
+                : $"Mood bonus on quest completion: +{Settings.questMoodBonus:0.#}");
+            GUI.color = Color.gray;
+            listing.Label("Finishing one of this mod's quests lifts the whole company's mood for two days. 0 turns it off entirely (the default): the campaign is balanced without it.");
+            GUI.color = Color.white;
+            Settings.questMoodBonus = Mathf.Round(listing.Slider(Settings.questMoodBonus, 0f, 15f));
 
             listing.End();
             base.DoSettingsWindowContents(inRect);

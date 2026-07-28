@@ -60,9 +60,15 @@ namespace TheShatteredCrown
             return index >= 0 ? Mathf.Max(1, record.levels[index]) : 1;
         }
 
+        /// <summary>
+        /// Level scaling, times whatever the caster is holding. The
+        /// instrument term is 1 for everyone who is not a bard with a lute
+        /// in hand, so every other spell in the game is untouched.
+        /// </summary>
         public static float Factor(Pawn pawn, AbilityDef ability)
         {
-            return 1f + PerLevel * (CasterLevel(pawn, ability) - 1);
+            float level = 1f + PerLevel * (CasterLevel(pawn, ability) - 1);
+            return level * TSC_Instruments.SongPower(pawn, ability);
         }
 
         /// <summary>
@@ -94,9 +100,76 @@ namespace TheShatteredCrown
         public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
         {
             base.Apply(target, dest);
-            float factor = TSC_SpellScaling.Factor(parent.pawn, parent.def);
-            Pawn recipient = Props.onlyApplyToSelf ? parent.pawn : target.Pawn;
+            Pawn caster = parent.pawn;
+            float factor = TSC_SpellScaling.Factor(caster, parent.def);
+            Pawn recipient = Props.onlyApplyToSelf ? caster : target.Pawn;
             TSC_SpellScaling.SetMagnitude(recipient, Props.hediffDef, factor);
+            if (recipient == null)
+            {
+                return;
+            }
+            Hediff applied = recipient.health?.hediffSet?.GetFirstHediffOfDef(Props.hediffDef);
+            foreach (TSC_FeatAbilityMod mod in TSC_FeatMods.ModsFor(caster, parent.def))
+            {
+                TSC_FeatMods.ApplyDuration(applied, mod.durationFactor);
+                if (applied != null && mod.severityBonus > 0f)
+                {
+                    applied.Severity += mod.severityBonus;
+                }
+                // Bloodied Fury: the worse the wounds, the bigger the rage.
+                if (applied != null && mod.scaleWithMissingHealth)
+                {
+                    float missing = 1f - Mathf.Clamp01(recipient.health.summaryHealth.SummaryHealthPercent);
+                    applied.Severity *= 1f + missing;
+                }
+                if (mod.extraHediff != null && !recipient.health.hediffSet.HasHediff(mod.extraHediff))
+                {
+                    recipient.health.AddHediff(mod.extraHediff);
+                }
+                if (mod.extraDamageOnApply > 0f && recipient != caster)
+                {
+                    recipient.TakeDamage(new DamageInfo(DamageDefOf.Scratch, mod.extraDamageOnApply, 0.2f, -1f, caster));
+                }
+                if (mod.clearsStun)
+                {
+                    TSC_FeatMods.ClearStun(recipient);
+                }
+                if (mod.restoreCasterEnergy > 0f)
+                {
+                    TSC_ProgressionManager.Current.RestoreEnergy(caster, mod.restoreCasterEnergy);
+                }
+                // Shared Blessing: the same grace, laid on a second head.
+                if (mod.duplicateToNearbyAlly && recipient.Spawned)
+                {
+                    Pawn second = FindSecondAlly(recipient, caster, mod.allyRadius, Props.hediffDef);
+                    if (second != null)
+                    {
+                        Hediff copy = second.health.AddHediff(Props.hediffDef);
+                        TSC_SpellScaling.SetMagnitude(second, Props.hediffDef, factor);
+                        TSC_FeatMods.ApplyDuration(copy, mod.durationFactor);
+                    }
+                }
+            }
+        }
+
+        private static Pawn FindSecondAlly(Pawn recipient, Pawn caster, float radius, HediffDef hediffDef)
+        {
+            Pawn best = null;
+            float bestDist = radius + 0.5f;
+            foreach (Pawn ally in recipient.Map.mapPawns.SpawnedPawnsInFaction(caster.Faction))
+            {
+                if (ally == recipient || ally.Dead || ally.health.hediffSet.HasHediff(hediffDef))
+                {
+                    continue;
+                }
+                float dist = ally.Position.DistanceTo(recipient.Position);
+                if (dist < bestDist)
+                {
+                    best = ally;
+                    bestDist = dist;
+                }
+            }
+            return best;
         }
     }
 

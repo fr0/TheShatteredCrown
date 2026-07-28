@@ -217,7 +217,10 @@ namespace TheShatteredCrown
             string label = Resolve(option.text);
             if (option.check?.proficiency != null)
             {
-                label = $"[{option.check.proficiency.LabelCap} {option.check.difficulty}] {label}";
+                // Scaled, like the roll below: the bracket is a promise.
+                int shown = TSC_CheckUtility.ScaledDc(context.interactor,
+                    option.check.proficiency, option.check.difficulty);
+                label = $"[{option.check.proficiency.LabelCap} {shown}] {label}";
             }
             return label;
         }
@@ -247,9 +250,13 @@ namespace TheShatteredCrown
                 int roll = Rand.RangeInclusive(1, 10);
                 Pawn checker = TSC_ProgressionManager.Current.BestCheckPawn(context.interactor, context.npc, option.check.proficiency, out int level);
                 string checkName = option.check.proficiency.LabelCap;
-                bool success = roll + level >= option.check.difficulty;
+                // Same drift as check spots, so conversation and world stay
+                // on one difficulty curve as the party grows.
+                int dc = TSC_CheckUtility.ScaledDc(checker ?? context.interactor,
+                    option.check.proficiency, option.check.difficulty);
+                bool success = roll + level >= dc;
                 string checkerNote = checker != null ? $" ({checker.LabelShortCap})" : string.Empty;
-                string resultLine = $"{checkName} check{checkerNote}: {roll} + {level} = {roll + level} vs {option.check.difficulty}: {(success ? "Success!" : "Failure")}";
+                string resultLine = $"{checkName} check{checkerNote}: {roll} + {level} = {roll + level} vs {dc}: {(success ? "Success!" : "Failure")}";
                 transcript.Add(new TranscriptEntry(resultLine, success ? SuccessColor : FailColor));
                 // Mid-encounter dialogue: the roll belongs in the combat log too.
                 TSC_EncounterController encounter = TSC_EncounterController.Current;

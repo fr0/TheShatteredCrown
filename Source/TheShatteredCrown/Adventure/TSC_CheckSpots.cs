@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HarmonyLib;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -32,11 +33,57 @@ namespace TheShatteredCrown
         /// <summary>Success can bless the roller (shrine rites): a hediff applied to them.</summary>
         public HediffDef successHediff;
 
+        /// <summary>
+        /// A dialogue flag set when this approach succeeds (or fails).
+        ///
+        /// This is what lets a check spot CHANGE something rather than just
+        /// paying out XP: a ledger that is actually read can mark the fact,
+        /// and a contract, a follow-up quest, or a conversation can read that
+        /// mark later. Without it every spot was a self-contained transaction
+        /// and no discovery could matter past the message box.
+        /// </summary>
+        [NoTranslate]
+        public string successFlag;
+
+        [NoTranslate]
+        public string failFlag;
+
         /// <summary>Failure: a loud/forced attempt can still open, wake nearby dormant things, or hurt the roller.</summary>
         public bool failOpens;
         public bool failWakesDormant;
         public float failDamage;
         public DamageDef failDamageDef;
+    }
+
+    /// <summary>
+    /// A sealed chest with an UNSPENT check on it cannot simply be opened.
+    ///
+    /// Vanilla offers "Open X" for anything openable, which sat in the same
+    /// right-click menu as "[Thievery 8] Pick the lock" and "[Athletics 7]
+    /// Pry it open" - and opened the chest for free. The proficiency system
+    /// was decorative on every crate in the mod.
+    ///
+    /// Patched at CanOpen rather than on the float-menu provider, because
+    /// that one property gates every route in: the menu option, the Open
+    /// designation, and any work giver. Comp_TSC_CheckSpot.Resolve marks
+    /// itself spent BEFORE it opens the chest, so the mod's own approaches
+    /// still work.
+    /// </summary>
+    [HarmonyPatch(typeof(Building_Crate), nameof(Building_Crate.CanOpen), MethodType.Getter)]
+    public static class Patch_Crate_CheckSpotSeals
+    {
+        public static void Postfix(Building_Crate __instance, ref bool __result)
+        {
+            if (!__result)
+            {
+                return;
+            }
+            Comp_TSC_CheckSpot spot = __instance.TryGetComp<Comp_TSC_CheckSpot>();
+            if (spot != null && !spot.Spent && spot.HasOpeningApproach)
+            {
+                __result = false;
+            }
+        }
     }
 
     public class CompProperties_TSC_CheckSpot : CompProperties
@@ -55,6 +102,27 @@ namespace TheShatteredCrown
 
         public CompProperties_TSC_CheckSpot Props => (CompProperties_TSC_CheckSpot)props;
         public bool Spent => spent;
+
+        /// <summary>
+        /// True when at least one approach is a way INTO this container. A
+        /// check spot that merely reads a room (beast sign, a ledger) must
+        /// not seal a chest it happens to share a def with.
+        /// </summary>
+        public bool HasOpeningApproach
+        {
+            get
+            {
+                List<TSC_CheckApproach> approaches = Props.approaches;
+                for (int i = 0; i < approaches.Count; i++)
+                {
+                    if (approaches[i].successOpens || approaches[i].failOpens)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
 
         public void Resolve(Pawn pawn, int approachIndex)
         {
@@ -83,6 +151,10 @@ namespace TheShatteredCrown
                 {
                     pawn.health.AddHediff(approach.successHediff);
                 }
+                if (!approach.successFlag.NullOrEmpty())
+                {
+                    DialogueStateManager.Current.Set(approach.successFlag);
+                }
                 string text = approach.successMessage.NullOrEmpty() ? "It gives." : approach.successMessage;
                 Messages.Message($"{line}\n{text}", parent, MessageTypeDefOf.PositiveEvent, historical: false);
                 if (approach.successRemoves && parent.Spawned)
@@ -95,7 +167,8 @@ namespace TheShatteredCrown
             {
                 forced.Open();
             }
-            if (approach.failWakesDormant)
+            // Light Fingers: a botched attempt is still a QUIET botched attempt.
+            if (approach.failWakesDormant && !TSC_Feats.Has(pawn, "TSC_Feat_LightFingers"))
             {
                 WakeDormantNear(parent);
             }
@@ -103,6 +176,10 @@ namespace TheShatteredCrown
             {
                 pawn.TakeDamage(new DamageInfo(approach.failDamageDef ?? DamageDefOf.Cut,
                     approach.failDamage, 0.3f, -1f, parent));
+            }
+            if (!approach.failFlag.NullOrEmpty())
+            {
+                DialogueStateManager.Current.Set(approach.failFlag);
             }
             string failText = approach.failMessage.NullOrEmpty() ? "It holds." : approach.failMessage;
             Messages.Message($"{line}\n{failText}", parent,
@@ -172,7 +249,11 @@ namespace TheShatteredCrown
                     continue;
                 }
                 int index = i;
-                string label = $"[{approach.proficiency.LabelCap} {approach.dc}] {approach.label}";
+                // Show the SCALED number: the label is a promise about the
+                // roll, and quoting the base DC while rolling against a
+                // higher one would be a lie the player cannot see through.
+                int shownDc = TSC_CheckUtility.ScaledDc(actor, approach.proficiency, approach.dc);
+                string label = $"[{approach.proficiency.LabelCap} {shownDc}] {approach.label}";
                 yield return new FloatMenuOption(label, delegate
                 {
                     Job job = JobMaker.MakeJob(TSC_DefOf.TSC_UseCheckSpot, clickedThing);

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- The company's mood after finishing one of this mod's quests.
+       baseMoodEffect is 0 in the def on purpose: the real value comes from
+       the mod setting ("Mood bonus on quest completion", default 0 = off)
+       and is written into this stage at startup and whenever the setting
+       changes. A def value here would be a second, silent source of truth. -->
+  <ThoughtDef>
+    <defName>TSC_Thought_QuestComplete</defName>
+    <durationDays>2</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>work finished</label>
+        <description>We took a job and we finished it. That is not nothing, out here.</description>
+        <baseMoodEffect>0</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+</Defs>

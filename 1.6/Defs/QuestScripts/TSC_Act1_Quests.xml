@@ -609,7 +609,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelShardFound">A shard of the crown</label>
-                <text TKey="LetterTextShardFound">A broken shard of a king's crown, out of a sanguophage's grave and into daylight for the first time in centuries. The guild's search has its first answer.\n\nOne shard of nine.</text>
+                <text TKey="LetterTextShardFound">A broken shard of a king's crown, out of a sanguophage's grave and into daylight for the first time in centuries. The guild's search has its first answer.\n\nOne shard of five.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>300</xp>

@@ -3,6 +3,7 @@ using RimWorld;
 using RimWorld.Planet;
 using RimWorld.QuestGen;
 using Verse;
+using Verse.AI;
 
 namespace TheShatteredCrown
 {
@@ -113,6 +114,12 @@ namespace TheShatteredCrown
                 remaining -= take;
                 if (take >= thing.stackCount)
                 {
+                    // A pawn CARRYING this is running a job that still expects
+                    // it to exist - hauling it to a pack animal, a stockpile,
+                    // a caravan. Destroying it underneath the driver throws
+                    // ("Can't transfer item ... because it's not here"), so
+                    // end the job first and let them pick something else.
+                    EndJobsCarrying(thing);
                     thing.Destroy();
                 }
                 else
@@ -121,6 +128,42 @@ namespace TheShatteredCrown
                 }
             }
             return count - remaining;
+        }
+
+        /// <summary>
+        /// Stop any job built around this exact thing before it vanishes.
+        /// Covers the carrier itself and anyone whose current job targets it
+        /// (a hauler already walking toward it).
+        /// </summary>
+        private static void EndJobsCarrying(Thing thing)
+        {
+            if (thing == null)
+            {
+                return;
+            }
+            Pawn carrier = (thing.ParentHolder as Pawn_CarryTracker)?.pawn;
+            if (carrier?.jobs?.curJob != null)
+            {
+                carrier.jobs.EndCurrentJob(JobCondition.Incompletable, startNewJob: true);
+                return;
+            }
+            Map map = thing.MapHeld;
+            if (map == null)
+            {
+                return;
+            }
+            foreach (Pawn pawn in map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer))
+            {
+                Job job = pawn.jobs?.curJob;
+                if (job == null)
+                {
+                    continue;
+                }
+                if (job.targetA.Thing == thing || job.targetB.Thing == thing || job.targetC.Thing == thing)
+                {
+                    pawn.jobs.EndCurrentJob(JobCondition.Incompletable, startNewJob: true);
+                }
+            }
         }
 
         public override void ExposeData()

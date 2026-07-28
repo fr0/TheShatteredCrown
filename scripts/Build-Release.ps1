@@ -97,6 +97,36 @@ if ($CopyDescription) {
     $descFile = Join-Path $root 'About\WorkshopDescription.txt'
     if (-not (Test-Path $descFile)) { throw "Not found: $descFile" }
     $text = Get-Content $descFile -Raw
+
+    # Image tokens -> real URLs. Steam only renders [img] from a URL it can
+    # reach; the reliable source is images already uploaded to this very
+    # Workshop item, whose addresses are saved in docs\workshop\image-urls.txt
+    # (one "TOKEN=url" per line) once you have them.
+    $urlFile = Join-Path $root 'docs\workshop\image-urls.txt'
+    $map = @{}
+    if (Test-Path $urlFile) {
+        foreach ($line in Get-Content $urlFile) {
+            if ($line -match '^\s*([A-Z_]+)\s*=\s*(\S+)\s*$') { $map[$Matches[1]] = $Matches[2] }
+        }
+    }
+    foreach ($k in $map.Keys) { $text = $text -replace ('\{\{' + $k + '\}\}'), $map[$k] }
+
+    $missing = [regex]::Matches($text, '\{\{([A-Z_]+)\}\}') | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
+    if ($missing) {
+        Write-Warn2 "Unresolved image tokens: $($missing -join ', ')"
+        Write-Host @"
+    To fill them in:
+      1. Upload the images in docs\workshop\ to the item page (Add/Edit Images).
+      2. On the item page, right-click each image -> Copy image address.
+      3. Put them in docs\workshop\image-urls.txt, one per line:
+             IMG_BANNER=https://steamuserimages-a.akamaihd.net/ugc/...
+             IMG_DIALOGUE=https://...
+             IMG_ACTIONPOINTS=https://...
+      4. Re-run this command. Until then the [img] tags stay as tokens and
+         will show as literal text on the page - do not paste yet.
+"@ -ForegroundColor Yellow
+    }
+
     Set-Clipboard -Value $text
     Write-Host "`nWorkshop description copied to clipboard ($($text.Length) chars)." -ForegroundColor Green
     Write-Host @"

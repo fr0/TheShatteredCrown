@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       CHECK SPOTS, ROUND 3.
+
+       Round two levelled the proficiency coverage. These are for the new
+       contract types: a nest that has to be read before it is fought, and a
+       holdfast where the useful information is what the bandits wrote down.
+
+       Art is reused from existing spots with a tint, the same way the
+       gambeson reuses the vanilla jacket - at sprite size a chewed beam and
+       a collapsed passage are the same silhouette, and inventing five more
+       textures buys less than five more decisions does.
+
+       House rules unchanged: one roll spends the spot, pass or fail; the
+       [Proficiency DC] prefix is added by code; the loud option is louder
+       when it fails.
+       ================================================================== -->
+
+  <!-- ============================================ nest: how old, how big -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_ChewedTimbers</defName>
+    <label>chewed timbers</label>
+    <description>The roof beams have been chewed from below until they are thin in the middle. Whatever did it took its time, and did not need light.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_CollapsedPassage</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(0.52,0.55,0.38)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Nature</proficiency>
+            <dc>7</dc>
+            <label>Judge the colony from the damage</label>
+            <successXp>30</successXp>
+            <successMessage>Two seasons of chewing, one brood, and the marks stop at chest height. That tells you roughly how many are in here and how big the largest gets. Nobody has to go through a door blind.</successMessage>
+            <failMessage>Wood, holes, insects. You cannot put a number to it, and everyone guesses differently.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>8</dc>
+            <label>Work out why they settled here</label>
+            <successXp>35</successXp>
+            <successMessage>They came up through a capped cistern the builders forgot. The nest is thickest there, so the rooms above it are the ones to hold - and the corridor behind you is not a way out. You say so before anyone commits.</successMessage>
+            <failMessage>You follow the damage in a circle and end up where you started.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ nest: where they are now -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_SpoorTrail</defName>
+    <label>spoor trail</label>
+    <description>A wet, dragged path across the flagstones, running one way more often than the other.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BeastTracks</texPath>
+      <drawSize>(1.15,1.15)</drawSize>
+      <color>(0.62,0.66,0.45)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Survival</proficiency>
+            <dc>7</dc>
+            <label>Follow it to the heart of the nest</label>
+            <successXp>30</successXp>
+            <successHediff>TSC_Hediff_HuntersEye</successHediff>
+            <successMessage>The trail is a routine: out for food, back to the brood, worn into a groove. You follow it the right way and reach the deep chamber knowing what is waiting there.</successMessage>
+            <failMessage>You lose it on bare stone, find something that might be it, and lose that too.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Perception</proficiency>
+            <dc>8</dc>
+            <label>Listen to the building instead</label>
+            <successXp>35</successXp>
+            <successMessage>You stop everyone and listen. Under the dripping there is a dry rattling two rooms east, and nothing at all to the west. Now you know which way to face.</successMessage>
+            <failMessage>The building is full of running water and your own people breathing. You give it up.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ holdfast: what they want -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_RansomLedger</defName>
+    <label>ransom ledger</label>
+    <description>A tally book, kept better than anything else here: names, dates, amounts, and beside some names a second column.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BanditLedger</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+      <color>(0.78,0.68,0.5)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>7</dc>
+            <label>Read what the second column means</label>
+            <successXp>35</successXp>
+            <successMessage>The second column is what they settled for. Every figure is lower than the asking price, and the gap widens down the page. This crew has been failing to get paid for a year and knows it - which changes how you talk to the man in charge.</successMessage>
+            <failMessage>Numbers beside names, and they stay numbers beside names.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>8</dc>
+            <label>Trace whose seals these are</label>
+            <successXp>35</successXp>
+            <successMessage>Three of the seals on this page belong to houses that died out a century ago. The book was old before these bandits found it, and they simply kept writing in it. The guild will want to know who else has.</successMessage>
+            <failMessage>Wax, pressed with something. You could not name one of them.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Thievery</proficiency>
+            <dc>8</dc>
+            <label>Take the page that names your rider</label>
+            <successXp>30</successXp>
+            <successMessage>One page out at the stitching and into your coat. Anyone who comes looking for this rider will find no record they were here.</successMessage>
+            <failMessage>The stitching is tighter than it looks. The tear goes wide and loud, and the half with the name on it stays put.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ anywhere: the drowned niche -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_DrownedNiche</defName>
+    <label>drowned niche</label>
+    <description>A shrine niche cut into the wall at knee height, half under standing water. Something was left in it and never collected.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_ShrineAltar</texPath>
+      <drawSize>(1.15,1.15)</drawSize>
+      <color>(0.55,0.62,0.68)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Arcana</proficiency>
+            <dc>8</dc>
+            <label>Read what was bound here</label>
+            <successXp>35</successXp>
+            <successHediff>TSC_Hediff_Blessed</successHediff>
+            <successMessage>It is a keeping-ward, and a good one - the niche was meant to hold something, not to protect it. You unpick the binding in the order it was made, which is the only order that does not wake it. The room feels larger afterwards.</successMessage>
+            <failMessage>You get two turns into it before the pattern stops making sense, and you are fairly sure it noticed.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Performance</proficiency>
+            <dc>7</dc>
+            <label>Finish the rite nobody came back to finish</label>
+            <successXp>30</successXp>
+            <successHediff>TSC_Hediff_Blessed</successHediff>
+            <successMessage>You do not know the words, so you use the ones you have, and you mean them. The company watches an eight-hundred-year-old errand finally get finished. Everyone walks out of the room lighter.</successMessage>
+            <failMessage>You get about halfway before your voice gives away how little you know. Stopping there is worse than not starting.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+</Defs>

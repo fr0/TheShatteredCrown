@@ -37,10 +37,10 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[bc_flavor]\n\nThe guild has posted honest rates for dishonest work: find the camp marked on your map and wipe it out. Payment on the last blade dropped.</li>
-        <li>bc_flavor->A bandit crew has set up on a road the guild's couriers use, and the tolls are paid in blood as often as coin.</li>
-        <li>bc_flavor->Farmsteads in the marked hills have gone quiet one by one. The guild traced the quiet to a camp.</li>
-        <li>bc_flavor->A caravan under guild protection was taken whole: goods, animals, and two drivers. The trail ends at a fortified camp.</li>
+        <li>questDescription->[bc_flavor]\n\nThe camp is marked on your map. Clear it out. Pay is charter silver and guild coin, on the last of them.</li>
+        <li>bc_flavor->A bandit crew has set up on a road the guild's couriers use. They are charging for passage, and not only in coin.</li>
+        <li>bc_flavor->Farmsteads in the marked hills have gone quiet, one after another. The guild traced it to a camp.</li>
+        <li>bc_flavor->A guild caravan was taken whole - goods, animals and two drivers. The trail ends at a fortified camp.</li>
       </rulesStrings>
     </questDescriptionRules>
     <root Class="QuestNode_Sequence">
@@ -91,7 +91,7 @@
             <nodes>
               <li Class="QuestNode_Letter">
                 <label TKey="LetterLabelContractLost">Contract lapsed: [resolvedQuestName]</label>
-                <text TKey="LetterTextContractLost">The camp scattered before the job was done. The guild strikes the contract; no payment, no penalty.</text>
+                <text TKey="LetterTextContractLost">The camp scattered before the job was done. The guild strikes the contract. No payment, no penalty.</text>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Fail</outcome>
@@ -110,13 +110,14 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelContractDone">Contract complete</label>
-                <text TKey="LetterTextContractDone">The camp is cleared and the road breathes easier. The guild pays on the spot, as chartered.</text>
+                <text TKey="LetterTextContractDone">The camp is cleared and the road is open. The guild pays as chartered.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>200</xp>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver">
                 <amount>350</amount>
+                <coins>4</coins>
               </li>
             </nodes>
           </node>
@@ -146,10 +147,10 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[dv_flavor]\n\nThe ruin is marked on your map. Go down, find the guild's strongbox, and carry it out. Whatever else you pry loose is yours by charter.</li>
-        <li>dv_flavor->Years ago a guild courier sheltered from a storm in a ruin of the old road network and never came out. The ledger still lists one sealed strongbox, undelivered.</li>
-        <li>dv_flavor->A ruin-diver sold the guild a map and a story: the Wayfarers' seal, glimpsed under a collapsed floor, left where it lay because the floor was still falling.</li>
-        <li>dv_flavor->The guild bought back its own stolen strongbox twice. The third thief never made it out of the ruin they hid it in. The strongbox is still there. So is what stopped them.</li>
+        <li>questDescription->[dv_flavor]\n\nThe ruin is marked on your map. Find the guild's strongbox, carry it out, and bring it to a guild hall - the guild pays on delivery, not on recovery. Anything else you find is yours. Pay is charter silver and guild coin.</li>
+        <li>dv_flavor->A guild courier sheltered from a storm in an old roadside ruin and never came out. The ledger still lists his strongbox as undelivered.</li>
+        <li>dv_flavor->A ruin-diver sold the guild a map. He says he saw the Wayfarers' seal under a collapsed floor and left it there because the floor was still coming down.</li>
+        <li>dv_flavor->The guild has bought back this strongbox twice. The third thief never got out of the ruin he hid it in. The box is still down there, and so is whatever stopped him.</li>
       </rulesStrings>
     </questDescriptionRules>
     <root Class="QuestNode_Sequence">
@@ -198,7 +199,7 @@
             <nodes>
               <li Class="QuestNode_Letter">
                 <label TKey="LetterLabelDelveLost">Contract lapsed: [resolvedQuestName]</label>
-                <text TKey="LetterTextDelveLost">The delve was abandoned with the strongbox still under the ruin. The guild strikes the contract and re-inks the ledger line: undelivered.</text>
+                <text TKey="LetterTextDelveLost">The delve was abandoned with the strongbox still under the ruin. The guild strikes the contract and marks the box undelivered.</text>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Fail</outcome>
@@ -209,6 +210,7 @@
 
         <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
           <item>TSC_GuildStrongbox</item>
+          <deliverToGuild>true</deliverToGuild>
           <node Class="QuestNode_Sequence">
             <nodes>
               <!-- The guild COLLECTS the box: paying for its return means it
@@ -221,13 +223,14 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelDelveDone">Contract complete</label>
-                <text TKey="LetterTextDelveDone">The strongbox is out of the dark and back under guild seal. Payment as chartered, and no questions about the state of the lock.</text>
+                <text TKey="LetterTextDelveDone">The strongbox is on the factor's table and back under guild seal. Payment as chartered, and no questions about the lock.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>200</xp>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver">
                 <amount>400</amount>
+                <coins>5</coins>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
@@ -255,10 +258,10 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[dd_flavor]\n\nNobody agrees how far down the works go. Every floor has been claimed by something since they were abandoned, and the guild's surveyor was not paid enough to write down what.\n\nThe coffer is on the lowest floor, whichever one that turns out to be. Bring it up.</li>
-        <li>dd_flavor->A ruin of the old road network sits on works that go down further than the ruin is wide. The guild filed a coffer as lost in them and has been embarrassed about it ever since.</li>
-        <li>dd_flavor->The last crew the guild sent down came back one short and would not go again for triple. Their report is one line long: it is not the same floor twice.</li>
-        <li>dd_flavor->The works were a staging depot before the war, which means a strongroom, which means the guild wants what is in it before someone else counts that far.</li>
+        <li>questDescription->[dd_flavor]\n\nNobody agrees how far down the works go. Something has claimed every floor since they were abandoned, and the guild's surveyor did not stay long enough to write down what.\n\nThe coffer is on the lowest floor, however far down that is. Bring it up, and bring it to a guild hall. The guild pays the deep rate on delivery, in silver and coin.</li>
+        <li>dd_flavor->An old roadside ruin sits on works that go down further than the ruin is wide. The guild lost a coffer in them and has been embarrassed about it since.</li>
+        <li>dd_flavor->The last crew the guild sent down came back one short and would not go again for triple pay. Their report is one line: it is not the same floor twice.</li>
+        <li>dd_flavor->The works were a staging depot before the war. That means a strongroom, and the guild wants it opened before somebody else works that out.</li>
       </rulesStrings>
     </questDescriptionRules>
     <root Class="QuestNode_Sequence">
@@ -303,7 +306,7 @@
             <nodes>
               <li Class="QuestNode_Letter">
                 <label TKey="LetterLabelDeepDelveLost">Contract lapsed: [resolvedQuestName]</label>
-                <text TKey="LetterTextDeepDelveLost">The delve was abandoned with the coffer still on the bottom floor. The guild strikes the contract; the works keep what they were keeping.</text>
+                <text TKey="LetterTextDeepDelveLost">The delve was abandoned with the coffer still on the bottom floor. The guild strikes the contract.</text>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Fail</outcome>
@@ -314,6 +317,7 @@
 
         <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
           <item>TSC_GuildStrongbox</item>
+          <deliverToGuild>true</deliverToGuild>
           <node Class="QuestNode_Sequence">
             <nodes>
               <li Class="TheShatteredCrown.QuestNode_TSC_TakeItem">
@@ -323,10 +327,14 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelDeepDelveDone">Contract complete</label>
-                <text TKey="LetterTextDeepDelveDone">Three floors down and three floors back up, with the coffer. The guild pays the deep rate and adds the party to a very short list of crews it will send down again.</text>
+                <text TKey="LetterTextDeepDelveDone">Three floors down, three floors back up, and a long road after that. The coffer is on the factor's table. The guild pays the deep rate and puts your company on a short list of crews it will send down again.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>350</xp>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver">
+                <amount>600</amount>
+                <coins>8</coins>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
@@ -350,10 +358,10 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[ht_flavor]\n\nThe locals have a name for it. They will not use it after dark, but they have one: [beastName].\n\nIts den is marked on your map. Go in and finish it; the guild pays on proof of the kill.</li>
-        <li>ht_flavor->Something has been taking livestock in the marked hills, and last month it stopped bothering with livestock. The locals pooled a bounty and the guild matched it.</li>
-        <li>ht_flavor->A beast has denned across a droving road and learned that drovers are slower than sheep. The guild wants the road back.</li>
-        <li>ht_flavor->Hunters went after a killer in the hills and came back fewer. The bounty doubled. The guild is done waiting.</li>
+        <li>questDescription->[ht_flavor]\n\nThe locals call it [beastName], though not after dark.\n\nIts den is marked on your map. Go in and finish it. The guild pays on proof of the kill, in silver and coin.</li>
+        <li>ht_flavor->Something has been taking livestock in the marked hills. Last month it started taking people. The locals pooled a bounty and the guild matched it.</li>
+        <li>ht_flavor->A beast has denned beside a droving road and learned that drovers are slower than sheep. The guild wants the road back.</li>
+        <li>ht_flavor->Hunters went after it and came back fewer. The bounty doubled. The guild is done waiting.</li>
       </rulesStrings>
     </questDescriptionRules>
     <root Class="QuestNode_Sequence">
@@ -399,6 +407,9 @@
           <tag>prey</tag>
           <!-- Rolled at generation: names the contract AND the animal. -->
           <nameAs>beastName</nameAs>
+          <!-- A bountied man-eater comes at you. The contract is to end it,
+               not to go looking for a bear that would rather graze. -->
+          <manhunter>true</manhunter>
         </li>
 
         <li Class="QuestNode_Signal">
@@ -407,7 +418,7 @@
             <nodes>
               <li Class="QuestNode_Letter">
                 <label TKey="LetterLabelHuntLost">Contract lapsed: [resolvedQuestName]</label>
-                <text TKey="LetterTextHuntLost">The hunt was abandoned with the beast still breathing. The guild strikes the contract; the bounty stands for whoever tries next.</text>
+                <text TKey="LetterTextHuntLost">The hunt was abandoned with the beast still alive. The guild strikes the contract. The bounty stands for whoever tries next.</text>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Fail</outcome>
@@ -423,13 +434,14 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelHuntDone">Contract complete</label>
-                <text TKey="LetterTextHuntDone">The beast is down and the hills are quieter for it. The guild pays the bounty in full; the hide is yours by charter.</text>
+                <text TKey="LetterTextHuntDone">The beast is down. The guild pays the bounty in full, and the hide is yours.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>150</xp>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver">
                 <amount>250</amount>
+                <coins>3</coins>
               </li>
             </nodes>
           </node>

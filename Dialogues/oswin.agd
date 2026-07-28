@@ -78,7 +78,7 @@ He taps the letter.
 == lead_taken ==
 He marks the city with a steady hand.
 
-"Find the bard. Hear the whole song, and more to the point, find out where she *learned* it." He closes the satchel. "The crown was shattered into nine, courier. You are carrying proof that the pieces can be found. Now somebody is singing about the rest."
+"Find the bard. Hear the whole song, and more to the point, find out where she *learned* it." He closes the satchel. "The crown was shattered into five, courier. You are carrying proof that the pieces can be found. Now somebody is singing about the rest."
 
 "Oh, and this time, we're coming with you."
 
@@ -241,7 +241,7 @@ Oswin's quill stops mid-word.
 == arcana_deep ==
 Oswin's quill stops. He looks at you the way he looks at a rare book.
 
-"*Somebody* reads. Yes, the Binder's school held that memory outlives the mind that made it, the way heat outlives the fire. The crown itself was built on that doctrine: nine shards, each one holding... hm." He catches himself, glances toward Serra's fire, lowers his voice. "Each one holding more than metal. Ask me again when the ettersnap has spoken. I dislike being wrong in front of the well-read."
+"*Somebody* reads. Yes, the Binder's school held that memory outlives the mind that made it, the way heat outlives the fire. The crown itself was built on that doctrine: five shards, each one holding... hm." He catches himself, glances toward Serra's fire, lowers his voice. "Each one holding more than metal. Ask me again when the ettersnap has spoken. I dislike being wrong in front of the well-read."
 
 * "I'll hold you to it, scholar." -> hub
     do flag(TSC_OswinRespect); grant_xp(25); affinity(TSC_Npc_Oswin, +5)

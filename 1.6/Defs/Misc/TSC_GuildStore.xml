@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       The guild locker: what coins buy. Opened from the factor's dialogue
+       (guild_store()), merged from every TSC_GuildStoreDef so the shelf can
+       grow in sections.
+
+       Prices are set against a contract paying 3 to 8 coins, so:
+         a few coins  = field kit, restocked between jobs
+         6 to 14      = the gear a party actually rides out in
+         15           = a class manual, roughly four contracts of saving
+         30+          = the back shelf, and something to aim at for a while
+
+       The back shelf needs TSC_GuildRates - the factor's Persuasion haggle -
+       which gives that check a second, longer-lived payoff than a 20%
+       silver bump.
+       ================================================================== -->
+
+  <TheShatteredCrown.TSC_GuildStoreDef>
+    <defName>TSC_GuildStore_Standard</defName>
+    <entries>
+
+      <!-- ===== provisions =====
+           A charter rider reprovisions at the guild, not at a market
+           stall, so the locker carries food. Priced low on purpose: coins
+           are meant to be saved for the shelf below, and a party that has
+           to choose between eating and ever affording a manual will just
+           stop taking the long contracts. -->
+      <li>
+        <thing>Pemmican</thing>
+        <count>150</count>
+        <cost>2</cost>
+        <label>pemmican</label>
+        <note>Guild travel ration. Keeps for a year, tastes like it intends to.</note>
+      </li>
+      <li>
+        <thing>MealSimple</thing>
+        <count>20</count>
+        <cost>2</cost>
+        <label>simple meals</label>
+        <note>Off the factor's own kitchen. Eat them before they turn.</note>
+      </li>
+      <li>
+        <thing>MealFine</thing>
+        <count>10</count>
+        <cost>3</cost>
+        <label>fine meals</label>
+        <note>"For the night before a delve. Morale is a supply, same as arrows."</note>
+      </li>
+
+      <!-- ===== field kit ===== -->
+      <li>
+        <thing>Bedroll</thing>
+        <stuff>Cloth</stuff>
+        <quality>Good</quality>
+        <cost>2</cost>
+        <note>Guild issue. Rolls tight, straps to anything, smells of every camp it has ever slept in.</note>
+      </li>
+      <li>
+        <thing>Bedroll</thing>
+        <stuff>Cloth</stuff>
+        <quality>Good</quality>
+        <count>4</count>
+        <cost>6</cost>
+        <label>bedrolls, set of four</label>
+        <note>A full camp in one bundle, priced under four singles. The guild wants its crews sleeping, not shopping.</note>
+      </li>
+      <li>
+        <thing>MedicineHerbal</thing>
+        <count>10</count>
+        <cost>2</cost>
+        <label>herbal medicine</label>
+        <note>Guild field kit. Bandages, boiled cloth, and a tin of something bitter.</note>
+      </li>
+      <li>
+        <thing>TSC_Apparel_Gambeson</thing>
+        <stuff>Cloth</stuff>
+        <quality>Good</quality>
+        <cost>4</cost>
+        <note>Charter issue. Warm on watch, and stubborn about arrowheads.</note>
+      </li>
+
+      <!-- ===== weapons ===== -->
+      <li>
+        <thing>Bow_Recurve</thing>
+        <quality>Good</quality>
+        <cost>6</cost>
+        <note>Guild-strung, guild-tillered. Draws heavier than it looks.</note>
+      </li>
+      <li>
+        <thing>MeleeWeapon_Gladius</thing>
+        <stuff>Steel</stuff>
+        <quality>Excellent</quality>
+        <cost>8</cost>
+        <note>Short, mean, and made for the kind of room you cannot swing in.</note>
+      </li>
+      <li>
+        <thing>MeleeWeapon_Mace</thing>
+        <stuff>Steel</stuff>
+        <quality>Excellent</quality>
+        <cost>9</cost>
+        <note>For the armoured sort. What it does not cut, it closes.</note>
+      </li>
+      <li>
+        <thing>MeleeWeapon_LongSword</thing>
+        <stuff>Steel</stuff>
+        <quality>Excellent</quality>
+        <cost>11</cost>
+        <note>The charter blade. Every factor's locker has one, and they are all the same weight.</note>
+      </li>
+      <li>
+        <thing>Bow_Great</thing>
+        <quality>Excellent</quality>
+        <cost>11</cost>
+        <note>A war bow. The guild will not sell you one until it has seen you work.</note>
+      </li>
+
+      <!-- ===== instruments =====
+           A guild that pays couriers to carry news also pays them to carry
+           songs, so the factor stocks the tools for it. Priced with the
+           weapons, because that is the slot they cost you. -->
+      <li>
+        <thing>TSC_Instrument_Horn</thing>
+        <quality>Good</quality>
+        <cost>7</cost>
+        <note>Five notes, and every rider on the charter knows all five.</note>
+      </li>
+      <li>
+        <thing>TSC_Instrument_Drum</thing>
+        <quality>Good</quality>
+        <cost>9</cost>
+        <note>Sets a pace. A column that keeps its pace arrives able to fight.</note>
+      </li>
+      <li>
+        <thing>TSC_Instrument_Lute</thing>
+        <quality>Excellent</quality>
+        <cost>13</cost>
+        <note>"Guild-strung. If you have someone who can actually play, this is the one."</note>
+      </li>
+
+      <!-- ===== armour ===== -->
+      <li>
+        <thing>TSC_Apparel_Helm</thing>
+        <stuff>Steel</stuff>
+        <quality>Good</quality>
+        <cost>6</cost>
+        <note>Issued by the crate, stamped inside the brow. Wear it.</note>
+      </li>
+      <li>
+        <thing>TSC_Apparel_Helm</thing>
+        <stuff>Steel</stuff>
+        <quality>Excellent</quality>
+        <cost>11</cost>
+        <label>open helm (excellent)</label>
+        <note>Beaten from one piece rather than riveted from four. It is the seams that fail.</note>
+      </li>
+      <li>
+        <thing>TSC_Apparel_Chausses</thing>
+        <stuff>Steel</stuff>
+        <quality>Good</quality>
+        <cost>5</cost>
+        <note>Mail from the belt down. The guild buries more riders with leg wounds than it likes to say.</note>
+      </li>
+      <li>
+        <thing>TSC_Apparel_Chausses</thing>
+        <stuff>Steel</stuff>
+        <quality>Excellent</quality>
+        <cost>9</cost>
+        <label>chausses (excellent)</label>
+        <note>Riveted rather than butted. The difference shows once, and once is enough.</note>
+      </li>
+      <li>
+        <thing>Apparel_PlateArmor</thing>
+        <stuff>Steel</stuff>
+        <quality>Good</quality>
+        <cost>14</cost>
+        <note>Fitted from the guild's stock of dead men's plate, hammered honest again.</note>
+      </li>
+      <li>
+        <thing>Apparel_PlateArmor</thing>
+        <stuff>Steel</stuff>
+        <quality>Excellent</quality>
+        <cost>22</cost>
+        <label>plate armor (excellent)</label>
+        <note>Made to a rider's measurements rather than a corpse's. Worth the wait.</note>
+      </li>
+
+    </entries>
+  </TheShatteredCrown.TSC_GuildStoreDef>
+
+  <!-- ==================================================================
+       The manuals. The guild keeps copies because a crew that can field a
+       cleric comes back more often than one that cannot. This is the third
+       route into a class, after loot and being taught: expensive, but the
+       only one the player can actually plan around.
+       ================================================================== -->
+
+  <TheShatteredCrown.TSC_GuildStoreDef>
+    <defName>TSC_GuildStore_Manuals</defName>
+    <entries>
+      <li><thing>TSC_Book_Warden</thing><cost>15</cost><note>Copied from the border garrison drill-books.</note></li>
+      <li><thing>TSC_Book_Cleric</thing><cost>15</cost><note>The guild keeps these behind the ledger, and does not discuss where from.</note></li>
+      <li><thing>TSC_Book_Bard</thing><cost>15</cost><note>Half songbook, half something less innocent.</note></li>
+      <li><thing>TSC_Book_Rogue</thing><cost>15</cost><note>Sold openly, which tells you something about the guild.</note></li>
+      <li><thing>TSC_Book_Wizard</thing><cost>15</cost><note>Chained shut. The factor unchains it after the coins.</note></li>
+      <li><thing>TSC_Book_Sorcerer</thing><cost>15</cost><note>Nobody at the guild will admit to having read it.</note></li>
+      <li><thing>TSC_Book_Barbarian</thing><cost>15</cost><note>Not written by the people it describes.</note></li>
+      <li><thing>TSC_Book_Druid</thing><cost>15</cost><note>Damp to the touch in any weather.</note></li>
+      <li><thing>TSC_Book_Monk</thing><cost>15</cost><note>Ninety pages of standing correctly, and then the rest.</note></li>
+      <li><thing>TSC_Book_Paladin</thing><cost>15</cost><note>An oath, and the small print under an oath.</note></li>
+      <li><thing>TSC_Book_Ranger</thing><cost>15</cost><note>Mostly maps. The maps are the lesson.</note></li>
+    </entries>
+  </TheShatteredCrown.TSC_GuildStoreDef>
+
+  <!-- ==================================================================
+       The back shelf: shown only to a rider who talked the factor's rates
+       up. One of each, per save.
+       ================================================================== -->
+
+  <TheShatteredCrown.TSC_GuildStoreDef>
+    <defName>TSC_GuildStore_BackShelf</defName>
+    <entries>
+      <li>
+        <thing>MeleeWeapon_LongSword</thing>
+        <stuff>Steel</stuff>
+        <quality>Masterwork</quality>
+        <cost>30</cost>
+        <label>masterwork longsword</label>
+        <note>"That one is not charter stock. It came in on a dead man's contract and the guild never found the family."</note>
+        <requiresFlag>TSC_GuildRates</requiresFlag>
+        <forbiddenFlag>TSC_FactorBought</forbiddenFlag>
+        <unique>true</unique>
+      </li>
+      <li>
+        <thing>Apparel_PlateArmor</thing>
+        <stuff>Steel</stuff>
+        <quality>Legendary</quality>
+        <cost>50</cost>
+        <label>legendary plate armor</label>
+        <note>"Old work. Better than anything being made now, and the guild knows it. Bring the coins and it is yours."</note>
+        <requiresFlag>TSC_GuildRates</requiresFlag>
+        <forbiddenFlag>TSC_FactorBought</forbiddenFlag>
+        <unique>true</unique>
+      </li>
+    </entries>
+  </TheShatteredCrown.TSC_GuildStoreDef>
+
+</Defs>

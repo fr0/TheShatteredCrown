@@ -6,35 +6,87 @@
 dialogue TSC_Dialogue_GuildFactor
 
 == start ==
-The guild's factor holds a table near the middle of town: ledger, ink, a strongbox chained to the table leg, and the Wayfarers' mark on a standing board behind him. He reads your charter upside down without asking to see it.
+The guild's factor works from a table near the middle of town: ledger, ink, a strongbox chained to the table leg, and the Wayfarers' mark on a board behind him. He reads your charter upside down without asking for it.
 
-"A charter-rider. Good. The roads make more work than the guild can write down. What do you need?"
+"A charter rider. Good. There is more work on the roads than the guild can write down. What do you need?"
 
 * "What work is posted?" -> board
     do contract_board()
 * "I'm looking to hire on help." -> hire
     do hire_offer()
+* "I've coin of the charter to spend." -> locker
+    do guild_store()
 * "The guild's rates are thin for what the roads cost. Sweeten them." -> rates_up
     if not flag(TSC_GuildRates)
     check Persuasion 8 -> rates_up | rates_flat
+* [Set the toll book on his ledger, open at the countersigned page.] -> ledger
+    if flag(TSC_LedgerRead) and quest_active(TSC_Quest_LedgerChoice)
 * "Nothing today." -> end
 
 == board ==
-He turns the standing board so you can read it, and goes back to his ledger while you do.
+He turns the board round so you can read it, and goes back to his ledger.
 
 "Take what suits. Pay is on completion, as chartered."
 
 * "Let me look." -> start
 
+== ledger ==
+He reads it upside down out of habit, then turns it round and reads it properly.
+
+The pen goes down. He does not reach for the book, and he does not look at the door.
+
+"That is a guild hand," he says. "You will have worked out whose."
+
+He is quiet for a moment. When he speaks again the professional manner is gone.
+
+"The charter says I should put you in irons for this. It also says the man who signed those margins draws the same wage I do." He folds his hands. "It is your book. Tell me what you want to happen and I will tell you what it costs."
+
+* "The guild should have it. Let them deal with their own." -> ledger_in
+    do flag(TSC_LedgerTurnedIn); signal(TSC_Quest_LedgerChoice, TSC_LedgerTurnIn); grant_xp(25)
+* "It is worth more to you than it is to them. Name a price." -> ledger_out
+    do flag(TSC_FactorBought); signal(TSC_Quest_LedgerChoice, TSC_LedgerSell); grant_xp(25)
+* "I have not decided yet." -> start
+
+== ledger_in ==
+He takes the book carefully and puts it in the chained strongbox rather than a drawer.
+
+"It goes up the road tonight, and I will not be told what happens after that." He picks the pen back up. "For what it is worth: there are riders who would have sold me that, and I would have paid."
+
+He looks at you properly for the first time since you came in.
+
+"The guild will hear your company's name, and hear it well. That counts for something out here."
+
+* "See that it does." -> start
+
+== ledger_out ==
+He does not haggle, which tells you that you asked for too little. He counts it out of the strongbox in front of you.
+
+The book goes into the brazier. He watches until the signed page has burned through.
+
+"A pleasure," he says, and means it, though something in his face has closed. "The standard stock is always available to you. Charter goods, posted rates. Everything a rider needs."
+
+He does not mention the back of the case. It stays under the table.
+
+* "A pleasure." -> start
+
+== locker ==
+He reaches past the chained strongbox and brings up a flat iron case that opens on both sides.
+
+"Charter goods. The guild pays in coin because coin is the only thing this case takes. Silver buys what any road buys. These buy what the guild wants its people carrying."
+
+* "Let me see the case." -> start
+    do guild_store()
+* "Another time." -> start
+
 == hire ==
-"There's always somebody in a town like this wanting out of it." He runs a finger down the ledger without needing to look. "Guild vets them enough to know which end of the work they hold. The rest you find out on the road."
+"There is always somebody in a town like this wanting out of it." He runs a finger down the ledger without looking. "The guild checks them enough to know which end of the work they hold. The rest you find out on the road."
 
 * "Understood." -> start
 
 == rates_up ==
-The factor sets down his pen, which men like him do not do for nothing.
+The factor puts his pen down.
 
-"The roads cost what they cost," he says. Then, after a moment: "And the guild knows what its couriers have been riding through this season. All right. Charter rate, plus a fifth, marked to your name. Do not tell the next rider."
+"The roads cost what they cost," he says. "And the guild knows what its riders have been through this season. All right. Charter rate plus a fifth, marked to your name. Do not tell the next rider."
 
 * "Done. Show me the board." -> board
     do flag(TSC_GuildRates); grant_xp(25); contract_board()
@@ -42,7 +94,7 @@ The factor sets down his pen, which men like him do not do for nothing.
     do flag(TSC_GuildRates); grant_xp(25)
 
 == rates_flat ==
-"The rates are the rates." He does not set down the pen. "The guild pays on completion at charter terms, same as every rider on this ledger. The board is behind me if the terms suit; the road is behind you if they don't."
+"The rates are the rates." He keeps hold of the pen. "The guild pays on completion at charter terms, the same as every rider in this ledger. The board is behind me if that suits you."
 
 * "Fair enough. Show me the board." -> board
     do contract_board()

@@ -9,10 +9,16 @@ namespace TheShatteredCrown
     /// The guild pays: on the given signal, silver lands with the party -
     /// into a caravan's inventory on the road, or dropped at a free
     /// colonist's feet on a map. The contract reward primitive.
+    ///
+    /// Contracts also pay guild coins, the scrip that buys what silver
+    /// cannot; set <c>coins</c> alongside <c>amount</c> and both land in
+    /// the same payout, announced together.
     /// </summary>
     public class QuestNode_TSC_GiveSilver : QuestNode
     {
         public SlateRef<int> amount;
+
+        public SlateRef<int> coins;
 
         [NoTranslate]
         public SlateRef<string> inSignal;
@@ -23,13 +29,14 @@ namespace TheShatteredCrown
             QuestGen.quest.AddPart(new QuestPart_TSC_GiveSilver
             {
                 amount = amount.GetValue(slate),
+                coins = coins.GetValue(slate),
                 inSignal = QuestGenUtility.HardcodedSignalWithQuestID(inSignal.GetValue(slate)) ?? slate.Get<string>("inSignal"),
             });
         }
 
         protected override bool TestRunInt(Slate slate)
         {
-            return amount.GetValue(slate) > 0;
+            return amount.GetValue(slate) > 0 || coins.GetValue(slate) > 0;
         }
     }
 
@@ -37,18 +44,21 @@ namespace TheShatteredCrown
     {
         public string inSignal;
         public int amount;
+        public int coins;
         private bool paid;
 
         public override void Notify_QuestSignalReceived(Signal signal)
         {
             base.Notify_QuestSignalReceived(signal);
-            if (signal.tag != inSignal || paid || amount <= 0)
+            if (signal.tag != inSignal || paid || (amount <= 0 && coins <= 0))
             {
                 return;
             }
             paid = true;
             // Haggled once at a guild hall, better rates forever: the
             // TSC_GuildRates flag is set by the factor's Persuasion check.
+            // Silver only - the haggle is over the charter rate, and coin
+            // prices on the quartermaster's shelf stay predictable.
             if (DialogueStateManager.Current.IsSet("TSC_GuildRates"))
             {
                 amount = UnityEngine.Mathf.RoundToInt(amount * 1.2f);
@@ -58,9 +68,8 @@ namespace TheShatteredCrown
             {
                 foreach (Pawn pawn in map.mapPawns.FreeColonistsSpawned)
                 {
-                    Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
-                    silver.stackCount = amount;
-                    GenPlace.TryPlaceThing(silver, pawn.Position, map, ThingPlaceMode.Near);
+                    PlaceSilver(pawn.Position, map);
+                    TSC_GuildCoins.Give(coins, out _);
                     Announce(pawn);
                     return;
                 }
@@ -71,17 +80,45 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
-                silver.stackCount = amount;
-                CaravanInventoryUtility.GiveThing(caravan, silver);
+                if (amount > 0)
+                {
+                    Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
+                    silver.stackCount = amount;
+                    CaravanInventoryUtility.GiveThing(caravan, silver);
+                }
+                TSC_GuildCoins.Give(coins, out _);
                 Announce(caravan.PawnsListForReading[0]);
                 return;
             }
         }
 
+        private void PlaceSilver(IntVec3 cell, Map map)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+            Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
+            silver.stackCount = amount;
+            GenPlace.TryPlaceThing(silver, cell, map, ThingPlaceMode.Near);
+        }
+
         private void Announce(Thing near)
         {
-            Messages.Message($"The guild pays out {amount} silver for the contract.",
+            string pay;
+            if (amount > 0 && coins > 0)
+            {
+                pay = $"{amount} silver and {TSC_GuildCoins.Label(coins)}";
+            }
+            else if (coins > 0)
+            {
+                pay = TSC_GuildCoins.Label(coins);
+            }
+            else
+            {
+                pay = $"{amount} silver";
+            }
+            Messages.Message($"The guild pays out {pay} for the contract.",
                 near, MessageTypeDefOf.PositiveEvent, historical: false);
         }
 
@@ -90,6 +127,7 @@ namespace TheShatteredCrown
             base.ExposeData();
             Scribe_Values.Look(ref inSignal, "inSignal");
             Scribe_Values.Look(ref amount, "amount");
+            Scribe_Values.Look(ref coins, "coins");
             Scribe_Values.Look(ref paid, "paid");
         }
     }

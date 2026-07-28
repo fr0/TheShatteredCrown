@@ -60,7 +60,15 @@ namespace TheShatteredCrown
                 forceGenerateNewPawn: true, fixedBiologicalAge: 6f, fixedChronologicalAge: 6f));
             summon.Name = new NameSingle($"{caster.LabelShort}'s {Props.kind.label}");
             GenSpawn.Spawn(summon, cell, map);
-            int durationTicks = Mathf.RoundToInt(Props.durationSeconds * 60f);
+            int durationTicks = Mathf.RoundToInt(Props.durationSeconds * 60f
+                * TSC_FeatMods.DurationFactor(caster, parent.def));
+            foreach (TSC_FeatAbilityMod mod in TSC_FeatMods.ModsFor(caster, parent.def))
+            {
+                if (mod.extraHediff != null)
+                {
+                    summon.health.AddHediff(mod.extraHediff);
+                }
+            }
             // Informational hediff: shows on the turn-order widget with the
             // time remaining. The tracker is the authority on the lifetime.
             Hediff hediff = HediffMaker.MakeHediff(TSC_DefOf.TSC_Hediff_Summoned, summon);

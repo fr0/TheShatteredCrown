@@ -30,15 +30,48 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            float remaining = Props.healAmount * TSC_SpellScaling.Factor(parent.pawn, parent.def);
+            float amount = Props.healAmount * TSC_SpellScaling.Factor(parent.pawn, parent.def);
+            bool stopBleeding = false;
+            bool removeDebuff = false;
+            bool secondAlly = false;
+            foreach (TSC_FeatAbilityMod mod in TSC_FeatMods.ModsFor(parent.pawn, parent.def))
+            {
+                amount *= mod.healBonusFactor;
+                stopBleeding |= mod.stopsBleeding;
+                removeDebuff |= mod.removesOneDebuff;
+                secondAlly |= mod.healSecondAllyHalf;
+            }
+            HealWorstFirst(pawn, amount, stopBleeding);
+            if (removeDebuff)
+            {
+                RemoveOneDebuff(pawn);
+            }
+            if (secondAlly && pawn.Spawned)
+            {
+                Pawn other = FindOtherInjuredAlly(pawn);
+                if (other != null)
+                {
+                    HealWorstFirst(other, amount * 0.5f, stopBleeding: false);
+                }
+            }
+        }
+
+        private static void HealWorstFirst(Pawn pawn, float remaining, bool stopBleeding)
+        {
             List<Hediff_Injury> injuries = new List<Hediff_Injury>();
             pawn.health.hediffSet.GetHediffs(ref injuries);
             injuries.SortByDescending(injury => injury.Severity);
             foreach (Hediff_Injury injury in injuries)
             {
+                // Warm Hands: bind whatever cannot be closed outright, so the
+                // patient stops losing blood even when the healing runs out.
+                if (stopBleeding && injury.Bleeding)
+                {
+                    injury.Tended(1f, 1f);
+                }
                 if (remaining <= 0f)
                 {
-                    break;
+                    continue;
                 }
                 float heal = Mathf.Min(remaining, injury.Severity);
                 injury.Heal(heal);
@@ -48,6 +81,40 @@ namespace TheShatteredCrown
             {
                 FleckMaker.ThrowMetaIcon(pawn.Position, pawn.Map, FleckDefOf.HealingCross);
             }
+        }
+
+        /// <summary>Unmoved: one timed malady lifted along with the wounds.</summary>
+        private static void RemoveOneDebuff(Pawn pawn)
+        {
+            foreach (Hediff hediff in pawn.health.hediffSet.hediffs)
+            {
+                if (hediff.def.isBad && hediff is HediffWithComps withComps
+                    && withComps.TryGetComp<HediffComp_Disappears>() != null)
+                {
+                    pawn.health.RemoveHediff(hediff);
+                    return;
+                }
+            }
+        }
+
+        private static Pawn FindOtherInjuredAlly(Pawn healed)
+        {
+            Pawn best = null;
+            float bestDist = 5.5f;
+            foreach (Pawn ally in healed.Map.mapPawns.SpawnedPawnsInFaction(healed.Faction))
+            {
+                if (ally == healed || ally.Dead || !ally.health.hediffSet.HasNaturallyHealingInjury())
+                {
+                    continue;
+                }
+                float dist = ally.Position.DistanceTo(healed.Position);
+                if (dist < bestDist)
+                {
+                    best = ally;
+                    bestDist = dist;
+                }
+            }
+            return best;
         }
 
         public override bool Valid(LocalTargetInfo target, bool throwMessages = false)
@@ -162,11 +229,17 @@ namespace TheShatteredCrown
                 return;
             }
             IntVec3 center = target.Cell.IsValid ? target.Cell : caster.Position;
+            // An instrument in hand carries a song further; feats can widen
+            // any area ability. Both are exactly 1 when not in play.
+            float radius = Props.radius * TSC_Instruments.SongRadius(caster, parent.def)
+                * TSC_FeatMods.RadiusFactor(caster, parent.def);
+            float durationFactor = TSC_FeatMods.DurationFactor(caster, parent.def);
+            List<TSC_FeatAbilityMod> featMods = new List<TSC_FeatAbilityMod>(TSC_FeatMods.ModsFor(caster, parent.def));
             IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
             for (int i = 0; i < pawns.Count; i++)
             {
                 Pawn pawn = pawns[i];
-                if (pawn.Dead || !pawn.Position.InHorDistOf(center, Props.radius))
+                if (pawn.Dead || !pawn.Position.InHorDistOf(center, radius))
                 {
                     continue;
                 }
@@ -190,9 +263,22 @@ namespace TheShatteredCrown
                 {
                     pawn.health.RemoveHediff(existing);
                 }
-                pawn.health.AddHediff(Props.hediff);
+                Hediff added = pawn.health.AddHediff(Props.hediff);
                 float scale = TSC_SpellScaling.Factor(caster, parent.def);
                 TSC_SpellScaling.SetMagnitude(pawn, Props.hediff, scale);
+                TSC_FeatMods.ApplyDuration(added, durationFactor);
+                foreach (TSC_FeatAbilityMod mod in featMods)
+                {
+                    if (mod.extraHediff != null && !pawn.health.hediffSet.HasHediff(mod.extraHediff))
+                    {
+                        pawn.health.AddHediff(mod.extraHediff);
+                    }
+                    // Unignorable: caught in the challenge, the enemy answers it.
+                    if (mod.tauntCaster && pawn.HostileTo(caster) && pawn.mindState != null)
+                    {
+                        pawn.mindState.enemyTarget = caster;
+                    }
+                }
                 if (Props.energyRestore > 0f && pawn != caster)
                 {
                     TSC_ProgressionManager.Current.RestoreEnergy(pawn, Props.energyRestore * scale);
@@ -200,6 +286,19 @@ namespace TheShatteredCrown
                 if (Props.touchMark && pawn.Spawned)
                 {
                     FleckMaker.ThrowMetaIcon(pawn.Position, map, Props.enemiesOnly ? FleckDefOf.IncapIcon : FleckDefOf.PsycastSkipInnerExit);
+                }
+            }
+            // Encore: the singer is paid too.
+            if (Props.energyRestore > 0f)
+            {
+                foreach (TSC_FeatAbilityMod mod in featMods)
+                {
+                    if (mod.energyRestoreIncludesCaster)
+                    {
+                        TSC_ProgressionManager.Current.RestoreEnergy(caster,
+                            Props.energyRestore * TSC_SpellScaling.Factor(caster, parent.def));
+                        break;
+                    }
                 }
             }
         }
@@ -320,7 +419,10 @@ namespace TheShatteredCrown
                 FleckMaker.ThrowDustPuff(pos, map, 1.2f);
                 return;
             }
-            FleckCreationData data = FleckMaker.GetDataStatic(pos, map, FleckDefOf.PsycastAreaEffect, Props.scale);
+            // The ring is the player's read on how far a song reached, so it
+            // has to grow with the instrument the same way the radius does.
+            float scale = Props.scale * TSC_Instruments.SongRadius(parent.pawn, parent.def);
+            FleckCreationData data = FleckMaker.GetDataStatic(pos, map, FleckDefOf.PsycastAreaEffect, scale);
             data.rotationRate = Rand.Range(-3f, 3f);
             data.instanceColor = Props.color;
             map.flecks.CreateFleck(data);
@@ -467,6 +569,14 @@ namespace TheShatteredCrown
             }
             DamageDef damageDef = Props.damageDef ?? DamageDefOf.Burn;
             float damage = Props.damage;
+            float radius = Props.radius * TSC_FeatMods.RadiusFactor(caster, parent.def);
+            float armorPen = Props.armorPenetration;
+            bool ignite = false;
+            foreach (TSC_FeatAbilityMod mod in TSC_FeatMods.ModsFor(caster, parent.def))
+            {
+                armorPen += mod.armorPenetrationBonus;
+                ignite |= mod.igniteTarget;
+            }
             if (Props.scaleClass != null && Props.damagePerLevel > 0f)
             {
                 // Explicit per-level curve (Magic Missile): replaces the
@@ -482,9 +592,13 @@ namespace TheShatteredCrown
             {
                 damage *= TSC_SpellScaling.Factor(caster, parent.def);
             }
-            if (Props.radius <= 0.01f)
+            if (radius <= 0.01f)
             {
-                target.Thing?.TakeDamage(new DamageInfo(damageDef, damage, Props.armorPenetration, -1f, caster));
+                target.Thing?.TakeDamage(new DamageInfo(damageDef, damage, armorPen, -1f, caster));
+                if (ignite)
+                {
+                    target.Thing?.TryAttachFire(0.35f, caster);
+                }
                 return;
             }
             IntVec3 center = target.Cell.IsValid ? target.Cell : caster.Position;
@@ -493,14 +607,18 @@ namespace TheShatteredCrown
             for (int i = 0; i < pawns.Count; i++)
             {
                 Pawn pawn = pawns[i];
-                if (!pawn.Dead && pawn.HostileTo(caster) && pawn.Position.InHorDistOf(center, Props.radius))
+                if (!pawn.Dead && pawn.HostileTo(caster) && pawn.Position.InHorDistOf(center, radius))
                 {
                     hit.Add(pawn); // collect first: damage can despawn/panic pawns mid-iteration
                 }
             }
             foreach (Pawn pawn in hit)
             {
-                pawn.TakeDamage(new DamageInfo(damageDef, damage, Props.armorPenetration, -1f, caster));
+                pawn.TakeDamage(new DamageInfo(damageDef, damage, armorPen, -1f, caster));
+                if (ignite)
+                {
+                    pawn.TryAttachFire(0.35f, caster);
+                }
             }
         }
 
@@ -556,7 +674,8 @@ namespace TheShatteredCrown
             float damage = AverageWeaponDamage(caster) * Props.multiplier
                 * TSC_SpellScaling.Factor(caster, parent.def);
             DamageDef damageDef = Props.damageDef ?? DamageDefOf.Stab;
-            if (Props.radius <= 0.01f)
+            float strikeRadius = Props.radius * TSC_FeatMods.RadiusFactor(caster, parent.def);
+            if (strikeRadius <= 0.01f)
             {
                 target.Thing?.TakeDamage(new DamageInfo(damageDef, damage, Props.armorPenetration, -1f, caster));
                 return;
@@ -566,7 +685,7 @@ namespace TheShatteredCrown
             for (int i = 0; i < pawns.Count; i++)
             {
                 Pawn pawn = pawns[i];
-                if (!pawn.Dead && pawn.HostileTo(caster) && pawn.Position.InHorDistOf(caster.Position, Props.radius))
+                if (!pawn.Dead && pawn.HostileTo(caster) && pawn.Position.InHorDistOf(caster.Position, strikeRadius))
                 {
                     hit.Add(pawn); // collect first: damage can despawn pawns mid-iteration
                 }
@@ -638,7 +757,8 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            GenExplosion.DoExplosion(target.Cell, map, Props.radius,
+            GenExplosion.DoExplosion(target.Cell, map,
+                Props.radius * TSC_FeatMods.RadiusFactor(caster, parent.def),
                 Props.damageDef ?? DamageDefOf.Flame, caster,
                 Mathf.RoundToInt(Props.damage * TSC_SpellScaling.Factor(caster, parent.def)));
         }
@@ -762,12 +882,22 @@ namespace TheShatteredCrown
     {
         public new CompProperties_TSC_EnergyCost Props => (CompProperties_TSC_EnergyCost)props;
 
+        private float EffectiveCost => Props.cost * TSC_FeatMods.EnergyCostFactor(parent.pawn);
+
         public override bool GizmoDisabled(out string reason)
         {
+            float cost = EffectiveCost;
             float current = TSC_ProgressionManager.Current.EnergyOf(parent.pawn);
-            if (current < Props.cost)
+            if (current < cost)
             {
-                reason = $"Not enough energy: {current:F0} of {Props.cost:F0} needed. Energy returns with sleep.";
+                // Overchannel: a dry sorcerer may cast anyway and pay the
+                // shortfall in burns.
+                if (TSC_Feats.Has(parent.pawn, "TSC_Feat_Overchannel"))
+                {
+                    reason = null;
+                    return false;
+                }
+                reason = $"Not enough energy: {current:F0} of {cost:F0} needed. Energy returns with sleep.";
                 return true;
             }
             reason = null;
@@ -777,19 +907,32 @@ namespace TheShatteredCrown
         public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
         {
             base.Apply(target, dest);
-            TSC_ProgressionManager.Current.TryConsumeEnergy(parent.pawn, Props.cost);
+            float cost = EffectiveCost;
+            float current = TSC_ProgressionManager.Current.EnergyOf(parent.pawn);
+            if (current < cost && TSC_Feats.Has(parent.pawn, "TSC_Feat_Overchannel"))
+            {
+                float shortfall = cost - current;
+                TSC_ProgressionManager.Current.TryConsumeEnergy(parent.pawn, current);
+                parent.pawn.TakeDamage(new DamageInfo(DamageDefOf.Burn, shortfall * 0.5f, 0f, -1f, parent.pawn));
+                Messages.Message($"{parent.pawn.LabelShortCap} overchannels: the spell takes its price in flesh.",
+                    parent.pawn, MessageTypeDefOf.NegativeEvent, historical: false);
+            }
+            else
+            {
+                TSC_ProgressionManager.Current.TryConsumeEnergy(parent.pawn, cost);
+            }
             TSC_EncounterController encounter = TSC_EncounterController.Current;
             if (encounter != null && encounter.ActiveOn(parent.pawn?.Map))
             {
                 encounter.AddLog(
-                    $"{parent.pawn.LabelShortCap} casts {parent.def.LabelCap} ({Props.cost:0} Energy, {TSC_EncounterController.ActionApCost:0} AP).",
+                    $"{parent.pawn.LabelShortCap} casts {parent.def.LabelCap} ({EffectiveCost:0} Energy, {TSC_EncounterController.ActionApCost:0} AP).",
                     TSC_EncounterController.LogSpellColor);
             }
         }
 
         public override string ExtraTooltipPart()
         {
-            return $"Energy cost: {Props.cost:F0}";
+            return $"Energy cost: {EffectiveCost:F0}";
         }
     }
 }

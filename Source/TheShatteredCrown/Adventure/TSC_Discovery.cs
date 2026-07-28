@@ -216,19 +216,169 @@ namespace TheShatteredCrown
     /// (unlike the crypt's factionless parley crew), posted on the deep
     /// chamber under a defend lord.
     /// </summary>
+    /// <summary>
+    /// Threat points for a site, read the way VANILLA reads them.
+    ///
+    /// SitePartParams carries BOTH `threatPoints` and `points`, and they are
+    /// not always both filled: `wantsThreatPoints` populates one, the site's
+    /// own generation populates the other. Reading only `threatPoints` (as
+    /// this mod used to) hands the layout worker a null on sites that filled
+    /// `points` instead, and a layout given no points spawns no defenders -
+    /// a garrison quietly becoming an empty building.
+    /// </summary>
+    public static class TSC_SiteThreat
+    {
+        public static float? PointsFor(Map map, GenStepParams parms)
+        {
+            float best = 0f;
+            SitePartParams sitePart = parms.sitePart?.parms;
+            if (sitePart != null)
+            {
+                best = Mathf.Max(sitePart.threatPoints, sitePart.points);
+            }
+            if (best <= 0f && map?.Parent is Site site)
+            {
+                best = site.ActualThreatPoints;
+            }
+            return best > 0f ? (float?)best : null;
+        }
+    }
+
+    /// <summary>
+    /// Places a thing INSIDE the generated structure rather than scattered
+    /// near the map centre. Ruin layouts choose their own footprint, so a
+    /// centre-anchored scatter regularly dropped the guild strongbox in open
+    /// desert a screen away from the ruin it was supposed to be buried in.
+    /// This walks the walls the layout actually built and puts the prize in
+    /// the deepest enclosed cell it can find.
+    /// </summary>
+    public class GenStep_TSC_PlaceInStructure : GenStep
+    {
+        public ThingDef thingDef;
+        public int stackCount = 1;
+
+        public override int SeedPart => 616219043;
+
+        public override void Generate(Map map, GenStepParams parms)
+        {
+            if (thingDef == null)
+            {
+                return;
+            }
+            IntVec3 cell = FindInteriorCell(map);
+            if (!cell.IsValid)
+            {
+                // No structure generated (or none with an interior): fall back
+                // to somewhere standable rather than dropping nothing.
+                cell = CellFinder.RandomNotEdgeCell(20, map);
+            }
+            Thing thing = ThingMaker.MakeThing(thingDef, GenStuff.DefaultStuffFor(thingDef));
+            if (thingDef.category == ThingCategory.Building)
+            {
+                // Buildings must be SPAWNED on a clear footprint - GenPlace
+                // treats them as haulables and can refuse or shove them.
+                foreach (IntVec3 clear in GenAdj.OccupiedRect(cell, Rot4.North, thingDef.size))
+                {
+                    if (!clear.InBounds(map))
+                    {
+                        continue;
+                    }
+                    List<Thing> here = clear.GetThingList(map);
+                    for (int i = here.Count - 1; i >= 0; i--)
+                    {
+                        if (here[i].def.category == ThingCategory.Building && here[i].def.destroyable)
+                        {
+                            here[i].Destroy();
+                        }
+                    }
+                }
+                GenSpawn.Spawn(thing, cell, map);
+                return;
+            }
+            thing.stackCount = Mathf.Max(1, stackCount);
+            GenPlace.TryPlaceThing(thing, cell, map, ThingPlaceMode.Near);
+        }
+
+        /// <summary>
+        /// The best "inside" cell: enclosed (a real room, not the outdoors),
+        /// standable, reachable from the map edge so the prize is never
+        /// walled off, and as deep into the structure as possible.
+        /// </summary>
+        private static IntVec3 FindInteriorCell(Map map)
+        {
+            IntVec3 best = IntVec3.Invalid;
+            float bestScore = -1f;
+            TraverseParms walk = TraverseParms.For(TraverseMode.PassDoors);
+            foreach (IntVec3 cell in map.AllCells)
+            {
+                if (!cell.Standable(map) || cell.Fogged(map))
+                {
+                    continue;
+                }
+                Room room = cell.GetRoom(map);
+                if (room == null || room.PsychologicallyOutdoors || room.CellCount < 4)
+                {
+                    continue;
+                }
+                if (!map.reachability.CanReachMapEdge(cell, walk))
+                {
+                    continue;
+                }
+                // Prefer roofed, enclosed, and far from the edge: the back
+                // room of the ruin rather than its doorway.
+                float score = cell.DistanceToEdge(map) + (cell.Roofed(map) ? 12f : 0f);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = cell;
+                }
+            }
+            return best;
+        }
+    }
+
     public class GenStep_TSC_BanditGuards : GenStep
     {
         public IntRange count = new IntRange(3, 4);
         public IntRange scaledClamp = new IntRange(2, 7);
 
+        /// <summary>
+        /// Who holds the place. Left empty this posts the crownless brigands
+        /// and archers it always did; set it and the same "guards around a
+        /// point" behaviour serves a nest, a den, or anything else that needs
+        /// occupants scaled to the party.
+        /// </summary>
+        public List<PawnKindDef> kinds;
+
+        /// <summary>"bandits" (default), "insects", or "wild" for no faction.</summary>
+        public string faction = "bandits";
+
         public override int SeedPart => 771604318;
+
+        private Faction ResolveFaction()
+        {
+            switch (faction)
+            {
+                case "insects":
+                    return Faction.OfInsects;
+                case "wild":
+                    return null;
+                default:
+                    return TSC_BanditFactionUtility.Get();
+            }
+        }
 
         public override void Generate(Map map, GenStepParams parms)
         {
-            Faction bandits = TSC_BanditFactionUtility.Get();
+            Faction holders = ResolveFaction();
+            List<PawnKindDef> roster = kinds != null && kinds.Count > 0 ? kinds : null;
             PawnKindDef brigand = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_Bandit_Brigand");
             PawnKindDef archer = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_Bandit_Archer");
-            if (bandits == null || brigand == null)
+            if (roster == null && (holders == null || brigand == null))
+            {
+                return;
+            }
+            if (roster != null && holders == null && faction != "wild")
             {
                 return;
             }
@@ -244,23 +394,24 @@ namespace TheShatteredCrown
                     }
                 }
             }
-            float threatScale = Find.Storyteller?.difficulty?.threatScale ?? 1f;
-            int n = Mathf.Clamp(Mathf.RoundToInt(count.RandomInRange * threatScale),
-                scaledClamp.min, scaledClamp.max);
+            int n = TSC_Threat.Count(map, count, scaledClamp);
             List<Pawn> guards = new List<Pawn>();
             for (int i = 0; i < n; i++)
             {
-                PawnKindDef kind = archer != null && i % 3 == 2 ? archer : brigand;
+                // Default roster keeps the old shape: every third one an archer.
+                PawnKindDef kind = roster != null
+                    ? roster[i % roster.Count]
+                    : (archer != null && i % 3 == 2 ? archer : brigand);
                 Pawn guard = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
-                    kind, bandits, PawnGenerationContext.NonPlayer,
+                    kind, holders, PawnGenerationContext.NonPlayer,
                     forceGenerateNewPawn: true, canGeneratePawnRelations: false));
                 IntVec3 cell = CellFinder.RandomClosewalkCellNear(post, map, 8);
                 GenSpawn.Spawn(guard, cell, map);
                 guards.Add(guard);
             }
-            if (guards.Count > 0)
+            if (guards.Count > 0 && holders != null)
             {
-                LordMaker.MakeNewLord(bandits, new LordJob_DefendPoint(post), map, guards);
+                LordMaker.MakeNewLord(holders, new LordJob_DefendPoint(post), map, guards);
             }
         }
     }
@@ -377,12 +528,7 @@ namespace TheShatteredCrown
             };
             LayoutWorker worker = layoutDef.Worker;
             LayoutStructureSketch sketch = worker.GenerateStructureSketch(genParms);
-            float? threatPoints = parms.sitePart?.parms?.threatPoints;
-            if (threatPoints <= 0f)
-            {
-                threatPoints = null;
-            }
-            worker.Spawn(sketch, map, rect.Min, threatPoints: threatPoints);
+            worker.Spawn(sketch, map, rect.Min, threatPoints: TSC_SiteThreat.PointsFor(map, parms));
         }
     }
 

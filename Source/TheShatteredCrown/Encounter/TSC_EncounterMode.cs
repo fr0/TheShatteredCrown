@@ -47,12 +47,25 @@ namespace TheShatteredCrown
         // Capped below a full pool: a winded pawn always keeps at least 1 AP.
         public const float HangoverDecayPerTick = BaseAp / (2f * RoundTicks);
         public const float MaxHangoverAp = BaseAp - 1f;
+        // A solid hit (bullet/explosion/melee impact) staggers its victim.
+        // In turn-based that is reframed as an AP charge - see NotifyStaggered.
+        public const float StaggerApCost = 1f;
 
         private const int EnvPhaseTicks = 120;      // 2s of world time between cycles
         private const int MaxTurnTicks = 900;       // hard cap per RESUME (15s safety net)
         private const int IdleGraceTicks = 45;      // ENEMY turns: idle this long = turn over
         private const int DrySettleTicks = 15;      // AP dry + not mid-swing = turn over
         private const int RePauseGraceTicks = 10;   // player pawn idle this long = back to orders
+        private const int StuckGraceTicks = 45;     // ENEMY turns: pathing but not advancing = turn over
+
+        // Progress watchdog for the active enemy's movement (transient, per turn).
+        private IntVec3 lastActivePos = IntVec3.Invalid;
+        private int lastMoveProgressTick = -1;
+
+        // Running Start: pawns who spent movement AP this turn (transient, per turn).
+        private readonly HashSet<Pawn> movedThisTurn = new HashSet<Pawn>();
+
+        public bool MovedThisTurn(Pawn p) => movedThisTurn.Contains(p);
 
         // Whether the CURRENT pause was initiated by the mod (turn-start /
         // re-pause planning stops) rather than the player. The PAUSED banner
@@ -275,7 +288,16 @@ namespace TheShatteredCrown
 
         public static float AttackApCostFor(Pawn pawn)
         {
-            return AttackApCost(pawn.TryGetAttackVerb(null));
+            float cost = AttackApCost(pawn.TryGetAttackVerb(null));
+            // Running Start: a monk who has already moved this turn attacks
+            // for 1 AP less. Read here so every preview, label, and charge
+            // shows the same discounted price.
+            if (Instance != null && Instance.Active && Instance.MovedThisTurn(pawn)
+                && TSC_Feats.Has(pawn, "TSC_Feat_RunningStart"))
+            {
+                cost = Mathf.Max(MinActionAp, cost - 1f);
+            }
+            return cost;
         }
 
         /// <summary>
@@ -379,6 +401,7 @@ namespace TheShatteredCrown
             combatants.Clear();
             ap.Clear();
             apMessaged.Clear();
+            staggerDebt.Clear();
             attackedJobs.Clear();
             pendingJobStop = null;
             pendingJobStopJob = null;
@@ -388,6 +411,8 @@ namespace TheShatteredCrown
             attackBlockedTick = -1;
             enemyIntroEndTick = -1;
             enemyOutroEndTick = -1;
+            pendingAdvance = false;
+            projectileHoldCapTick = -1;
             approachMode = false;
             exitRequested = false;
             enemiesFirstNextCycle = false;
@@ -405,17 +430,75 @@ namespace TheShatteredCrown
         /// Loitering camp guards stay dormant - they live in the environment
         /// phase until battle finds them.
         /// </summary>
-        private bool HostileEngaged(Pawn p)
+        /// <summary>
+        /// Nothing is going to happen on this pawn's turn: they are sleeping,
+        /// or they are a dormant cluster waiting on a trigger. Both wake on
+        /// being shot at or walked into, so skipping costs the player nothing.
+        /// </summary>
+        public static bool IsAsleepOrDormant(Pawn p)
         {
-            if (p.mindState?.enemyTarget != null)
+            if (p == null)
+            {
+                return false;
+            }
+            if (p.GetComp<CompCanBeDormant>() is CompCanBeDormant dormant && !dormant.Awake)
             {
                 return true;
             }
-            List<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
+            return !p.Awake();
+        }
+
+        private bool HostileEngaged(Pawn p)
+        {
+            return HostileEngaged(map, p);
+        }
+
+        private static bool HostileEngaged(Map m, Pawn p)
+        {
+            // Not awake, not fighting. A dormant cluster two rooms away is not
+            // an engagement, and treating it as one started turn-based combat
+            // before the party had seen anything.
+            if (IsAsleepOrDormant(p))
+            {
+                return false;
+            }
+            // Fighting SOMEBODY is not the same as fighting US.
+            //
+            // The cellars put a friendly NPC on the same floor as the insects
+            // - Aldis the chorister, on level 3 - and insects are hostile to
+            // everyone. Their brawl set enemyTarget on every bug, which this
+            // read as "the party is engaged", dropping the player into
+            // turn-based mode from across the map to watch a pod of five
+            // advance on somebody else, through doors they had not opened.
+            Thing target = p.mindState?.enemyTarget;
+            if (target != null && target.Faction == Faction.OfPlayer)
+            {
+                return true;
+            }
+            List<Pawn> colonists = m.mapPawns.FreeColonistsSpawned;
             for (int i = 0; i < colonists.Count; i++)
             {
                 if (p.Position.InHorDistOf(colonists[i].Position, EngageRadius)
-                    && GenSight.LineOfSight(p.Position, colonists[i].Position, map, skipFirstCell: true))
+                    && GenSight.LineOfSight(p.Position, colonists[i].Position, m, skipFirstCell: true))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool AnyEngagedHostileOn(Map m)
+        {
+            if (m == null)
+            {
+                return false;
+            }
+            IReadOnlyList<Pawn> pawns = m.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn p = pawns[i];
+                if (!p.Dead && !p.Downed && p.Faction != Faction.OfPlayer
+                    && p.HostileTo(Faction.OfPlayer) && HostileEngaged(m, p))
                 {
                     return true;
                 }
@@ -528,9 +611,12 @@ namespace TheShatteredCrown
         {
             // Stale beats must not leak into the next turn: an enemy dying
             // mid-outro would otherwise leave a flag that swallows the next
-            // combatant's whole turn.
+            // combatant's whole turn. Same for the projectile hold - the turn
+            // it was holding open is over by the time we get here.
             enemyIntroEndTick = -1;
             enemyOutroEndTick = -1;
+            pendingAdvance = false;
+            projectileHoldCapTick = -1;
             while (index < initiative.Count)
             {
                 Pawn candidate = initiative[index];
@@ -543,6 +629,21 @@ namespace TheShatteredCrown
                 // Exit pending: player turns are skipped, but the enemies you
                 // owe still get theirs - leaving is never a way to dodge them.
                 if (valid && exitRequested && candidate.IsColonistPlayerControlled)
+                {
+                    valid = false;
+                }
+                // Asleep or dormant = no turn at all, and no ceremony about it.
+                //
+                // HostileEngaged pulls in every hostile within sight of the
+                // party, which on a cellar floor means the dormant insect
+                // cluster two rooms over. Each was drawing a camera jump, an
+                // intro beat, the idle grace period and an outro beat to do
+                // precisely nothing - a dozen sleepers turned every round into
+                // fifteen seconds of watching bugs not wake up. Skipped HERE,
+                // during selection, so the pod-move batching below never sees
+                // one either. They keep their initiative slot and act the moment
+                // something rouses them.
+                if (valid && !candidate.IsColonistPlayerControlled && IsAsleepOrDormant(candidate))
                 {
                     valid = false;
                 }
@@ -568,7 +669,7 @@ namespace TheShatteredCrown
                 {
                     Pawn next = initiative[last + 1];
                     bool qualifies = next != null && !next.Dead && !next.Downed && next.Spawned && next.Map == map
-                        && !next.IsColonistPlayerControlled && IsPureMover(next);
+                        && !next.IsColonistPlayerControlled && !IsAsleepOrDormant(next) && IsPureMover(next);
                     if (!qualifies)
                     {
                         break;
@@ -586,6 +687,9 @@ namespace TheShatteredCrown
             phase = EncounterPhase.Turn;
             turnStartTick = -1;
             attackBlockedTick = -1;
+            lastActivePos = IntVec3.Invalid;
+            lastMoveProgressTick = -1;
+            movedThisTurn.Clear();
             cycleTurnsTaken++;
             // Stunned = lose the turn, BG3 style. A stance stun only ticks
             // down on the victim's own clock here (frozen pawns don't tick),
@@ -628,6 +732,7 @@ namespace TheShatteredCrown
                     AddLog($"{activePawn.LabelShortCap} is winded ({ApOf(activePawn):0.#} AP).", LogWorldColor);
                 }
             }
+            CollectStaggerDebt(activePawn);
             AddLog(activePawn.IsColonistPlayerControlled
                     ? $"--- {activePawn.LabelShortCap}'s turn ---"
                     : $"--- enemy turn: {activePawn.LabelShortCap} ---",
@@ -741,6 +846,7 @@ namespace TheShatteredCrown
                 {
                     ap[p] = BaseAp + carry;
                 }
+                CollectStaggerDebt(p);
                 activeGroup.Add(p);
                 cycleTurnsTaken++;
             }
@@ -957,6 +1063,87 @@ namespace TheShatteredCrown
             return 0f;
         }
 
+        // Stagger debt: AP owed for impacts absorbed while frozen (hits land
+        // during the ATTACKER's turn), collected when the victim's turn starts.
+        private readonly Dictionary<Pawn, float> staggerDebt = new Dictionary<Pawn, float>();
+
+        private static readonly System.Reflection.FieldInfo StaggeredField =
+            AccessTools.Field(typeof(StaggerHandler), "staggered");
+        private static readonly System.Reflection.FieldInfo StaggerTicksField =
+            AccessTools.Field(typeof(StaggerHandler), "staggerTicksLeft");
+
+        private static bool TryClearStagger(Pawn p)
+        {
+            StaggerHandler handler = p.stances?.stagger;
+            if (handler == null || StaggeredField == null || StaggerTicksField == null)
+            {
+                return false;
+            }
+            StaggerTicksField.SetValue(handler, 0);
+            StaggeredField.SetValue(handler, false);
+            return true;
+        }
+
+        /// <summary>
+        /// Turn-based reframing of vanilla's impact stagger. The vanilla
+        /// effect is dead time - the victim crawls for ~1.5s, which the turn
+        /// clock just absorbs - so here the hit costs 1 AP instead and the
+        /// physical stagger is cancelled outright (charging AP AND making
+        /// them stand there would price one hit twice). A pawn hit during
+        /// someone else's turn is frozen, so their charge books as debt and
+        /// is collected when their own turn starts, capped so every pawn
+        /// opens with at least 1 AP. Approach mode is real time: vanilla
+        /// stagger stands, nobody is charged.
+        /// </summary>
+        public void NotifyStaggered(Pawn p)
+        {
+            if (!active || approachMode || p == null || !combatants.Contains(p))
+            {
+                return;
+            }
+            if (!TryClearStagger(p))
+            {
+                return; // fields moved (game update): stagger stands, and is not double-priced
+            }
+            bool acting = phase == EncounterPhase.Turn
+                && (p == activePawn || (groupEndIndex >= 0 && activeGroup.Contains(p)));
+            if (acting)
+            {
+                // Mid-move charge on the pawn whose turn it is. Never touch a
+                // frozen pawn's pool here: their entry is drained leftovers
+                // that StartTurn reads as CARRY, and writing to it would turn
+                // a punishment into a bonus.
+                ap[p] = Mathf.Max(0f, ApOf(p) - StaggerApCost);
+                AddLog($"{p.LabelShortCap} reels from the impact: -{StaggerApCost:0.#} AP.", LogWorldColor);
+            }
+            else
+            {
+                staggerDebt.TryGetValue(p, out float debt);
+                staggerDebt[p] = Mathf.Min(MaxHangoverAp, debt + StaggerApCost);
+                AddLog($"{p.LabelShortCap} is knocked reeling: -{StaggerApCost:0.#} AP next turn.", LogWorldColor);
+            }
+        }
+
+        private void CollectStaggerDebt(Pawn p)
+        {
+            if (!staggerDebt.TryGetValue(p, out float debt))
+            {
+                return;
+            }
+            staggerDebt.Remove(p);
+            if (debt < 0.05f)
+            {
+                return;
+            }
+            ap[p] = Mathf.Max(0f, ApOf(p) - debt);
+            AddLog($"{p.LabelShortCap} opens the turn reeling ({ApOf(p):0.#} AP).", LogWorldColor);
+            if (p.IsColonistPlayerControlled)
+            {
+                Messages.Message($"{p.LabelShortCap} took a beating last round: {ApOf(p):0.#} AP this turn.",
+                    p, MessageTypeDefOf.SilentInput, historical: false);
+            }
+        }
+
         // One click = one attack: a vanilla attack job keeps swinging every
         // cooldown until stopped, so a cheap weapon (knife, 2 AP) would attack
         // twice off a single order. Remember which job already delivered its
@@ -1154,6 +1341,37 @@ namespace TheShatteredCrown
             }
         }
 
+        /// <summary>How long a turn may be held open waiting for a shot to land.</summary>
+        private const int MaxProjectileHoldTicks = 150;
+
+        /// <summary>Set when AdvanceTurn deferred to let a projectile finish.</summary>
+        private bool pendingAdvance;
+        private int projectileHoldCapTick = -1;
+
+        /// <summary>
+        /// Is anything still in the air over the battlefield?
+        ///
+        /// ThingRequestGroup.Projectile is def-driven (the group test reads
+        /// def fields, not the runtime type), so this also catches Combat
+        /// Extended's projectiles, which do NOT derive from Projectile.
+        /// </summary>
+        private bool ProjectilesInFlight()
+        {
+            if (map == null)
+            {
+                return false;
+            }
+            List<Thing> shots = map.listerThings.ThingsInGroup(ThingRequestGroup.Projectile);
+            for (int i = 0; i < shots.Count; i++)
+            {
+                if (shots[i] != null && shots[i].Spawned && !shots[i].Destroyed)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>End turn button / auto-advance.</summary>
         public void AdvanceTurn()
         {
@@ -1161,6 +1379,37 @@ namespace TheShatteredCrown
             {
                 return; // group phase ends itself; no external skipping
             }
+            // An arrow already loosed belongs to the turn that loosed it. Ending
+            // the turn here would pause the game with the shot hanging in the
+            // air until somebody's next turn happened to unpause it, which reads
+            // as a bug and hides who shot whom. Hold the turn open instead.
+            //
+            // The hold MUST unpause: a player ending their turn does it from a
+            // paused game, so waiting without resuming time would deadlock -
+            // nothing ticks, the projectile never lands, and this never retries.
+            TickManager tm = Find.TickManager;
+            if (ProjectilesInFlight())
+            {
+                if (projectileHoldCapTick < 0)
+                {
+                    projectileHoldCapTick = tm.TicksGame + MaxProjectileHoldTicks;
+                }
+                if (tm.TicksGame < projectileHoldCapTick)
+                {
+                    pendingAdvance = true;
+                    if (tm.Paused)
+                    {
+                        tm.CurTimeSpeed = TimeSpeed.Normal;
+                        autoPause = false;
+                    }
+                    return;
+                }
+                // Cap reached: something is not landing (a projectile that
+                // outlives its target, a mod's odd flight path). Advance rather
+                // than hold the battle hostage.
+            }
+            pendingAdvance = false;
+            projectileHoldCapTick = -1;
             SettleSprite(activePawn);
             StartTurn(turnIndex + 1);
         }
@@ -1261,6 +1510,24 @@ namespace TheShatteredCrown
                         Deactivate("Turn-based mode off.");
                         return;
                     }
+                    // The armed map watches ONE floor, but a split party can
+                    // be engaged on another: two riders descend while the rear
+                    // guard holds the stairs, and the fight starts below. In
+                    // approach mode (never mid-battle), look across every map
+                    // that holds a colonist and follow the engagement there.
+                    if (approachMode && !AnyEngagedHostileOn(map))
+                    {
+                        foreach (Map candidate in Find.Maps)
+                        {
+                            if (candidate != map
+                                && candidate.mapPawns.FreeColonistsSpawnedCount > 0
+                                && AnyEngagedHostileOn(candidate))
+                            {
+                                map = candidate;
+                                break;
+                            }
+                        }
+                    }
                     BuildInitiative();
                     if (!engagedHostiles)
                     {
@@ -1299,6 +1566,15 @@ namespace TheShatteredCrown
             if (activeGroup.Count > 0)
             {
                 GroupMoveTick(tm);
+                return;
+            }
+
+            // A turn end is waiting on a shot to land: retry until it does (or
+            // until the hold cap gives up). Checked before anything else so the
+            // battlefield does nothing new while the arrow is still travelling.
+            if (pendingAdvance)
+            {
+                AdvanceTurn();
                 return;
             }
 
@@ -1420,6 +1696,46 @@ namespace TheShatteredCrown
                     return;
                 }
             }
+            // Going nowhere: an enemy PATHING but not advancing a cell.
+            //
+            // A hostile whose route is plugged by its own allies (a corridor,
+            // a doorway, a stair head) keeps a live move job, so `idle` stays
+            // false; and AP is only billed while the pather actually moves, so
+            // they never run dry either. Nothing ended the turn but the
+            // 900-tick safety net - fifteen seconds of watching a bug jostle.
+            //
+            // The allowance is derived from the pawn's own MoveSpeed rather
+            // than fixed, because "one cell" is ~13 ticks for a healthy human
+            // and far longer for something slow or crippled; a flat threshold
+            // would cut those off mid-stride.
+            if (!p.IsColonistPlayerControlled && !midSwing && !aiming
+                && p.pather != null && p.pather.Moving)
+            {
+                // Stagger is not stuckness: a bullet-staggered pawn outlasts
+                // the no-progress threshold (~95 ticks vs 45), and without
+                // this reset every ranged hit on a moving enemy cancelled
+                // their whole turn as if they were jammed behind allies.
+                if (p.stances?.stagger != null && p.stances.stagger.Staggered)
+                {
+                    lastMoveProgressTick = tm.TicksGame;
+                }
+                else if (p.Position != lastActivePos)
+                {
+                    lastActivePos = p.Position;
+                    lastMoveProgressTick = tm.TicksGame;
+                }
+                else if (lastMoveProgressTick >= 0)
+                {
+                    float speed = p.GetStatValue(StatDefOf.MoveSpeed);
+                    int perCell = speed > 0.01f ? Mathf.CeilToInt(60f / speed) : 60;
+                    if (tm.TicksGame - lastMoveProgressTick >= Mathf.Max(StuckGraceTicks, perCell * 3))
+                    {
+                        AddLog($"{p.LabelShortCap} can't get through; turn ends.", LogWorldColor);
+                        EndTurnWithBeat(p);
+                        return;
+                    }
+                }
+            }
             if (idle && !midSwing)
             {
                 // Vanilla rotates idle standers to face the camera every tick;
@@ -1471,9 +1787,12 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            // Staggered (bullet impact) = standing still despite an active
-            // path. Those ticks are wall time, not movement - billing them
-            // would make the path preview's price a lie.
+            // Backstop: staggers during turns are normally converted to an
+            // AP charge and cancelled (NotifyStaggered), but one can slip
+            // through - applied in approach mode and straddling engagement,
+            // or set by another mod without StaggerFor. A staggered pawn is
+            // standing, not moving: billing those ticks would make the path
+            // preview's price a lie.
             if (p.stances?.stagger != null && p.stances.stagger.Staggered)
             {
                 return;
@@ -1486,6 +1805,10 @@ namespace TheShatteredCrown
                     p.jobs.EndCurrentJob(JobCondition.InterruptForced);
                 }
                 SettleSprite(p); // StopDead discards sub-cell progress: snap, don't slide back
+            }
+            else
+            {
+                movedThisTurn.Add(p);
             }
         }
 
@@ -2628,6 +2951,24 @@ namespace TheShatteredCrown
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.GetGizmos))]
     public static class Patch_Pawn_GetGizmos_EncounterToggle
     {
+        /// <summary>The Move gizmo's payoff: exactly the ordered goto a map
+        /// right-click issues, so AP metering, the fresh-order bookkeeping,
+        /// and the pause flow all treat it identically.</summary>
+        private static void OrderMoveTo(Pawn pawn, IntVec3 cell)
+        {
+            if (pawn?.Map == null || !cell.IsValid)
+            {
+                return;
+            }
+            IntVec3 dest = RCellFinder.BestOrderedGotoDestNear(cell, pawn);
+            Job job = JobMaker.MakeJob(JobDefOf.Goto, dest);
+            job.playerForced = true;
+            if (pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc))
+            {
+                FleckMaker.Static(dest, pawn.Map, FleckDefOf.FeedbackGoto);
+            }
+        }
+
         public static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> gizmos, Pawn __instance)
         {
             // During turns, fire-at-will is force-suppressed (see
@@ -2677,6 +3018,33 @@ namespace TheShatteredCrown
             };
             if (ctrl.ActiveOn(m) && ctrl.ActivePawn == __instance)
             {
+                // Explicit Move order: same result as right-clicking the map,
+                // but discoverable. The targeter highlights the hovered cell;
+                // the existing paused-turn hover preview draws the dashed
+                // path and its AP price alongside it for free.
+                Pawn mover = __instance;
+                yield return new Command_Action
+                {
+                    defaultLabel = "Move",
+                    defaultDesc = "Choose a destination. The hovered tile is highlighted and the dashed line shows the path with its action-point cost; left-click to move there. Right-clicking the map does the same thing.",
+                    icon = ContentFinder<Texture2D>.Get("UI/TSC_Move", reportFailure: false) ?? TexCommand.DesirePower,
+                    action = () =>
+                    {
+                        TargetingParameters targetParams = new TargetingParameters
+                        {
+                            canTargetLocations = true,
+                            canTargetPawns = false,
+                            canTargetBuildings = false,
+                        };
+                        Find.Targeter.BeginTargeting(targetParams,
+                            t => OrderMoveTo(mover, t.Cell),
+                            highlightAction: t => GenDraw.DrawTargetHighlight(t),
+                            targetValidator: t => t.Cell.IsValid && t.Cell.InBounds(mover.Map)
+                                && t.Cell.Walkable(mover.Map)
+                                && mover.CanReach(t.Cell, PathEndMode.OnCell, Danger.Deadly),
+                            caster: mover);
+                    },
+                };
                 yield return new Command_Action
                 {
                     defaultLabel = "End turn",
@@ -2914,21 +3282,34 @@ namespace TheShatteredCrown
     }
 
     /// <summary>
-    /// Spells take real casting time OUTSIDE turn-based mode: every ability
-    /// def carries a short warmup (0.25-2s) tuned for snappy turns; in
-    /// real-time play that reads as instant, so the warmup is multiplied
-    /// here. Applies to ALL ability casters (enemy hexers too - fair is
-    /// fair); turns keep the def values unchanged.
+    /// Warmup times, retuned per mode. Two opposite corrections through one
+    /// hook, because both are the same mismatch: def warmups are written for
+    /// real time, and a turn is not real time.
+    ///
+    /// SPELLS, real time only: ability defs carry a short warmup (0.25-2s)
+    /// tuned for snappy turns, which reads as instant in real-time play, so
+    /// it is stretched. Turns keep the def values.
+    ///
+    /// RANGED WEAPONS, turns only: a bow's aim time is how it competes with
+    /// a sword in real time. In a turn you have already PAID for the shot in
+    /// action points, so the delay buys nothing and just makes the archer's
+    /// turn dead air - and worse, an interrupted warmup means the AP was
+    /// spent for no arrow. Shots are snapped off instead.
+    ///
+    /// Both apply to every combatant, enemy hexers and archers included.
     /// </summary>
     [HarmonyPatch(typeof(Stance_Warmup), MethodType.Constructor,
         new System.Type[] { typeof(int), typeof(LocalTargetInfo), typeof(Verb) })]
     public static class Patch_StanceWarmup_RealTimeCastTime
     {
         public const float RealTimeCastFactor = 2.5f;
+        // Not zero: a couple of ticks keeps the draw animation and the
+        // muzzle/bowstring effects from being skipped entirely.
+        private const int TurnBasedAimTicks = 3;
 
         public static void Prefix(ref int ticks, Verb verb)
         {
-            if (!(verb is Verb_CastAbility) || Verse.Current.Game == null)
+            if (verb == null || Verse.Current.Game == null)
             {
                 return;
             }
@@ -2939,9 +3320,18 @@ namespace TheShatteredCrown
             }
             TSC_EncounterController ctrl = TSC_EncounterController.Instance;
             bool turnBased = ctrl != null && ctrl.Active && !ctrl.ApproachMode && ctrl.ActiveOn(map);
-            if (!turnBased)
+            if (verb is Verb_CastAbility)
             {
-                ticks = Mathf.RoundToInt(ticks * RealTimeCastFactor);
+                if (!turnBased)
+                {
+                    ticks = Mathf.RoundToInt(ticks * RealTimeCastFactor);
+                }
+                return;
+            }
+            // Ranged weapon fire (melee has no warmup to speak of).
+            if (turnBased && !verb.IsMeleeAttack && ticks > TurnBasedAimTicks)
+            {
+                ticks = TurnBasedAimTicks;
             }
         }
     }
@@ -3741,6 +4131,51 @@ namespace TheShatteredCrown
                 ctrl.AddLog($"{state.caster.LabelShortCap} casts {def.LabelCap} ({state.cost:0} AP).",
                     TSC_EncounterController.LogSpellColor);
             }
+        }
+    }
+
+    /// <summary>
+    /// Feeds every stagger application (bullet, explosion, melee impact)
+    /// into the turn engine, which converts it to an AP charge when a fight
+    /// is running - see TSC_EncounterController.NotifyStaggered. TargetMethods
+    /// keeps this robust against StaggerFor growing overloads.
+    /// </summary>
+    [HarmonyPatch]
+    public static class Patch_StaggerFor_ApCost
+    {
+        private static readonly System.Reflection.FieldInfo PawnField = FindPawnField();
+
+        private static System.Reflection.FieldInfo FindPawnField()
+        {
+            foreach (System.Reflection.FieldInfo field in AccessTools.GetDeclaredFields(typeof(StaggerHandler)))
+            {
+                if (field.FieldType == typeof(Pawn))
+                {
+                    return field;
+                }
+            }
+            return null;
+        }
+
+        public static IEnumerable<System.Reflection.MethodBase> TargetMethods()
+        {
+            foreach (System.Reflection.MethodInfo method in AccessTools.GetDeclaredMethods(typeof(StaggerHandler)))
+            {
+                if (method.Name == nameof(StaggerHandler.StaggerFor))
+                {
+                    yield return method;
+                }
+            }
+        }
+
+        public static void Postfix(StaggerHandler __instance)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl == null || PawnField == null)
+            {
+                return;
+            }
+            ctrl.NotifyStaggered(PawnField.GetValue(__instance) as Pawn);
         }
     }
 }

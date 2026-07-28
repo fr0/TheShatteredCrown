@@ -72,6 +72,23 @@ namespace TheShatteredCrown
             return ext != null && ext.noDetectionRaids;
         }
 
+        /// <summary>
+        /// Should vanilla's "your presence has been detected, raiders arrive
+        /// in X hours" clock run here at all?
+        ///
+        /// In this mod's scenarios: never. That countdown exists to stop a
+        /// colony from parking on a randomly generated site and stripping it
+        /// at leisure. A party clearing a dungeon room by room in turn-based
+        /// combat is not that: the timer just punishes the careful play the
+        /// mode is built around, and reinforcements arriving out of the fog
+        /// on a tactical map read as a bug rather than a threat. Story hubs
+        /// keep their explicit opt-out for ordinary (non-RPG) games.
+        /// </summary>
+        public static bool DetectionSuppressed(WorldObject worldObject)
+        {
+            return TSC_RpgMode.Active || RaidExempt(worldObject);
+        }
+
         public static bool CooldownExempt(WorldObject worldObject)
         {
             TSC_PersistentSiteExtension ext = ExtensionOf(worldObject);
@@ -92,17 +109,16 @@ namespace TheShatteredCrown
     }
 
     /// <summary>
-    /// Story hubs do not call raids down on their own guests: vanilla's
-    /// TimedDetectionRaids comp ("your presence has been detected...") starts
-    /// counting the moment the player stays at any site. Block it from ever
-    /// starting on raid-exempt sites.
+    /// Vanilla's TimedDetectionRaids comp ("your presence has been
+    /// detected...") starts counting the moment the player stays at any
+    /// site. Never let it start in RPG mode, and never on a story hub.
     /// </summary>
     [HarmonyPatch(typeof(TimedDetectionRaids), "StartDetectionCountdown")]
     public static class Patch_NoDetectionRaids_StoryHubs
     {
         public static bool Prefix(TimedDetectionRaids __instance)
         {
-            return !TSC_PersistentSiteExtension.RaidExempt(__instance.parent);
+            return !TSC_PersistentSiteExtension.DetectionSuppressed(__instance.parent);
         }
     }
 
@@ -166,7 +182,9 @@ namespace TheShatteredCrown
             }
             for (int i = 0; i < sites.Count; i++)
             {
-                if (TSC_PersistentSiteExtension.RaidExempt(sites[i]))
+                // Also clears clocks already ticking in an existing save, which
+                // blocking the start alone would leave running.
+                if (TSC_PersistentSiteExtension.DetectionSuppressed(sites[i]))
                 {
                     TimedDetectionRaids comp = sites[i].GetComponent<TimedDetectionRaids>();
                     if (comp != null && comp.DetectionCountdownStarted)

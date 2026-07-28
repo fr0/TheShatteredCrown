@@ -553,9 +553,7 @@ namespace TheShatteredCrown
             }
             Pawn leader = SpawnBandit(map, leaderKind, anchor);
             parley?.Register(leader, isLeader: true);
-            float threatScale = Find.Storyteller?.difficulty?.threatScale ?? 1f;
-            int n = Mathf.Clamp(Mathf.RoundToInt(count.RandomInRange * threatScale),
-                scaledClamp.min, scaledClamp.max);
+            int n = TSC_Threat.Count(map, count, scaledClamp);
             for (int i = 0; i < n; i++)
             {
                 PawnKindDef kind = archer != null && i % 3 == 2 ? archer : brigand;
@@ -1094,11 +1092,11 @@ namespace TheShatteredCrown
             List<Pawn> risen = new List<Pawn>();
             PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_Bandit_Brigand")
                 ?? PawnKindDefOf.Villager;
-            float threatScale = Find.Storyteller?.difficulty?.threatScale ?? 1f;
             // A handful, not a horde: the elder IS the fight - the risen are
             // there to stop the party from simply kiting an archer around a
-            // marble room. Difficulty widens the handful, capped at six.
-            int count = Mathf.Clamp(Mathf.RoundToInt(Rand.RangeInclusive(2, 3) * threatScale), 2, 6);
+            // marble room. Difficulty and party level widen the handful,
+            // capped at six.
+            int count = TSC_Threat.Count(map, new IntRange(2, 3), 2, 6);
             for (int i = 0; i < count; i++)
             {
                 // The risen serve their raiser: SAME faction as the elder,

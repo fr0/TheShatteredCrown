@@ -1,0 +1,38 @@
+# The hollow choir, seen for the first time. Fired by proximity + line of
+# sight (CompProperties_TSC_ProximityDialogue on TSC_ChoirBones), once per
+# save. The check spot's own options - sing, read, shove - are the follow-up;
+# this is only the noticing.
+
+dialogue TSC_Dialogue_ChoirSight
+
+== start ==
+The lamplight finds them all at once: skulls, stacked rank on rank from flagstone to roof, filling the gallery wall ahead.
+
+They are not piled. They are placed - every one of them set level, every one of them facing the same way, down the passage toward the deep floor. Whoever arranged this did it slowly, and meant it.
+
+Nobody says anything for a moment. Under the drip of the cistern water, very faint, the sound that has followed you since the stairs is still there: someone below, singing.
+
+* "They're facing the singing." -> facing
+* "Wren. Tell me this is ordinary ossuary work." -> wren
+    if in_party(TSC_Npc_Bard)
+* [Move on.] -> end
+
+== facing ==
+Once it is said, it cannot be unseen: eight hundred years of the dead, seated the way a congregation sits, all of them turned toward the voice on the floor below.
+
+Not a burial. An audience. Somebody wanted the dead to hear.
+
+* [Move on.] -> end
+    do grant_xp(10)
+
+== wren ==
+Wren does not answer at once. She has gone still in the way she does when a room is a piece of music, and when she speaks it is barely above the water-noise.
+
+"Ossuaries face the dead east, toward the morning. These face down." A pause. "It's the meter, do you see. The rows. Long, long, short. They're not stacked, they're *scored*. Somebody wrote the dead into the song."
+
+She pulls her cloak tighter.
+
+"I'd like to meet whoever is still singing to them. And I'd like it very much to be on our terms."
+
+* [Move on.] -> end
+    do grant_xp(15); affinity(+5)

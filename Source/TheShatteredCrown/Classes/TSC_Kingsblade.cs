@@ -10,7 +10,7 @@ namespace TheShatteredCrown
         public HediffDef hediff;
         /// <summary>The crown it belongs to: severity tracks how much of this the company carries.</summary>
         public ThingDef shardDef;
-        public int maxShards = 9;
+        public int maxShards = 5;
 
         public CompProperties_TSC_Kingsblade()
         {
@@ -28,18 +28,19 @@ namespace TheShatteredCrown
     /// </summary>
     public class Comp_TSC_Kingsblade : ThingComp
     {
-        private const int CheckIntervalTicks = 120;
         private int lastShards = -1;
 
         public CompProperties_TSC_Kingsblade Props => (CompProperties_TSC_Kingsblade)props;
 
-        public override void CompTick()
+        /// <summary>
+        /// Called by MapComponent_TSC_CarriedGear on its own interval, NOT by
+        /// CompTick. Comps on equipped weapons are never ticked by the game
+        /// (BaseWeapon is tickerType Never and the equipment tracker only
+        /// ticks verbs), so this ran zero times as a CompTick override and
+        /// the blade never woke as shards were gathered.
+        /// </summary>
+        public void CarriedTick()
         {
-            base.CompTick();
-            if (Find.TickManager.TicksGame % CheckIntervalTicks != 0)
-            {
-                return;
-            }
             Pawn wielder = (parent.ParentHolder as Pawn_EquipmentTracker)?.pawn;
             if (wielder == null || Props.hediff == null)
             {
@@ -74,14 +75,20 @@ namespace TheShatteredCrown
         /// <summary>
         /// Shards the COMPANY holds, not just the wielder: the sword answers
         /// to the crown being gathered, and who happens to have which piece
-        /// in their pack is bookkeeping.
+        /// in their pack is bookkeeping. EVERY shard def counts (each act's
+        /// shard is its own item since the def split); Props.shardDef is the
+        /// pre-split fallback in case the registry ever comes up empty.
         /// </summary>
         private int CountShards(Pawn wielder)
         {
-            ThingDef shardDef = Props.shardDef;
-            if (shardDef == null)
+            List<ThingDef> shardDefs = TSC_Shards.AllDefs;
+            if (shardDefs.Count == 0)
             {
-                return 0;
+                if (Props.shardDef == null)
+                {
+                    return 0;
+                }
+                shardDefs = new List<ThingDef> { Props.shardDef };
             }
             int count = 0;
             foreach (Pawn pawn in PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists)
@@ -94,15 +101,16 @@ namespace TheShatteredCrown
                 {
                     foreach (Thing thing in pawn.inventory.innerContainer)
                     {
-                        if (thing.def == shardDef)
+                        if (shardDefs.Contains(thing.def))
                         {
                             count += thing.stackCount;
                         }
                     }
                 }
-                if (pawn.carryTracker?.CarriedThing?.def == shardDef)
+                Thing carried = pawn.carryTracker?.CarriedThing;
+                if (carried != null && shardDefs.Contains(carried.def))
                 {
-                    count += pawn.carryTracker.CarriedThing.stackCount;
+                    count += carried.stackCount;
                 }
             }
             // Shards stashed on the ground where the wielder stands count too
@@ -111,12 +119,15 @@ namespace TheShatteredCrown
             Map map = wielder.MapHeld;
             if (map != null)
             {
-                List<Thing> onMap = map.listerThings.ThingsOfDef(shardDef);
-                for (int i = 0; i < onMap.Count; i++)
+                foreach (ThingDef shardDef in shardDefs)
                 {
-                    if (onMap[i].Position.InHorDistOf(wielder.PositionHeld, 30f))
+                    List<Thing> onMap = map.listerThings.ThingsOfDef(shardDef);
+                    for (int i = 0; i < onMap.Count; i++)
                     {
-                        count += onMap[i].stackCount;
+                        if (onMap[i].Position.InHorDistOf(wielder.PositionHeld, 30f))
+                        {
+                            count += onMap[i].stackCount;
+                        }
                     }
                 }
             }

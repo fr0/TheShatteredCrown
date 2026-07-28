@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       Adventure Mode contract sites, round three: six more shells for the
+       board.
+
+       Everything here is built from gensteps that already existed - the
+       guard poster (now roster-driven), the structure placer, the check-spot
+       placer, the ancient-ruins layout worker. What varies is the LAYOUT the
+       job happens in, WHO holds it, and what the guild wants out of it,
+       which is what the player actually experiences as a different contract.
+
+       Core only: no shamblers or other DLC-gated kinds, so the board works
+       for anyone.
+       ================================================================== -->
+
+  <!-- ============================================ 1. the redoubt (hard) -->
+  <SitePartDef>
+    <defName>TSC_ContractRedoubt</defName>
+    <label>bandit redoubt</label>
+    <description>Not a camp. Somebody took a fortified ruin, mended the walls, and has been charging the road ever since.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Storm {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>200</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ContractRedoubt</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractRedoubt_Structure</defName>
+    <linkWithSite>TSC_ContractRedoubt</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Castle</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractRedoubt_Garrison</defName>
+    <linkWithSite>TSC_ContractRedoubt</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <kinds>
+        <li>TSC_Bandit_Brigand</li>
+        <li>TSC_Bandit_Archer</li>
+        <li>TSC_Bandit_Brigand</li>
+        <li>TSC_BanditHexer</li>
+      </kinds>
+      <count>5~7</count>
+      <scaledClamp>4~12</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractRedoubt_Spots</defName>
+    <linkWithSite>TSC_ContractRedoubt</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_BanditLedger</def><count>1~1</count></li>
+        <li><def>TSC_WatchPost</def><count>1~1</count></li>
+        <li><def>TSC_ArmoryChest</def><count>1~1</count></li>
+        <li><def>TSC_ParleyStone</def><count>0~1</count></li>
+        <li><def>TSC_PrisonersMarks</def><count>0~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ 2. the warren (mixed) -->
+  <SitePartDef>
+    <defName>TSC_ContractWarren</defName>
+    <label>warren</label>
+    <description>A ruin with two sets of tenants who have divided up the corridors between them. Neither will include you in that.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Clear {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>150</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ContractWarren</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractWarren_Structure</defName>
+    <linkWithSite>TSC_ContractWarren</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Waystation</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <!-- Two posts, two factions, one building: the squatters hold one end and
+       the insects hold the other. They fight each other as readily as you,
+       which is the point of the contract. -->
+  <GenStepDef>
+    <defName>TSC_ContractWarren_Squatters</defName>
+    <linkWithSite>TSC_ContractWarren</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>2~4</count>
+      <scaledClamp>2~7</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractWarren_Vermin</defName>
+    <linkWithSite>TSC_ContractWarren</linkWithSite>
+    <order>484</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <faction>insects</faction>
+      <kinds>
+        <li>Megascarab</li>
+        <li>Spelopede</li>
+      </kinds>
+      <count>2~4</count>
+      <scaledClamp>2~7</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractWarren_Spots</defName>
+    <linkWithSite>TSC_ContractWarren</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_ChewedTimbers</def><count>1~1</count></li>
+        <li><def>TSC_BanditLedger</def><count>1~1</count></li>
+        <li><def>TSC_SpoorTrail</def><count>0~1</count></li>
+        <li><def>TSC_CollapsedPassage</def><count>0~1</count></li>
+        <li><def>TSC_ContractChest</def><count>0~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ 3. the pack (open ground) -->
+  <SitePartDef>
+    <defName>TSC_ContractPack</defName>
+    <label>hunting ground</label>
+    <description>No walls, no door, nothing to put your back to. A pack has claimed this stretch of ground.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</expandingIconTexture>
+    <approachOrderString>Hunt at {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>false</wantsThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ContractPack</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractPack_Spots</defName>
+    <linkWithSite>TSC_ContractPack</linkWithSite>
+    <order>486</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_BeastTracks</def><count>1~1</count></li>
+        <li><def>TSC_SpoorTrail</def><count>1~1</count></li>
+        <li><def>TSC_GrislyRemains</def><count>1~1</count></li>
+        <li><def>TSC_HuntersBlind</def><count>0~1</count></li>
+        <li><def>TSC_StrewnBaggage</def><count>0~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ 4. the vault (fetch) -->
+  <SitePartDef>
+    <defName>TSC_ContractVault</defName>
+    <label>undercroft</label>
+    <description>The cellars of a castle nobody has held in three hundred years. A guild coffer went in and never came out, and the undercroft has had tenants since.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Enter {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>150</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ContractVault</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractVault_Structure</defName>
+    <linkWithSite>TSC_ContractVault</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Castle</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractVault_Strongbox</defName>
+    <linkWithSite>TSC_ContractVault</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceInStructure">
+      <thingDef>TSC_StrongboxCrate</thingDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractVault_Holders</defName>
+    <linkWithSite>TSC_ContractVault</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>3~5</count>
+      <scaledClamp>2~9</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractVault_Spots</defName>
+    <linkWithSite>TSC_ContractVault</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_SealedDoor</def><count>1~1</count></li>
+        <li><def>TSC_GravenStone</def><count>1~1</count></li>
+        <li><def>TSC_ArmoryChest</def><count>0~1</count></li>
+        <li><def>TSC_CollapsedPassage</def><count>0~1</count></li>
+        <li><def>TSC_DrownedNiche</def><count>0~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ 5. the shrine (arcana) -->
+  <SitePartDef>
+    <defName>TSC_ContractShrine</defName>
+    <label>fouled shrine</label>
+    <description>A roadside shrine of the old faith that has stopped being a shrine. Pilgrims still use the road past it.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</expandingIconTexture>
+    <approachOrderString>Cleanse {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>130</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ContractShrine</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractShrine_Structure</defName>
+    <linkWithSite>TSC_ContractShrine</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_MossBarrow</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The moss-barrow layout's crypt galleries roll dormant clusters at
+       0.75 each plus a guaranteed one in the moss cellar - up to five packs
+       before the keepers even spawn. Same budget as a cellar floor. -->
+  <GenStepDef>
+    <defName>TSC_ContractShrine_PackCap</defName>
+    <linkWithSite>TSC_ContractShrine</linkWithSite>
+    <order>481</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PackCap">
+      <maxPacks>2</maxPacks>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractShrine_Keepers</defName>
+    <linkWithSite>TSC_ContractShrine</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <kinds>
+        <li>TSC_BanditHexer</li>
+        <li>TSC_Bandit_Brigand</li>
+      </kinds>
+      <count>3~4</count>
+      <scaledClamp>2~8</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractShrine_Spots</defName>
+    <linkWithSite>TSC_ContractShrine</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_ShrineAltar</def><count>1~1</count></li>
+        <li><def>TSC_RuneWard</def><count>1~1</count></li>
+        <li><def>TSC_DrownedNiche</def><count>1~1</count></li>
+        <li><def>TSC_GravenStone</def><count>0~1</count></li>
+        <li><def>TSC_MinstrelsGrave</def><count>0~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ 6. the wreck (fetch, open) -->
+  <SitePartDef>
+    <defName>TSC_ContractWreck</defName>
+    <label>plundered wreck</label>
+    <description>A guild caravan that never arrived, spread across the road outside an old watch-post. Whoever wrecked it has dragged the good boxes inside.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Recover from {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>120</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ContractWreck</li>
+    </tags>
+  </SitePartDef>
+
+  <!-- A ruined roadside post, which is the SMALLEST layout the mod has and
+       carries a vault room. GenStep_TSC_PlaceInStructure hunts for the
+       deepest enclosed, roofed, edge-reachable cell, so it needs a structure
+       to hunt in: without one the crate falls back to open ground, which is
+       how the guild strongbox ended up sitting in open desert before.
+       The wreck is still outside; the coffer is what got dragged in. -->
+  <GenStepDef>
+    <defName>TSC_ContractWreck_Structure</defName>
+    <linkWithSite>TSC_ContractWreck</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Watchtower</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractWreck_Strongbox</defName>
+    <linkWithSite>TSC_ContractWreck</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceInStructure">
+      <thingDef>TSC_StrongboxCrate</thingDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractWreck_Scavengers</defName>
+    <linkWithSite>TSC_ContractWreck</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>3~5</count>
+      <scaledClamp>2~9</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractWreck_Spots</defName>
+    <linkWithSite>TSC_ContractWreck</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_StrewnBaggage</def><count>1~1</count></li>
+        <li><def>TSC_GrislyRemains</def><count>1~1</count></li>
+        <li><def>TSC_RansomLedger</def><count>0~1</count></li>
+        <li><def>TSC_CampfireCircle</def><count>0~1</count></li>
+        <li><def>TSC_GraveMound</def><count>0~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+</Defs>

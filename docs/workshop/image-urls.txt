@@ -1,0 +1,16 @@
+# Steam-hosted URLs for images embedded in the Workshop description.
+#
+# Steam only renders [img] from a URL it can fetch, and the dependable
+# source is images already uploaded to this Workshop item. Get them by:
+#   1. Publishing the item, then Add/Edit Images with the files in this folder.
+#   2. Right-click each uploaded image on the item page -> Copy image address.
+#   3. Paste below, replacing the placeholder after the '='.
+#
+# Then:  scripts\Build-Release.ps1 -CopyDescription
+# substitutes them into the description automatically.
+#
+# Lines starting with # are ignored.
+
+IMG_BANNER=https://steamcommunity.com/sharedfiles/managepreviews/?id=3772466661
+IMG_DIALOGUE=
+IMG_ACTIONPOINTS=

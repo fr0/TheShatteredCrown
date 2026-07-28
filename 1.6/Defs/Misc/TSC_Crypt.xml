@@ -151,8 +151,10 @@
   <!-- The crown shard: what Act 1 was for. -->
   <ThingDef ParentName="ResourceBase">
     <defName>TSC_CrownShard</defName>
-    <label>shard of the shattered crown</label>
-    <description>A broken third of a king's crown: two points and a band, gold that has not dulled, one gem the color of old blood. It was buried with a sanguophage, and it is heavier than gold should be. One of nine.</description>
+    <label>crown shard of the grave</label>
+    <description>A broken fifth of a king's crown: two points and a band, gold that has not dulled, one gem the color of old blood. It was buried with a sanguophage, and it is heavier than gold should be. One of five.
+
+Whoever carries it can call down Shardfall once a day.</description>
     <graphicData>
       <texPath>Things/Item/TSC_CrownShard</texPath>
       <graphicClass>Graphic_Single</graphicClass>
@@ -160,8 +162,18 @@
     </graphicData>
     <techLevel>Medieval</techLevel>
     <stackLimit>1</stackLimit>
+    <!-- Indestructible: the campaign's spine runs through five of these, and
+         a stray mortar shell or a base fire must never be able to dead-end
+         Act 5. No hit points means damage cannot touch it; zero flammability
+         and deterioration close the slow deaths; tradeability/smelt guards
+         close the deliberate ones. -->
+    <useHitPoints>false</useHitPoints>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <tradeability>None</tradeability>
+    <smeltable>false</smeltable>
+    <burnableByRecipe>false</burnableByRecipe>
+    <destroyOnDrop>false</destroyOnDrop>
     <statBases>
-      <MaxHitPoints>250</MaxHitPoints>
       <Mass>1.5</Mass>
       <MarketValue>2500</MarketValue>
       <Flammability>0</Flammability>
@@ -170,6 +182,11 @@
     <thingCategories>
       <li>Manufactured</li>
     </thingCategories>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_ShardAbilityExtension">
+        <ability>TSC_Ability_Shardfall</ability>
+      </li>
+    </modExtensions>
   </ThingDef>
 
   <!-- The crypt layout: marble the survey crew had no name for. -->

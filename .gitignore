@@ -8,3 +8,4 @@ tools/**/bin/
 *.dll
 **/.vs/
 dist/
+__pycache__

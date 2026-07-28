@@ -15,6 +15,10 @@ namespace TheShatteredCrown
         public int spentPoints;
         public List<string> appliedGrants = new List<string>();
 
+        /// <summary>Feat defNames, in the order taken. Strings rather than
+        /// defs so removing a feat from the mod cannot break a save.</summary>
+        public List<string> feats = new List<string>();
+
         public int LevelIn(TSC_ClassDef classDef)
         {
             int index = classes.IndexOf(classDef);
@@ -50,11 +54,13 @@ namespace TheShatteredCrown
             Scribe_Collections.Look(ref levels, "levels", LookMode.Value);
             Scribe_Values.Look(ref spentPoints, "spentPoints", 0);
             Scribe_Collections.Look(ref appliedGrants, "appliedGrants", LookMode.Value);
+            Scribe_Collections.Look(ref feats, "feats", LookMode.Value);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 classes = classes ?? new List<TSC_ClassDef>();
                 levels = levels ?? new List<int>();
                 appliedGrants = appliedGrants ?? new List<string>();
+                feats = feats ?? new List<string>();
             }
         }
     }
@@ -86,10 +92,21 @@ namespace TheShatteredCrown
         private static readonly List<Pawn> tmpEnergyPawns = new List<Pawn>();
 
         public const int MaxLevel = 20;
-        // Level N -> N+1 costs XpPerLevelStep x N. Doubled from 100 (leveling
-        // felt too fast): first level-up at 200 XP (the camp quest alone),
-        // a full Act 1 run now lands around level 4-5 instead of 6.
-        private const int XpPerLevelStep = 200;
+        // Level N -> N+1 costs XpPerLevelStep x N, so reaching level L costs
+        // XpPerLevelStep x L(L-1)/2 in total: 600 / 1800 / 3600 / 6000 for
+        // levels 2 / 3 / 4 / 5.
+        //
+        // Tuned against Act 1's actual XP budget, which is roughly:
+        //   main line quests           1100  (call 200, camp 200, ettersnap 400, crypt 300)
+        //   village side quests        1450  (all ten, if the player does them)
+        //   dialogue                  ~1100  (counting mutually exclusive branches once)
+        //   kills                     ~200
+        // A lean main-line run lands near 2000 and a completionist run near
+        // 3900, which puts the floor at level 3 and the ceiling just into 4.
+        // That is the target: level 3 by the end of Act 1.
+        //
+        // Raised from 200, where the same budget reached level 4-5.
+        private const int XpPerLevelStep = 600;
 
         public TSC_ProgressionManager(World world) : base(world)
         {
@@ -123,6 +140,39 @@ namespace TheShatteredCrown
             return LevelForXp(XpOf(pawn));
         }
 
+        /// <summary>Total XP that lands exactly on the start of a level (the inverse of LevelForXp).</summary>
+        public static int XpForLevel(int level)
+        {
+            int total = 0;
+            for (int step = 1; step < Mathf.Min(level, MaxLevel); step++)
+            {
+                total += XpPerLevelStep * step;
+            }
+            return total;
+        }
+
+        /// <summary>
+        /// Start a character above level 1 - veterans who were adventuring
+        /// before the party met them. Sets XP outright rather than granting
+        /// it, so no level-up letters or choice dialogs fire for a pawn who
+        /// is not yours yet; their unspent level-up picks are still waiting
+        /// when they join.
+        /// </summary>
+        public void SeedLevel(Pawn pawn, int level)
+        {
+            if (pawn == null || level <= 1)
+            {
+                return;
+            }
+            int target = XpForLevel(level);
+            if (XpOf(pawn) >= target)
+            {
+                return;
+            }
+            xp[pawn] = target;
+            UpdateLevelHediff(pawn);
+        }
+
         // ---------------------------------------------------------------- spell energy
 
         public const float EnergyBase = 30f;
@@ -139,7 +189,12 @@ namespace TheShatteredCrown
             {
                 return 0f;
             }
-            return EnergyBase + EnergyPerLevel * LevelOf(pawn);
+            float max = EnergyBase + EnergyPerLevel * LevelOf(pawn);
+            if (TSC_Feats.Has(pawn, "TSC_Feat_DeepReserves"))
+            {
+                max += 25f;
+            }
+            return max;
         }
 
         public float EnergyOf(Pawn pawn)
@@ -184,6 +239,10 @@ namespace TheShatteredCrown
         public override void WorldComponentTick()
         {
             base.WorldComponentTick();
+            // Ahead of the energy early-outs below: kill XP has already been
+            // granted and is only waiting to be summarised, so it must not
+            // depend on somebody having a drained energy pool.
+            TSC_KillXp.Tick();
             if (Find.TickManager.TicksGame % EnergyTickInterval != 0 || energy.Count == 0 || !TSC_RpgMode.Active)
             {
                 return;
@@ -202,7 +261,12 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                float value = energy[pawn] + max * RegenFractionPerInterval;
+                float regen = RegenFractionPerInterval;
+                if (TSC_Feats.Has(pawn, "TSC_Feat_DeepReserves"))
+                {
+                    regen *= 1.25f;
+                }
+                float value = energy[pawn] + max * regen;
                 if (value >= max)
                 {
                     energy.Remove(pawn); // absent = full
@@ -274,7 +338,16 @@ namespace TheShatteredCrown
             {
                 return 0;
             }
-            return ProficienciesOf(pawn).PointsIn(def) + ClassProficiencyBonus(pawn, def) + def.SynergyBonus(pawn);
+            int gear = def == TSC_DefOf.TSC_Prof_Performance ? TSC_Instruments.PerformanceBonus(pawn) : 0;
+            if (TSC_Feats.Has(pawn, "TSC_Feat_Versatile"))
+            {
+                gear += 1;
+            }
+            gear += TSC_FeatMods.ProficiencyBonus(pawn, def);
+            // Hooked here rather than at the roll so the instrument counts
+            // everywhere the proficiency does: active checks, passive checks,
+            // and the nearby-colonist assist search.
+            return ProficienciesOf(pawn).PointsIn(def) + ClassProficiencyBonus(pawn, def) + def.SynergyBonus(pawn) + gear;
         }
 
         /// <summary>Range within which nearby colonists can lend their proficiency to checks.</summary>
@@ -573,7 +646,12 @@ namespace TheShatteredCrown
         // ---------------------------------------------------------------- xp granting
 
         /// <summary>Grants XP to every free colonist (on maps and in caravans), handling level-ups.</summary>
-        public void GrantXpToParty(int amount, string reason)
+        /// <summary>
+        /// announce:false grants silently - for drip sources like per-kill XP
+        /// that would otherwise post a message per body. Level-up letters
+        /// still fire either way; those the player always wants.
+        /// </summary>
+        public void GrantXpToParty(int amount, string reason, bool announce = true)
         {
             if (amount <= 0)
             {
@@ -589,7 +667,10 @@ namespace TheShatteredCrown
             {
                 ApplyXp(pawn, amount, levelUps);
             }
-            Messages.Message($"The party gains {amount} XP ({reason}).", MessageTypeDefOf.PositiveEvent, historical: false);
+            if (announce)
+            {
+                Messages.Message($"The party gains {amount} XP ({reason}).", MessageTypeDefOf.PositiveEvent, historical: false);
+            }
             if (levelUps.Length > 0)
             {
                 Find.LetterStack.ReceiveLetter("Level up!", levelUps.ToString().TrimEndNewlines(), LetterDefOf.PositiveEvent);
@@ -662,6 +743,11 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            // Feat hediffs are permanent and saved with the pawn, so this is
+            // normally a no-op. It exists so a feat taken before its hediff
+            // def existed - or a pawn who lost hediffs some other way - gets
+            // its effects back rather than silently keeping a dead feat.
+            TSC_Feats.ApplyHediffs(pawn);
             Hediff hediff = pawn.health.hediffSet.GetFirstHediffOfDef(TSC_DefOf.TSC_Hediff_AdventurerLevel);
             if (hediff == null)
             {
@@ -684,9 +770,16 @@ namespace TheShatteredCrown
             LookPawnDict(ref proficiencies, ref workingPawnsC, ref workingProfs, "proficiencies", LookMode.Deep);
             LookPawnDict(ref energy, ref workingPawnsD, ref workingEnergy, "energy", LookMode.Value);
             Scribe_Collections.Look(ref unlockedClasses, "unlockedClasses", LookMode.Value);
-            if (Scribe.mode == LoadSaveMode.PostLoadInit && unlockedClasses == null)
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
-                unlockedClasses = new List<string>();
+                if (unlockedClasses == null)
+                {
+                    unlockedClasses = new List<string>();
+                }
+                // Kill-XP tallies are static and unsaved (the XP itself is
+                // already banked in the dictionaries above). Clear them so a
+                // fight from the previous save cannot post its summary here.
+                TSC_KillXp.Reset();
             }
         }
 
@@ -784,15 +877,27 @@ namespace TheShatteredCrown
             int pending = progression.PendingPoints(pawn);
             // Classless pawns still get the button when a studied manual has
             // unlocked a class they could begin.
-            if (pending <= 0 || (record.classes.Count < 1 && progression.NewClassChoicesFor(pawn).Count == 0))
+            Pawn localPawn = pawn;
+            // Every third character level owes a feat AND a class point, so
+            // "both" is the usual state at a feat level; the other two cases
+            // are a plain level, or a feat left unchosen after its class
+            // point was spent. One button covers all three; the dialog opens
+            // on whichever page still has something owed.
+            int pendingFeats = TSC_Feats.Pending(pawn);
+            bool canPickFeat = pendingFeats > 0 && TSC_Feats.ChoicesFor(pawn).Count > 0;
+            bool canSpendClass = pending > 0
+                && (record.classes.Count > 0 || progression.NewClassChoicesFor(pawn).Count > 0);
+            if (!canSpendClass && !canPickFeat)
             {
                 yield break;
             }
-            Pawn localPawn = pawn;
+            string label = canSpendClass && canPickFeat
+                ? $"Level up! ({pending} + feat)"
+                : canSpendClass ? $"Level up! ({pending})" : $"Choose feat ({pendingFeats})";
             yield return new Command_Action
             {
-                defaultLabel = $"Level up! ({pending})",
-                defaultDesc = "Assign a class level: choose which class advances and which proficiency improves. Proficiencies the chosen class trains in improve by 2.",
+                defaultLabel = label,
+                defaultDesc = "Assign a class level: choose which class advances and which proficiency improves. Proficiencies the chosen class trains in improve by 2.\n\nFeats are a separate, permanent choice earned at character level 3 and every third level after; when one is owed it is on the second page of this window.",
                 icon = ContentFinder<UnityEngine.Texture2D>.Get("UI/Abilities/WordOfInspiration"),
                 action = delegate
                 {

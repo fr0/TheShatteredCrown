@@ -83,18 +83,27 @@
   <HediffDef ParentName="TSC_TimedBuffBase">
     <defName>TSC_Hediff_InspiredVerse</defName>
     <label>inspired verse</label>
-    <description>A bard's verse still ringing in the ears. Work comes easier.</description>
+    <description>A bard's verse still ringing in the ears. The fight comes easier.</description>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>30000</disappearsAfterTicks>
+        <disappearsAfterTicks>1800</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_HymnNote</mote>
+        <offset>(0.45, 0, 0.55)</offset>
       </li>
     </comps>
     <stages>
       <li>
         <statOffsets>
-          <WorkSpeedGlobal>0.20</WorkSpeedGlobal>
+          <ShootingAccuracyPawn>0.10</ShootingAccuracyPawn>
+          <MentalBreakThreshold>-0.15</MentalBreakThreshold>
         </statOffsets>
+        <statFactors>
+          <MeleeDamageFactor>1.20</MeleeDamageFactor>
+          <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
+        </statFactors>
       </li>
     </stages>
   </HediffDef>
@@ -189,7 +198,7 @@
   <HediffDef ParentName="TSC_TimedBuffBase">
     <defName>TSC_Hediff_Shaken</defName>
     <label>shaken</label>
-    <description>Rattled by a warden's challenge: slower and less sure.</description>
+    <description>Broken stride and a short swing: what a war cry does to people.</description>
     <isBad>true</isBad>
     <defaultLabelColor>(0.9, 0.5, 0.5)</defaultLabelColor>
     <comps>
@@ -206,14 +215,13 @@
       <li>
         <capMods>
           <li>
-            <capacity>Consciousness</capacity>
-            <offset>-0.10</offset>
-          </li>
-          <li>
             <capacity>Moving</capacity>
-            <offset>-0.10</offset>
+            <offset>-0.20</offset>
           </li>
         </capMods>
+        <statFactors>
+          <MeleeDamageFactor>0.85</MeleeDamageFactor>
+        </statFactors>
       </li>
     </stages>
   </HediffDef>
@@ -222,12 +230,12 @@
   <HediffDef ParentName="TSC_TimedBuffBase">
     <defName>TSC_Hediff_Marked</defName>
     <label>marked</label>
-    <description>Singled out. Blows land harder on the marked.</description>
+    <description>Singled out by a rogue. Blows land much harder, for a short while.</description>
     <isBad>true</isBad>
     <defaultLabelColor>(0.9, 0.5, 0.4)</defaultLabelColor>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>3600</disappearsAfterTicks>
+        <disappearsAfterTicks>2400</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
       <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
@@ -238,7 +246,7 @@
     <stages>
       <li>
         <statFactors>
-          <IncomingDamageFactor>1.30</IncomingDamageFactor>
+          <IncomingDamageFactor>1.45</IncomingDamageFactor>
         </statFactors>
       </li>
     </stages>
@@ -736,6 +744,127 @@
         </statOffsets>
       </li>
     </stages>
+  </HediffDef>
+
+  <!-- ================================================================
+       The two marks and the two shouts used to share one hediff each,
+       which made a rogue/ranger or a bard/barbarian multiclass carry two
+       buttons that did exactly the same thing. Each pair is now split:
+       the older hediff stays with one owner (so live saves keep working)
+       and the other owner gets its own.
+       ================================================================ -->
+
+  <!-- Ranger: the long hunt. Weaker than the rogue's mark and four times
+       the duration, with a slow so the quarry cannot simply leave. -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Hunted</defName>
+    <label>hunted</label>
+    <description>A ranger has settled on this one. It will not be lost in the trees, and it will not outrun what is following it.</description>
+    <isBad>true</isBad>
+    <defaultLabelColor>(0.7, 0.9, 0.4)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>14400</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_TargetMark</mote>
+        <offset>(0, 0, 0.72)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statFactors>
+          <IncomingDamageFactor>1.18</IncomingDamageFactor>
+        </statFactors>
+        <capMods>
+          <li>
+            <capacity>Moving</capacity>
+            <offset>-0.15</offset>
+          </li>
+        </capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Bard: the dirge takes the aim, not the legs. A war cry frightens the
+       body; a lament for people who are not dead yet gets into the head. -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Mourning</defName>
+    <label>mourning</label>
+    <description>Somebody is singing your funeral while you are still standing in it. The hands go first.</description>
+    <isBad>true</isBad>
+    <defaultLabelColor>(0.55, 0.35, 0.75)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>2400</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_TremorLines</mote>
+        <offset>(-0.42, 0, 0.5)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <ShootingAccuracyPawn>-0.15</ShootingAccuracyPawn>
+          <MeleeHitChance>-0.15</MeleeHitChance>
+        </statOffsets>
+        <capMods>
+          <li>
+            <capacity>Consciousness</capacity>
+            <offset>-0.10</offset>
+          </li>
+        </capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Monk: composure. The cleric cures other people; the monk steadies
+       himself and gets back to work far sooner. -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_InnerCalm</defName>
+    <label>inner calm</label>
+    <description>Breath, then stillness, then everything else. Nothing here is urgent enough to hurry for.</description>
+    <isBad>false</isBad>
+    <defaultLabelColor>(0.85, 0.95, 1)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>3600</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <MentalBreakThreshold>-0.15</MentalBreakThreshold>
+        </statOffsets>
+        <capMods>
+          <li>
+            <capacity>Consciousness</capacity>
+            <offset>0.10</offset>
+          </li>
+        </capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Enemy veterancy: the visible carrier for party-level stat scaling
+       (TSC_EnemyScaling). Severity = the party's average level above the
+       grace period when this enemy was first seen; the TakeDamage patch
+       reads it for both directions. No stats here on purpose - one code
+       path covers melee, ranged and explosions alike. -->
+  <HediffDef>
+    <defName>TSC_Hediff_Veteran</defName>
+    <label>hardened</label>
+    <description>Word of a capable company travels, and what survives on the roads these days has survived worse. This one takes less harm and deals more, in proportion to the reputation your party has earned.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <initialSeverity>1</initialSeverity>
+    <maxSeverity>12</maxSeverity>
+    <defaultLabelColor>(0.85, 0.45, 0.35)</defaultLabelColor>
   </HediffDef>
 
 </Defs>

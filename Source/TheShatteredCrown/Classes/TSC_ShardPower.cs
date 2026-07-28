@@ -7,21 +7,66 @@ using Verse;
 namespace TheShatteredCrown
 {
     /// <summary>
-    /// The crown shard's power. Any pawn CARRYING the shard in their
-    /// inventory holds Shardfall: a once-a-day rain of ice shards (heavy
-    /// AoE). The tracker polls holders (maps + caravans), grants/revokes
-    /// the ability, fires the first-touch rush dialogue
-    /// (Dialogues/shard_rush.agd), and follows it with the Act 2 title
-    /// card. The cooldown belongs to the SHARD, not the pawn: it survives
-    /// drop/re-pickup (lastStormTick).
+    /// Marks a ThingDef as a shard of the shattered crown and names the
+    /// unique ability it grants its carrier. The extension IS the shard
+    /// registry: ShardKeeper's drop guard, the Kingsblade's severity count,
+    /// and the ability tracker all key off it, so a future act's shard is
+    /// one ThingDef with this extension plus a spawner.
+    /// </summary>
+    public class TSC_ShardAbilityExtension : DefModExtension
+    {
+        public AbilityDef ability;
+    }
+
+    /// <summary>Every def that is a crown shard, resolved once after def load.</summary>
+    public static class TSC_Shards
+    {
+        private static List<ThingDef> all;
+
+        public static List<ThingDef> AllDefs
+        {
+            get
+            {
+                if (all == null)
+                {
+                    all = new List<ThingDef>();
+                    foreach (ThingDef def in DefDatabase<ThingDef>.AllDefsListForReading)
+                    {
+                        if (def.HasModExtension<TSC_ShardAbilityExtension>())
+                        {
+                            all.Add(def);
+                        }
+                    }
+                }
+                return all;
+            }
+        }
+
+        public static bool IsShard(ThingDef def) => def != null && AllDefs.Contains(def);
+
+        public static AbilityDef AbilityFor(ThingDef def) =>
+            def?.GetModExtension<TSC_ShardAbilityExtension>()?.ability;
+    }
+
+    /// <summary>
+    /// The crown shards' powers. Any pawn CARRYING a shard in their
+    /// inventory holds that shard's unique ability (the grave shard's
+    /// Shardfall, the reliquary shard's Quickening, ...). The tracker polls
+    /// holders (maps + caravans), grants/revokes abilities, fires the
+    /// first-touch rush dialogue (Dialogues/shard_rush.agd) and the Act 2
+    /// title card. Cooldowns belong to the SHARDS, not the pawns: each
+    /// shard is one-of-a-kind, so one world clock per ability survives
+    /// drop, hand-off and re-pickup.
     /// </summary>
     public class TSC_ShardTracker : WorldComponent
     {
         private const int ScanIntervalTicks = 60;
         public const string RushFlag = "TSC_ShardRushSeen";
         public const string TitleFlag = "TSC_Act2TitleShown";
-        private int lastStormTick = -999999;
+        private Dictionary<string, int> lastCastTicks = new Dictionary<string, int>();
+        private int lastStormTick = -999999; // legacy single-shard clock, migrated on load
         private bool titlePending;
+        private bool splitHealed;
 
         public TSC_ShardTracker(World world) : base(world)
         {
@@ -29,11 +74,21 @@ namespace TheShatteredCrown
 
         public static TSC_ShardTracker Current => Find.World.GetComponent<TSC_ShardTracker>();
 
-        public int CooldownRemaining => Mathf.Max(0, lastStormTick + GenDate.TicksPerDay - Find.TickManager.TicksGame);
-
-        public void NoteStormCast()
+        public int CooldownRemaining(AbilityDef ability)
         {
-            lastStormTick = Find.TickManager.TicksGame;
+            if (ability == null || !lastCastTicks.TryGetValue(ability.defName, out int cast))
+            {
+                return 0;
+            }
+            return Mathf.Max(0, cast + ability.cooldownTicksRange.TrueMax - Find.TickManager.TicksGame);
+        }
+
+        public void NoteCast(AbilityDef ability)
+        {
+            if (ability != null)
+            {
+                lastCastTicks[ability.defName] = Find.TickManager.TicksGame;
+            }
         }
 
         public override void WorldComponentTick()
@@ -44,31 +99,37 @@ namespace TheShatteredCrown
                 return;
             }
             ShowPendingTitle();
-            ThingDef shardDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_CrownShard");
-            AbilityDef stormDef = DefDatabase<AbilityDef>.GetNamedSilentFail("TSC_Ability_Shardfall");
-            if (shardDef == null || stormDef == null)
+            HealSharedDefSplit();
+            foreach (ThingDef shardDef in TSC_Shards.AllDefs)
             {
-                return;
-            }
-            foreach (Pawn pawn in PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists)
-            {
-                bool holds = HoldsShard(pawn, shardDef);
-                Ability existing = pawn.abilities?.GetAbility(stormDef);
-                if (holds && existing == null && pawn.abilities != null)
+                AbilityDef ability = TSC_Shards.AbilityFor(shardDef);
+                if (ability == null)
                 {
-                    pawn.abilities.GainAbility(stormDef);
-                    // The shard remembers its own exhaustion: re-pickup does
-                    // not reset the day.
-                    int remaining = CooldownRemaining;
-                    if (remaining > 0)
-                    {
-                        pawn.abilities.GetAbility(stormDef)?.StartCooldown(remaining);
-                    }
-                    FirstTouch(pawn);
+                    continue;
                 }
-                else if (!holds && existing != null)
+                foreach (Pawn pawn in PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists)
                 {
-                    pawn.abilities.RemoveAbility(stormDef);
+                    bool holds = HoldsShard(pawn, shardDef);
+                    Ability existing = pawn.abilities?.GetAbility(ability);
+                    if (holds && existing == null && pawn.abilities != null)
+                    {
+                        pawn.abilities.GainAbility(ability);
+                        // The shard remembers its own exhaustion: re-pickup
+                        // (by anyone) does not reset the day.
+                        int remaining = CooldownRemaining(ability);
+                        if (remaining > 0)
+                        {
+                            pawn.abilities.GetAbility(ability)?.StartCooldown(remaining);
+                        }
+                        if (shardDef.defName == "TSC_CrownShard")
+                        {
+                            FirstTouch(pawn);
+                        }
+                    }
+                    else if (!holds && existing != null)
+                    {
+                        pawn.abilities.RemoveAbility(ability);
+                    }
                 }
             }
         }
@@ -81,6 +142,80 @@ namespace TheShatteredCrown
                 return true;
             }
             return pawn.carryTracker?.CarriedThing?.def == shardDef;
+        }
+
+        /// <summary>
+        /// One-time save repair for the def split. Before the shards were
+        /// distinct items, the reliquary spawned a second TSC_CrownShard;
+        /// on such a save the SECOND-created instance (higher thingID) IS
+        /// the reliquary shard and is re-minted as one, wherever it sits -
+        /// a pawn's pack, a caravan, or still lying on the reliquary floor.
+        /// </summary>
+        private void HealSharedDefSplit()
+        {
+            if (splitHealed)
+            {
+                return;
+            }
+            splitHealed = true;
+            ThingDef graveDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_CrownShard");
+            ThingDef reliquaryDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_CrownShard_Reliquary");
+            if (graveDef == null || reliquaryDef == null)
+            {
+                return;
+            }
+            List<Thing> shards = new List<Thing>();
+            foreach (Map map in Find.Maps)
+            {
+                shards.AddRange(map.listerThings.ThingsOfDef(graveDef));
+            }
+            foreach (Pawn pawn in PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists)
+            {
+                if (pawn.inventory?.innerContainer != null)
+                {
+                    foreach (Thing thing in pawn.inventory.innerContainer)
+                    {
+                        if (thing.def == graveDef)
+                        {
+                            shards.Add(thing);
+                        }
+                    }
+                }
+                if (pawn.carryTracker?.CarriedThing?.def == graveDef)
+                {
+                    shards.Add(pawn.carryTracker.CarriedThing);
+                }
+            }
+            if (shards.Count < 2)
+            {
+                return;
+            }
+            shards.SortBy(t => t.thingIDNumber);
+            for (int i = 1; i < shards.Count; i++)
+            {
+                Thing old = shards[i];
+                Thing minted = ThingMaker.MakeThing(reliquaryDef);
+                if (old.Spawned)
+                {
+                    Map map = old.Map;
+                    IntVec3 cell = old.Position;
+                    old.Destroy(DestroyMode.Vanish);
+                    GenSpawn.Spawn(minted, cell, map);
+                }
+                else
+                {
+                    ThingOwner owner = old.holdingOwner;
+                    owner?.Remove(old);
+                    old.Destroy(DestroyMode.Vanish);
+                    if (owner == null || !owner.TryAdd(minted))
+                    {
+                        minted.Destroy(DestroyMode.Vanish);
+                        Log.Warning("[The Shattered Crown] Shard def-split heal could not re-home a converted shard; skipped.");
+                        continue;
+                    }
+                }
+                Log.Message("[The Shattered Crown] Shard def-split heal: re-minted a duplicate grave shard as the reliquary shard.");
+            }
         }
 
         /// <summary>The rush, once ever - then the act turns.</summary>
@@ -148,8 +283,22 @@ namespace TheShatteredCrown
         public override void ExposeData()
         {
             base.ExposeData();
+            Scribe_Collections.Look(ref lastCastTicks, "lastCastTicks", LookMode.Value, LookMode.Value);
             Scribe_Values.Look(ref lastStormTick, "lastStormTick", -999999);
             Scribe_Values.Look(ref titlePending, "titlePending");
+            Scribe_Values.Look(ref splitHealed, "splitHealed");
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                if (lastCastTicks == null)
+                {
+                    lastCastTicks = new Dictionary<string, int>();
+                }
+                // Pre-split saves tracked only Shardfall, in lastStormTick.
+                if (lastStormTick != -999999 && !lastCastTicks.ContainsKey("TSC_Ability_Shardfall"))
+                {
+                    lastCastTicks["TSC_Ability_Shardfall"] = lastStormTick;
+                }
+            }
         }
     }
 
@@ -193,7 +342,62 @@ namespace TheShatteredCrown
                     }
                 }
             }
-            TSC_ShardTracker.Current?.NoteStormCast();
+            TSC_ShardTracker.Current?.NoteCast(parent.def);
+        }
+    }
+
+    public class CompProperties_TSC_PartyHediff : CompProperties_AbilityEffect
+    {
+        public HediffDef hediff;
+
+        public CompProperties_TSC_PartyHediff()
+        {
+            compClass = typeof(CompAbilityEffect_TSC_PartyHediff);
+        }
+    }
+
+    /// <summary>
+    /// Applies a hediff to the whole party at the caster's location: every
+    /// free colonist on the caster's map AND its sibling pocket maps (same
+    /// root), so a party split across dungeon floors is still one party -
+    /// the same location rule the threat scaler uses. Re-cast refreshes by
+    /// replacement, so durations never stack.
+    /// </summary>
+    public class CompAbilityEffect_TSC_PartyHediff : CompAbilityEffect
+    {
+        public new CompProperties_TSC_PartyHediff Props => (CompProperties_TSC_PartyHediff)props;
+
+        public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
+        {
+            base.Apply(target, dest);
+            Pawn caster = parent.pawn;
+            Map casterMap = caster.MapHeld;
+            if (casterMap == null || Props.hediff == null)
+            {
+                return;
+            }
+            Map root = TSC_Threat.RootMap(casterMap);
+            foreach (Map map in Find.Maps)
+            {
+                if (TSC_Threat.RootMap(map) != root)
+                {
+                    continue;
+                }
+                foreach (Pawn pawn in new List<Pawn>(map.mapPawns.FreeColonistsSpawned))
+                {
+                    if (pawn.Dead || pawn.health?.hediffSet == null)
+                    {
+                        continue;
+                    }
+                    Hediff existing = pawn.health.hediffSet.GetFirstHediffOfDef(Props.hediff);
+                    if (existing != null)
+                    {
+                        pawn.health.RemoveHediff(existing);
+                    }
+                    pawn.health.AddHediff(HediffMaker.MakeHediff(Props.hediff, pawn));
+                }
+            }
+            TSC_ShardTracker.Current?.NoteCast(parent.def);
         }
     }
 }

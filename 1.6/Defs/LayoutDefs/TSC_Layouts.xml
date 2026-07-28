@@ -182,7 +182,7 @@
       </TSC_CryptReliquary>
 
       <!-- Flavor and danger -->
-      <TSC_Crypt>4</TSC_Crypt>
+      <TSC_CryptQuiet>4</TSC_CryptQuiet>
       <TSC_Storeroom>1</TSC_Storeroom>
       <TSC_RubbleChamber>2</TSC_RubbleChamber>
     </roomDefs>
@@ -215,7 +215,7 @@
     <canDisconnectRooms>false</canDisconnectRooms>
     <corridorShapes>Cross, T</corridorShapes>
     <roomDefs>
-      <TSC_Crypt>6</TSC_Crypt>
+      <TSC_CryptQuiet>6</TSC_CryptQuiet>
       <TSC_RubbleChamber>2</TSC_RubbleChamber>
       <TSC_Storeroom>1</TSC_Storeroom>
     </roomDefs>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       THE LEDGER: the first branching contract chain, and the worked
+       template for the rest.
+
+       Shape:
+         stage 1  an ordinary clear-the-toll-house contract
+         the turn a check spot (Investigation / Insight / Thievery) finds a
+                  guild factor's name in the bandits' books, and SETS A FLAG
+         stage 2  granted only if that flag is set, and resolved by a
+                  conversation with the factor rather than by a fight
+
+       Three things make this possible, all added with the chain:
+         - CompProperties_TSC_CheckSpot.successFlag: a discovery is recorded
+         - QuestNode_TSC_IfFlag: a running quest reads that record
+         - TSC_GuildStoreEntry.forbiddenFlag: a choice can CLOSE something
+
+       A player who never rolls the ledger gets a perfectly ordinary contract
+       and never learns there was more to it. That is deliberate: the branch
+       has to be findable, not announced.
+       ================================================================== -->
+
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_FactorsLedger</defName>
+    <label>toll book</label>
+    <description>This crew kept books, and kept them well. Dates, loads, and the days particular caravans were due.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BanditLedger</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+      <color>(0.62,0.58,0.72)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>8</dc>
+            <label>Work out how they knew the schedules</label>
+            <successXp>40</successXp>
+            <successFlag>TSC_LedgerRead</successFlag>
+            <successMessage>They did not guess. Every caravan they took is entered days BEFORE they took it, load and all, and the same hand has signed each entry in the margin. It is a guild hand. You have seen it on your own charter.\n\nYou put the book in your coat.</successMessage>
+            <failMessage>Dates, loads, and a lot of abbreviations. Somebody who reads ledgers for a living could make sense of it. You cannot.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>7</dc>
+            <label>Ask why a toll crew keeps books at all</label>
+            <successXp>40</successXp>
+            <successFlag>TSC_LedgerRead</successFlag>
+            <successMessage>Bandits do not keep accounts. Men who have to SHOW their accounts to somebody do - and that somebody has signed the margins, in a guild hand you have seen on your own charter.\n\nYou take the book.</successMessage>
+            <failMessage>You look for the shape of it and find only a tidy crew with tidy habits.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Thievery</proficiency>
+            <dc>8</dc>
+            <label>Lift the countersigned pages</label>
+            <successXp>35</successXp>
+            <successFlag>TSC_LedgerRead</successFlag>
+            <successMessage>You only need the signed pages. They come out of the stitching clean and go into your coat, and the signature now belongs to somebody you can find.</successMessage>
+            <failMessage>The stitching holds and the paper does not. You come away with half a page and no signature.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ the toll house itself -->
+  <SitePartDef>
+    <defName>TSC_ContractLedger</defName>
+    <label>toll house</label>
+    <description>A crew working a stretch of guild road, with more discipline than most.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Clear {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>150</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ContractLedger</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractLedger_Structure</defName>
+    <linkWithSite>TSC_ContractLedger</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Waystation</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractLedger_Crew</defName>
+    <linkWithSite>TSC_ContractLedger</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>4~6</count>
+      <scaledClamp>3~10</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The toll book is GUARANTEED. The branch may be missed by failing the
+       roll or never trying it, but it must never be missed because the spot
+       did not spawn. -->
+  <GenStepDef>
+    <defName>TSC_ContractLedger_Spots</defName>
+    <linkWithSite>TSC_ContractLedger</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_FactorsLedger</def><count>1~1</count></li>
+        <li><def>TSC_WatchPost</def><count>0~1</count></li>
+        <li><def>TSC_CampfireCircle</def><count>0~1</count></li>
+        <li><def>TSC_StrewnBaggage</def><count>0~1</count></li>
+        <li><def>TSC_ContractChest</def><count>0~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+</Defs>

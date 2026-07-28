@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       Instruments. These take the WEAPON slot, deliberately: a bard with a
+       lute in hand reaches further with every song and hits like someone
+       holding a lute. That trade is the feature.
+
+       Parent is BaseWeapon, not BaseMeleeWeapon_*_Quality, for the same
+       reason the Kingsblade and the ember bow do it: those bases carry a
+       recipeMaker and smeltable=true, which config-error on a weapon with
+       no cost list and no stuff. CompQuality is added by hand instead, and
+       quality moves the bonus (see Comp_TSC_Instrument.QualityScale).
+
+       They are real weapons, badly: enough tool power that a cornered bard
+       is swinging something, never enough that the slot is free.
+       ================================================================== -->
+
+  <ThingDef Name="TSC_InstrumentBase" ParentName="BaseWeapon" Abstract="True">
+    <techLevel>Medieval</techLevel>
+    <thingCategories>
+      <li>WeaponsMelee</li>
+    </thingCategories>
+    <weaponClasses>
+      <li>Melee</li>
+      <li>MeleeBlunt</li>
+    </weaponClasses>
+    <weaponTags>
+      <li>TSC_Instrument</li>
+    </weaponTags>
+    <equippedAngleOffset>-35</equippedAngleOffset>
+    <smeltable>false</smeltable>
+    <burnableByRecipe>true</burnableByRecipe>
+    <statBases>
+      <MaxHitPoints>70</MaxHitPoints>
+      <Flammability>1.0</Flammability>
+    </statBases>
+    <comps>
+      <li>
+        <compClass>CompQuality</compClass>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_InstrumentBase">
+    <defName>TSC_Instrument_Lute</defName>
+    <label>lute</label>
+    <description>A pear-bellied lute of bent yew with a bone-nutted neck, strung with twisted gut. The bard's instrument proper: quiet enough to play in a tent, loud enough to carry a verse across a camp, and just about heavy enough at the neck to swing if the evening goes badly.\n\nA song played on one of these reaches further and lands harder than a song sung bare.</description>
+    <graphicData>
+      <texPath>Things/Item/Equipment/TSC_Lute</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.95</drawSize>
+    </graphicData>
+    <uiIconScale>1.1</uiIconScale>
+    <statBases>
+      <Mass>1.6</Mass>
+      <MarketValue>320</MarketValue>
+    </statBases>
+    <tools>
+      <li>
+        <label>neck</label>
+        <capacities>
+          <li>Blunt</li>
+        </capacities>
+        <power>11</power>
+        <cooldownTime>1.9</cooldownTime>
+      </li>
+      <li>
+        <label>body</label>
+        <labelUsedInLogging>false</labelUsedInLogging>
+        <capacities>
+          <li>Blunt</li>
+        </capacities>
+        <power>8</power>
+        <cooldownTime>2.1</cooldownTime>
+      </li>
+    </tools>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Instrument">
+        <songRadius>1.30</songRadius>
+        <songPower>1.15</songPower>
+        <performance>2</performance>
+        <moraleThought>TSC_Thought_Minstrelsy</moraleThought>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_InstrumentBase">
+    <defName>TSC_Instrument_Drum</defName>
+    <label>marching drum</label>
+    <description>A rope-tensioned field drum, slung at the hip and struck with a pair of hard beaters. It has no tune in it at all, which is not what it is for: a drum sets a pace, and a column that keeps its pace arrives able to fight.\n\nIt carries a song further than any other instrument here, and adds very little to the song itself.</description>
+    <graphicData>
+      <texPath>Things/Item/Equipment/TSC_Drum</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.9</drawSize>
+    </graphicData>
+    <uiIconScale>1.1</uiIconScale>
+    <statBases>
+      <Mass>2.4</Mass>
+      <MarketValue>240</MarketValue>
+    </statBases>
+    <tools>
+      <li>
+        <label>beater</label>
+        <capacities>
+          <li>Blunt</li>
+        </capacities>
+        <power>11</power>
+        <cooldownTime>1.7</cooldownTime>
+      </li>
+      <li>
+        <label>rim</label>
+        <labelUsedInLogging>false</labelUsedInLogging>
+        <capacities>
+          <li>Blunt</li>
+        </capacities>
+        <power>9</power>
+        <cooldownTime>2.0</cooldownTime>
+      </li>
+    </tools>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Instrument">
+        <songRadius>1.55</songRadius>
+        <songPower>1.05</songPower>
+        <performance>1</performance>
+        <moraleRadius>18</moraleRadius>
+        <moraleThought>TSC_Thought_Minstrelsy</moraleThought>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_InstrumentBase">
+    <defName>TSC_Instrument_Horn</defName>
+    <label>hunting horn</label>
+    <description>A curved ox horn, mouthed in brass and worn shiny by three generations of lips. It plays perhaps five notes and every one of them means something specific to people who ride together: form up, fall back, quarry sighted, dead man, come home.\n\nWhat it lacks in reach it makes up in the way a horn call gets obeyed.</description>
+    <graphicData>
+      <texPath>Things/Item/Equipment/TSC_Horn</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.85</drawSize>
+    </graphicData>
+    <uiIconScale>1.15</uiIconScale>
+    <statBases>
+      <Mass>1.1</Mass>
+      <MarketValue>190</MarketValue>
+    </statBases>
+    <tools>
+      <li>
+        <label>horn</label>
+        <capacities>
+          <li>Blunt</li>
+        </capacities>
+        <power>9</power>
+        <cooldownTime>1.6</cooldownTime>
+      </li>
+    </tools>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Instrument">
+        <songRadius>1.15</songRadius>
+        <songPower>1.28</songPower>
+        <performance>1</performance>
+        <moraleRadius>12</moraleRadius>
+        <moraleThought>TSC_Thought_Minstrelsy</moraleThought>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- Renewed every game hour while the carrier is at ease, and lasting a
+       quarter day, so it lapses on a long march or a long fight rather than
+       becoming a permanent free mood floor. -->
+  <ThoughtDef>
+    <defName>TSC_Thought_Minstrelsy</defName>
+    <durationDays>0.25</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>music on the road</label>
+        <description>Somebody has been playing. It is a small thing and it is not nothing: the camp sounds like a place people live in rather than a place people are waiting in.</description>
+        <baseMoodEffect>3</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+</Defs>

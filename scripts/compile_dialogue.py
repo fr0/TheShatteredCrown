@@ -272,11 +272,24 @@ def parse_effects(expr: str, path, lineno) -> list:
                 raise ParseError(path, lineno, "take_item syntax: take_item(<ThingDef>[, count])")
             effects.append(Effect("DialogueEffect_TakeThing", fields))
         elif name == "grant_xp":
-            effects.append(Effect("DialogueEffect_GrantXp", {"xp": arg}))
+            # grant_xp(25)          -> pays ONCE per save (key stamped below)
+            # grant_xp(25, repeat)  -> pays every time, deliberately
+            parts = [p.strip() for p in arg.split(",")]
+            fields = {"xp": parts[0]}
+            if len(parts) > 1:
+                if parts[1] != "repeat":
+                    raise ParseError(path, lineno,
+                                     "grant_xp syntax: grant_xp(<amount>[, repeat])")
+                fields["_repeat"] = "1"
+            elif len(parts) > 2:
+                raise ParseError(path, lineno, "grant_xp syntax: grant_xp(<amount>[, repeat])")
+            effects.append(Effect("DialogueEffect_GrantXp", fields))
         elif name == "contract_board":
             effects.append(Effect("DialogueEffect_TSC_ContractBoard", {}))
         elif name == "hire_offer":
             effects.append(Effect("DialogueEffect_TSC_HireOffer", {}))
+        elif name == "guild_store":
+            effects.append(Effect("DialogueEffect_TSC_GuildStore", {}))
         elif name == "learn_class":
             effects.append(Effect("DialogueEffect_LearnClass", {"classDef": arg}))
         elif name == "teach_class":
@@ -416,7 +429,41 @@ def parse_file(path: Path) -> Dialogue:
 
     if not dlg.def_name:
         raise ParseError(path, 1, "missing 'dialogue <DefName>' directive")
+    stamp_xp_once_keys(dlg)
     return dlg
+
+
+def stamp_xp_once_keys(dlg: "Dialogue"):
+    """
+    Make every XP grant one-shot unless it asked to repeat.
+
+    Dialogue hubs are re-enterable by design, so an unguarded grant_xp on a
+    hub branch is an XP faucet ("sing the song again" paying 25 every time).
+    Rather than trusting each new line to remember a guard, every grant gets
+    a key, and the effect refuses to pay twice against it.
+
+    Keys live in save files, so they must stay stable across recompiles.
+    They are numbered by position among the XP grants of their node - not by
+    option index - so adding or removing an ordinary option nearby does not
+    silently re-open a grant the player has already been paid for. Moving an
+    XP grant above another one in the same node WILL shuffle them; the cost
+    is one extra payout, which is why that is the tradeoff taken.
+    """
+    for node in dlg.nodes:
+        seen = 0
+        for option in node.options:
+            groups = [option.effects]
+            if option.check is not None:
+                groups.append(option.check.success_effects)
+                groups.append(option.check.fail_effects)
+            for group in groups:
+                for effect in group:
+                    if effect.cls != "DialogueEffect_GrantXp":
+                        continue
+                    if effect.fields.pop("_repeat", None):
+                        continue  # author asked for a repeatable grant
+                    effect.fields["onceKey"] = f"XP_{dlg.def_name}_{node.name}_{seen}"
+                    seen += 1
 
 
 # ---------------------------------------------------------------- validation

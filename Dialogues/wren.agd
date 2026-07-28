@@ -10,7 +10,7 @@ entry joined if in_party()
 entry met if flag(TSC_MetBard)
 
 == start ==
-You find her by following the crowd: a common room packed shoulder to shoulder, and on the table by the hearth a woman with a battered lute, mid-verse. The song is about a king, and a crown, and the nine pieces it broke into.
+You find her by following the crowd: a common room packed shoulder to shoulder, and on the table by the hearth a woman with a battered lute, mid-verse. The song is about a king, and a crown, and the five pieces it broke into.
 
 She sees your gear, or maybe what your gear has been through, and finishes the verse looking straight at you. The room empties slowly. She doesn't.
 
@@ -50,7 +50,7 @@ She turns the lute over and draws on the back of it, in charcoal, without apolog
 "That's the village. That's the stair. I've never been past the third step, and I've stood at the top of it more nights than I'll admit to."
 
 * "Then we go down. Mark it properly." -> lead_taken
-    do give_quest(TSC_Act2_Cellars); grant_xp(25)
+    do flag(TSC_CellarsLeadTaken); give_quest(TSC_Act2_Cellars); grant_xp(25)
 * "Come with us, Wren. The song isn't finished, and we need your help." -> recruit
 * [Take your leave.] -> end
 
@@ -67,6 +67,9 @@ Wren is where the crowd is, as bards are. She lifts two fingers off the lute's n
 
 "Still above ground. Good. The stairs are where I said, and the song hasn't changed its mind."
 
+* "The stairs. Draw me the way down, properly." -> lead_taken
+    if not flag(TSC_CellarsLeadTaken)
+    do flag(TSC_CellarsLeadTaken); give_quest(TSC_Act2_Cellars); grant_xp(25)
 * "Sing the crown verses again. All of them." -> met_song
 * "Come with us, Wren. The song isn't finished, and we need your help." -> recruit
 * "Just passing through." -> end
@@ -89,6 +92,9 @@ Wren rides with the party the way she performed: watching everything, keeping th
 
 "Courier. Need a verse, or just company?"
 
+* "The stairs you sang beside. Draw me the way down." -> lead_taken
+    if not flag(TSC_CellarsLeadTaken)
+    do flag(TSC_CellarsLeadTaken); give_quest(TSC_Act2_Cellars); grant_xp(25)
 * "Sing the crown verses. All of them." -> met_song
 * "How are you holding up, away from your cozy tavern?" -> joined_talk
     if not flag(TSC_WrenRoadTalk)
@@ -105,7 +111,7 @@ She shrugs the fear off her shoulders, practiced by now.
     do flag(TSC_WrenRoadTalk); grant_xp(10); affinity(+5)
 
 == met_song ==
-She sings it complete this time, unhurried: the king, the shattering, the nine roads the pieces took. Verses about a crypt in the hills - you know that one now. Verses about water, and cellars, and a thing that waits in the wet dark. And verses at the end in a meter so old it drags its feet, which she sings with her eyes closed and cannot translate.
+She sings it complete this time, unhurried: the king, the shattering, the five roads the pieces took. Verses about a crypt in the hills - you know that one now. Verses about water, and cellars, and a thing that waits in the wet dark. And verses at the end in a meter so old it drags its feet, which she sings with her eyes closed and cannot translate.
 
 "That last part isn't mine," she says afterward. "It isn't anyone's. That's the part that scares me."
 

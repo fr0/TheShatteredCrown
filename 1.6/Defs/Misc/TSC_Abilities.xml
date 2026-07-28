@@ -146,11 +146,11 @@
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_InspiringVerse</defName>
     <label>inspiring verse</label>
-    <description>The target gains +20% global work speed for 12 hours.</description>
+    <description>One ally fights inspired for 30 seconds: melee attacks 20% harder and 15% faster, +10% shooting accuracy, and a much steadier mind.</description>
     <iconPath>UI/TSC_Abilities/TSC_InspiringVerse</iconPath>
-    <cooldownTicksRange>60000</cooldownTicksRange>
+    <cooldownTicksRange>1200</cooldownTicksRange>
     <statBases>
-      <Ability_Duration>500</Ability_Duration>
+      <Ability_Duration>30</Ability_Duration>
     </statBases>
     <verbProperties>
       <warmupTime>1</warmupTime>
@@ -180,7 +180,7 @@
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_Dirge</defName>
     <label>dirge</label>
-    <description>Enemies within 6.9 cells of the target point suffer -10% consciousness and -10% moving for 40 seconds.</description>
+    <description>A song for the dead, sung early. Enemies within 6.9 cells lose their aim rather than their nerve: -15% shooting accuracy, -15% melee hit chance and -10% consciousness for 40 seconds.</description>
     <iconPath>UI/TSC_Abilities/TSC_Dirge</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
     <hostile>true</hostile>
@@ -197,7 +197,7 @@
         <cost>15</cost>
       </li>
       <li Class="TheShatteredCrown.CompProperties_TSC_AreaHediff">
-        <hediff>TSC_Hediff_Shaken</hediff>
+        <hediff>TSC_Hediff_Mourning</hediff>
         <radius>6.9</radius>
         <alliesOnly>false</alliesOnly>
         <enemiesOnly>true</enemiesOnly>
@@ -443,11 +443,11 @@
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_MarkedForDeath</defName>
     <label>marked for death</label>
-    <description>The marked target takes +30% damage from all sources for 60 seconds.</description>
+    <description>The rogue picks the one who dies first. The marked target takes +45% damage from all sources, but only for 40 seconds: a window to be used, not a debuff to leave running.</description>
     <iconPath>UI/TSC_Abilities/TSC_MarkedForDeath</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
     <statBases>
-      <Ability_Duration>60</Ability_Duration>
+      <Ability_Duration>40</Ability_Duration>
     </statBases>
     <hostile>true</hostile>
     <verbProperties>
@@ -793,7 +793,7 @@
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_WarCry</defName>
     <label>war cry</label>
-    <description>Enemies within 6.9 cells of the target point suffer -10% consciousness and -10% moving for 40 seconds.</description>
+    <description>Not a song. Enemies within 6.9 cells break stride and swing short: -20% moving and -15% melee damage for 40 seconds.</description>
     <iconPath>UI/TSC_Abilities/TSC_WarCry</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
     <hostile>true</hostile>
@@ -1072,17 +1072,21 @@
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_InnerCalm</defName>
     <label>inner calm</label>
-    <description>Removes diseases, wound infections, food poisoning, and toxic buildup from the target. Touch range.</description>
+    <description>The monk turns it inward. Purges disease, infection, poisoning and toxic buildup from the monk alone, and leaves them composed: +10% consciousness and a far steadier mind for 60 seconds. Recovers in a quarter of the time a cleric's cleanse takes.</description>
     <iconPath>UI/TSC_Abilities/TSC_InnerCalm</iconPath>
     <!-- Field medicine: castable undrafted (energy and cooldown still apply) -->
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
-    <cooldownTicksRange>60000</cooldownTicksRange>
+    <cooldownTicksRange>15000</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>60</Ability_Duration>
+    </statBases>
     <verbProperties>
       <warmupTime>2</warmupTime>
-      <range>3.9</range>
+      <range>0.9</range>
       <targetParams>
         <canTargetSelf>true</canTargetSelf>
-        <canTargetAnimals>true</canTargetAnimals>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
       </targetParams>
     </verbProperties>
     <comps>
@@ -1090,6 +1094,12 @@
         <cost>10</cost>
       </li>
       <li Class="TheShatteredCrown.CompProperties_TSC_Cleanse" />
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>TheShatteredCrown.CompAbilityEffect_TSC_GiveHediffLeveled</compClass>
+        <hediffDef>TSC_Hediff_InnerCalm</hediffDef>
+        <onlyApplyToSelf>true</onlyApplyToSelf>
+        <psychic>false</psychic>
+      </li>
       <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
         <color>(0.85, 0.95, 1)</color>
         <scale>1.5</scale>
@@ -1309,11 +1319,11 @@
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_HuntersMark</defName>
     <label>hunter's mark</label>
-    <description>The marked target takes +30% damage from all sources for 60 seconds.</description>
+    <description>The ranger settles on a quarry and does not lose it. The marked target takes +18% damage from all sources and moves 15% slower for a full four minutes. It is not a burst; it is a hunt.</description>
     <iconPath>UI/TSC_Abilities/TSC_HuntersMark</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
     <statBases>
-      <Ability_Duration>60</Ability_Duration>
+      <Ability_Duration>240</Ability_Duration>
     </statBases>
     <hostile>true</hostile>
     <verbProperties>
@@ -1330,7 +1340,7 @@
       </li>
       <li Class="CompProperties_AbilityGiveHediff">
         <compClass>TheShatteredCrown.CompAbilityEffect_TSC_GiveHediffLeveled</compClass>
-        <hediffDef>TSC_Hediff_Marked</hediffDef>
+        <hediffDef>TSC_Hediff_Hunted</hediffDef>
         <psychic>false</psychic>
         <applicableToMechs>true</applicableToMechs>
       </li>

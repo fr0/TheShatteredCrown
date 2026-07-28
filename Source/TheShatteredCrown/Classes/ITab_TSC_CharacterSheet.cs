@@ -80,7 +80,37 @@ namespace TheShatteredCrown
                     : $"Unassigned class levels: {pending}");
                 GUI.color = Color.white;
             }
+            int pendingFeats = TSC_Feats.Pending(pawn);
+            if (pendingFeats > 0)
+            {
+                GUI.color = new Color(0.85f, 0.75f, 0.4f);
+                Line(ref y, viewRect.width, $"Unchosen feats: {pendingFeats} (use the 'Choose feat' button)");
+                GUI.color = Color.white;
+            }
             y += 8f;
+
+            // Feats: what this character has learned to DO, as opposed to
+            // what they are. Shown above classes because they are the rarer
+            // choice - one every three character levels.
+            System.Collections.Generic.List<TSC_FeatDef> feats = TSC_Feats.Taken(pawn);
+            if (feats.Count > 0 || pendingFeats > 0)
+            {
+                Header(ref y, viewRect.width, "Feats");
+                if (feats.Count == 0)
+                {
+                    GUI.color = Color.gray;
+                    Line(ref y, viewRect.width, "None chosen yet.");
+                    GUI.color = Color.white;
+                }
+                foreach (TSC_FeatDef feat in feats)
+                {
+                    string requirement = feat.RequirementLine();
+                    Line(ref y, viewRect.width, requirement.NullOrEmpty()
+                        ? feat.LabelCap
+                        : $"{feat.LabelCap}  ({requirement})");
+                }
+                y += 8f;
+            }
 
             // Classes
             Header(ref y, viewRect.width, "Classes");

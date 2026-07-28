@@ -62,6 +62,49 @@ namespace TheShatteredCrown
             return total;
         }
 
+        /// <summary>
+        /// Held by somebody standing in a guild hall.
+        ///
+        /// Carrying the prize out of the ruin is the adventure; handing it
+        /// over is the contract. Counting mere possession meant a fetch job
+        /// paid out the moment the lid came off, with the coffer still in a
+        /// cellar four days' travel from anyone who wanted it - which made
+        /// the return trip optional and the guild an abstraction.
+        ///
+        /// Caravans do not count: a caravan is on the road, not at a table.
+        /// The party has to actually arrive and enter the settlement.
+        /// </summary>
+        public static int CountAtGuild(ThingDef item)
+        {
+            if (item == null)
+            {
+                return 0;
+            }
+            int total = 0;
+            foreach (Map map in Find.Maps)
+            {
+                if (!TSC_GuildHallUtility.IsGuildHall(map))
+                {
+                    continue;
+                }
+                foreach (Pawn pawn in map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer))
+                {
+                    total += HeldCount(pawn, item);
+                }
+                // Set down on the floor of the hall still counts as delivered:
+                // the player has done the travelling, and making them keep it
+                // in a backpack is bookkeeping, not gameplay.
+                foreach (Thing thing in map.listerThings.ThingsOfDef(item))
+                {
+                    if (thing.Spawned)
+                    {
+                        total += thing.stackCount;
+                    }
+                }
+            }
+            return total;
+        }
+
         private static int HeldCount(Pawn pawn, ThingDef item)
         {
             int total = 0;
@@ -166,6 +209,13 @@ namespace TheShatteredCrown
         public SlateRef<int> minCount;
         /// <summary>Possession only counts once no map with colonists has an active hostile threat - the crypt's shard is not "recovered" mid-boss-fight.</summary>
         public SlateRef<bool> requireNoHostiles;
+
+        /// <summary>
+        /// The item must be brought to a guild hall, not merely held. Set on
+        /// guild fetch contracts, where the job is delivery; left off for
+        /// story items the party simply needs to have found.
+        /// </summary>
+        public SlateRef<bool> deliverToGuild;
         public QuestNode node;
 
         [NoTranslate]
@@ -179,6 +229,7 @@ namespace TheShatteredCrown
                 item = item.GetValue(slate),
                 minCount = System.Math.Max(1, minCount.GetValue(slate)),
                 requireNoHostiles = requireNoHostiles.GetValue(slate),
+                deliverToGuild = deliverToGuild.GetValue(slate),
                 inSignalEnable = QuestGenUtility.HardcodedSignalWithQuestID(inSignalEnable.GetValue(slate)) ?? slate.Get<string>("inSignal"),
             };
             QuestGen.quest.AddPart(part);
@@ -199,6 +250,7 @@ namespace TheShatteredCrown
         public ThingDef item;
         public int minCount = 1;
         public bool requireNoHostiles;
+        public bool deliverToGuild;
 
         // Was 250 (4 real seconds): long enough that leaving a site could
         // resolve the quest's OTHER outcomes before the fetch was noticed.
@@ -226,7 +278,8 @@ namespace TheShatteredCrown
             // pre-spawned on site/pocket maps (the barrow moss on the crypt
             // floor), and merely generating the map must not complete the
             // fetch.
-            if (TSC_Possession.Count(item) >= minCount)
+            int held = deliverToGuild ? TSC_Possession.CountAtGuild(item) : TSC_Possession.Count(item);
+            if (held >= minCount)
             {
                 Complete();
             }
@@ -237,6 +290,7 @@ namespace TheShatteredCrown
             base.ExposeData();
             Scribe_Defs.Look(ref item, "item");
             Scribe_Values.Look(ref minCount, "minCount", 1);
+            Scribe_Values.Look(ref deliverToGuild, "deliverToGuild", false);
         }
     }
 }
