@@ -171,6 +171,20 @@
         <note>Riveted rather than butted. The difference shows once, and once is enough.</note>
       </li>
       <li>
+        <thing>TSC_Apparel_Gauntlets</thing>
+        <stuff>Steel</stuff>
+        <quality>Good</quality>
+        <cost>3</cost>
+        <note>Count the veterans' fingers sometime. Then count the coins. The guild did the sums years ago.</note>
+      </li>
+      <li>
+        <thing>TSC_Apparel_Sabatons</thing>
+        <stuff>Steel</stuff>
+        <quality>Good</quality>
+        <cost>3</cost>
+        <note>Loud on flagstones and heavy on stairs. Toes, the factor notes, do not grow back.</note>
+      </li>
+      <li>
         <thing>Apparel_PlateArmor</thing>
         <stuff>Steel</stuff>
         <quality>Good</quality>

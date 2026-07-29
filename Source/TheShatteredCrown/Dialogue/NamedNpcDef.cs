@@ -67,6 +67,13 @@ namespace TheShatteredCrown
         public PawnKindDef petKind;
         public string petName;
 
+        /// <summary>
+        /// Combat chatter: floating one-liners thrown over the companion's
+        /// head while a fight is engaged (MapComponent_TSC_CompanionBarks),
+        /// same mote pattern as Aldis's song. Random line, jittered timing.
+        /// </summary>
+        public System.Collections.Generic.List<string> combatBarks;
+
         /// <summary>Stays home around the clock (Old Wick): no day work spot, just the hearth. Their pet stays in with them.</summary>
         public bool homebody;
 

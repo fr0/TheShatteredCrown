@@ -127,8 +127,8 @@
     <linkWithSite>TSC_ContractCaptive</linkWithSite>
     <order>483</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
-      <count>4~6</count>
-      <scaledClamp>3~9</scaledClamp>
+      <count>5~8</count>
+      <scaledClamp>4~11</scaledClamp>
     </genStep>
   </GenStepDef>
 
@@ -146,11 +146,10 @@
     <linkWithSite>TSC_ContractCaptive</linkWithSite>
     <order>485</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <!-- No TSC_PrisonersMarks here: its fiction is old scratches in an
+           abandoned ruin, and this site has a LIVE prisoner ten feet away.
+           The rescue tells that story itself. -->
       <spots>
-        <li>
-          <def>TSC_PrisonersMarks</def>
-          <count>1~1</count>
-        </li>
         <li>
           <def>TSC_RansomLedger</def>
           <count>1~1</count>

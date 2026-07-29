@@ -61,8 +61,8 @@
     <linkWithSite>TSC_ContractRuin</linkWithSite>
     <order>483</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
-      <count>3~5</count>
-      <scaledClamp>2~8</scaledClamp>
+      <count>4~6</count>
+      <scaledClamp>3~10</scaledClamp>
     </genStep>
   </GenStepDef>
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using HarmonyLib;
 using RimWorld;
+using RimWorld.Planet;
 using Verse;
 
 namespace TheShatteredCrown
@@ -49,7 +50,7 @@ namespace TheShatteredCrown
             }
         }
 
-        private static bool Unseen(Thing t)
+        internal static bool Unseen(Thing t)
         {
             Map map = t?.MapHeld;
             if (map == null)
@@ -58,6 +59,26 @@ namespace TheShatteredCrown
             }
             IntVec3 held = t.PositionHeld;
             return held.InBounds(map) && held.Fogged(map);
+        }
+    }
+
+    /// <summary>
+    /// The caravan reform screen has the same hole the portal dialog had:
+    /// it lists every haulable on the map, fog included, so the Iron
+    /// Brand's hoard shard (or any deep prize) could be queued for pickup
+    /// sight unseen straight off the reform manifest. Same rule as the
+    /// portal fix: what nobody has seen is not on the manifest. RPG mode
+    /// only.
+    /// </summary>
+    [HarmonyPatch(typeof(CaravanFormingUtility), nameof(CaravanFormingUtility.AllReachableColonyItems))]
+    public static class Patch_CaravanItems_UnseenLoot
+    {
+        public static void Postfix(System.Collections.Generic.List<Thing> __result)
+        {
+            if (TSC_RpgMode.Active)
+            {
+                __result?.RemoveAll(Patch_EnterPortal_UnseenLoot.Unseen);
+            }
         }
     }
 }

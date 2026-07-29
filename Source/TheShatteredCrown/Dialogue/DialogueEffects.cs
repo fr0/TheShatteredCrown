@@ -115,7 +115,11 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            foreach (Quest q in Find.QuestManager.QuestsListForReading)
+            // SNAPSHOT FIRST. The signal can finish the quest it is aimed at,
+            // and a finished quest hands out the next one - which mutates the
+            // very list being walked ("Collection was modified", seen when
+            // Madoc's recruit line completed the Road Fire contract).
+            foreach (Quest q in new System.Collections.Generic.List<Quest>(Find.QuestManager.QuestsListForReading))
             {
                 if (q.root != quest || q.State != QuestState.Ongoing)
                 {
@@ -616,6 +620,72 @@ namespace TheShatteredCrown
             {
                 Messages.Message(text, messageType ?? MessageTypeDefOf.NeutralEvent, historical: false);
             }
+        }
+    }
+
+    /// <summary>
+    /// Send a signal into a live quest generated from a given script. Shared
+    /// by the dialogue effect and by map components that need to report an
+    /// event a quest is waiting on (a parley crew being beaten).
+    /// </summary>
+    public static class TSC_QuestSignals
+    {
+        public static void Send(string questDefName, string signal)
+        {
+            QuestScriptDef script = DefDatabase<QuestScriptDef>.GetNamedSilentFail(questDefName);
+            if (script == null || signal.NullOrEmpty())
+            {
+                return;
+            }
+            // Snapshot: finishing a quest can grant the next one, which
+            // mutates the list being walked.
+            foreach (Quest quest in new System.Collections.Generic.List<Quest>(Find.QuestManager.QuestsListForReading))
+            {
+                if (quest.root != script || quest.State != QuestState.Ongoing)
+                {
+                    continue;
+                }
+                string initiate = quest.InitiateSignal;
+                int dot = initiate.LastIndexOf('.');
+                string prefix = dot >= 0 ? initiate.Substring(0, dot) : initiate;
+                QuestUtility.SendQuestTargetSignals(new System.Collections.Generic.List<string> { prefix }, signal);
+            }
+        }
+
+        /// <summary>
+        /// Save repair for a quest whose script has been re-pointed at a
+        /// different signal. Quest PARTS are baked when the quest is granted
+        /// and then live in the save file, so fixing the script only helps
+        /// quests granted afterwards: a quest already in flight keeps
+        /// listening to the old signal for as long as it runs. This moves
+        /// those listeners across. Returns how many were moved.
+        /// </summary>
+        public static int Retarget(string questDefName, string oldSuffix, string newSuffix)
+        {
+            QuestScriptDef script = DefDatabase<QuestScriptDef>.GetNamedSilentFail(questDefName);
+            if (script == null || oldSuffix.NullOrEmpty() || newSuffix.NullOrEmpty())
+            {
+                return 0;
+            }
+            int moved = 0;
+            foreach (Quest quest in new System.Collections.Generic.List<Quest>(Find.QuestManager.QuestsListForReading))
+            {
+                if (quest.root != script || quest.State != QuestState.Ongoing)
+                {
+                    continue;
+                }
+                foreach (QuestPart part in quest.PartsListForReading)
+                {
+                    if (part is QuestPart_Pass pass && pass.inSignal != null
+                        && pass.inSignal.EndsWith(oldSuffix))
+                    {
+                        pass.inSignal = pass.inSignal.Substring(0, pass.inSignal.Length - oldSuffix.Length)
+                            + newSuffix;
+                        moved++;
+                    }
+                }
+            }
+            return moved;
         }
     }
 }

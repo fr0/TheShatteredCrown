@@ -141,6 +141,29 @@
   </PawnKindDef>
 
 
+  <!-- Enemy support caster: the crew's bone-rattler. Cleric 3 seeded via
+       TSC_ClassExtension; the caster AI aims his kit at his OWN side
+       (TSC_AiCastHint): Healing Touch on the most-hurt brigand, Blessing
+       on whoever lacks one. Kill the shaman first or fight uphill. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_BanditShaman</defName>
+    <label>bandit shaman</label>
+    <combatPower>110</combatPower>
+    <itemQuality>Normal</itemQuality>
+    <isFighter>true</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <weaponMoney>60~150</weaponMoney>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_ClassExtension">
+        <classDef>TSC_Class_Cleric</classDef>
+        <levels>3</levels>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+
   <!-- Captain of the crypt looting party (surface parley; factionless until
        the words run out - see MapComponent_TSC_CryptParley). -->
   <PawnKindDef ParentName="VillagerBase">

@@ -5,6 +5,9 @@
        the TSC_GiveQuest_Chapter2 incident triggered from Chapter 1's success. -->
   <QuestScriptDef>
     <defName>TSC_Quest2_SunkenCellars</defName>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_QuestChainExtension" />
+    </modExtensions>
     <isRootSpecial>true</isRootSpecial>
     <randomlySelectable>false</randomlySelectable>
     <rootMinPoints>0</rootMinPoints>

@@ -1,0 +1,25 @@
+# The town smith: one per friendly settlement, standing at the forge in the
+# stamped smithy (MapComponent_TSC_GuildFactor). Trades in silver, same
+# stock as the village smith. Deliberately brief - he is a shop, not a
+# character, and the named smiths (Haldor, Garrick) carry the writing.
+
+dialogue TSC_Dialogue_TownSmith
+
+== start ==
+The smith looks up from the anvil, takes in the road-dirt and the weapons, and reaches for the trade shelf without being asked.
+
+"Buying or selling? Both's fine. Silver only - I don't take guild paper."
+
+* "Let's trade." -> end
+    do trade()
+* "What's the news here?" -> news
+* "Just looking." -> end
+
+== news ==
+He shrugs, working the bellows with one foot.
+
+"Roads are bad. They're always bad. Steel's dear, charcoal's dearer, and every second traveller through that door has a story about something in the hills." He nods at the shelf. "I sell to all of them."
+
+* "Let's trade, then." -> end
+    do trade()
+* "Good day to you." -> end

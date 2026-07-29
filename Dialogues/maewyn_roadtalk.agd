@@ -1,22 +1,31 @@
 # Maewyn's road conversation - she seeks out the player about a day after
 # joining (initiated dialogue, wired in TSC_PawnKinds.xml) and offers the
 # Druid's teaching.
+# VOICE: terse. Seeking someone out to talk is, for Maewyn, an event.
 # Compile with:  scripts\Compile-Dialogue.ps1
 
 dialogue TSC_Dialogue_Maewyn_RoadTalk
 
 == start ==
-Maewyn falls into step beside you on the road, Corvus riding her shoulder. For a while she says nothing.
+Maewyn falls into step beside you on the road, Corvus riding her shoulder. For a long while she says nothing at all, which for her is not unusual. Then:
 
-"Thirty years in one hollow, rider, and I'd forgotten how loud the world is when you walk through it. The hills out here are... chatty. Anxious, even." She glances sideways at you. "You can't hear them at all, can you. Walking through all this talk, deaf as a boot."
+"Loud out here. The hills. Chatty. Anxious."
+
+She glances sideways at you, and something in the look is almost pity.
+
+"You can't hear any of it. Deaf as a boot."
 
 * "Then teach me to listen, Maewyn." -> druid_teaching
 * "The hills and I get along fine." -> decline
 
 == druid_teaching ==
-"Hm. Bold, asking. Boldness isn't the qualification, though; patience is, and you found me by walking into the hills and *asking* instead of demanding. That'll do."
+"Hm."
 
-That evening, and for several after, she teaches: how to sit until the birds forget you; which silences mean weather and which mean wolves; what the green things say under the soil, and what they'll say to you.
+She walks another dozen paces before the verdict arrives.
+
+"You asked. That'll do."
+
+That evening, and for several after, she teaches - mostly without words: how to sit until the birds forget you; which silences mean weather and which mean wolves; what the green things say under the soil, and what they'll say to you.
 
 Corvus supervises, insufferably.
 
@@ -26,8 +35,8 @@ Corvus supervises, insufferably.
 * "This is... a lot of sitting, Maewyn." -> end
 
 == decline ==
-Maewyn snorts, and Corvus makes a sound suspiciously like agreement.
+Maewyn snorts. Corvus makes a sound suspiciously like agreement.
 
-"Well. When the hills start shouting (and on this road of yours, rider, they will) the offer stands. Ask, and I'll teach you to listen."
+"They'll shout, on this road of yours. Offer stands."
 
 * "Noted, Maewyn."

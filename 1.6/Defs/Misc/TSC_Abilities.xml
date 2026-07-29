@@ -24,6 +24,15 @@
     <label>healing touch</label>
     <description>Heals up to 25 points of injury on the target, worst wounds first. Touch range.</description>
     <iconPath>UI/TSC_Abilities/TSC_HealingTouch</iconPath>
+    <!-- Enemy shamans cast this on their OWN wounded (TSC_AiCastHint).
+         aiCanUse only affects AI casters; player pawns are unchanged. -->
+    <aiCanUse>true</aiCanUse>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_AiCastHint">
+        <targetAllies>true</targetAllies>
+        <requiresInjury>true</requiresInjury>
+      </li>
+    </modExtensions>
     <!-- Field medicine: castable undrafted (energy and cooldown still apply) -->
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
     <cooldownTicksRange>15000</cooldownTicksRange>
@@ -82,6 +91,14 @@
     <label>blessing</label>
     <description>The target gains +10% consciousness for 1 day.</description>
     <iconPath>UI/TSC_Abilities/TSC_Blessing</iconPath>
+    <!-- Enemy shamans bless unbuffed allies (TSC_AiCastHint). -->
+    <aiCanUse>true</aiCanUse>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_AiCastHint">
+        <targetAllies>true</targetAllies>
+        <skipIfHediff>TSC_Hediff_Blessing</skipIfHediff>
+      </li>
+    </modExtensions>
     <cooldownTicksRange>60000</cooldownTicksRange>
     <statBases>
       <Ability_Duration>1000</Ability_Duration>
@@ -248,7 +265,9 @@
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_Charge</defName>
     <label>charge</label>
-    <description>The caster sprints at five times normal move speed for 5 seconds. Close the line before the line closes you.</description>
+    <description>The caster sprints at five times normal move speed for 5 seconds. Close the line before the line closes you.
+
+In turn-based combat the surge grants +2 AP on cast, offsetting its cost.</description>
     <iconPath>UI/TSC_Abilities/TSC_Charge</iconPath>
     <cooldownTicksRange>1200</cooldownTicksRange>
     <statBases>
@@ -267,6 +286,9 @@
     <comps>
       <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
         <cost>10</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_GrantAp">
+        <amount>2</amount>
       </li>
       <li Class="CompProperties_AbilityGiveHediff">
         <compClass>TheShatteredCrown.CompAbilityEffect_TSC_GiveHediffLeveled</compClass>
@@ -657,7 +679,7 @@
     <label>scorch</label>
     <description>Deals 14 burn damage to a single target with 30% armor penetration.</description>
     <iconPath>UI/TSC_Abilities/TSC_Scorch</iconPath>
-    <cooldownTicksRange>600</cooldownTicksRange>
+    <cooldownTicksRange>300</cooldownTicksRange>
     <aiCanUse>true</aiCanUse>
     <hostile>true</hostile>
     <verbProperties>
@@ -1386,6 +1408,48 @@
       <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
         <color>(0.9, 1, 0.7)</color>
         <scale>2</scale>
+      </li>
+    </comps>
+  </AbilityDef>
+
+
+  <!-- Ranger 3: the woodcraft that gets a company past a picket line.
+       Party-wide, using the same location-scoped applier as the crown
+       shard's Quickening (every colonist on the caster's map and its
+       sibling floors). Its effect is read by TSC_Stealth. -->
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_PassWithoutTrace</defName>
+    <label>pass without trace</label>
+    <description>The whole party moves like woodsmen for 10 minutes: enemies notice them at 40% less distance while sneaking. Stacks with darkness and light gear.\n\nDoes not itself hide anyone - the party must still be sneaking.</description>
+    <iconPath>UI/TSC_Abilities/TSC_PassWithoutTrace</iconPath>
+    <cooldownTicksRange>30000</cooldownTicksRange>
+    <stunTargetWhileCasting>false</stunTargetWhileCasting>
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
+    <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
+    <targetRequired>False</targetRequired>
+    <statBases>
+      <Ability_Duration>600</Ability_Duration>
+    </statBases>
+    <verbProperties>
+      <warmupTime>1.5</warmupTime>
+      <range>0.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_PartyHediff">
+        <hediff>TSC_Hediff_PassWithoutTrace</hediff>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
+        <color>(0.55, 0.75, 0.6)</color>
+        <scale>2.5</scale>
+        <atCaster>true</atCaster>
       </li>
     </comps>
   </AbilityDef>

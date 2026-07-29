@@ -68,7 +68,7 @@ namespace TheShatteredCrown
             {
                 foreach (Pawn pawn in map.mapPawns.FreeColonistsSpawned)
                 {
-                    PlaceSilver(pawn.Position, map);
+                    PlaceSilver(pawn.Position, map, pawn);
                     TSC_GuildCoins.Give(coins, out _);
                     Announce(pawn);
                     return;
@@ -92,7 +92,7 @@ namespace TheShatteredCrown
             }
         }
 
-        private void PlaceSilver(IntVec3 cell, Map map)
+        private void PlaceSilver(IntVec3 cell, Map map, Pawn payee)
         {
             if (amount <= 0)
             {
@@ -100,6 +100,12 @@ namespace TheShatteredCrown
             }
             Thing silver = ThingMaker.MakeThing(ThingDefOf.Silver);
             silver.stackCount = amount;
+            // Same reasoning as the coins: a fee paid onto the floor of a
+            // site the party is about to leave is a fee they never see.
+            if (payee?.inventory?.innerContainer?.TryAdd(silver, false) == true)
+            {
+                return;
+            }
             GenPlace.TryPlaceThing(silver, cell, map, ThingPlaceMode.Near);
         }
 

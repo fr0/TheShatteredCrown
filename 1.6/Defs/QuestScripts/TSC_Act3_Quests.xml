@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Act 3: the Iron Brand arc. Opened from code when the second shard
+       rush closes (TSC_ShardTracker), then chained quest to quest:
+       Road Fire -> Thornden -> The Surety -> The Bandit Baron.
+       ================================================================ -->
+
+  <!-- The fire on the road: meet Madoc. Completes on the campfire scene
+       resolving (TSC_MetMadoc from madoc.agd), recruited or not. -->
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act3_RoadFire</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Fire on the Road</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->The vision named the keep; the road toward it has already been walked. Scouts mark a thin line of woodsmoke in the hills below the Iron Brand's walls: a lone campfire, one man beside it, talking as if to company.\n\nAnyone camped that close to the Brand and still breathing knows something worth hearing. Find the fire and speak with whoever keeps it.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetPartySiteTile">
+          <storeAs>siteTile</storeAs>
+          <minDist>4</minDist>
+          <maxDist>10</maxDist>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_RoadFire</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MetMadoc</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelMadocMet">The man at the fire</label>
+                <text TKey="LetterTextMadocMet">Madoc Emberlow, sorcerer, planning to storm the Iron Brand keep with an army of two dead men. Out of that ruin of a mind came one whole, bright fact: a drain under the keep's east wall, into the cellars. Gille found it.\n\nThe keep has a back way. The Brand does not know it is spoken for.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>150</xp>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                <questDef>TSC_Act3_Thornden</questDef>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- Thornden: the village under the Brand's thumb, collectors in the
+       square. Completes when the tribute question is answered: the crew
+       scared off (TSC_CollectorsFled, Persuasion) or beaten
+       (TSC_CollectorsBeaten, reported by the parley crew itself).
+
+       It does NOT hand out The Surety. Odo, the old man at the well, saw the
+       whole thing and points at the reeve; Hedda names the debt and gives
+       the quest (Dialogues/village_hedda.agd). -->
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act3_Thornden</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Thornden's Tribute</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Madoc's fire overlooks a village: Thornden, the Iron Brand's larder. The Brand takes a tribute of grain and silver every season, and today its collectors are standing in the square.\n\nThe village cannot pay again. Speak with the reeve, and answer the collectors however seems best. The Brand's grip on Thornden is the Brand's reach beyond its walls; break the one to shorten the other.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetPartySiteTile">
+          <storeAs>siteTile</storeAs>
+          <minDist>3</minDist>
+          <maxDist>9</maxDist>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_ThorndenVillage</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_CollectorsFled</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelCollectorsFled">Empty-handed</label>
+                <text TKey="LetterTextCollectorsFled">The Brand's collectors left Thornden at a walk that kept trying to be a run, and left the tribute behind them. The village breathes. The Baron will hear of it by nightfall.\n\nNobody in the square will speak first. The old man on the well kerb has not moved through any of it, and he is looking at you.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>250</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- NOT site.AllEnemiesDefeated: the collectors are factionless
+             while the parley holds, so that signal fires the instant the
+             party sets foot in Thornden. The crew reports its own defeat
+             (MapComponent_TSC_CryptParley). -->
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_CollectorsBeaten</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelCollectorsDead">The tribute stays</label>
+                <text TKey="LetterTextCollectorsDead">The Brand's collectors will not be reporting back. Thornden keeps its grain, and gains a war it did not ask for; the village is with you now because it has no other direction left.\n\nThe square empties, then fills again. The old man on the well kerb has not moved through any of it, and he is looking at you.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>250</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- The Surety: Bry Coalhand, held at a Brand outpost. Rescue machinery:
+       completes when the captive is walking out with the party. The
+       campaign survives failure - losing the outpost still opens the
+       assault, just with a colder letter. -->
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act3_Surety</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Surety</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->The Iron Brand holds Bry Coalhand, the Thornden smith's son, at a watch-camp in the hills below the keep: a surety against the village's tribute. The tribute has stopped. The Brand's patience on sureties is short and unkind.\n\nGet him out before the keep learns what happened in Thornden square. Then there is nothing left between the company and the Baron's walls.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetPartySiteTile">
+          <storeAs>siteTile</storeAs>
+          <minDist>3</minDist>
+          <maxDist>8</maxDist>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_BrandOutpost</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetBanditFaction">
+          <storeAs>siteFaction</storeAs>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_FailUnlessPawnAcquired">
+          <kind>TSC_Villager_Bry</kind>
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NegativeEvent</letterDef>
+                <label TKey="LetterLabelSuretyLost">The surety is gone</label>
+                <text TKey="LetterTextSuretyLost">The outpost scattered before the company reached the boy. Wherever the Brand moved him, it is behind the keep's walls now, or nowhere.\n\nNothing is left between the company and the Baron but the walls themselves.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                <questDef>TSC_Act3_IronBrand</questDef>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Fail</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectPawnAcquired">
+          <kind>TSC_Villager_Bry</kind>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelSuretyFreed">The smith's son</label>
+                <text TKey="LetterTextSuretyFreed">Bry Coalhand is out of the Brand's hands and on the road home to Thornden, where his father is going to shoe the company's horses free for life whether anyone wants it or not.\n\nThe Brand has nothing left to squeeze and nowhere left to reach. All that remains of the Iron Brand is the keep it hides in.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
+                <flag>TSC_BryFreed</flag>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_SendNpcHome">
+                <npc>TSC_Npc_Bry</npc>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>250</xp>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                <questDef>TSC_Act3_IronBrand</questDef>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- The assault: the keep, the Baron, the hoard, the third shard.
+       If the party heard Madoc out, the map generates with Gille's drain
+       under the east wall (GenStep_TSC_BackWay). -->
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act3_IronBrand</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Bandit Baron</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Nothing is left between the company and the Iron Brand. The keep stands on its hard hill: patched walls, an iron gate, a garrison with good steel, and in the vaulted hall a hoard with a third shard of the shattered crown at the bottom of it.\n\nThere are two ways in. The gate is one. The other is Gille's drain, under the east wall, into the cellars - the Brand does not know it is spoken for.\n\nBreak the Iron Brand, and dig the shard out of the Baron's treasury.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetPartySiteTile">
+          <storeAs>siteTile</storeAs>
+          <minDist>3</minDist>
+          <maxDist>8</maxDist>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_IronBrandKeep</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+          <item>TSC_CrownShard_Hoard</item>
+          <requireNoHostiles>true</requireNoHostiles>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelHoardShard">Three of five</label>
+                <text TKey="LetterTextHoardShard">The Iron Brand is broken, and out of the coin and church-silver at the bottom of their hoard comes the third shard of the shattered crown.\n\nThree of five. The cold weight behind the breastbone is heavier now, and the pull toward the last two pieces is no longer subtle.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>400</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

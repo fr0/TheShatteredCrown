@@ -207,7 +207,141 @@ resort.*
 |----|--------|--------|------|----------|-------|--------|
 | 1 | Charged shot | 10 | 0.5s | 30 min | self | Next 3 ranged attacks deal 180% damage (charges last up to 60s; misses spend charges) |
 | 2 | Hunter's mark | 10 | 0.5s | 15 min | 29 | Target takes +30% damage from all sources for 60s |
+| 3 | Pass without trace | 15 | 1.5s | 8.3 min | party | 10 min: the whole party at the location (all floors) is noticed at 40% less distance while sneaking. Does not hide anyone by itself - they must be sneaking |
 | 4 | Swift quiver | 15 | 0.25s | 30 min | self | 60s: ranged attacks 35% faster, +4 shooting accuracy |
+
+---
+
+## Feats
+
+Feats are the second half of a level-up. A pawn earns one at
+**character level 3 and every third level after** (6, 9, 12...), and
+because a class point also lands on every level from 2 on, a feat
+level ALWAYS grants both - the level-up dialog is two pages, class
+first, feat second.
+
+- Feats are **permanent**: no respec.
+- **General** feats have no requirement. **Class** feats require levels
+  in one class and are listed first in the chooser, since they are the
+  ones a given pawn is likeliest to want.
+- Everything below works **identically in both combat modes**: feats
+  that modify a spell do it through the ability comps both modes share
+  (`TSC_FeatMods`), so nothing is turn-based-only unless it says so.
+
+### General feats
+
+| Feat | Effect |
+|------|--------|
+| Toughened | All incoming damage is reduced by 8%. |
+| Fleet of foot | Moves 0.4 cells per second faster. In turn-based combat this means more ground covered per action point. |
+| Hardy | Pain shock threshold raised by 0.15. |
+| Armored | +10% sharp armor and +15% blunt armor, on top of worn armor. |
+| Duelist | +4 melee hit chance and +5 melee dodge chance. |
+| Marksman | Shooting accuracy improved by 12%. |
+| Iron will | Mental break threshold lowered by 0.15. |
+| Versatile | +1 to every proficiency check. |
+| Deep reserves | +25 maximum spell energy, and energy regenerates 25% faster. |
+| Camp doctor | +25% medical tend quality, and immunity is gained 20% faster. |
+| Last stand | When this pawn would be downed, they stay standing for 5 more seconds instead. At most once every 10 seconds. |
+
+### Warden feats
+
+| Feat | Requires | Effect |
+|------|----------|--------|
+| Bulwark | Warden 2 | Stand Fast's radius increases from 6.9 to 10.4 cells. |
+| Opportunity attacks | Warden 3 | When an enemy moves out of melee range, the warden automatically makes one melee attack against them. At most once every 10 seconds. |
+| Unmoved | Warden 3 | Second Wind heals 67% more and removes one timed affliction. |
+| Unignorable | Warden 5 | Enemies caught in Challenge turn to attack the warden. |
+
+### Cleric feats
+
+| Feat | Requires | Effect |
+|------|----------|--------|
+| Shared blessing | Cleric 2 | Blessing also applies to a second ally within 7 cells of the target, at full strength. |
+| Warm hands | Cleric 3 | Healing Touch also stops all bleeding on the target. |
+| Chaplain | Cleric 3 | Allies within 10 cells get -0.12 mental break threshold. |
+| Purge | Cleric 4 | Cleanse's cooldown is reduced to a quarter. |
+
+### Bard feats
+
+| Feat | Requires | Effect |
+|------|----------|--------|
+| Carrying voice | Bard 2 | Battle Hymn, Dirge, and Song of Rest radius +25%. Stacks with instrument bonuses. |
+| War song | Bard 2 | Allies under Battle Hymn also gain +8% shooting accuracy. |
+| Lingering lament | Bard 3 | Dirge lasts 70 seconds instead of 40. |
+| Encore | Bard 5 | Song of Rest restores the bard's own energy along with the company's. |
+
+### Rogue feats
+
+| Feat | Requires | Effect |
+|------|----------|--------|
+| Backstab | Rogue 2 | Melee attacks deal 50% more damage against targets that are asleep, stunned, downed, fighting someone else, or attacked while the rogue is invisible. |
+| Light fingers | Rogue 2 | +2 Thievery. Failed check-spot attempts never wake dormant creatures. |
+| Killing window | Rogue 3 | A target that dies while Marked for Death refunds the mark's energy cost. |
+| Ghost | Rogue 5 | Vanish's cooldown is reduced by 40%. |
+
+### Wizard feats
+
+| Feat | Requires | Effect |
+|------|----------|--------|
+| Focused ward | Wizard 2 | Arcane Ward reduces incoming damage by 65% instead of 50%. |
+| Heavy curse | Wizard 3 | Leaden Curse also reduces the target's shooting accuracy by 25%. |
+| Efficient casting | Wizard 3 | Every spell costs 20% less energy. |
+| Step twice | Wizard 5 | Blink's cooldown is reduced by half. |
+
+### Sorcerer feats
+
+| Feat | Requires | Effect |
+|------|----------|--------|
+| Forked lightning | Sorcerer 2 | Arc Lightning's radius increases from 3.9 to 5.4 cells, with +25% armor penetration. |
+| Kindled | Sorcerer 3 | Scorch sets the target on fire. |
+| Overchannel | Sorcerer 3 | Spells can be cast without enough energy; the shortfall is paid in burn damage. |
+| Wildfire | Sorcerer 4 | Firestorm's radius increases from 3.5 to 4.6 cells. |
+
+### Barbarian feats
+
+| Feat | Requires | Effect |
+|------|----------|--------|
+| Bloodied fury | Barbarian 2 | Rage's strength increases with the barbarian's missing health when cast. |
+| Reckless | Barbarian 3 | +15% melee damage, +10% damage taken. |
+| Won't stay down | Barbarian 4 | Unbreakable also removes any active stun when cast. |
+| Cleave | Barbarian 5 | Whirlwind's radius increases from 1.9 to 2.9 cells. |
+
+### Druid feats
+
+| Feat | Requires | Effect |
+|------|----------|--------|
+| Thorns | Druid 2 | Bramble Snare also deals 8 damage when applied. |
+| Herbcraft | Druid 2 | Nature's Balm also heals the nearest other injured ally within 5 cells, at half strength. |
+| Deep roots | Druid 4 | Barkskin also grants 10% less incoming damage. |
+| Pack bond | Druid 6 | The summoned bear lasts 50% longer and takes 20% less damage. |
+
+### Monk feats
+
+| Feat | Requires | Effect |
+|------|----------|--------|
+| Running start | Monk 2 | In turn-based combat, attacking after moving costs 1 less action point. In real time, melee attacks within 5 seconds of moving are 20% faster. |
+| Still mind | Monk 2 | Inner Calm also restores 15 energy. |
+| Open hand | Monk 3 | Unarmed strikes deal 20% more damage. |
+| Pressure point | Monk 4 | Stunning Palm lasts 50% longer. |
+
+### Paladin feats
+
+| Feat | Requires | Effect |
+|------|----------|--------|
+| Greater lay on hands | Paladin 2 | Lay On Hands heals 50% more. |
+| Judgement | Paladin 3 | All player attacks deal 10% more damage against a Righteous Brand target. |
+| Oathbound | Paladin 3 | The paladin gets -0.10 mental break threshold. Allies within 8 cells gain +10% sharp and blunt armor. |
+| Unyielding aura | Paladin 4 | Aura of Courage's radius increases from 9.9 to 14.9 cells. |
+
+### Ranger feats
+
+| Feat | Requires | Effect |
+|------|----------|--------|
+| Called shot | Ranger 2 | Charged Shot grants one additional empowered shot. |
+| Trailcraft | Ranger 2 | +2 Survival and +2 Nature. |
+| Predator's focus | Ranger 3 | The ranger's attacks deal 15% more damage against a Hunted target. |
+| Quickstring | Ranger 4 | Swift Quiver also grants +8% shooting accuracy. |
 
 ---
 
@@ -232,4 +366,18 @@ resort.*
   Arc Lightning is the safe AoE.
 - **Enemy casters**: bandit hexers carry the Sorcerer kit (Scorch, Arc
   Lightning) and use it under the same energy/AP rules. Magic Missile
-  is AI-castable too, so future enemy wizards can use it.
+  is AI-castable too, so future enemy wizards can use it. Bandit
+  **shamans** carry the Cleric kit and the AI aims it at their OWN side
+  (`TSC_AiCastHint`): Healing Touch on the most-hurt ally, Blessing on
+  whoever lacks one. Kill the shaman first.
+- **Party-wide spells** (Pass Without Trace, and the crown shard's
+  Quickening) apply to every colonist at the LOCATION, which includes
+  sibling pocket maps - a party split across dungeon floors is still
+  one party.
+- **Stealth** (the Sneak toggle, not a spell) multiplies three factors
+  into the distance at which enemies notice a pawn: **gear** (worn mass,
+  x0.35 in leathers to x0.9 in full plate), **light** (x0.6 in darkness
+  to x1.3 fully lit), and **Pass Without Trace** (x0.6). The product is
+  clamped to 20-100%. Sneaking also halves move speed and halves the
+  radius that trips turn-based mode; being seen up close, hit, or
+  attacking ends it.

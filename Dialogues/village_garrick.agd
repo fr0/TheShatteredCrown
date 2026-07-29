@@ -1,0 +1,46 @@
+# Garrick Coalhand, smith of Thornden (Act 3). Bry's father. The forge
+# runs all day so the mind doesn't.
+# VOICE: plain, short. A working man holding himself together.
+
+dialogue TSC_Dialogue_Garrick
+
+entry freed if flag(TSC_BryFreed)
+
+== start ==
+The smith is working too hard at the same bar of iron.
+
+"If you want shoes or nails, leave the work and come back at dusk." He doesn't look up. "If you want talk, the reeve does the talking."
+
+* "You're Garrick? The Brand has your son." -> bry
+* [Leave him to the forge.] -> end
+
+== bry ==
+The hammer stops.
+
+"Bry. Fifteen." He sets it down slowly. "They took him in the spring. Called it surety. He went quiet so they'd have no reason to be rough with him. Waved at me from the bend in the road so I wouldn't worry."
+
+He looks at the bar on the anvil.
+
+"Their camp is in the hills under the keep. I've walked close enough to see the smoke, twice. One smith with a hammer, against the Iron Brand. That's as far as I got."
+
+* "The company will bring him home, smith." -> promise
+* "Where exactly in the hills?" -> promise
+
+== promise ==
+He looks at you for a long moment. Hope is wearing him thin.
+
+"East of the goat track, where the stream splits, under the keep's shadow. You'll smell the smoke before you see it." He turns back to the forge. "Bring him back and this forge is yours for life. Shoes, blades, hinges. For LIFE."
+
+The hammer starts again. Steadier now.
+
+* "Keep the fire hot, Garrick." -> end
+
+== freed ==
+The forge is quiet. Out front, a boy sits on the anvil eating with both hands, and Garrick stands over him, arms crossed, not going anywhere.
+
+"There they are," he says, and has to stop. He tries again and gives up on it, and the arms uncross.
+
+"For life. I said it and I meant it. And now Bry wants to learn the sword, gods help me."
+
+* "Feed him first, smith. He's earned it." -> end
+    do affinity(+5)

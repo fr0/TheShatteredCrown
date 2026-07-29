@@ -45,13 +45,36 @@ namespace TheShatteredCrown
         {
         }
 
+        /// <summary>
+        /// Repair on LOAD, not on the next scan. The tick sweep runs every
+        /// 250 ticks, which is about four seconds of real time - long enough
+        /// that a player who loads a save and walks straight up to the smith
+        /// gets "nothing to trade", waits, and succeeds on the second try.
+        /// Doing it here means the shop is ready before anyone can click it.
+        /// </summary>
+        /// <summary>
+        /// SAVE REPAIRS RUN HERE, ONCE, not on the tick. Both of these fix
+        /// states that can only be created at spawn time (a factor built in
+        /// the player's faction by an old bug, a smith stocked while the
+        /// trader def was broken), so re-checking them every few seconds
+        /// walked the whole pawn list forever to find nothing.
+        /// </summary>
+        public override void FinalizeInit()
+        {
+            base.FinalizeInit();
+            if (TSC_RpgMode.Active)
+            {
+                HealMisfactionedFactor();
+                RestockTownSmith();
+            }
+        }
+
         public override void MapComponentTick()
         {
             if (Find.TickManager.TicksGame % 250 != 0 || !TSC_RpgMode.Active)
             {
                 return;
             }
-            HealMisfactionedFactor();
             if (spawned)
             {
                 return;
@@ -78,14 +101,344 @@ namespace TheShatteredCrown
             Pawn factor = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
                 kind, settlement.Faction, PawnGenerationContext.NonPlayer,
                 forceGenerateNewPawn: true, canGeneratePawnRelations: false));
-            IntVec3 cell = CellFinder.StandableCellNear(map.Center, map, 12f);
+            // The guild HOUSE: a real building with a banner, so "find the
+            // guild" is "look for the sign" and not "quarter the plaza for a
+            // man in a coat". Falls back to the old open-air post when the
+            // town has no room.
+            IntVec3 cell = StampGuildHouse();
+            if (!cell.IsValid)
+            {
+                cell = CellFinder.StandableCellNear(map.Center, map, 12f);
+            }
             if (!cell.IsValid)
             {
                 spawned = false;
                 return;
             }
             GenSpawn.Spawn(factor, cell, map);
-            LordMaker.MakeNewLord(factor.Faction, new LordJob_DefendPoint(cell), map, Gen.YieldSingle(factor));
+            // Tight wander: the desk is three cells from the door, and the
+            // factor's office hours are spent AT the desk, not on the porch.
+            LordMaker.MakeNewLord(factor.Faction, new LordJob_DefendPoint(cell, wanderRadius: 2.5f),
+                map, Gen.YieldSingle(factor));
+            SpawnTownSmith(settlement);
+            SpawnTownPriest(settlement);
+            SpawnTownTrainer(settlement);
+            SpawnTownMage(settlement);
+            SpawnTownInnkeeper(settlement);
+        }
+
+        /// <summary>The tavern: a night off, for silver.</summary>
+        private void SpawnTownInnkeeper(Settlement settlement)
+        {
+            PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_TownInnkeeper");
+            if (kind == null)
+            {
+                return;
+            }
+            Pawn keeper = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                kind, settlement.Faction, PawnGenerationContext.NonPlayer,
+                forceGenerateNewPawn: true, canGeneratePawnRelations: false));
+            IntVec3 cell = StampBuilding("TSC_Tavern", "TSC_TavernBanner");
+            if (!cell.IsValid)
+            {
+                cell = CellFinder.StandableCellNear(map.Center, map, 24f);
+            }
+            if (!cell.IsValid)
+            {
+                return;
+            }
+            GenSpawn.Spawn(keeper, cell, map);
+            LordMaker.MakeNewLord(keeper.Faction, new LordJob_DefendPoint(cell, wanderRadius: 2.5f),
+                map, Gen.YieldSingle(keeper));
+        }
+
+        /// <summary>The mage guild: translocation and enchantment, for silver.</summary>
+        private void SpawnTownMage(Settlement settlement)
+        {
+            PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_TownMage");
+            if (kind == null)
+            {
+                return;
+            }
+            Pawn mage = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                kind, settlement.Faction, PawnGenerationContext.NonPlayer,
+                forceGenerateNewPawn: true, canGeneratePawnRelations: false));
+            IntVec3 cell = StampBuilding("TSC_MageGuild", "TSC_MageBanner");
+            if (!cell.IsValid)
+            {
+                cell = CellFinder.StandableCellNear(map.Center, map, 22f);
+            }
+            if (!cell.IsValid)
+            {
+                return;
+            }
+            GenSpawn.Spawn(mage, cell, map);
+            LordMaker.MakeNewLord(mage.Faction, new LordJob_DefendPoint(cell, wanderRadius: 2.5f),
+                map, Gen.YieldSingle(mage));
+        }
+
+        /// <summary>The training hall: a drill master who sells vanilla skill levels for silver.</summary>
+        private void SpawnTownTrainer(Settlement settlement)
+        {
+            PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_TownTrainer");
+            if (kind == null)
+            {
+                return;
+            }
+            Pawn trainer = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                kind, settlement.Faction, PawnGenerationContext.NonPlayer,
+                forceGenerateNewPawn: true, canGeneratePawnRelations: false));
+            IntVec3 cell = StampBuilding("TSC_TrainingHall", "TSC_TrainingBanner");
+            if (!cell.IsValid)
+            {
+                cell = CellFinder.StandableCellNear(map.Center, map, 20f);
+            }
+            if (!cell.IsValid)
+            {
+                return;
+            }
+            GenSpawn.Spawn(trainer, cell, map);
+            LordMaker.MakeNewLord(trainer.Faction, new LordJob_DefendPoint(cell, wanderRadius: 2.5f),
+                map, Gen.YieldSingle(trainer));
+        }
+
+        /// <summary>
+        /// Save repair: a town smith standing at his anvil with nothing to
+        /// sell. The shop is stocked once, when he spawns, so anything that
+        /// went wrong at that moment - a trader def that failed to load, an
+        /// interrupted generation - left him permanently empty, and the
+        /// spawner never runs twice on one map. This re-stocks any smith
+        /// found without goods.
+        /// </summary>
+        private void RestockTownSmith()
+        {
+            PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_TownSmith");
+            if (kind == null)
+            {
+                return;
+            }
+            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+            {
+                if (pawn.kindDef != kind || pawn.Dead || pawn.Faction == Faction.OfPlayer)
+                {
+                    continue;
+                }
+                bool hasGoods = false;
+                if (pawn.inventory?.innerContainer != null)
+                {
+                    foreach (Thing thing in pawn.inventory.innerContainer)
+                    {
+                        if (thing.def.IsWeapon || thing.def.IsApparel || thing.def == ThingDefOf.Silver)
+                        {
+                            hasGoods = true;
+                            break;
+                        }
+                    }
+                }
+                if (!hasGoods || pawn.trader?.traderKind == null)
+                {
+                    StockSmith(pawn);
+                }
+            }
+        }
+
+        /// <summary>Give a smith his trader tracker and the village smith's stock.</summary>
+        private void StockSmith(Pawn smith)
+        {
+            TraderKindDef trader = DefDatabase<TraderKindDef>.GetNamedSilentFail("TSC_Trader_Smith");
+            if (trader == null)
+            {
+                Log.Warning("[The Shattered Crown] Town smith: TSC_Trader_Smith is missing; the shop cannot be stocked.");
+                return;
+            }
+            if (smith.trader == null)
+            {
+                smith.trader = new Pawn_TraderTracker(smith);
+            }
+            smith.trader.traderKind = trader;
+            if (smith.inventory == null)
+            {
+                return;
+            }
+            foreach (StockGenerator generator in trader.stockGenerators)
+            {
+                foreach (Thing thing in generator.GenerateThings(map.Tile, smith.Faction))
+                {
+                    if (thing is Pawn)
+                    {
+                        thing.Destroy(); // a smithy sells steel, not sheep
+                        continue;
+                    }
+                    smith.inventory.innerContainer.TryAdd(thing, false);
+                }
+            }
+        }
+
+        /// <summary>
+        /// The temple: a priest who closes wounds for silver, in a stamped
+        /// building with its own sign. Same treatment as the guild house and
+        /// the smithy, including the open-air fallback.
+        /// </summary>
+        private void SpawnTownPriest(Settlement settlement)
+        {
+            PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_TownPriest");
+            if (kind == null)
+            {
+                return;
+            }
+            Pawn priest = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                kind, settlement.Faction, PawnGenerationContext.NonPlayer,
+                forceGenerateNewPawn: true, canGeneratePawnRelations: false));
+            IntVec3 cell = StampBuilding("TSC_Temple", "TSC_TempleBanner");
+            if (!cell.IsValid)
+            {
+                cell = CellFinder.StandableCellNear(map.Center, map, 18f);
+            }
+            if (!cell.IsValid)
+            {
+                return;
+            }
+            GenSpawn.Spawn(priest, cell, map);
+            LordMaker.MakeNewLord(priest.Faction, new LordJob_DefendPoint(cell, wanderRadius: 2.5f),
+                map, Gen.YieldSingle(priest));
+        }
+
+        /// <summary>
+        /// Every friendly town also gets a forge and a smith who trades in
+        /// SILVER, carrying the same stock as the village smith
+        /// (TSC_Trader_Smith). Same treatment as the guild house: a stamped
+        /// building near the centre, the occupant posted at his work spot,
+        /// and a fallback to open-air if the town has no room.
+        /// </summary>
+        private void SpawnTownSmith(Settlement settlement)
+        {
+            PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_TownSmith");
+            if (kind == null)
+            {
+                return;
+            }
+            Pawn smith = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                kind, settlement.Faction, PawnGenerationContext.NonPlayer,
+                forceGenerateNewPawn: true, canGeneratePawnRelations: false));
+            IntVec3 cell = StampBuilding("TSC_TownSmithy", "TSC_SmithBanner");
+            if (!cell.IsValid)
+            {
+                cell = CellFinder.StandableCellNear(map.Center, map, 16f);
+            }
+            if (!cell.IsValid)
+            {
+                return;
+            }
+            GenSpawn.Spawn(smith, cell, map);
+            LordMaker.MakeNewLord(smith.Faction, new LordJob_DefendPoint(cell, wanderRadius: 2.5f),
+                map, Gen.YieldSingle(smith));
+            // The shop itself: silver plus the village smith's stock, so the
+            // party can sell loot and buy steel anywhere friendly.
+            StockSmith(smith);
+        }
+
+        /// <summary>
+        /// Stamp the guild house near the town centre and return the desk
+        /// cell (the prefab's centre) - or invalid if no clear footprint
+        /// exists. The search never demolishes anybody's architecture: a
+        /// candidate rect is rejected if it contains any ARTIFICIAL building;
+        /// plants, debris, chunks and natural rock get cleared.
+        /// </summary>
+        private IntVec3 StampGuildHouse()
+        {
+            return StampBuilding("TSC_GuildHouse", "TSC_GuildBanner");
+        }
+
+        /// <summary>
+        /// Stamp a prefab near the town centre and return its centre cell
+        /// (where the occupant works), or invalid if no clear footprint
+        /// exists. Shared by the guild house and the town smithy; the
+        /// banner is optional and goes beside the door.
+        /// </summary>
+        private IntVec3 StampBuilding(string prefabName, string bannerName)
+        {
+            PrefabDef house = DefDatabase<PrefabDef>.GetNamedSilentFail(prefabName);
+            if (house == null)
+            {
+                return IntVec3.Invalid;
+            }
+            IntVec3 spot = IntVec3.Invalid;
+            foreach (IntVec3 candidate in GenRadial.RadialCellsAround(map.Center, 34f, useCenter: true))
+            {
+                if (FootprintClear(candidate, house))
+                {
+                    spot = candidate;
+                    break;
+                }
+            }
+            if (!spot.IsValid)
+            {
+                return IntVec3.Invalid;
+            }
+            CellRect rect = CellRect.CenteredOn(spot, house.size.x, house.size.z);
+            foreach (IntVec3 cell in rect.ExpandedBy(1))
+            {
+                if (!cell.InBounds(map))
+                {
+                    continue;
+                }
+                map.roofGrid.SetRoof(cell, null);
+                List<Thing> things = cell.GetThingList(map);
+                for (int i = things.Count - 1; i >= 0; i--)
+                {
+                    Thing thing = things[i];
+                    if (thing.def.category == ThingCategory.Plant
+                        || thing.def.category == ThingCategory.Item
+                        || thing.def.IsFilth
+                        || (thing.def.category == ThingCategory.Building
+                            && thing.def.building != null && thing.def.building.isNaturalRock))
+                    {
+                        thing.Destroy();
+                    }
+                }
+            }
+            PrefabUtility.SpawnPrefab(house, map, spot, Rot4.North);
+            // Prefabs come unroofed; the interior gets a constructed roof.
+            foreach (IntVec3 cell in rect.ContractedBy(1))
+            {
+                if (cell.InBounds(map))
+                {
+                    map.roofGrid.SetRoof(cell, RoofDefOf.RoofConstructed);
+                }
+            }
+            // The sign, beside the door (door is centre of the south wall).
+            ThingDef bannerDef = bannerName.NullOrEmpty()
+                ? null
+                : DefDatabase<ThingDef>.GetNamedSilentFail(bannerName);
+            IntVec3 bannerCell = new IntVec3(spot.x + 1, 0, rect.minZ - 1);
+            if (bannerDef != null && bannerCell.InBounds(map) && bannerCell.Standable(map))
+            {
+                GenSpawn.Spawn(bannerDef, bannerCell, map);
+            }
+            return spot; // the desk cell: prefab centre, east of the table
+        }
+
+        private bool FootprintClear(IntVec3 center, PrefabDef house)
+        {
+            CellRect rect = CellRect.CenteredOn(center, house.size.x, house.size.z).ExpandedBy(1);
+            foreach (IntVec3 cell in rect)
+            {
+                if (!cell.InBounds(map) || cell.Fogged(map))
+                {
+                    return false;
+                }
+                TerrainDef terrain = cell.GetTerrain(map);
+                if (terrain == null || terrain.IsWater || terrain.passability == Traversability.Impassable)
+                {
+                    return false;
+                }
+                Building edifice = cell.GetEdifice(map);
+                if (edifice != null && (edifice.def.building == null || !edifice.def.building.isNaturalRock))
+                {
+                    return false; // somebody's architecture: not ours to flatten
+                }
+            }
+            return true;
         }
 
         /// <summary>

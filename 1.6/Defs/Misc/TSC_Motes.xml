@@ -68,6 +68,15 @@
   </ThingDef>
 
   <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_SneakHood</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_SneakHood</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
     <defName>TSC_Mote_WardRune</defName>
     <graphicData>
       <texPath>Things/Mote/TSC_WardRune</texPath>

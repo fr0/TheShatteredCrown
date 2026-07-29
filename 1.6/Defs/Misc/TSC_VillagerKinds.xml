@@ -232,7 +232,112 @@
         <countRange>50~100</countRange>
       </li>
       <li Class="StockGenerator_BuyExpensiveSimple" />
+      <!-- Willingness to buy every weapon and every piece of armour is
+           enforced in code (Patch_SmithWillTrade), NOT with zero-count
+           category generators: vanilla's category generator expects a
+           price range alongside its def count, and a malformed one broke
+           this whole trader kind - the smith stood at his anvil with
+           nothing to trade. -->
     </stockGenerators>
   </TraderKindDef>
+
+
+  <!-- The town smith: one per friendly settlement, posted at the forge in
+       the stamped smithy. Same trade stock as the village smith. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_TownSmith</defName>
+    <label>smith</label>
+    <combatPower>40</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_TownSmith</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+
+  <!-- The town priest: one per friendly settlement, at the altar in the
+       stamped temple. Heals wounds for silver (TSC_Temple). -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_TownPriest</defName>
+    <label>priest</label>
+    <combatPower>30</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_TownPriest</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+
+  <!-- The drill master: one per friendly settlement, at the table in the
+       stamped training hall. Sells vanilla skill levels (TSC_TrainingHall). -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_TownTrainer</defName>
+    <label>drill master</label>
+    <combatPower>60</combatPower>
+    <isFighter>true</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeAdvanced</li>
+    </weaponTags>
+    <!-- Advanced melee starts around 165 silver; the inherited villager
+         budget (min 65) could not afford one, so the master turned up to
+         his own drill hall unarmed. -->
+    <weaponMoney>200~400</weaponMoney>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_TownTrainer</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+
+  <!-- The guild mage: one per friendly settlement, at the circle in the
+       stamped mage guild. Sells translocation and enchantment. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_TownMage</defName>
+    <label>guild mage</label>
+    <combatPower>70</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_TownMage</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+
+  <!-- The innkeeper: one per friendly settlement, behind the counter in the
+       stamped tavern. Sells the company a night off (TSC_Tavern). -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_TownInnkeeper</defName>
+    <label>innkeeper</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_TownInnkeeper</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
 
 </Defs>

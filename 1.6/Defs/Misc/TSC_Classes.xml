@@ -299,6 +299,10 @@
         <level>2</level>
       </li>
       <li>
+        <ability>TSC_Ability_PassWithoutTrace</ability>
+        <level>3</level>
+      </li>
+      <li>
         <ability>TSC_Ability_SwiftQuiver</ability>
         <level>4</level>
       </li>

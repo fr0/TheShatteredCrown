@@ -792,7 +792,7 @@
   <HediffDef ParentName="TSC_TimedBuffBase">
     <defName>TSC_Hediff_Mourning</defName>
     <label>mourning</label>
-    <description>Somebody is singing your funeral while you are still standing in it. The hands go first.</description>
+    <description>Somebody is singing your funeral while you are around to listen.</description>
     <isBad>true</isBad>
     <defaultLabelColor>(0.55, 0.35, 0.75)</defaultLabelColor>
     <comps>
@@ -865,6 +865,57 @@
     <initialSeverity>1</initialSeverity>
     <maxSeverity>12</maxSeverity>
     <defaultLabelColor>(0.85, 0.45, 0.35)</defaultLabelColor>
+  </HediffDef>
+
+
+  <!-- Stealth: the movement price of a careful approach. The sight halving
+       and the break rules live in TSC_Stealth.cs; this hediff exists to
+       carry the penalty and mark the pawn as sneaking on screen. -->
+  <HediffDef>
+    <defName>TSC_Hediff_Stealth</defName>
+    <label>sneaking</label>
+    <description>Moving carefully and keeping to cover. Slow, and much harder to notice at a distance.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <maxSeverity>1</maxSeverity>
+    <defaultLabelColor>(0.6, 0.7, 0.85)</defaultLabelColor>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <comps>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_SneakHood</mote>
+        <offset>(0.42, 0, 0.52)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>0.5</MoveSpeed>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+
+  <!-- Pass Without Trace: the ranger's party-wide woodcraft. The stealth
+       maths (TSC_Stealth) reads this hediff; the mote marks who has it. -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_PassWithoutTrace</defName>
+    <label>passing without trace</label>
+    <description>Moving the way the ranger showed: quiet ground, broken outlines, no tracks worth reading.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>36000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_SneakHood</mote>
+        <offset>(-0.42, 0, 0.5)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li />
+    </stages>
   </HediffDef>
 
 </Defs>

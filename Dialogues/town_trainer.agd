@@ -1,0 +1,27 @@
+# The drill master: one per friendly settlement, at the table in the stamped
+# training hall. Sells vanilla skill levels for silver (Window_TSC_TrainingHall).
+
+dialogue TSC_Dialogue_TownTrainer
+
+== start ==
+The drill master watches your company come in the way a farrier watches a horse walk: looking at how everyone carries their weight, and pricing the repairs.
+
+"Hall's open. We drill trades here - bow, blade, pot, ledger, needle, whatever you're short of. Coin buys the master's time, and the time does the rest."
+
+* "What can you teach?" -> what
+* "We'd like some drilling." -> end
+    do training_hall()
+* "Just passing through." -> end
+
+== what ==
+The master ticks it off on scarred fingers.
+
+"Anything a person does with their hands or their head. What we don't teach is what you are - courage, an ear for old languages, whatever it is that makes your friend there see through people. That's not a trade. Nobody sells it, whatever they tell you in the cities."
+
+He nods at the drill floor.
+
+"Trades, though. Trades we can fix. The higher you already are, the longer it takes and the more it costs."
+
+* "Then let's begin." -> end
+    do training_hall()
+* "Another time." -> end

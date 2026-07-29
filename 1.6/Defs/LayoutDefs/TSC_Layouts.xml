@@ -162,6 +162,55 @@
     </junkScaterrers>
   </StructureLayoutDef>
 
+  <!-- The Iron Brand keep. Same bones as TSC_Castle, held rather than
+       abandoned: light wall damage instead of a collapse, torches in the
+       brackets because somebody lights them, flagstone underfoot, and one
+       rubble chamber instead of two. TSC_Castle is left alone so the
+       Adventure Mode contract castles keep their ruined look. -->
+  <StructureLayoutDef>
+    <defName>TSC_KeepCastle</defName>
+    <workerClass>LayoutWorker_AncientRuins</workerClass>
+    <canHaveMultipleLayoutsInRoom>true</canHaveMultipleLayoutsInRoom>
+    <shouldDamage>true</shouldDamage>
+    <wallDamageRange>0~25</wallDamageRange>
+    <areaPrunePercent>0.02</areaPrunePercent>
+    <minRoomWidth>7</minRoomWidth>
+    <minRoomHeight>7</minRoomHeight>
+    <wallDef>Wall</wallDef>
+    <wallStuffDef>BlocksGranite</wallStuffDef>
+    <doorStuffDef>WoodLog</doorStuffDef>
+    <terrainDef>FlagstoneGranite</terrainDef>
+    <!-- No wallLampDef: vanilla only ships wall-ATTACHMENT lights (the
+         ancient emergency lamps), and a floor torch dropped into a wall slot
+         either fails to spawn or eats the wall. The keep gets its lit-and-
+         lived-in look from torches set around the courtyard instead. -->
+    <wallLampChancePerPosition>0</wallLampChancePerPosition>
+    <ensureOneDoorUnlocked>true</ensureOneDoorUnlocked>
+    <canDisconnectRooms>false</canDisconnectRooms>
+    <roomDefs>
+      <TSC_CastleHall>
+        <countRange>1~1</countRange>
+      </TSC_CastleHall>
+      <TSC_Chapel>
+        <countRange>1~1</countRange>
+      </TSC_Chapel>
+      <TSC_Armory>
+        <countRange>1~1</countRange>
+      </TSC_Armory>
+      <TSC_LordsChamber>
+        <countRange>1~1</countRange>
+      </TSC_LordsChamber>
+      <TSC_Barracks>3</TSC_Barracks>
+      <TSC_Storeroom>2</TSC_Storeroom>
+      <TSC_RubbleChamber>1</TSC_RubbleChamber>
+    </roomDefs>
+    <junkScaterrers>
+      <RubblePile>
+        <groupsPerHundredCells>0~1</groupsPerHundredCells>
+      </RubblePile>
+    </junkScaterrers>
+  </StructureLayoutDef>
+
   <StructureLayoutDef>
     <defName>TSC_Catacombs</defName>
     <workerClass>LayoutWorker_AncientRuins</workerClass>

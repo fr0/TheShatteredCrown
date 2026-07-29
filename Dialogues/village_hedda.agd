@@ -1,0 +1,129 @@
+# Hedda Rill, reeve of Thornden (Act 3). Keeper of the tribute ledger.
+# Frames the quest: the village cannot pay again, the collectors are in the
+# square, and the Brand holds Bry Coalhand as surety.
+# VOICE: plain and practical. She talks in facts and sums.
+
+dialogue TSC_Dialogue_Hedda
+
+# After the square is settled she is the one who hands out The Surety: the
+# old man at the well points here, and the debt gets named by the woman who
+# keeps the book.
+# Order carries meaning here. The boy home is checked first; then the quest
+# still running; and only then the bare flag - which by that point can only
+# mean The Surety ended without him, so she never says "bring him to his
+# father" over a boy who is not coming back.
+#
+# The in-flight check asks the quest log rather than our own flag: a save
+# from before this rework was handed The Surety by the Thornden script
+# itself, and she must not offer a second copy of it.
+entry bry_home if quest_succeeded(TSC_Act3_Surety)
+entry surety_given if quest_active(TSC_Act3_Surety)
+entry bry_lost if flag(TSC_SuretyGiven)
+entry after_tribute if flag(TSC_TributeAnswered)
+
+== start ==
+The reeve of Thornden is a small grey woman with a ledger under her arm. She looks your company over once, carefully.
+
+"Armed, provisioned, and not the Brand's. We don't see that here." She keeps her voice low. "You've picked a bad day to visit. It's tribute day."
+
+* "Tell me about the tribute." -> tribute
+* "Those men in the square - the Iron Brand?" -> collectors
+
+== tribute ==
+"A third of the harvest and twenty silver, every season. That's the price of not being burned." She taps the ledger. "It stopped adding up last autumn. This spring we paid them seed corn. You understand? We paid them next YEAR."
+
+She shakes her head.
+
+"There is nothing left to give them today. And they have never once left empty-handed."
+
+* "Those men in the square - the collectors?" -> collectors
+* "Then today they leave empty-handed. We'll speak with them." -> blessing
+
+== collectors ==
+"Four of them. The polite one does the talking. He's the worst of them." She glances toward the square. "Before you do anything - know what it costs us. The Brand holds a boy. Bry, the smith's son. They took him to their camp in the hills as surety on our payments. His father hammers all day so he doesn't have to think about it."
+
+She looks at you straight.
+
+"Whatever you say to those men, you're answering for Bry too. Remember that."
+
+* "We'll remember. And we'll get the boy back after." -> blessing
+* "Understood." -> end
+
+== blessing ==
+Something in her face eases, just a little.
+
+"Five years I've kept that book balanced so this village stays too poor to burn and too useful to bleed. If that ends today, I won't miss it."
+
+She steps back into her doorway.
+
+"The square is yours. Mind the well."
+
+* [Go and speak with the collectors.] -> end
+
+== after_tribute ==
+The reeve is in her doorway with the ledger open on her forearm, and she is not writing in it.
+
+"So that's done." She closes the book. "Five years of arithmetic, and you settled it in an afternoon."
+
+She does not sound ungrateful. She sounds like a woman doing a sum she does not like the shape of.
+
+* "Say the rest of it." -> bry
+* "You're welcome." -> bry
+
+== bry ==
+"The rest of it is a boy in the hills." She keeps her voice level. "Bry Coalhand. The Brand holds him at a watch-camp below the keep, surety against a tribute that has now stopped. When the collectors don't come home, somebody up there will do the same sum I'm doing, and they'll do it faster."
+
+She glances toward the smithy, where the hammer has not stopped all morning.
+
+"Garrick doesn't know yet. I'd rather he heard the boy was already out."
+
+* "Where is the camp?" -> give
+* "We'll get him." -> give
+
+== give ==
+"In the hills, below the keep. Half a day, if you go now." She tears a leaf out of the ledger, marks it, and hands it over: a road, a fork, a stand of thorn.
+
+"I've kept this village too poor to burn for five years, and today I gave that up for a boy I'm not related to. Don't make me wrong about it."
+
+* [Take the leaf.] -> end
+    if not quest_active(TSC_Act3_Surety)
+    do flag(TSC_SuretyGiven); give_quest(TSC_Act3_Surety); grant_xp(50)
+* [Take the leaf.] -> end
+    if quest_active(TSC_Act3_Surety)
+    do flag(TSC_SuretyGiven)
+
+== surety_given ==
+The reeve looks up from the ledger, and looks past you toward the hills before she can stop herself.
+
+"Nothing's changed here. That's the best thing I can tell you." She goes back to the book. "Bring him to his father, not to me."
+
+* "We will." -> end
+
+== bry_home ==
+The ledger is shut, and she is standing in her doorway with nothing in her hands, which you have not seen before.
+
+"The forge has been going since an hour after you brought him in. Garrick's not said a word to anyone. That's how he says it." She lets that sit. "The boy's thinner than he went and he flinches at the door. He'll mend or he won't, but he'll do it here."
+
+* "And the village?" -> reckoning
+* "Then we're square." -> reckoning
+
+== reckoning ==
+"The village is a village that stopped paying and got its boy back in the same week." She looks at the hills, the way everyone in Thornden looks at the hills. "Which means the Brand has lost a tribute, a collection crew and a surety, and the man on that hill has to answer for all three or stop calling himself a baron."
+
+She looks back at you, and there is nothing soft in it at all.
+
+"He'll come down here. Or you'll go up there. I know which of those I'd rather explain to the smith."
+
+* "We'll go up." -> end
+* [Say nothing.] -> end
+
+== bry_lost ==
+The reeve is writing when you come, and finishes the line before she looks up. She has clearly decided how this conversation goes.
+
+"I know. Word came before you did." She sets the pen down square. "I sent you after him. I'd send you again. Don't stand there waiting for me to take it off you, because I can't, and Garrick wouldn't thank either of us for the performance."
+
+She closes the ledger.
+
+"There's one debt left and it's on the hill. Go and collect it."
+
+* "We will." -> end

@@ -51,6 +51,30 @@ namespace TheShatteredCrown
                         total += thing.stackCount;
                     }
                 }
+                // Caravan inventories exclude what members WEAR and WIELD.
+                foreach (Pawn member in caravan.PawnsListForReading)
+                {
+                    if (member.equipment?.AllEquipmentListForReading != null)
+                    {
+                        foreach (ThingWithComps eq in member.equipment.AllEquipmentListForReading)
+                        {
+                            if (eq.def == item)
+                            {
+                                total += eq.stackCount;
+                            }
+                        }
+                    }
+                    if (member.apparel?.WornApparel != null)
+                    {
+                        foreach (Apparel worn in member.apparel.WornApparel)
+                        {
+                            if (worn.def == item)
+                            {
+                                total += worn.stackCount;
+                            }
+                        }
+                    }
+                }
                 // Reforming packs the loot onto the PAWNS, and the caravan's
                 // inventory view can lag a tick behind that - count both, or
                 // walking out of a site with the prize reads as empty-handed.
@@ -121,6 +145,30 @@ namespace TheShatteredCrown
             if (pawn.carryTracker?.CarriedThing?.def == item)
             {
                 total += pawn.carryTracker.CarriedThing.stackCount;
+            }
+            // WIELDING the prize is the strongest possible possession. The
+            // Kingsblade taught this: a weapon fetch never completed because
+            // the party equipped the weapon, which took it out of every
+            // container this method used to scan. Same for worn armor.
+            if (pawn.equipment?.AllEquipmentListForReading != null)
+            {
+                foreach (ThingWithComps eq in pawn.equipment.AllEquipmentListForReading)
+                {
+                    if (eq.def == item)
+                    {
+                        total += eq.stackCount;
+                    }
+                }
+            }
+            if (pawn.apparel?.WornApparel != null)
+            {
+                foreach (Apparel worn in pawn.apparel.WornApparel)
+                {
+                    if (worn.def == item)
+                    {
+                        total += worn.stackCount;
+                    }
+                }
             }
             return total;
         }

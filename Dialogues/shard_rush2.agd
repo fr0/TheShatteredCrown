@@ -1,0 +1,70 @@
+# The second shard joins the first (one-shot per save). Opened from code
+# (TSC_ShardTracker) the first time both shards ride with the same company
+# and the fighting is over; {PLAYER} is whoever holds the newer one. Act 3
+# opens when this closes: the title card, then the Iron Brand quest.
+
+dialogue TSC_Dialogue_ShardRush2
+
+== start ==
+It begins before the wrappings are off: a hum in the teeth, and the old cold weight behind {PLAYER}'s breastbone leaning like a lodestone.
+
+Set side by side, the two shards move. A finger's width only, gold grating on stone, each swinging toward the other the way a compass finds north. Then they stop, and the hum settles into something worse.
+
+Satisfaction.
+
+* "They know each other." -> know
+* [Keep them apart.] -> apart
+
+== know ==
+Not the way two halves of a broken plate know each other. The way two hands of the same body do.
+
+There is intent in the cold, and under the intent something that thinks. Patient, wordless, very old. It does not beg and it does not command. It wants, the way water wants downhill: to be whole. To be worn.
+
+And it is grateful to {PLAYER} for the reunion. That is the worst part.
+
+* [Ask what it wants next.] -> vision
+
+== apart ==
+{PLAYER} moves one shard an arm's length away. The hum does not weaken by a note. Distance, the cold explains without words, is bookkeeping: they were apart for eight hundred years, and a strap and a saddlebag is nothing.
+
+These are not two things being kept separate. This is one thing, healing. And it thinks. That much is suddenly, unpleasantly clear.
+
+* [Ask what it wants next.] -> vision
+
+== vision ==
+The answer is not words. It arrives whole, pressed into the mind like a seal into wax:
+
+A keep of grey stone on a hard hill. An iron-strapped gate, walls patched with timber where old wars took their toll, banners the color of dried blood stamped with a black brand mark. Men on the walls with good steel and bad discipline, and below them, in the vaulted hall, a hoard: coin, plate, and church-silver heaped in the dark.
+
+The vision narrows the way a pupil narrows, down through the heaped gold, to a point of cold light buried at the bottom.
+
+A third shard. The Iron Brand are sitting on it, and they do not know what they have.
+
+* "Where is this keep?" -> close
+* [Pull your mind away.] -> close
+
+== close ==
+The keep drains away slowly and leaves one certainty behind, like a stone in a dry riverbed: the shards know where their kin lie. All of them. They will show the way, a piece at a time, to anyone willing to carry them there.
+
+Whether that is a gift or a leash is a question for a warmer evening.
+
+* "Wren. You've sung about things like this. Say something useful." -> wren
+    if in_party(TSC_Npc_Bard)
+* [Wrap them. Separately.] -> end
+    do grant_xp(25)
+
+== wren ==
+Wren has her arms crossed and her back to the fire, watching the shards the way she would watch a stranger's dog.
+
+"Every song about the crown says the same thing, if you listen past the rhymes. It was not worn. It *rode*. The kings under it did great things and were used up young, every one of them." She looks up. "It is showing us the way to its own mending. That is not the same as the way to ours."
+
+She shrugs, and the shrug does not reach her eyes.
+
+"We were always going to that keep. Just remember, when we get there, whose idea it was."
+
+Then, because she is still Wren, and the silence has lasted almost four seconds:
+
+"A baron, a hoard, and a keep on a hill, though. If we live, the song writes itself."
+
+* [Wrap them. Separately.] -> end
+    do grant_xp(25); affinity(+5)

@@ -300,6 +300,9 @@ def make_crown():  # Kingsblade: gold crown, gem in the band
     return _halo(img)
 
 
+# NOTE: TSC_SneakHood is NOT generated here - it is Lorc's "hood" from
+# game-icons.net (CC BY 3.0), rendered by scripts/fetch_game_icons.py.
+# Adding it back to GLYPHS would overwrite the licensed art.
 GLYPHS = {
     "TSC_CrownMark": make_crown,
     "TSC_HymnNote": make_hymn_note,

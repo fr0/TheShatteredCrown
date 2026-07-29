@@ -320,6 +320,51 @@ namespace TheShatteredCrown
         Braced,
     }
 
+    public class CompProperties_TSC_GrantAp : CompProperties_AbilityEffect
+    {
+        public float amount = 2f;
+
+        public CompProperties_TSC_GrantAp()
+        {
+            compClass = typeof(CompAbilityEffect_TSC_GrantAp);
+        }
+    }
+
+    /// <summary>
+    /// Turn-based AP refund on cast (Charge: the surge pays for itself).
+    /// Outside turn-based combat there is no AP, so this is a no-op - the
+    /// ability's real-time balance is untouched.
+    ///
+    /// The refund is handed out by the verb patch that charges the cast, NOT
+    /// from Apply here. Apply runs when the ability RESOLVES, which is after
+    /// its warmup, and a turn that ended in between takes the refund with it:
+    /// the next turn wipes the AP pool back to BaseAp plus at most one carried
+    /// point. Cost and refund now land in the same instant, which is what "+2
+    /// AP on cast" says on the tin.
+    /// </summary>
+    public class CompAbilityEffect_TSC_GrantAp : CompAbilityEffect
+    {
+        public new CompProperties_TSC_GrantAp Props => (CompProperties_TSC_GrantAp)props;
+
+        /// <summary>The refund this verb's ability carries, or 0 if it carries none.</summary>
+        public static float AmountOn(Verb verb)
+        {
+            Ability ability = (verb as Verb_CastAbility)?.ability;
+            if (ability?.comps == null)
+            {
+                return 0f;
+            }
+            foreach (AbilityComp comp in ability.comps)
+            {
+                if (comp is CompAbilityEffect_TSC_GrantAp grant)
+                {
+                    return grant.Props.amount;
+                }
+            }
+            return 0f;
+        }
+    }
+
     public class CompProperties_TSC_Vfx : CompProperties_AbilityEffect
     {
         public Color color = Color.white;

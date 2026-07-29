@@ -290,6 +290,16 @@ def parse_effects(expr: str, path, lineno) -> list:
             effects.append(Effect("DialogueEffect_TSC_HireOffer", {}))
         elif name == "guild_store":
             effects.append(Effect("DialogueEffect_TSC_GuildStore", {}))
+        elif name == "temple_heal":
+            effects.append(Effect("DialogueEffect_TSC_Temple", {}))
+        elif name == "training_hall":
+            effects.append(Effect("DialogueEffect_TSC_TrainingHall", {}))
+        elif name == "mage_translocate":
+            effects.append(Effect("DialogueEffect_TSC_Translocate", {}))
+        elif name == "mage_enchant":
+            effects.append(Effect("DialogueEffect_TSC_Enchant", {}))
+        elif name == "tavern_round":
+            effects.append(Effect("DialogueEffect_TSC_Tavern", {}))
         elif name == "learn_class":
             effects.append(Effect("DialogueEffect_LearnClass", {"classDef": arg}))
         elif name == "teach_class":
@@ -312,7 +322,7 @@ def parse_effects(expr: str, path, lineno) -> list:
             effects.append(Effect("DialogueEffect_Affinity", fields))
         else:
             raise ParseError(path, lineno,
-                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, trade, grant_xp, learn_class, teach_class, grant_prof, affinity, parley_hostile, parley_flee)")
+                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, trade, grant_xp, learn_class, teach_class, grant_prof, affinity, parley_hostile, parley_flee, temple_heal)")
     return effects
 
 

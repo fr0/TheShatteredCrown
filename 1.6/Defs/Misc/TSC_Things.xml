@@ -175,6 +175,103 @@
     </apparel>
   </ThingDef>
 
+  <!-- Hand and foot armor. Vanilla armor NEVER covers the Hands and Feet
+       body part groups (hits to fingers and toes bypass full plate), so
+       these close the gap. Both DEFER to other mods: if anything else in
+       the load order ships apparel covering the slot (Medieval Overhaul
+       and kin), TSC_ApparelCompat hides ours from the guild store.
+       No wornGraphicPath on purpose: vanilla pawn sprites already draw
+       mittened hands and solid feet; an overlay would just shimmer. -->
+  <ThingDef ParentName="ApparelBase">
+    <defName>TSC_Apparel_Gauntlets</defName>
+    <label>plate gauntlets</label>
+    <description>Articulated steel over the back of the hand and fingers, lined with leather.</description>
+    <techLevel>Medieval</techLevel>
+    <graphicData>
+      <texPath>Things/Item/TSC_Gauntlets</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.85</drawSize>
+    </graphicData>
+    <costStuffCount>25</costStuffCount>
+    <stuffCategories>
+      <li>Metallic</li>
+      <li>Leathery</li>
+    </stuffCategories>
+    <thingCategories>
+      <li>ApparelArmor</li>
+    </thingCategories>
+    <statBases>
+      <MaxHitPoints>90</MaxHitPoints>
+      <WorkToMake>3200</WorkToMake>
+      <Mass>1.2</Mass>
+      <StuffEffectMultiplierArmor>0.40</StuffEffectMultiplierArmor>
+      <StuffEffectMultiplierInsulation_Cold>0.15</StuffEffectMultiplierInsulation_Cold>
+      <StuffEffectMultiplierInsulation_Heat>0</StuffEffectMultiplierInsulation_Heat>
+      <EquipDelay>1.5</EquipDelay>
+    </statBases>
+    <apparel>
+      <countsAsClothingForNudity>false</countsAsClothingForNudity>
+      <bodyPartGroups>
+        <li>Hands</li>
+      </bodyPartGroups>
+      <layers>
+        <li>Middle</li>
+      </layers>
+      <tags>
+        <li>TSC_Gauntlets</li>
+      </tags>
+      <defaultOutfitTags>
+        <li>Soldier</li>
+      </defaultOutfitTags>
+      <canBeDesiredForIdeo>false</canBeDesiredForIdeo>
+    </apparel>
+  </ThingDef>
+
+  <ThingDef ParentName="ApparelBase">
+    <defName>TSC_Apparel_Sabatons</defName>
+    <label>sabatons</label>
+    <description>Plate boots: overlapping steel scales riding on stout leather, hinged at the ankle.</description>
+    <techLevel>Medieval</techLevel>
+    <graphicData>
+      <texPath>Things/Item/TSC_Sabatons</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.85</drawSize>
+    </graphicData>
+    <costStuffCount>30</costStuffCount>
+    <stuffCategories>
+      <li>Metallic</li>
+      <li>Leathery</li>
+    </stuffCategories>
+    <thingCategories>
+      <li>ApparelArmor</li>
+    </thingCategories>
+    <statBases>
+      <MaxHitPoints>100</MaxHitPoints>
+      <WorkToMake>3400</WorkToMake>
+      <Mass>1.8</Mass>
+      <StuffEffectMultiplierArmor>0.40</StuffEffectMultiplierArmor>
+      <StuffEffectMultiplierInsulation_Cold>0.25</StuffEffectMultiplierInsulation_Cold>
+      <StuffEffectMultiplierInsulation_Heat>0</StuffEffectMultiplierInsulation_Heat>
+      <EquipDelay>2</EquipDelay>
+    </statBases>
+    <apparel>
+      <countsAsClothingForNudity>false</countsAsClothingForNudity>
+      <bodyPartGroups>
+        <li>Feet</li>
+      </bodyPartGroups>
+      <layers>
+        <li>Middle</li>
+      </layers>
+      <tags>
+        <li>TSC_Sabatons</li>
+      </tags>
+      <defaultOutfitTags>
+        <li>Soldier</li>
+      </defaultOutfitTags>
+      <canBeDesiredForIdeo>false</canBeDesiredForIdeo>
+    </apparel>
+  </ThingDef>
+
   <!-- Sealed loot chests. Inherit the Odyssey openable-crate base so we get the
        open/close graphics and the "open" interaction for free; each variant just
        binds its own loot table. -->
@@ -183,7 +280,7 @@
   <ThingDef ParentName="ResourceBase">
     <defName>TSC_WeatheredMapCase</defName>
     <label>weathered map case</label>
-    <description>A leather map case, cracked with age and sealed with the sigil of the old kingdom's border guard. The map inside marks Aldwick, a village lost to war, and the catacombs beneath it. Every version of the Shattered Crown story begins with this map.</description>
+    <description>A leather map case, cracked with age and sealed with the sigil of the old kingdom's border guard.</description>
     <graphicData>
       <texPath>Things/Item/Book/Schematic/Schematic</texPath>
       <graphicClass>Graphic_Single</graphicClass>

@@ -32,6 +32,18 @@
         <stuff>Cloth</stuff>
       </li>
     </forcedApparel>
+    <combatBarks>
+      <li>Eyes up!</li>
+      <li>Watch the left!</li>
+      <li>Stay in pairs!</li>
+      <li>We've had worse. Probably.</li>
+      <li>Not today. Not us.</li>
+      <li>For the company!</li>
+      <li>Mind the flanks!</li>
+      <li>Keep your feet, keep your head!</li>
+      <li>They bleed like anyone!</li>
+      <li>I've seen worse odds. Once.</li>
+    </combatBarks>
   </TheShatteredCrown.NamedNpcDef>
 
   <!-- Act 1: the Wayfarer party at the campsite -->
@@ -49,6 +61,18 @@
     <plotArmor>true</plotArmor>
     <!-- Always the greatbow her dialogue describes (the kind's tag could roll Pila) -->
     <forcedWeapon>Bow_Great</forcedWeapon>
+    <combatBarks>
+      <li>Hold the line!</li>
+      <li>Drop their leader first!</li>
+      <li>Shields where I can see them!</li>
+      <li>We finish this and we go home.</li>
+      <li>On me!</li>
+      <li>Watch your spacing!</li>
+      <li>Wounded to the rear!</li>
+      <li>Make it quick, we're burning daylight.</li>
+      <li>I've buried better fighters than these.</li>
+      <li>Nobody dies today. That's an order.</li>
+    </combatBarks>
   </TheShatteredCrown.NamedNpcDef>
 
   <TheShatteredCrown.NamedNpcDef>
@@ -63,6 +87,18 @@
     <adulthood>TSC_Backstory_ItinerantScholar</adulthood>
     <classDef>TSC_Class_Wizard</classDef>
     <plotArmor>true</plotArmor>
+    <combatBarks>
+      <li>I am a SCHOLAR!</li>
+      <li>Somebody write this down!</li>
+      <li>Ow. OW.</li>
+      <li>This confirms my thesis on bandits!</li>
+      <li>I miss the library!</li>
+      <li>Footnote: I hate this!</li>
+      <li>Is it dead? Somebody check!</li>
+      <li>The Chronicle never mentions the SMELL!</li>
+      <li>Historically speaking, RUN!</li>
+      <li>For SCHOLARSHIP!</li>
+    </combatBarks>
   </TheShatteredCrown.NamedNpcDef>
 
   <!-- Act 1: the druid (recruitable companion) -->
@@ -83,6 +119,18 @@
          of the grove's crows stay wild scenery. -->
     <petKind>Crow</petKind>
     <petName>Corvus</petName>
+    <combatBarks>
+      <li>Down.</li>
+      <li>Left.</li>
+      <li>Corvus. Eyes.</li>
+      <li>Hm.</li>
+      <li>The hills warned you.</li>
+      <li>Quiet now.</li>
+      <li>Behind.</li>
+      <li>Hold.</li>
+      <li>Breathe.</li>
+      <li>Done soon.</li>
+    </combatBarks>
   </TheShatteredCrown.NamedNpcDef>
 
   <!-- Act 2: the bard whose verses know too much. Spawned in the lead's
@@ -105,6 +153,18 @@
          hugged rather than held, drawn on in charcoal. She has to actually
          be carrying one. -->
     <forcedWeapon>TSC_Instrument_Lute</forcedWeapon>
+    <combatBarks>
+      <li>This is GOING in the song!</li>
+      <li>Duck! ...that rhymed, sorry!</li>
+      <li>Second verse, same as the first!</li>
+      <li>Big finish, everyone!</li>
+      <li>I have died in nobler ballads!</li>
+      <li>Keep the rhythm!</li>
+      <li>Somebody rhyme with 'carnage'!</li>
+      <li>You're all in the ballad now!</li>
+      <li>Less dying, more winning!</li>
+      <li>And THAT goes in the bridge!</li>
+    </combatBarks>
   </TheShatteredCrown.NamedNpcDef>
 
   <!-- Harrowfield village residents (Act 1). Ordinary folk: no plot

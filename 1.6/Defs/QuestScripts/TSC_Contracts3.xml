@@ -106,7 +106,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[wr_flavor]\n\nBoth lots are hostile to you and to each other. A patient crew can let them do some of the work. An impatient one ends up between them.\n\nPay is charter silver and guild coin, on the building being empty.</li>
+        <li>questDescription->[wr_flavor]\n\nTravel to the ruin and clear it out: BOTH sets of tenants, the squatters and the insects, have to be dead or driven off before the guild takes the building back. Leaving one lot in place finishes nothing.\n\nThey are hostile to you and to each other. A patient crew can let them do some of the work; an impatient one ends up between them.\n\nPay is charter silver and guild coin, on the building standing empty.</li>
         <li>wr_flavor->A ruin the guild wants back has two occupants: squatters at one end, insects at the other. Neither has managed to shift the other.</li>
         <li>wr_flavor->Squatters took a waystation, then found out what was already living under it. The stand-off has held for a season.</li>
         <li>wr_flavor->There are two kinds of tracks going in and one kind coming out. The guild's surveyor did not stay to work out why.</li>

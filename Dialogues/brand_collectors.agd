@@ -1,0 +1,51 @@
+# The Iron Brand's tribute collectors in Thornden square (Act 3). Parley
+# group (MapComponent_TSC_CryptParley): every exit resolves it. The
+# Persuasion path routs them; everything else turns the square into a
+# battlefield. Both roads complete the Thornden quest (fled = signal;
+# fight = site.AllEnemiesDefeated).
+
+dialogue TSC_Dialogue_BrandCollectors
+
+== start ==
+The collector is the well-fed kind of dangerous, with a brand mark on his cloak-pin and the settled patience of a man whose threats are usually enough. Three more of the Brand wait behind him, bored, hands nowhere near their weapons because they have never needed them here.
+
+"Now this is new." He looks your company up and down, pricing your gear the way Hedda prices grain. "Armed guests, on tribute day. I'll tell you what I tell every sellsword who winters in these hills: the Brand's quarrel is with nobody who walks on. Walk on."
+
+* "Thornden's paid its last tribute. Take that answer to your Baron." -> refuse
+* "Look at us again. Slower. Then decide if today's wages cover today's work." -> scare
+    check Persuasion 8 -> scare | scare_fail
+* "We're just passing through." -> end
+
+== scare ==
+He looks again. Slower.
+
+He sees whatever it is you have been becoming since the watchtower: the gear that has been through three acts of trouble, the scars with stories, the company that walks like it has already taken bigger walls than his. His men see him seeing it.
+
+"...The Brand will hear about this," he says, which is what men like him say instead of drawing steel. He backs one step before he turns, and the whole square notes it, and he knows the whole square notes it.
+
+They leave the tribute cart standing where it is.
+
+* [Watch them go.] -> end
+    do parley_flee(); signal(TSC_Act3_Thornden, TSC_CollectorsFled); flag(TSC_TributeAnswered); grant_xp(50)
+
+== scare_fail ==
+He looks again, slower - and finds his nerve where he left it, next to the arithmetic of four Brand men against your travel-worn few.
+
+"I count better than the reeve does," he says, and the boredom behind him is gone, hands finding hilts with the ease of practice. "And I'm paid either way."
+
+* [Steel.] -> fight
+
+== refuse ==
+The collector sighs, the put-upon sigh of a clerk handed bad handwriting, and unpins his cloak, and folds it over the cart rail, and the politeness comes off with it.
+
+"The Baron owns the boy, the harvest, and this square," he says. "You he'll take for free."
+
+* [Steel.] -> fight
+
+== fight ==
+The square empties of villagers with the speed of long practice: shutters, doors, the reeve's voice counting children in. The Brand's collectors spread out across the ground they have owned for five years, confident to the last step that it remembers them.
+
+The well stands between you. Mind it, the reeve said.
+
+* [The tribute stops today.] -> end
+    do parley_hostile(); flag(TSC_TributeAnswered)

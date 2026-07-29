@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Enemy combat lines (TSC_EnemyBarks.cs): taunts on a timer while the
+       fight is engaged, hit yelps on real damage, panic while fleeing.
+       One shared bandit voice for now; per-faction sets are one more def. -->
+  <TheShatteredCrown.TSC_BarkSetDef>
+    <defName>TSC_Barks_Bandits</defName>
+    <taunts>
+      <li>Wrong road, traveler!</li>
+      <li>The toll is everything you have!</li>
+      <li>Look at this one, still standing!</li>
+      <li>Your gear will fetch a fine price!</li>
+      <li>Come closer, the knife's cold!</li>
+      <li>We've buried tougher!</li>
+      <li>The crows eat well today!</li>
+      <li>That armor won't save you!</li>
+      <li>Run while your legs still work!</li>
+      <li>You picked the wrong hills!</li>
+      <li>First blood buys supper!</li>
+      <li>Hold still, this is my trade!</li>
+    </taunts>
+    <hits>
+      <li>Agh!</li>
+      <li>You'll pay for that!</li>
+      <li>It's just a scratch!</li>
+      <li>My arm! You dog!</li>
+      <li>Lucky swing!</li>
+      <li>I've had worse from a goat!</li>
+      <li>Blood for blood!</li>
+      <li>Gah! Kill them!</li>
+      <li>That one bit deep!</li>
+      <li>Not so hard! NOT SO HARD!</li>
+    </hits>
+    <flees>
+      <li>Not worth the coin!</li>
+      <li>They're devils! DEVILS!</li>
+      <li>Every man for himself!</li>
+      <li>I'm not dying for this crew!</li>
+      <li>Legs, don't fail me now!</li>
+      <li>The Baron can fight them himself!</li>
+      <li>Mercy! I'm gone, I'm gone!</li>
+      <li>You never saw my face!</li>
+    </flees>
+  </TheShatteredCrown.TSC_BarkSetDef>
+
+</Defs>

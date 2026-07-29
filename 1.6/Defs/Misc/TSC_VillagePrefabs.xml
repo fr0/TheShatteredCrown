@@ -268,4 +268,538 @@
     </terrain>
   </PrefabDef>
 
+
+  <!-- The guild house: the Wayfarers' post in every friendly town
+       (stamped near the settlement centre by MapComponent_TSC_GuildFactor;
+       the factor works at the desk inside). Door on the south wall; the
+       banner outside is placed by code, beside the door. -->
+  <PrefabDef>
+    <defName>TSC_GuildHouse</defName>
+    <size>(9,7)</size>
+    <things>
+      <Wall>
+        <rects>
+          <li>(0,0,3,0)</li>
+          <li>(5,0,8,0)</li>
+          <li>(0,6,8,6)</li>
+          <li>(0,1,0,5)</li>
+          <li>(8,1,8,5)</li>
+        </rects>
+        <stuff>BlocksGranite</stuff>
+      </Wall>
+      <Door>
+        <position>(4,0,0)</position>
+        <stuff>WoodLog</stuff>
+      </Door>
+      <!-- The factor's desk; he stands just east of it, at the prefab centre. -->
+      <Table2x2c>
+        <position>(2,0,3)</position>
+        <stuff>WoodLog</stuff>
+      </Table2x2c>
+      <DiningChair>
+        <position>(2,0,2)</position>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <!-- Visitors' bench side -->
+      <DiningChair>
+        <position>(5,0,2)</position>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <EndTable>
+        <position>(1,0,5)</position>
+        <stuff>WoodLog</stuff>
+      </EndTable>
+      <EndTable>
+        <position>(7,0,5)</position>
+        <stuff>WoodLog</stuff>
+      </EndTable>
+      <TorchLamp>
+        <position>(1,0,1)</position>
+      </TorchLamp>
+      <TorchLamp>
+        <position>(7,0,1)</position>
+      </TorchLamp>
+    </things>
+    <terrain>
+      <WoodPlankFloor>
+        <rects>
+          <li>(1,1,7,5)</li>
+          <li>(4,0,4,0)</li>
+        </rects>
+      </WoodPlankFloor>
+    </terrain>
+  </PrefabDef>
+
+  <!-- The sign out front: how you find the guild in a strange town. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_GuildBanner</defName>
+    <label>guild banner</label>
+    <description>The Wayfarers' Guild sign: a gold coin on a dark board. Wherever it hangs, contracts are taken, help is hired, and the ledger is open.</description>
+    <graphicData>
+      <texPath>Things/Building/TSC_GuildBanner</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1.1,1.4)</drawSize>
+    </graphicData>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <pathCost>14</pathCost>
+    <rotatable>false</rotatable>
+    <fillPercent>0.2</fillPercent>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Flammability>0.8</Flammability>
+      <Beauty>2</Beauty>
+    </statBases>
+    <size>(1,1)</size>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+    </building>
+  </ThingDef>
+
+
+  <!-- The smith's sign: how you find the forge in a strange town. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_SmithBanner</defName>
+    <label>smith's sign</label>
+    <description>A hammer and anvil burned into an oak board, hung from an iron bracket. Wherever it hangs, steel is bought and sold.</description>
+    <graphicData>
+      <texPath>Things/Building/TSC_SmithBanner</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1.1,1.4)</drawSize>
+    </graphicData>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <pathCost>14</pathCost>
+    <rotatable>false</rotatable>
+    <fillPercent>0.2</fillPercent>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Flammability>0.8</Flammability>
+      <Beauty>2</Beauty>
+    </statBases>
+    <size>(1,1)</size>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+    </building>
+  </ThingDef>
+
+  <!-- The town smithy: the Wayfarers post a factor in every friendly town,
+       and every town of any size has a forge. Stamped beside the guild
+       house by MapComponent_TSC_GuildFactor; the smith works at the anvil
+       inside and trades in SILVER (TSC_Trader_Smith - the same stock the
+       village smith carries). -->
+  <PrefabDef>
+    <defName>TSC_TownSmithy</defName>
+    <size>(9,7)</size>
+    <things>
+      <Wall>
+        <rects>
+          <li>(0,0,3,0)</li>
+          <li>(5,0,8,0)</li>
+          <li>(0,6,8,6)</li>
+          <li>(0,1,0,5)</li>
+          <li>(8,1,8,5)</li>
+        </rects>
+        <stuff>BlocksGranite</stuff>
+      </Wall>
+      <Door>
+        <position>(4,0,0)</position>
+        <stuff>WoodLog</stuff>
+      </Door>
+      <!-- The forge line along the back wall -->
+      <FueledSmithy>
+        <position>(2,0,4)</position>
+      </FueledSmithy>
+      <Table2x2c>
+        <position>(6,0,4)</position>
+        <stuff>WoodLog</stuff>
+      </Table2x2c>
+      <Shelf>
+        <position>(1,0,2)</position>
+        <stuff>WoodLog</stuff>
+      </Shelf>
+      <EndTable>
+        <position>(7,0,2)</position>
+        <stuff>WoodLog</stuff>
+      </EndTable>
+      <TorchLamp>
+        <position>(1,0,5)</position>
+      </TorchLamp>
+      <TorchLamp>
+        <position>(7,0,5)</position>
+      </TorchLamp>
+    </things>
+    <terrain>
+      <FlagstoneGranite>
+        <rects>
+          <li>(1,1,7,5)</li>
+          <li>(4,0,4,0)</li>
+        </rects>
+      </FlagstoneGranite>
+    </terrain>
+  </PrefabDef>
+
+
+  <!-- The temple's sign: how you find the healers in a strange town. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_TempleBanner</defName>
+    <label>temple sign</label>
+    <description>A white sunburst on a blue board, hung from an iron bracket. Wherever it hangs, wounds are closed and fevers drawn, for an offering in silver.</description>
+    <graphicData>
+      <texPath>Things/Building/TSC_TempleBanner</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1.1,1.4)</drawSize>
+    </graphicData>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <pathCost>14</pathCost>
+    <rotatable>false</rotatable>
+    <fillPercent>0.2</fillPercent>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Flammability>0.8</Flammability>
+      <Beauty>4</Beauty>
+    </statBases>
+    <size>(1,1)</size>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+    </building>
+  </ThingDef>
+
+  <!-- The town temple: an altar, benches for the waiting, and beds for the
+       ones who cannot walk home. Stamped beside the guild house and the
+       smithy by MapComponent_TSC_GuildFactor. -->
+  <PrefabDef>
+    <defName>TSC_Temple</defName>
+    <size>(9,7)</size>
+    <things>
+      <Wall>
+        <rects>
+          <li>(0,0,3,0)</li>
+          <li>(5,0,8,0)</li>
+          <li>(0,6,8,6)</li>
+          <li>(0,1,0,5)</li>
+          <li>(8,1,8,5)</li>
+        </rects>
+        <stuff>BlocksGranite</stuff>
+      </Wall>
+      <Door>
+        <position>(4,0,0)</position>
+        <stuff>WoodLog</stuff>
+      </Door>
+      <!-- The altar, centred on the back wall -->
+      <Table2x2c>
+        <position>(4,0,4)</position>
+        <stuff>BlocksGranite</stuff>
+      </Table2x2c>
+      <!-- Sickbeds down one side -->
+      <Bed>
+        <position>(1,0,4)</position>
+        <stuff>WoodLog</stuff>
+      </Bed>
+      <Bed>
+        <position>(7,0,4)</position>
+        <stuff>WoodLog</stuff>
+      </Bed>
+      <DiningChair>
+        <position>(2,0,2)</position>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <DiningChair>
+        <position>(6,0,2)</position>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <TorchLamp>
+        <position>(1,0,1)</position>
+      </TorchLamp>
+      <TorchLamp>
+        <position>(7,0,1)</position>
+      </TorchLamp>
+    </things>
+    <terrain>
+      <FlagstoneGranite>
+        <rects>
+          <li>(1,1,7,5)</li>
+          <li>(4,0,4,0)</li>
+        </rects>
+      </FlagstoneGranite>
+    </terrain>
+  </PrefabDef>
+
+
+  <!-- The training hall's sign: crossed practice swords over a target. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_TrainingBanner</defName>
+    <label>training hall sign</label>
+    <description>Crossed wooden wasters over a straw target, burned into a red board. Wherever it hangs, masters drill any trade for silver.</description>
+    <graphicData>
+      <texPath>Things/Building/TSC_TrainingBanner</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1.1,1.4)</drawSize>
+    </graphicData>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <pathCost>14</pathCost>
+    <rotatable>false</rotatable>
+    <fillPercent>0.2</fillPercent>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Flammability>0.8</Flammability>
+      <Beauty>2</Beauty>
+    </statBases>
+    <size>(1,1)</size>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+    </building>
+  </ThingDef>
+
+  <!-- The training hall: a bare drill floor, weapon racks, and a master's
+       table. Stamped with the other town services. -->
+  <PrefabDef>
+    <defName>TSC_TrainingHall</defName>
+    <size>(11,7)</size>
+    <things>
+      <Wall>
+        <rects>
+          <li>(0,0,4,0)</li>
+          <li>(6,0,10,0)</li>
+          <li>(0,6,10,6)</li>
+          <li>(0,1,0,5)</li>
+          <li>(10,1,10,5)</li>
+        </rects>
+        <stuff>BlocksGranite</stuff>
+      </Wall>
+      <Door>
+        <position>(5,0,0)</position>
+        <stuff>WoodLog</stuff>
+      </Door>
+      <!-- The master's table, and racks down the long walls -->
+      <Table2x2c>
+        <position>(5,0,4)</position>
+        <stuff>WoodLog</stuff>
+      </Table2x2c>
+      <Shelf>
+        <position>(1,0,4)</position>
+        <stuff>WoodLog</stuff>
+      </Shelf>
+      <Shelf>
+        <position>(9,0,4)</position>
+        <stuff>WoodLog</stuff>
+      </Shelf>
+      <DiningChair>
+        <position>(5,0,2)</position>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <TorchLamp>
+        <position>(1,0,1)</position>
+      </TorchLamp>
+      <TorchLamp>
+        <position>(9,0,1)</position>
+      </TorchLamp>
+    </things>
+    <terrain>
+      <WoodPlankFloor>
+        <rects>
+          <li>(1,1,9,5)</li>
+          <li>(5,0,5,0)</li>
+        </rects>
+      </WoodPlankFloor>
+    </terrain>
+  </PrefabDef>
+
+
+  <!-- The mage guild's sign: an open eye over a circle. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_MageBanner</defName>
+    <label>mage guild sign</label>
+    <description>A silver ring and an open eye on a violet board, hung from an iron bracket. Wherever it hangs, distance is negotiable and armour can be argued with.</description>
+    <graphicData>
+      <texPath>Things/Building/TSC_MageBanner</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1.1,1.4)</drawSize>
+    </graphicData>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <pathCost>14</pathCost>
+    <rotatable>false</rotatable>
+    <fillPercent>0.2</fillPercent>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Flammability>0.8</Flammability>
+      <Beauty>4</Beauty>
+    </statBases>
+    <size>(1,1)</size>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+    </building>
+  </ThingDef>
+
+  <!-- The mage guild: the travelling circle inlaid in the floor, the
+       enchanter's bench, and shelves of things nobody should touch. -->
+  <PrefabDef>
+    <defName>TSC_MageGuild</defName>
+    <size>(11,9)</size>
+    <things>
+      <Wall>
+        <rects>
+          <li>(0,0,4,0)</li>
+          <li>(6,0,10,0)</li>
+          <li>(0,8,10,8)</li>
+          <li>(0,1,0,7)</li>
+          <li>(10,1,10,7)</li>
+        </rects>
+        <stuff>BlocksGranite</stuff>
+      </Wall>
+      <Door>
+        <position>(5,0,0)</position>
+        <stuff>WoodLog</stuff>
+      </Door>
+      <!-- The enchanter's bench along the back -->
+      <Table2x2c>
+        <position>(2,0,6)</position>
+        <stuff>WoodLog</stuff>
+      </Table2x2c>
+      <Shelf>
+        <position>(8,0,6)</position>
+        <stuff>WoodLog</stuff>
+      </Shelf>
+      <Shelf>
+        <position>(8,0,2)</position>
+        <stuff>WoodLog</stuff>
+      </Shelf>
+      <DiningChair>
+        <position>(2,0,5)</position>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <TorchLamp>
+        <position>(1,0,1)</position>
+      </TorchLamp>
+      <TorchLamp>
+        <position>(9,0,1)</position>
+      </TorchLamp>
+      <TorchLamp>
+        <position>(1,0,7)</position>
+      </TorchLamp>
+      <TorchLamp>
+        <position>(9,0,7)</position>
+      </TorchLamp>
+    </things>
+    <terrain>
+      <!-- The circle: marble inlaid in the flagstone floor -->
+      <FlagstoneGranite>
+        <rects>
+          <li>(1,1,9,7)</li>
+          <li>(5,0,5,0)</li>
+        </rects>
+      </FlagstoneGranite>
+      <TileMarble>
+        <rects>
+          <li>(4,3,6,5)</li>
+        </rects>
+      </TileMarble>
+    </terrain>
+  </PrefabDef>
+
+
+  <!-- The tavern's sign: a foaming tankard on an oak board. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_TavernBanner</defName>
+    <label>tavern sign</label>
+    <description>A tankard and a loaf on a green board, hung from an iron bracket. Wherever it hangs, there is hot food and a bench to put your back against.</description>
+    <graphicData>
+      <texPath>Things/Building/TSC_TavernBanner</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1.1,1.4)</drawSize>
+    </graphicData>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <pathCost>14</pathCost>
+    <rotatable>false</rotatable>
+    <fillPercent>0.2</fillPercent>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Flammability>0.8</Flammability>
+      <Beauty>3</Beauty>
+    </statBases>
+    <size>(1,1)</size>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+    </building>
+  </ThingDef>
+
+  <!-- The tavern: long tables, a hearth, and the innkeeper's counter. -->
+  <PrefabDef>
+    <defName>TSC_Tavern</defName>
+    <size>(11,9)</size>
+    <things>
+      <Wall>
+        <rects>
+          <li>(0,0,4,0)</li>
+          <li>(6,0,10,0)</li>
+          <li>(0,8,10,8)</li>
+          <li>(0,1,0,7)</li>
+          <li>(10,1,10,7)</li>
+        </rects>
+        <stuff>BlocksGranite</stuff>
+      </Wall>
+      <Door>
+        <position>(5,0,0)</position>
+        <stuff>WoodLog</stuff>
+      </Door>
+      <!-- Long tables with benches -->
+      <Table2x2c>
+        <position>(2,0,3)</position>
+        <stuff>WoodLog</stuff>
+      </Table2x2c>
+      <Table2x2c>
+        <position>(8,0,3)</position>
+        <stuff>WoodLog</stuff>
+      </Table2x2c>
+      <DiningChair>
+        <position>(2,0,1)</position>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <DiningChair>
+        <position>(8,0,1)</position>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <DiningChair>
+        <position>(2,0,5)</position>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <DiningChair>
+        <position>(8,0,5)</position>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+      <!-- The counter and the hearth -->
+      <Shelf>
+        <position>(5,0,6)</position>
+        <stuff>WoodLog</stuff>
+      </Shelf>
+      <Campfire>
+        <position>(5,0,3)</position>
+      </Campfire>
+      <TorchLamp>
+        <position>(1,0,7)</position>
+      </TorchLamp>
+      <TorchLamp>
+        <position>(9,0,7)</position>
+      </TorchLamp>
+    </things>
+    <terrain>
+      <WoodPlankFloor>
+        <rects>
+          <li>(1,1,9,7)</li>
+          <li>(5,0,5,0)</li>
+        </rects>
+      </WoodPlankFloor>
+    </terrain>
+  </PrefabDef>
+
 </Defs>

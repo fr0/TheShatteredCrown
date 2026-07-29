@@ -125,15 +125,15 @@ He stands, and it is not the standing of an old man; it is a chorister taking po
 
 The last note is the longest. When it ends, the vestments settle to the floor, and the eight hundred years arrive all at once, and there is nothing left standing to arrive at.
 
-The altar is quiet. The shard and the old king's sword are yours to lift.
+The shard he kept lies where he fell. The chest with the old king's sword stands unguarded. The altar is quiet.
 
-* [Take up the Kingsblade and the shard.] -> end
+* [Take up what he kept.] -> end
     do flag(TSC_CantorRested); signal(TSC_Act2_Cellars, TSC_CantorRested); grant_xp(150); affinity(+5)
 
 == take_demand ==
 "No," he says, with real regret. "I am sorry. I was told to keep it."
 
-He rises, and the sword he takes off the altar is not for show: it was a king's, and he has been standing beside it, alone, for a very long time.
+He rises, and the blade he draws is not for show. He has kept this post, alone, for a very long time, and the shard rides in his coat where his heart used to do the work.
 
 "I would have preferred the other way."
 

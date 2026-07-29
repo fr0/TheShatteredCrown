@@ -47,16 +47,28 @@ namespace TheShatteredCrown
         public static void GiveToCompany(Quest quest)
         {
             float bonus = TSC_Mod.Settings?.questMoodBonus ?? 0f;
-            if (bonus <= 0f || Thought == null)
+            if (bonus <= 0f)
             {
+                Log.Message($"[The Shattered Crown] Quest mood: '{quest?.name}' succeeded, bonus setting is {bonus} (off) - no thought given.");
+                return;
+            }
+            if (Thought == null)
+            {
+                Log.Warning("[The Shattered Crown] Quest mood: TSC_Thought_QuestComplete def missing - no thought given.");
                 return;
             }
             ApplySetting();
+            int given = 0;
             foreach (Pawn pawn in PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists)
             {
                 // Needs a mood need at all: animals and the mood-less skip.
-                pawn.needs?.mood?.thoughts?.memories?.TryGainMemory(Thought);
+                if (pawn.needs?.mood?.thoughts?.memories != null)
+                {
+                    pawn.needs.mood.thoughts.memories.TryGainMemory(Thought);
+                    given++;
+                }
             }
+            Log.Message($"[The Shattered Crown] Quest mood: '{quest?.name}' complete, +{bonus} for 2 days to {given} pawns.");
         }
 
         /// <summary>This mod's quests only - not every vanilla quest that happens to end well.</summary>
@@ -77,14 +89,20 @@ namespace TheShatteredCrown
     {
         public static void Postfix(Quest __instance, QuestEndOutcome outcome)
         {
-            if (outcome != QuestEndOutcome.Success || Verse.Current.Game == null)
+            if (Verse.Current.Game == null)
             {
                 return;
             }
-            if (TSC_QuestMood.IsOurQuest(__instance))
+            if (!TSC_QuestMood.IsOurQuest(__instance))
             {
-                TSC_QuestMood.GiveToCompany(__instance);
+                return;
             }
+            if (outcome != QuestEndOutcome.Success)
+            {
+                Log.Message($"[The Shattered Crown] Quest mood: '{__instance.name}' ended {outcome}, no mood boost.");
+                return;
+            }
+            TSC_QuestMood.GiveToCompany(__instance);
         }
     }
 }

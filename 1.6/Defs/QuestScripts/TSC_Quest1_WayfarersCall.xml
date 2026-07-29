@@ -7,6 +7,9 @@
        quest; his dialogue also gives TSC_Act1_Camp and offers his recruitment. -->
   <QuestScriptDef>
     <defName>TSC_Quest1_WayfarersCall</defName>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_QuestChainExtension" />
+    </modExtensions>
     <isRootSpecial>true</isRootSpecial>
     <randomlySelectable>false</randomlySelectable>
     <rootMinPoints>0</rootMinPoints>

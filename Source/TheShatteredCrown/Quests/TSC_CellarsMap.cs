@@ -578,6 +578,38 @@ namespace TheShatteredCrown
     }
 
     /// <summary>
+    /// The reliquary chest keeps its promise: the quest text says the blade
+    /// spawns Excellent, but the crate's LootSpawn rolls random quality.
+    /// When THIS chest opens, the blade it just spawned is set right.
+    /// </summary>
+    [HarmonyLib.HarmonyPatch(typeof(Building_Crate), nameof(Building_Crate.Open))]
+    public static class Patch_ReliquaryChest_BladeQuality
+    {
+        public static void Postfix(Building_Crate __instance)
+        {
+            if (__instance.def?.defName != "TSC_IronboundChest_Kingsblade"
+                || __instance.Map == null)
+            {
+                return;
+            }
+            ThingDef bladeDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_Weapon_Kingsblade");
+            if (bladeDef != null)
+            {
+                foreach (Thing thing in __instance.Map.listerThings.ThingsOfDef(bladeDef))
+                {
+                    if (thing.Position.InHorDistOf(__instance.Position, 4f))
+                    {
+                        thing.TryGetComp<CompQuality>()?.SetQuality(QualityCategory.Excellent, ArtGenerationContext.Outsider);
+                    }
+                }
+            }
+            // Cracking the blade's chest breaks Aldis's vigil like lifting
+            // the shard does: nobody loots his reliquary unremarked.
+            __instance.Map.GetComponent<MapComponent_TSC_Reliquary>()?.Notify_ChestOpened();
+        }
+    }
+
+    /// <summary>
     /// The reliquary at the bottom: an altar holding the Kingsblade and the
     /// second shard, and the last chorister of the old kingdom standing over
     /// them. He is NOT hostile - he is a conversation (see cantor.agd), and
@@ -588,6 +620,10 @@ namespace TheShatteredCrown
         private bool built;
         private IntVec3 altarPos = IntVec3.Invalid;
         private int nextSongTick = -1;
+        // Aldis's vigil: the shard he watches and whether the theft scene
+        // has already fired (once per floor, ever).
+        private Thing shard;
+        private bool vigilBroken;
 
         private const int SongIntervalTicks = 1800;
 
@@ -671,25 +707,99 @@ namespace TheShatteredCrown
 
         private void SpawnTreasure(IntVec3 at)
         {
-            SpawnItem("TSC_Weapon_Kingsblade", at + new IntVec3(-1, 0, 1));
-            SpawnItem("TSC_CrownShard_Reliquary", at + new IntVec3(1, 0, 1));
+            // The blade rests IN the reliquary chest, as the chronicle
+            // promised ("a blade laid to rest with honors"); the chest's
+            // LootSpawn delivers it on opening, and the open-postfix below
+            // guarantees the Excellent the quest text names. The shard lies
+            // bare on the altar: it is the thing the vision points at, and
+            // the glint should be the first thing the lamplight finds.
+            ThingDef chestDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_IronboundChest_Kingsblade");
+            IntVec3 chestSpot = CellFinder.StandableCellNear(at + new IntVec3(-1, 0, 1), map, 6f);
+            if (chestDef != null && chestSpot.IsValid)
+            {
+                GenSpawn.Spawn(chestDef, chestSpot, map);
+            }
+            else
+            {
+                SpawnItem("TSC_Weapon_Kingsblade", at + new IntVec3(-1, 0, 1));
+            }
+            // The shard is not set dressing: Aldis KEEPS it ("I was told to
+            // keep it"). It rides in his inventory, so the only roads to it
+            // run through him - rest him, fight him, or mourn him - and no
+            // dialogue can be stepped out of with the prize already pocketed.
+            // If he cannot stand his post (dead before the floor built), the
+            // shard falls back to the altar, loose.
         }
 
-        private void SpawnItem(string defName, IntVec3 cell)
+        private Thing SpawnItem(string defName, IntVec3 cell)
         {
             ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(defName);
             if (def == null)
             {
-                return;
+                return null;
             }
             IntVec3 spot = CellFinder.StandableCellNear(cell, map, 6f);
             if (!spot.IsValid)
             {
-                return;
+                return null;
             }
             Thing thing = ThingMaker.MakeThing(def, GenStuff.DefaultStuffFor(def));
             thing.TryGetComp<CompQuality>()?.SetQuality(QualityCategory.Excellent, ArtGenerationContext.Outsider);
             GenPlace.TryPlaceThing(thing, spot, map, ThingPlaceMode.Near);
+            return thing;
+        }
+
+        /// <summary>The chest-open postfix reports here: opening the blade's chest breaks the vigil too.</summary>
+        public void Notify_ChestOpened()
+        {
+            BreakVigil();
+        }
+
+        /// <summary>
+        /// Nobody skips Aldis. The reliquary is HIS: lifting the shard off
+        /// the altar (or cracking the blade's chest) while he stands
+        /// unresolved forces the conversation the party walked past - same
+        /// contract as the crypt, where the shard leaving the stone wakes
+        /// its keeper. He is still a conversation, not an ambush: the scene
+        /// that opens is the one they were always meant to have.
+        /// </summary>
+        private void BreakVigil()
+        {
+            if (vigilBroken || !built)
+            {
+                return;
+            }
+            if (DialogueStateManager.Current.IsSet("TSC_CantorRested")
+                || DialogueStateManager.Current.IsSet("TSC_CantorFought"))
+            {
+                vigilBroken = true; // already settled, nothing to defend
+                return;
+            }
+            NamedNpcDef cantorDef = DefDatabase<NamedNpcDef>.GetNamedSilentFail("TSC_Npc_Cantor");
+            Pawn cantor = cantorDef != null ? DialogueStateManager.Current.GetNamedNpcIfExists(cantorDef) : null;
+            if (cantor == null || cantor.Dead || !cantor.Spawned || cantor.Map != map)
+            {
+                vigilBroken = true; // no keeper left to object
+                return;
+            }
+            vigilBroken = true;
+            DialogueDef dialogue = DefDatabase<DialogueDef>.GetNamedSilentFail("TSC_Dialogue_Cantor");
+            Pawn thief = null;
+            float best = float.MaxValue;
+            foreach (Pawn colonist in map.mapPawns.FreeColonistsSpawned)
+            {
+                float dist = colonist.Position.DistanceTo(altarPos);
+                if (dist < best)
+                {
+                    best = dist;
+                    thief = colonist;
+                }
+            }
+            if (dialogue != null && thief != null)
+            {
+                Messages.Message("The singing stops.", cantor, MessageTypeDefOf.NeutralEvent, historical: false);
+                Find.WindowStack.Add(new Dialog_Conversation(dialogue, thief, cantor));
+            }
         }
 
         private void SpawnCantor(IntVec3 at)
@@ -718,6 +828,51 @@ namespace TheShatteredCrown
             {
                 LordMaker.MakeNewLord(cantor.Faction, new LordJob_DefendPoint(cell), map, Gen.YieldSingle(cantor));
             }
+            GiveShardToKeeper(cantor);
+        }
+
+        /// <summary>The shard goes into the keeper's coat, once, if neither of them already has it elsewhere.</summary>
+        private void GiveShardToKeeper(Pawn cantor)
+        {
+            ThingDef shardDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_CrownShard_Reliquary");
+            if (shardDef == null || cantor.inventory?.innerContainer == null)
+            {
+                return;
+            }
+            if (cantor.inventory.innerContainer.Contains(shardDef)
+                || map.listerThings.ThingsOfDef(shardDef).Count > 0)
+            {
+                return; // already placed (old floor, or regeneration)
+            }
+            cantor.inventory.innerContainer.TryAdd(ThingMaker.MakeThing(shardDef), false);
+        }
+
+        /// <summary>
+        /// The keeper falls, the shard falls with him - onto the stone where
+        /// everyone can see it, not buried in a corpse's pockets. Covers
+        /// every road: laid to rest, killed, or downed by plot armor.
+        /// </summary>
+        private void DropShardFrom(Pawn cantor)
+        {
+            ThingDef shardDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_CrownShard_Reliquary");
+            if (shardDef == null)
+            {
+                return;
+            }
+            ThingOwner pockets = cantor.inventory?.innerContainer
+                ?? cantor.Corpse?.InnerPawn?.inventory?.innerContainer;
+            if (pockets == null)
+            {
+                return;
+            }
+            for (int i = pockets.Count - 1; i >= 0; i--)
+            {
+                if (pockets[i].def == shardDef)
+                {
+                    IntVec3 cell = cantor.Corpse?.Position ?? cantor.PositionHeld;
+                    pockets.TryDrop(pockets[i], cell, map, ThingPlaceMode.Near, out Thing _);
+                }
+            }
         }
 
         /// <summary>
@@ -732,6 +887,50 @@ namespace TheShatteredCrown
                 return;
             }
             int now = Find.TickManager.TicksGame;
+            if (now % 60 == 0)
+            {
+                Pawn keeper = DialogueStateManager.Current.GetNamedNpcIfExists(
+                    DefDatabase<NamedNpcDef>.GetNamedSilentFail("TSC_Npc_Cantor"));
+                if (keeper != null)
+                {
+                    // The rested passing, made real: the scene SAYS the
+                    // vestments settle, so the pawn must actually fall. The
+                    // shard is set down first, clean on the stone.
+                    if (!keeper.Dead && keeper.Spawned && keeper.Map == map
+                        && DialogueStateManager.Current.IsSet("TSC_CantorRested"))
+                    {
+                        DropShardFrom(keeper);
+                        keeper.Kill(null);
+                    }
+                    // Any other fall (killed, or downed under plot armor):
+                    // the shard comes out of his coat onto the floor.
+                    else if ((keeper.Dead || keeper.Downed) && (keeper.MapHeld == map || keeper.Corpse?.Map == map))
+                    {
+                        DropShardFrom(keeper);
+                    }
+                }
+            }
+            // The vigil watch: a lifted shard is a lifted shard, however the
+            // order was given (right-click, caravan gather, exit manifest).
+            // Floors generated before the vigil existed have no stored ref:
+            // adopt the shard where it lies, so older saves get the scene too.
+            if (!vigilBroken && shard == null && now % 60 == 0)
+            {
+                ThingDef shardDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_CrownShard_Reliquary");
+                if (shardDef != null)
+                {
+                    List<Thing> lying = map.listerThings.ThingsOfDef(shardDef);
+                    if (lying.Count > 0)
+                    {
+                        shard = lying[0];
+                    }
+                }
+            }
+            if (!vigilBroken && shard != null && now % 60 == 0
+                && (!shard.Spawned || shard.Destroyed))
+            {
+                BreakVigil();
+            }
             if (nextSongTick < 0)
             {
                 nextSongTick = now + SongIntervalTicks;
@@ -765,6 +964,8 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref built, "built");
             Scribe_Values.Look(ref altarPos, "altarPos");
             Scribe_Values.Look(ref nextSongTick, "nextSongTick", -1);
+            Scribe_References.Look(ref shard, "shard");
+            Scribe_Values.Look(ref vigilBroken, "vigilBroken");
         }
     }
 }

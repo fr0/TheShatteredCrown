@@ -17,9 +17,20 @@
     <autoAccept>true</autoAccept>
   </QuestScriptDef>
 
+  <!-- The spine of the campaign. Everything the base does, plus: the log
+       keeps these. A dismissed main-chain entry is a player who no longer
+       knows where the story is, with no way to get the entry back, and the
+       Dismiss button sits one click away from Accept. Side quests and
+       contracts stay dismissable on purpose. -->
+  <QuestScriptDef Name="TSC_MainChainBase" ParentName="TSC_Act1Base" Abstract="True">
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_QuestChainExtension" />
+    </modExtensions>
+  </QuestScriptDef>
+
   <!-- ============ The Wayfarers' Camp ============ -->
 
-  <QuestScriptDef ParentName="TSC_Act1Base">
+  <QuestScriptDef ParentName="TSC_MainChainBase">
     <defName>TSC_Act1_Camp</defName>
     <questNameRules>
       <rulesStrings>
@@ -404,7 +415,7 @@
 
   <!-- ============ Act 1 main: the ettersnap ============ -->
 
-  <QuestScriptDef ParentName="TSC_Act1Base">
+  <QuestScriptDef ParentName="TSC_MainChainBase">
     <defName>TSC_Act1_Ettersnap</defName>
     <questNameRules>
       <rulesStrings>
@@ -552,6 +563,11 @@
        TSC_WickAtCrypt). Completes when the crown shard is in player hands. -->
   <QuestScriptDef>
     <defName>TSC_Act1_Crypt</defName>
+    <!-- Spine, but this one declares its own root fields rather than
+         inheriting TSC_MainChainBase; the marker is carried directly. -->
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_QuestChainExtension" />
+    </modExtensions>
     <defaultChallengeRating>2</defaultChallengeRating>
     <isRootSpecial>true</isRootSpecial>
     <questNameRules>

@@ -42,6 +42,15 @@ namespace TheShatteredCrown
         public ThingDef well;
 
         /// <summary>
+        /// Optional resident posted at the square instead of a house
+        /// (Thornden's Odo, who sits on the well kerb and sees everything
+        /// that happens there). Give them homebody on their NamedNpcDef: the
+        /// square IS their spot, and a witness who wanders is a witness the
+        /// player never finds.
+        /// </summary>
+        public NamedNpcDef squareResident;
+
+        /// <summary>
         /// Optional perimeter fence drawn around everything the village spawns
         /// (houses, yards, fields), with a gate at the middle of each side.
         /// People step over fences and animals do not, so this pens the
@@ -54,6 +63,8 @@ namespace TheShatteredCrown
         /// <summary>Open ground left between the outermost building or field and the fence line.</summary>
         public int fenceMargin = 4;
         public List<VillageBuilding> buildings = new List<VillageBuilding>();
+        /// <summary>The stock background villagers are cut from (fillerCount on each building).</summary>
+        public PawnKindDef fillerKind;
         /// <summary>
         /// Named residents around the inn, re-spawned on EVERY map generation -
         /// this is what repopulates a persistent site on revisit (quest spawn
@@ -182,8 +193,16 @@ namespace TheShatteredCrown
                 {
                     footprint.Add(CellRect.CenteredOn(pos, building.prefab.size.x, building.prefab.size.z));
                 }
+                // Persistent household: the count is rolled ONCE per site and
+                // the same folk come back every visit - new faces on every
+                // approach read as a village of strangers.
+                int fillers = TSC_FillerRegistry.Current?.HouseholdSize(map, i) ?? -1;
+                if (fillers < 0)
+                {
+                    fillers = building.fillerCount.RandomInRange;
+                }
                 List<Building_Bed> beds = SpawnBedsFor(map, faction, pos, building.prefab,
-                    (building.resident != null ? 1 : 0) + building.residents.Count,
+                    (building.resident != null ? 1 : 0) + building.residents.Count + fillers,
                     CountCouples(Gen.YieldSingle(building.resident), building.residents));
                 // Work spot: the farm's field, or the yard in front of the
                 // building (facing the square) for everyone else.
@@ -201,6 +220,7 @@ namespace TheShatteredCrown
                 {
                     AddIfSpawned(housePawns, SpawnResident(resident, faction, map, pos, building.prefab, workSpot));
                 }
+                SpawnFillerHousehold(map, faction, building, i, fillers, pos, building.prefab, workSpot, housePawns);
                 AssignBeds(housePawns, beds);
                 SpawnLivestock(map, faction, pos, building);
                 if (building.yardProp != null && building.prefab != null)
@@ -216,6 +236,11 @@ namespace TheShatteredCrown
                     }
                 }
             }
+
+            // The square's own fixture, after the buildings so nothing lands
+            // on top of them: no house, no bed, no errands. Home and work are
+            // both the well.
+            SpawnResident(squareResident, faction, map, center, null, center);
 
             // Fence last: the camp's ground-clearing would chew through a line
             // drawn before it, and the fence must read as enclosing what is
@@ -546,6 +571,79 @@ namespace TheShatteredCrown
         }
 
         /// <summary>
+        /// Background villagers: generated ONCE per site (TSC_FillerRegistry
+        /// remembers them by site + building) and re-spawned with the same
+        /// names and faces on every visit, on the same day/night routine as
+        /// the household they lodge with. The dead stay dead - a filler
+        /// killed in the square is a face missing next visit, not replaced.
+        /// No dialogue: their kind carries no DialogueExtension.
+        /// </summary>
+        private void SpawnFillerHousehold(Map map, Faction faction, VillageBuilding building,
+            int buildingIndex, int count, IntVec3 homePos, PrefabDef homePrefab,
+            IntVec3 workSpot, List<Pawn> housePawns)
+        {
+            if (faction == null || count <= 0)
+            {
+                return;
+            }
+            TSC_FillerRegistry registry = TSC_FillerRegistry.Current;
+            List<Pawn> household = registry?.GetHousehold(map, buildingIndex);
+            if (household == null)
+            {
+                household = new List<Pawn>();
+                PawnKindDef kind = fillerKind ?? DefDatabase<PawnKindDef>.GetNamedSilentFail("Villager");
+                if (kind == null)
+                {
+                    return;
+                }
+                for (int f = 0; f < count; f++)
+                {
+                    household.Add(PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                        kind, faction, PawnGenerationContext.NonPlayer,
+                        forceGenerateNewPawn: true, canGeneratePawnRelations: false)));
+                }
+                registry?.SetHousehold(map, buildingIndex, household);
+            }
+            IntVec3 indoors = InteriorCell(map, homePos, homePrefab);
+            foreach (Pawn pawn in household)
+            {
+                if (pawn == null || pawn.Dead || pawn.Destroyed || pawn.Spawned
+                    || pawn.Faction == Faction.OfPlayer)
+                {
+                    continue;
+                }
+                if (pawn.IsWorldPawn())
+                {
+                    Find.WorldPawns.RemovePawn(pawn);
+                }
+                IntVec3 cell = CellFinder.RandomClosewalkCellNear(homePos, map, 5);
+                GenSpawn.Spawn(pawn, cell, map);
+                pawn.Drawer?.renderer?.SetAllGraphicsDirty();
+                LordMaker.MakeNewLord(pawn.Faction ?? faction, new LordJob_TSC_Villager(indoors, workSpot, false),
+                    map, Gen.YieldSingle(pawn));
+                if (pawn.inventory != null)
+                {
+                    bool hasFood = false;
+                    foreach (Thing thing in pawn.inventory.innerContainer)
+                    {
+                        if (thing.def.IsNutritionGivingIngestible)
+                        {
+                            hasFood = true;
+                            break;
+                        }
+                    }
+                    if (!hasFood)
+                    {
+                        Thing pemmican = ThingMaker.MakeThing(ThingDefOf.Pemmican);
+                        pemmican.stackCount = 10;
+                        pawn.inventory.innerContainer.TryAdd(pemmican, false);
+                    }
+                }
+                AddIfSpawned(housePawns, pawn);
+            }
+        }
+
+        /// <summary>
         /// Clears an owner's bonds to companion animals that are no longer in
         /// play. Owners persist between visits but their pet is generated
         /// fresh each time, so without this the bond list grows by one retired
@@ -827,12 +925,111 @@ namespace TheShatteredCrown
         }
     }
 
+    /// <summary>
+    /// Remembers each village's background households (site + building ->
+    /// the same pawns, every visit), the same way named NPCs persist: hard
+    /// references scribed by Reference, with off-map pawns kept alive as
+    /// KeepForever world pawns so world-pawn GC never eats a face between
+    /// visits. Dead pawns are pruned on read and never replaced.
+    /// </summary>
+    public class TSC_FillerRegistry : RimWorld.Planet.WorldComponent
+    {
+        private Dictionary<string, TSC_FillerHousehold> households = new Dictionary<string, TSC_FillerHousehold>();
+
+        public TSC_FillerRegistry(RimWorld.Planet.World world) : base(world)
+        {
+        }
+
+        public static TSC_FillerRegistry Current => Find.World.GetComponent<TSC_FillerRegistry>();
+
+        private static string KeyFor(Map map, int buildingIndex) =>
+            $"{map.Parent?.ID ?? -1}_{buildingIndex}";
+
+        public int HouseholdSize(Map map, int buildingIndex)
+        {
+            List<Pawn> household = GetHousehold(map, buildingIndex);
+            return household?.Count ?? -1;
+        }
+
+        public List<Pawn> GetHousehold(Map map, int buildingIndex)
+        {
+            if (!households.TryGetValue(KeyFor(map, buildingIndex), out TSC_FillerHousehold household))
+            {
+                return null;
+            }
+            household.pawns.RemoveAll(p => p == null || p.Dead || p.Destroyed);
+            return household.pawns;
+        }
+
+        public void SetHousehold(Map map, int buildingIndex, List<Pawn> pawns)
+        {
+            households[KeyFor(map, buildingIndex)] = new TSC_FillerHousehold { pawns = pawns };
+        }
+
+        public override void WorldComponentTick()
+        {
+            base.WorldComponentTick();
+            if (Find.TickManager.TicksGame % 250 != 0)
+            {
+                return;
+            }
+            // Keep-alive sweep: an off-map filler must be a KeepForever world
+            // pawn or the GC treats them as an unimportant stranger.
+            foreach (TSC_FillerHousehold household in households.Values)
+            {
+                foreach (Pawn pawn in household.pawns)
+                {
+                    if (pawn != null && !pawn.Dead && !pawn.Destroyed && !pawn.Spawned
+                        && !Find.WorldPawns.Contains(pawn))
+                    {
+                        Find.WorldPawns.PassToWorld(pawn, RimWorld.Planet.PawnDiscardDecideMode.KeepForever);
+                    }
+                }
+            }
+        }
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Collections.Look(ref households, "households", LookMode.Value, LookMode.Deep);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && households == null)
+            {
+                households = new Dictionary<string, TSC_FillerHousehold>();
+            }
+        }
+    }
+
+    public class TSC_FillerHousehold : IExposable
+    {
+        public List<Pawn> pawns = new List<Pawn>();
+
+        public void ExposeData()
+        {
+            Scribe_Collections.Look(ref pawns, "pawns", LookMode.Reference);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                if (pawns == null)
+                {
+                    pawns = new List<Pawn>();
+                }
+                pawns.RemoveAll(p => p == null);
+            }
+        }
+    }
+
     public class VillageBuilding
     {
         public PrefabDef prefab;
         public NamedNpcDef resident;
         /// <summary>Whole households (the farm families): all spawn at this building and share its routine.</summary>
         public List<NamedNpcDef> residents = new List<NamedNpcDef>();
+        /// <summary>
+        /// Background villagers at this building: randomly generated, no
+        /// dialogue, re-rolled each visit. They share the household's beds,
+        /// routine and food, and exist so a village with a reeve and a
+        /// smith also has people worth reeving and smithing FOR.
+        /// </summary>
+        public IntRange fillerCount = IntRange.Zero;
         /// <summary>Lay a worked potato field south of the building; residents work it by day.</summary>
         public bool cropField;
         /// <summary>Yard animals kept at this building (chickens, the goat) - tame, villager faction, wandering the yard.</summary>

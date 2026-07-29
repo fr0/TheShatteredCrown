@@ -196,6 +196,22 @@ namespace TheShatteredCrown
             ap[p] = Mathf.Max(0f, ApOf(p) - cost);
         }
 
+        /// <summary>
+        /// Hand a combatant AP mid-turn (ability effects like Charge's
+        /// surge). Deliberately uncapped: the refund lands around the cast's
+        /// own AP charge in comp order, so clamping to the pool ceiling
+        /// would silently eat the offset when cast at full AP.
+        /// </summary>
+        public void GrantAp(Pawn p, float amount)
+        {
+            if (!active || amount <= 0f || !combatants.Contains(p))
+            {
+                return;
+            }
+            ap[p] = ApOf(p) + amount;
+            AddLog($"{p.LabelShortCap} surges: +{amount:0.#} AP.", LogWorldColor);
+        }
+
         public bool TrySpendAp(Pawn p, float cost)
         {
             if (!CanAffordAp(p, cost))
@@ -471,13 +487,25 @@ namespace TheShatteredCrown
             // turn-based mode from across the map to watch a pod of five
             // advance on somebody else, through doors they had not opened.
             Thing target = p.mindState?.enemyTarget;
-            if (target != null && target.Faction == Faction.OfPlayer)
+            if (target != null && target.Faction == Faction.OfPlayer && !TargetIsHidden(target, m))
             {
                 return true;
             }
             List<Pawn> colonists = m.mapPawns.FreeColonistsSpawned;
             for (int i = 0; i < colonists.Count; i++)
             {
+                // A sneaking pawn never trips the fight by proximity: the
+                // whole point of an approach is walking past a picket line.
+                // Their notice range still shrinks with gear, light and
+                // woodcraft (TSC_Stealth) - and the moment an enemy DOES
+                // see one, stealth breaks, they stop being skipped here,
+                // and turn-based engages on the very next check. So combat
+                // starts when somebody is spotted, not when somebody is
+                // merely near.
+                if (TSC_StealthTracker.IsSneaking(colonists[i]))
+                {
+                    continue;
+                }
                 if (p.Position.InHorDistOf(colonists[i].Position, EngageRadius)
                     && GenSight.LineOfSight(p.Position, colonists[i].Position, m, skipFirstCell: true))
                 {
@@ -487,7 +515,54 @@ namespace TheShatteredCrown
             return false;
         }
 
-        private static bool AnyEngagedHostileOn(Map m)
+        /// <summary>
+        /// Does this hostile's player-faction target still count as "the
+        /// party is engaged"?
+        ///
+        /// Two ways it does not. A SNEAKING colonist: if the enemy had truly
+        /// seen them, stealth would already have broken, so a lingering
+        /// target on a hidden pawn is stale. And the party's ANIMALS while
+        /// every colonist sneaks: a bonded raven walks at its owner's heel
+        /// and cannot be told to hide, and an enemy noticing the bird is not
+        /// the party being spotted. (Seen live: the whole company sneaking,
+        /// and Corvus started the fight.) The animal can still be attacked
+        /// in real time, which is answer enough.
+        /// </summary>
+        private static bool TargetIsHidden(Thing target, Map m)
+        {
+            if (!(target is Pawn targetPawn))
+            {
+                return false;
+            }
+            if (TSC_StealthTracker.IsSneaking(targetPawn))
+            {
+                return true;
+            }
+            if (targetPawn.RaceProps != null && !targetPawn.RaceProps.Humanlike)
+            {
+                return EveryColonistSneaking(m);
+            }
+            return false;
+        }
+
+        private static bool EveryColonistSneaking(Map m)
+        {
+            List<Pawn> colonists = m.mapPawns.FreeColonistsSpawned;
+            if (colonists.Count == 0)
+            {
+                return false;
+            }
+            for (int i = 0; i < colonists.Count; i++)
+            {
+                if (!TSC_StealthTracker.IsSneaking(colonists[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static bool AnyEngagedHostileOn(Map m)
         {
             if (m == null)
             {
@@ -1708,6 +1783,27 @@ namespace TheShatteredCrown
             // than fixed, because "one cell" is ~13 ticks for a healthy human
             // and far longer for something slow or crippled; a flat threshold
             // would cut those off mid-stride.
+            // Burning enemies get the same answer the party has: the roll,
+            // at the same price. Without this a torched enemy spent its turn
+            // attacking while it cooked - which read as stupidity, and made
+            // fire strictly better against AI than against players. Priced
+            // and started exactly like the player gizmo (forced start:
+            // vanilla refuses orders while HasAttachment(Fire)).
+            if (!p.IsColonistPlayerControlled && !midSwing && !aiming
+                && p.CurJobDef != TSC_DefOf.TSC_BeatFlames
+                && p.HasAttachment(ThingDefOf.Fire) && ApOf(p) >= 2f)
+            {
+                p.jobs?.ClearQueuedJobs();
+                Job roll = JobMaker.MakeJob(TSC_DefOf.TSC_BeatFlames, p);
+                p.jobs?.StartJob(roll, JobCondition.InterruptForced,
+                    null, resumeCurJobAfterwards: false, cancelBusyStances: true);
+                if (p.CurJobDef == TSC_DefOf.TSC_BeatFlames)
+                {
+                    SpendAp(p, 2f);
+                    AddLog($"{p.LabelShortCap} rolls out the flames (2 AP).", LogHostileColor);
+                    return; // the roll IS this slice of the turn
+                }
+            }
             if (!p.IsColonistPlayerControlled && !midSwing && !aiming
                 && p.pather != null && p.pather.Moving)
             {
@@ -2991,6 +3087,54 @@ namespace TheShatteredCrown
             {
                 yield break;
             }
+            TSC_StealthTracker stealth = TSC_StealthTracker.Current;
+            if (stealth != null && __instance.Drafted)
+            {
+                bool sneaking = stealth.Sneaking(__instance);
+                // Once the fight is properly joined (turn-based engaged, not
+                // the approach phase) you cannot START sneaking: stealth is
+                // the approach, and vanishing mid-melee is not a thing the
+                // rest of these rules would survive. Dropping it stays legal.
+                TSC_EncounterController battleCtrl = TSC_EncounterController.Current;
+                bool battleJoined = battleCtrl != null && battleCtrl.Active
+                    && !battleCtrl.ApproachMode && battleCtrl.ActiveOn(__instance.Map);
+                Command_Toggle sneakToggle = new Command_Toggle
+                {
+                    defaultLabel = sneaking ? "Sneaking" : "Sneak",
+                    defaultDesc = "Move at half speed, and cut the distance at which enemies notice this pawn "
+                        + "(and the distance that triggers turn-based combat).\n\n"
+                        + $"Gear: {TSC_StealthTracker.BurdenLabel(__instance)}, in {TSC_StealthTracker.LightLabel(__instance)} - noticed at "
+                        + $"{TSC_StealthTracker.SightFactorFor(__instance).ToStringPercent()} of normal range. "
+                        + "Heavy armour clanks; darkness hides.\n\n"
+                        + "Being seen up close, taking a hit, or attacking ends it.\n\n"
+                        + "Toggles every selected pawn at once.",
+                    // The same hood the sneaking pawns wear, so button and
+                    // in-world mark read as one thing.
+                    icon = ContentFinder<Texture2D>.Get("UI/TSC_Abilities/TSC_SneakHood", false)
+                        ?? BaseContent.BadTex,
+                    isActive = () => sneaking,
+                    toggleAction = () =>
+                    {
+                        // The whole selection moves together: a party sneaks
+                        // as a party, and toggling five pawns one at a time
+                        // is exactly the clicking this mod keeps removing.
+                        bool target = !sneaking;
+                        foreach (object obj in Find.Selector.SelectedObjectsListForReading)
+                        {
+                            if (obj is Pawn selected && selected.IsColonistPlayerControlled)
+                            {
+                                stealth.Set(selected, target);
+                            }
+                        }
+                        stealth.Set(__instance, target);
+                    },
+                };
+                if (battleJoined && !sneaking)
+                {
+                    sneakToggle.Disable("The fight is joined: there is nowhere left to hide.");
+                }
+                yield return sneakToggle;
+            }
             TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null)
             {
@@ -4096,6 +4240,10 @@ namespace TheShatteredCrown
             else if (ctrl.Active && __state.caster == ctrl.ActivePawn)
             {
                 ctrl.SpendAp(__state.caster, __state.cost);
+                // Charge's surge: refunded in the same instant it is charged,
+                // so the offset cannot be lost to a turn boundary while the
+                // ability is still warming up.
+                ctrl.GrantAp(__state.caster, CompAbilityEffect_TSC_GrantAp.AmountOn(__instance));
                 if (__state.caster.IsColonistPlayerControlled)
                 {
                     ctrl.NoteAttackCharged(__state.caster);
@@ -4157,16 +4305,28 @@ namespace TheShatteredCrown
             return null;
         }
 
-        public static IEnumerable<System.Reflection.MethodBase> TargetMethods()
+        // Cached + gated: Harmony treats an EMPTY TargetMethods as fatal and
+        // aborts every patch in this assembly, so a renamed vanilla method
+        // must degrade to "stagger works the vanilla way", never to "the mod
+        // does not load".
+        private static readonly List<System.Reflection.MethodBase> Targets = FindTargets();
+
+        private static List<System.Reflection.MethodBase> FindTargets()
         {
+            List<System.Reflection.MethodBase> found = new List<System.Reflection.MethodBase>();
             foreach (System.Reflection.MethodInfo method in AccessTools.GetDeclaredMethods(typeof(StaggerHandler)))
             {
                 if (method.Name == nameof(StaggerHandler.StaggerFor))
                 {
-                    yield return method;
+                    found.Add(method);
                 }
             }
+            return found;
         }
+
+        public static bool Prepare() => Targets.Count > 0;
+
+        public static IEnumerable<System.Reflection.MethodBase> TargetMethods() => Targets;
 
         public static void Postfix(StaggerHandler __instance)
         {

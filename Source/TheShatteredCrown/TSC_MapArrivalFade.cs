@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
@@ -49,6 +51,7 @@ namespace TheShatteredCrown
                 if (Find.TickManager.Paused)
                 {
                     DrawBlack(1f);
+                    DrawUnpauseHint();
                     return;
                 }
                 shownAt = Time.realtimeSinceStartup;
@@ -63,6 +66,36 @@ namespace TheShatteredCrown
                 return;
             }
             DrawBlack(alpha);
+        }
+
+        /// <summary>How far below the colonist bar the hint sits: clear of the bar, well up the empty black.</summary>
+        private const float HintDrop = 200f;
+
+        /// <summary>
+        /// The black hold ends when the game runs, so a paused arrival looks
+        /// like a hung screen until the player works that out. Say so, below
+        /// the colonist bar (which is itself under the black).
+        /// </summary>
+        private static void DrawUnpauseHint()
+        {
+            float topY = 8f;
+            ColonistBar bar = Find.ColonistBar;
+            if (bar != null && bar.DrawLocs.Count > 0)
+            {
+                float barBottom = 0f;
+                List<Vector2> drawLocs = bar.DrawLocs;
+                for (int i = 0; i < drawLocs.Count; i++)
+                {
+                    barBottom = Mathf.Max(barBottom, drawLocs[i].y);
+                }
+                topY = barBottom + bar.Size.y + 26f;
+            }
+            GUI.color = Color.white;
+            Text.Font = GameFont.Medium;
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Widgets.Label(new Rect(UI.screenWidth / 2f - 250f, topY + HintDrop, 500f, 40f), "Unpause to continue");
+            Text.Anchor = TextAnchor.UpperLeft;
+            Text.Font = GameFont.Small;
         }
 
         private static void DrawBlack(float alpha)

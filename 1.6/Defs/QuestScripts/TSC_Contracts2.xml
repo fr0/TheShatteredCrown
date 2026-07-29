@@ -177,7 +177,11 @@
           <worldObjects>$site</worldObjects>
         </li>
 
-        <li Class="QuestNode_Signal">
+        <!-- Guarded fail: leaving with the rider IN THE CARAVAN is a rescue
+             mid-completion, not abandonment - the detector finishes moments
+             later. Only a departure WITHOUT the rider lapses the contract. -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_FailUnlessPawnAcquired">
+          <kind>Villager</kind>
           <inSignal>site.Destroyed</inSignal>
           <node Class="QuestNode_Sequence">
             <nodes>

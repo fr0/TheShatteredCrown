@@ -1,5 +1,7 @@
 # Maewyn Ashvale - druid of the deep hills (Act 1 sidequest). Sends the guild
 # message; recruitable companion.
+# VOICE: terse. A woman of few words who keeps her thoughts to herself. Her
+# lines run short; the narration, the raven, and her pauses do the talking.
 # Compile with:  scripts\Compile-Dialogue.ps1
 
 dialogue TSC_Dialogue_Maewyn
@@ -10,7 +12,9 @@ entry sent if flag(TSC_MaewynSent)
 == start ==
 The cottage door opens before you knock. The woman in it has grey-green eyes, a raven on her shoulder, and the expression of someone who knew you were coming but is still unimpressed.
 
-"Boots on my moss. Steel on your hip. And the smell of the guild's ink about you." The raven clicks its beak. "Well. The wind said someone was coming. Speak your business, rider, and mind the beds."
+She looks at your boots. At your sword. At the guild's ink stains on your cuff. The raven clicks its beak.
+
+"Business, rider. Mind the beds."
 
 * "Serra Voss's company needs a message carried to the Wayfarers' Guild." -> message
 * "Your bees are wintering early. That's a hard-cold sign, this far from frost." -> bees
@@ -21,33 +25,37 @@ The cottage door opens before you knock. The woman in it has grey-green eyes, a 
 == bees ==
 Maewyn stops. Actually stops, hand on the doorframe, and looks at you properly for the first time.
 
-"...They are. Six weeks early, and the hills won't say why." Her shoulders ease. "A rider who reads bees. Well. Come in, then, properly, and wipe your boots. Whatever your business is, it just got easier to hear."
+"...They are. Six weeks early." A long pause, in which something is decided. She steps back from the door.
+
+"Come in. Wipe your boots."
 
 * "The business is a message for the guild." -> message
     do flag(TSC_MaewynBees); grant_xp(25); affinity(+5)
 
 == bees_miss ==
-Maewyn follows your gesture to the hives and snorts.
+Maewyn follows your gesture to the hives. Snorts.
 
-"That's not wintering, rider, that's *sulking*. I moved their south board on Tuesday. Kind of you to notice bees exist, though. Most of your sort only notice the honey."
+"Sulking, not wintering. I moved their south board Tuesday."
+
+That appears to be the whole conversation.
 
 * "Then I'll get to my business: a message for the guild." -> message
 
 == hills ==
-"The hills talk, if you've the patience to be quiet longer than they are. Eight weeks they've muttered about the crownhunters in the pass, and three days about the new rider poking the old places awake."
+"The hills talk. I listen."
 
-She steps back from the door, which is as close to an invitation as you suspect she gives.
+She studies you a moment, then steps back from the door, which you suspect is as close to an invitation as she gives.
 
-"You're the rider. So: the crownhunters finally need something. Out with it."
+"You're the rider they've been muttering about. Out with it."
 
 * "A message to the guild. They lost their raven." -> message
 
 == message ==
-"Lost their raven." The one on her shoulder clicks its beak, and Maewyn's mouth twitches; on anyone else it would be a smile. "Corvus heard. He's insufferable about hawks."
+"Lost their raven." The one on her shoulder clicks its beak, and Maewyn's mouth twitches; on anyone else it would be a smile.
 
-She considers you for a long, unhurried moment.
+She considers you for a long, unhurried moment. You get the sense of a great deal being thought and none of it being said.
 
-"I'll send your message, rider. Not for the guild (guilds are just villages that learned to walk) but because Serra Voss once turned her whole company sideways to keep a fire off my grove, and debts between neighbors matter."
+"Not for the guild. For Serra. Debts matter."
 
 She holds out a hand for the letter.
 
@@ -58,11 +66,11 @@ She holds out a hand for the letter.
 == agreed ==
 Maewyn signals a nearby raven, ties the message with a strip of bark-cord, murmurs something to the raven that is definitely not any language you know, and casts it into the sky.
 
-"Done. My birds fly faster than any rider; the guild will read it inside a week."
+"Inside a week."
 
-She watches the bird shrink to a speck.
+She watches the bird shrink to a speck. Just when you decide she has finished with you:
 
-"If you'd take some advice: when the ettersnap speaks, listen to what it *doesn't* say."
+"The ettersnap. When it speaks - listen to what it doesn't say."
 
 * "How did you know about the ettersnap?" -> ettersnap
     do flag(TSC_MaewynSent); signal(TSC_Side_Druid, TSC_MessageSent)
@@ -73,7 +81,9 @@ She watches the bird shrink to a speck.
 
 == ettersnap ==
 
-"My birds are smarter than they look, and they watch and listen."
+"My birds watch."
+
+Nothing further is offered.
 
 * "Come with me. We could use your help." -> recruit
 * "Thank you, Maewyn. I'll leave you to your bees and birds." -> end
@@ -81,7 +91,11 @@ She watches the bird shrink to a speck.
 == lonely ==
 The raven goes very still. So does Maewyn.
 
-"...The hills talk," she says at last, quieter. "But they don't *answer*. You've a sharp eye, rider." She takes the letter from your hand without ceremony. "I'll send your message. And I'll think about the other thing you didn't quite ask."
+"...The hills talk," she says at last, quieter. "They don't answer."
+
+She takes the letter from your hand without ceremony, and does not look at you.
+
+"I'll send it. And I'll think on the other thing."
 
 * "Then ask it plainly I shall: ride with me, Maewyn." -> recruit
     do flag(TSC_MaewynSent); signal(TSC_Side_Druid, TSC_MessageSent); affinity(+5)
@@ -89,9 +103,13 @@ The raven goes very still. So does Maewyn.
     do flag(TSC_MaewynSent); signal(TSC_Side_Druid, TSC_MessageSent); affinity(+5)
 
 == recruit ==
-Maewyn looks at her grove (the beds, the hives, the mossy quiet) for a long moment.
+Maewyn looks at her grove - the beds, the hives, the mossy quiet - for a long moment. Thirty years of keeping, weighed in silence.
 
-"Thirty years I've kept this hollow. The hills will keep it thirty more without me." She whistles; the second raven drops from the eaves to her shoulder. "Very well, rider. The grove-cat hunts for herself, the bees answer to nobody, and I... apparently answer to you. Try to deserve it."
+"The hills can hold it a while."
+
+She whistles; the second raven drops from the eaves to her shoulder.
+
+"Try to deserve it."
 
 * "Welcome to the company, Maewyn." -> welcomed
     do join_party(); affinity(+5)
@@ -100,22 +118,28 @@ Maewyn looks at her grove (the beds, the hives, the mossy quiet) for a long mome
 == welcomed ==
 She pulls the door shut behind her without locking it and falls in beside you.
 
-"Now. Tell me about this hunt of Serra's."
+"Serra's hunt. Tell me. Walking's for talking."
+
+It is the most words you will get out of her at once for some time.
 
 * "This way, Maewyn."
 
 == sent ==
-Maewyn is in her garden, unsurprised as ever.
+Maewyn is in her garden, unsurprised as ever. She doesn't stop working.
 
-"The raven is away with your message, rider. Was there something else? Or has the road finally taught you to visit without wanting?"
+"Message flew. Something else?"
 
 * "The offer stands: ride with me." -> recruit
 * "Just passing. Peace on your grove." -> end
 
 == joined ==
-Maewyn is watching the horizon the way other people read.
+Maewyn is watching the horizon the way other people read. She speaks without turning.
 
-"The hills are quieter here. I don't trust it. What do you need, rider?"
+"Too quiet here. Don't trust it."
+
+A beat.
+
+"What?"
 
 * "I wouldn't mind learning a thing or two from you." -> druid_teaching
     if not flag(TSC_MaewynTaught)
@@ -128,7 +152,11 @@ Maewyn is watching the horizon the way other people read.
 == cellar_caught ==
 Maewyn doesn't look at you. Corvus does, unblinking.
 
-"Thirty years, rider. That lock has kept out storms, wolves, and two kings' tax collectors. It couldn't keep out my own company." She lets the silence do its work. "The book you may keep; knowledge should be shared - you could've just asked. The trust will take longer to restock than the shelf."
+"Thirty years, that lock."
+
+She lets the silence do the rest of the accusing. It is very good at it.
+
+"Keep the book. You could have asked."
 
 * "It won't happen again, Maewyn." -> end
     do flag(TSC_MaewynCellarAired)
@@ -138,15 +166,21 @@ Maewyn doesn't look at you. Corvus does, unblinking.
 == grove_talk ==
 Maewyn is quiet long enough that you think she won't answer.
 
-"The grove-cat has the run of it. The bees will sulk and thrive. And the door isn't locked, because a locked door in the hills is a dare." Corvus shifts on her shoulder. "It fares, rider. Thank you for asking, which nobody does."
+"The cat has the run of it. The bees will sulk and thrive. Door's not locked - a locked door in the hills is a dare."
+
+Corvus shifts on her shoulder. When she speaks again it is nearly too quiet to catch.
+
+"Thank you for asking. Nobody does."
 
 * "We'll walk you back someday, Maewyn." -> end
     do flag(TSC_MaewynGroveTalk); grant_xp(10)
 
 == druid_teaching ==
-"I'm glad you realized I have something to teach." She settles onto a stone as if she'd picked it out an hour ago. "Good. Sit. The first lesson is sitting."
+She looks at you a moment, then settles onto a stone as if she'd picked it out an hour ago.
 
-That evening, and for several after, she teaches: how to sit until the birds forget you; which silences mean weather and which mean wolves; what the green things say under the soil, and what they'll say to you.
+"Sit. First lesson is sitting."
+
+That evening, and for several after, she teaches - mostly without words: how to sit until the birds forget you; which silences mean weather and which mean wolves; what the green things say under the soil, and what they'll say to you.
 
 * [Learn the Druid's way] "I hear it now. Faintly." -> end
     if not flag(TSC_MaewynTaught)

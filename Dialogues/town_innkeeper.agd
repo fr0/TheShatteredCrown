@@ -1,0 +1,25 @@
+# The innkeeper: one per friendly settlement, behind the counter in the
+# stamped tavern. Sells the company a night off (Window_TSC_Tavern).
+
+dialogue TSC_Dialogue_TownInnkeeper
+
+== start ==
+The innkeeper is drying a tankard with a cloth that has seen better decades, and sizes up your company the way innkeepers do: how many, how armed, how likely to pay.
+
+"Room by the fire, food that's hot, and drink that's honest. You lot look like you've been sleeping on stones and eating off them."
+
+* "What does a night cost?" -> price
+* "Set out the benches." -> end
+    do tavern_round()
+* "Some other night." -> end
+
+== price ==
+"Per head, and worth it." She sets the tankard down. "Hot food, a bench, and enough noise in here that nobody has to listen to themselves think. They'll walk out tomorrow lighter than they walked in."
+
+She looks at the ones standing furthest back.
+
+"Mind, it's a tavern, not a temple. Whatever's really eating a person will still be there in the morning. Anyone who tells you a night's drinking fixes that is selling you the drink."
+
+* "Set out the benches." -> end
+    do tavern_round()
+* "Another time." -> end

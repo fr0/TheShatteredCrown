@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Act 3: the Iron Brand. A bandit company grown fat behind stolen
+       walls, with the third crown shard buried in their hoard. Opened by
+       the second shard rush (TSC_ShardTracker fires shard_rush2.agd when
+       both shards first ride together); the quest is TSC_Act3_IronBrand
+       in QuestScripts/TSC_Act3_Quests.xml.
+       ================================================================ -->
+
+  <!-- The third shard. Same indestructibility contract as its kin: the
+       campaign's spine runs through five of these. Its unique power is
+       still sleeping - the extension marks it as a crown shard (drop
+       guard, Kingsblade count) with no ability named yet. -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_CrownShard_Hoard</defName>
+    <label>crown shard of the hoard</label>
+    <description>A broken fifth of a king's crown: a jawline of band and one snapped point, dulled by tallow smoke and other men's fingers. It spent a bandit generation at the bottom of a treasure pile, unrecognized. It is heavier than gold should be. One of five.\n\nIts gift has not yet spoken.</description>
+    <graphicData>
+      <texPath>Things/Item/TSC_CrownShard</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.9</drawSize>
+    </graphicData>
+    <techLevel>Medieval</techLevel>
+    <stackLimit>1</stackLimit>
+    <useHitPoints>false</useHitPoints>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <tradeability>None</tradeability>
+    <smeltable>false</smeltable>
+    <burnableByRecipe>false</burnableByRecipe>
+    <destroyOnDrop>false</destroyOnDrop>
+    <statBases>
+      <Mass>1.5</Mass>
+      <MarketValue>2500</MarketValue>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_ShardAbilityExtension" />
+    </modExtensions>
+  </ThingDef>
+
+  <!-- The Baron: the Iron Brand's lord, posted on his hoard with his
+       bodyguard (GenStep_TSC_IronBrandHoard). Heavy melee, the best steel
+       banditry buys. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_IronBrandBaron</defName>
+    <label>the Bandit Baron</label>
+    <combatPower>220</combatPower>
+    <itemQuality>Excellent</itemQuality>
+    <isFighter>true</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeAdvanced</li>
+    </weaponTags>
+    <weaponMoney>500~800</weaponMoney>
+  </PawnKindDef>
+
+  <!-- The keep site. -->
+  <SitePartDef>
+    <defName>TSC_IronBrandKeep</defName>
+    <label>Iron Brand keep</label>
+    <description>A keep of the old kingdom on a hard hill, held by the Iron Brand: a bandit company grown fat enough to fly banners. The walls are patched but the gate is iron, and the garrison has good steel. Somewhere under their hoard lies what the shards showed.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteKeep</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteKeep</expandingIconTexture>
+    <approachOrderString>Assault {0}</approachOrderString>
+    <approachingReportString>Approaching {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>300</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_IronBrandKeep</li>
+    </tags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Act3_IronBrand</whileQuestActive>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <!-- The keep itself: ONE structure at the map's heart, not vanilla's
+       scattered ruin regions (GenStep_AncientRuins drops several
+       disconnected fragments around the map, which is why this used to read
+       as a generic ruin instead of somebody's seat). -->
+  <GenStepDef>
+    <defName>TSC_IronBrandKeep_Structure</defName>
+    <linkWithSite>TSC_IronBrandKeep</linkWithSite>
+    <order>470</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Layout">
+      <layoutDef>TSC_KeepCastle</layoutDef>
+      <size>44</size>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The curtain wall around it: towers, one iron gate, a flagstone yard,
+       and a few stretches that fell and were never rebuilt. -->
+  <GenStepDef>
+    <defName>TSC_IronBrandKeep_Curtain</defName>
+    <linkWithSite>TSC_IronBrandKeep</linkWithSite>
+    <order>472</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Curtain" />
+  </GenStepDef>
+
+  <!-- The vault: Baron, bodyguard, hoard, and the shard, in the deepest
+       room the layout built. Runs before the garrison so the wall guards
+       never soak up the vault cells. -->
+  <GenStepDef>
+    <defName>TSC_IronBrandKeep_Hoard</defName>
+    <linkWithSite>TSC_IronBrandKeep</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_IronBrandHoard" />
+  </GenStepDef>
+
+  <!-- The garrison: the walls are manned. Scaled to the party like every
+       held site; the hexer is the Brand's pet reader of stolen books. -->
+  <GenStepDef>
+    <defName>TSC_IronBrandKeep_Garrison</defName>
+    <linkWithSite>TSC_IronBrandKeep</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>6~8</count>
+      <scaledClamp>4~12</scaledClamp>
+      <kinds>
+        <li>TSC_Bandit_Brigand</li>
+        <li>TSC_Bandit_Archer</li>
+        <li>TSC_BanditHexer</li>
+      </kinds>
+    </genStep>
+  </GenStepDef>
+
+
+  <!-- ================================================================
+       Act 3 lead-in content: Madoc, Thornden, the Brand outpost.
+       Quest chain in QuestScripts/TSC_Act3_Quests.xml.
+       ================================================================ -->
+
+  <!-- Madoc Emberlow: the sorcerer at the fire on the road. Joinable. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Companion_Madoc</defName>
+    <label>sorcerer</label>
+    <combatPower>90</combatPower>
+    <isFighter>false</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Madoc</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Madoc</defName>
+    <label>Madoc Emberlow</label>
+    <description>A sorcerer met at a campfire on the road to the Iron Brand keep, keeping counsel with two companions who no longer answer. Mad as a spring hare, friendly as a dog, and better with fire than anyone sane.</description>
+    <firstName>Madoc</firstName>
+    <lastName>Emberlow</lastName>
+    <kind>TSC_Companion_Madoc</kind>
+    <gender>Male</gender>
+    <classDef>TSC_Class_Sorcerer</classDef>
+    <startingLevel>3</startingLevel>
+    <plotArmor>true</plotArmor>
+    <combatBarks>
+      <li>The fire says hello!</li>
+      <li>Singing helps! It keeps the fire company!</li>
+      <li>Hew thinks this is too loud! Hew is RIGHT!</li>
+      <li>Not that one, that one is MINE!</li>
+      <li>Burning is a CONVERSATION!</li>
+      <li>Gille would have smelled this coming!</li>
+      <li>The fire is VERY excited!</li>
+      <li>You would burn beautifully, but not today!</li>
+      <li>Hew says duck! I never argue with Hew!</li>
+      <li>Ash is only applause that settled!</li>
+    </combatBarks>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <!-- The tribute collector: the Brand's polite face in Thornden square. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Brand_Collector</defName>
+    <label>Brand collector</label>
+    <combatPower>90</combatPower>
+    <itemQuality>Good</itemQuality>
+    <isFighter>true</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeAdvanced</li>
+    </weaponTags>
+    <weaponMoney>250~450</weaponMoney>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_BrandCollectors</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <!-- Thornden's residents -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Hedda</defName>
+    <label>reeve</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Hedda</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Garrick</defName>
+    <label>smith</label>
+    <combatPower>40</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Garrick</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Hedda</defName>
+    <label>Hedda Rill</label>
+    <description>Reeve of Thornden, keeper of a ledger the Iron Brand fills faster than the harvest does.</description>
+    <firstName>Hedda</firstName>
+    <lastName>Rill</lastName>
+    <kind>TSC_Villager_Hedda</kind>
+    <gender>Female</gender>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Garrick</defName>
+    <label>Garrick Coalhand</label>
+    <description>Thornden's smith. The Iron Brand holds his son Bry as surety for the village's tribute.</description>
+    <firstName>Garrick</firstName>
+    <lastName>Coalhand</lastName>
+    <kind>TSC_Villager_Garrick</kind>
+    <gender>Male</gender>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Odo</defName>
+    <label>old man</label>
+    <combatPower>15</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Odo</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Odo</defName>
+    <label>Odo Larkin</label>
+    <description>The old man on the kerb of Thornden's well. He has watched every tribute day for five years on the grounds that somebody ought to.</description>
+    <firstName>Odo</firstName>
+    <lastName>Larkin</lastName>
+    <kind>TSC_Villager_Odo</kind>
+    <gender>Male</gender>
+    <biologicalAge>71</biologicalAge>
+    <!-- The square is his whole routine: he must be where the player looks
+         after the collectors are answered, not off at a work spot. -->
+    <homebody>true</homebody>
+    <plotArmor>true</plotArmor>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Villager_Bry</defName>
+    <label>smith's apprentice</label>
+    <combatPower>20</combatPower>
+    <isFighter>false</isFighter>
+    <invFoodDef>Pemmican</invFoodDef>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Bry</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Bry</defName>
+    <label>Bry Coalhand</label>
+    <description>The Thornden smith's son, fifteen, taken by the Iron Brand as surety on the village's tribute. He went quiet so they would have no reason to be rough, and waved from the bend in the road.</description>
+    <firstName>Bry</firstName>
+    <lastName>Coalhand</lastName>
+    <kind>TSC_Villager_Bry</kind>
+    <gender>Male</gender>
+    <biologicalAge>15</biologicalAge>
+    <plotArmor>true</plotArmor>
+    <!-- Away machinery: the act flag is set before Thornden can exist, so
+         Bry never spawns at the smithy while captive; the Surety quest's
+         success brings him home on the next village visit. -->
+    <awayIfFlag>TSC_ShardRush2Seen</awayIfFlag>
+    <backAfterQuest>TSC_Act3_Surety</backAfterQuest>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <!-- The fire on the road: Madoc's camp. Peaceful site, one scene. -->
+  <SitePartDef>
+    <defName>TSC_RoadFire</defName>
+    <label>fire on the road</label>
+    <description>A thin line of woodsmoke off the road toward the Iron Brand's hills. Scouts say one man, talking as if to company.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCamp</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCamp</expandingIconTexture>
+    <approachOrderString>Approach {0}</approachOrderString>
+    <approachingReportString>Approaching {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_RoadFire</li>
+    </tags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Act3_RoadFire</whileQuestActive>
+        <noDetectionRaids>true</noDetectionRaids>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_RoadFire</defName>
+    <linkWithSite>TSC_RoadFire</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_RoadFire" />
+  </GenStepDef>
+
+  <!-- Thornden: the village under the Brand's thumb. Reuses the Act 1
+       village machinery: a household and the smithy, tribute collectors
+       in the square until the question is answered. -->
+  <SitePartDef>
+    <defName>TSC_ThorndenVillage</defName>
+    <label>Thornden</label>
+    <description>A farming village in the shadow of the Iron Brand keep. It pays for the privilege.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteVillage</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteVillage</expandingIconTexture>
+    <approachOrderString>Visit {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ThorndenVillage</li>
+    </tags>
+    <modExtensions>
+      <!-- Story hub, like Harrowfield: persists for good. Bry comes home
+           here, and Garrick's forge stays lit through the act. -->
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <noDetectionRaids>true</noDetectionRaids>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_ThorndenVillage</defName>
+    <linkWithSite>TSC_ThorndenVillage</linkWithSite>
+    <order>470</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Village">
+      <well>TSC_Well</well>
+      <squareResident>TSC_Npc_Odo</squareResident>
+      <fence>Fence</fence>
+      <fenceGate>FenceGate</fenceGate>
+      <fenceStuff>WoodLog</fenceStuff>
+      <buildings>
+        <li>
+          <prefab>TSC_Cottage</prefab>
+          <cropField>true</cropField>
+          <resident>TSC_Npc_Hedda</resident>
+          <fillerCount>1~2</fillerCount>
+        </li>
+        <li>
+          <prefab>TSC_Smithy</prefab>
+          <residents>
+            <li>TSC_Npc_Garrick</li>
+            <li>TSC_Npc_Bry</li>
+          </residents>
+        </li>
+        <!-- The village the reeve reeves and the smith smiths for:
+             two farm households of background folk. -->
+        <li>
+          <prefab>TSC_Cottage</prefab>
+          <cropField>true</cropField>
+          <fillerCount>2~3</fillerCount>
+          <livestock>
+            <li>
+              <kind>Chicken</kind>
+              <count>2~4</count>
+            </li>
+          </livestock>
+        </li>
+        <li>
+          <prefab>TSC_CottageSmall</prefab>
+          <cropField>true</cropField>
+          <fillerCount>1~2</fillerCount>
+          <livestock>
+            <li>
+              <kind>Goat</kind>
+              <count>1~2</count>
+            </li>
+          </livestock>
+        </li>
+      </buildings>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ThorndenCollectors</defName>
+    <linkWithSite>TSC_ThorndenVillage</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_ThorndenCollectors" />
+  </GenStepDef>
+
+  <!-- The Brand outpost holding Garrick's son: the surety. Contract-rescue
+       machinery with Brand colors. -->
+  <SitePartDef>
+    <defName>TSC_BrandOutpost</defName>
+    <label>Brand outpost</label>
+    <description>A watch-camp of the Iron Brand in the hills below the keep. This is where they keep what they take as surety.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Raid {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>160</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_BrandOutpost</li>
+    </tags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Act3_Surety</whileQuestActive>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <!-- One watch-house, not vanilla's field of scattered ruin fragments
+       (GenStep_AncientRuins drops several disconnected pieces across the
+       map, which is why this read as an archaeological dig rather than a
+       camp somebody is holding a boy in). -->
+  <GenStepDef>
+    <defName>TSC_BrandOutpost_Structure</defName>
+    <linkWithSite>TSC_BrandOutpost</linkWithSite>
+    <order>470</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Layout">
+      <layoutDef>TSC_Waystation</layoutDef>
+      <size>26</size>
+    </genStep>
+  </GenStepDef>
+
+  <!-- A timber palisade with a barred gate: what a bandit watch-camp throws
+       up in a week. No battlements, no towers, no masonry - it should read
+       as a camp that is HELD, and never be mistaken for the keep. -->
+  <GenStepDef>
+    <defName>TSC_BrandOutpost_Palisade</defName>
+    <linkWithSite>TSC_BrandOutpost</linkWithSite>
+    <order>472</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Curtain">
+      <margin>6</margin>
+      <wallStuff>WoodLog</wallStuff>
+      <gateStuff>WoodLog</gateStuff>
+      <crenellated>false</crenellated>
+      <towers>false</towers>
+      <breaches>1~2</breaches>
+      <breachLength>1~2</breachLength>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_BrandOutpost_Captive</defName>
+    <linkWithSite>TSC_BrandOutpost</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Captive">
+      <npc>TSC_Npc_Bry</npc>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_BrandOutpost_Guards</defName>
+    <linkWithSite>TSC_BrandOutpost</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>5~8</count>
+      <scaledClamp>4~11</scaledClamp>
+      <!-- No explicit roster: the default crew brings its own hexers,
+           scaled to the party. -->
+    </genStep>
+  </GenStepDef>
+
+  <!-- Gille's drain: the back way into the keep, carved only once the
+       party has heard of it (TSC_BrandBackWay, from Madoc's scene).
+       Order 490: after the castle and its hoard, before vanilla Fog. -->
+  <GenStepDef>
+    <defName>TSC_IronBrandKeep_BackWay</defName>
+    <linkWithSite>TSC_IronBrandKeep</linkWithSite>
+    <order>490</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BackWay" />
+  </GenStepDef>
+
+</Defs>

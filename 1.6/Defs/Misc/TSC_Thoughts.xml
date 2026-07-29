@@ -13,9 +13,41 @@
     <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
     <stages>
       <li>
-        <label>work finished</label>
-        <description>We took a job and we finished it. That is not nothing, out here.</description>
+        <label>quest finished</label>
+        <description>We took a quest and we saw it through. That is not nothing, out here.</description>
         <baseMoodEffect>0</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+
+  <!-- The temple's healing, felt from the inside: wounds that would have
+       ached for a week close in an afternoon. -->
+  <ThoughtDef>
+    <defName>TSC_Thought_TempleHealed</defName>
+    <durationDays>0.5</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>mended at the temple</label>
+        <description>My wounds closed under the priest's hands, and the ache went with them. It is a strange, light feeling to be whole again so quickly.</description>
+        <baseMoodEffect>3</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+
+  <!-- A night at the tavern: hot food, a bench, and enough noise that
+       nobody has to think. -->
+  <ThoughtDef>
+    <defName>TSC_Thought_TavernNight</defName>
+    <durationDays>1</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>a night at the tavern</label>
+        <description>Hot food, a bench by the fire, and an argument about nothing that went on until the candles burned down. The road can wait until morning.</description>
+        <baseMoodEffect>8</baseMoodEffect>
       </li>
     </stages>
   </ThoughtDef>

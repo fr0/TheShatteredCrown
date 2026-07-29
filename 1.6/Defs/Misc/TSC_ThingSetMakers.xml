@@ -129,7 +129,9 @@
             <fixedParams>
               <filter>
                 <thingDefs>
-                  <li>MeleeWeapon_LongSword</li>
+                  <!-- Was MeleeWeapon_LongSword: a placeholder from before
+                       TSC_Weapon_Kingsblade existed. -->
+                  <li>TSC_Weapon_Kingsblade</li>
                 </thingDefs>
               </filter>
               <countRange>1</countRange>

@@ -583,6 +583,7 @@ namespace TheShatteredCrown
     public class MapComponent_TSC_CryptParley : MapComponent
     {
         public const string MetFlag = "TSC_CryptBanditsMet";
+        private const string CryptDialogue = "TSC_Dialogue_CryptBandits";
         private const float ParleyRadius = 9f;
         /// <summary>How far a bandit may drift from the spot it was posted before being sent back.</summary>
         private const float PostRadius = 3f;
@@ -590,6 +591,62 @@ namespace TheShatteredCrown
         private List<IntVec3> posts = new List<IntVec3>();
         private Pawn leader;
         private bool opened;
+        // Optional: a quest that wants to know when this crew is beaten.
+        // Needed because a parley group is FACTIONLESS until the words run
+        // out, so a quest cannot use site.AllEnemiesDefeated - with no
+        // hostiles present, that fires the instant the party arrives.
+        private bool defeatSent;
+        private string defeatQuest;
+        private string defeatSignal;
+
+        // WHICH crew this is. The component was written for the crypt
+        // looting party and grew a second user (Thornden's tribute
+        // collectors), who need their own words, their own flag and their
+        // own messages. Empty = the crypt, so old saves load unchanged.
+        private string dialogueDef;
+        private string flagName;
+        private string attackMsg;
+        private string fleeMsg;
+
+        private string DialogueName => dialogueDef.NullOrEmpty() ? CryptDialogue : dialogueDef;
+        private string FlagName => flagName.NullOrEmpty() ? MetFlag : flagName;
+
+        private string AttackMessage => attackMsg.NullOrEmpty()
+            ? "The looting party attacks!" : attackMsg;
+
+        private string FleeMessage => fleeMsg.NullOrEmpty()
+            ? "The looting party wants no part of this place. They flee." : fleeMsg;
+
+        /// <summary>Point this crew at its own scene instead of the crypt's.</summary>
+        public void Configure(string dialogueDefName, string flag, string attackMessage, string fleeMessage)
+        {
+            dialogueDef = dialogueDefName;
+            flagName = flag;
+            attackMsg = attackMessage;
+            fleeMsg = fleeMessage;
+        }
+
+        /// <summary>Tell this crew which quest to notify once they are put down.</summary>
+        public void SetDefeatSignal(string questDefName, string signal)
+        {
+            defeatQuest = questDefName;
+            defeatSignal = signal;
+        }
+
+        /// <summary>
+        /// Save repair: a Thornden square generated while this component
+        /// could only be the crypt. Such a crew is identifiable by its
+        /// captain, and gets the collector wiring fitted now, so the right
+        /// words open and the quest hears how the tribute was answered.
+        /// </summary>
+        public override void FinalizeInit()
+        {
+            base.FinalizeInit();
+            if (dialogueDef.NullOrEmpty() && leader?.kindDef?.defName == "TSC_Brand_Collector")
+            {
+                GenStep_TSC_ThorndenCollectors.WireCollectors(this);
+            }
+        }
 
         public MapComponent_TSC_CryptParley(Map map) : base(map)
         {
@@ -615,6 +672,9 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            // Checked on both sides of the parley: a crew can also be answered
+            // by a bow from the treeline, without a word being said.
+            WatchForDefeat();
             if (opened)
             {
                 HealUnflippedCrew();
@@ -631,7 +691,7 @@ namespace TheShatteredCrown
                     && GenSight.LineOfSight(p.Position, leader.Position, map))
                 {
                     opened = true;
-                    DialogueDef def = DefDatabase<DialogueDef>.GetNamedSilentFail("TSC_Dialogue_CryptBandits");
+                    DialogueDef def = DefDatabase<DialogueDef>.GetNamedSilentFail(DialogueName);
                     if (def != null)
                     {
                         CameraJumper.TryJump(leader);
@@ -710,7 +770,7 @@ namespace TheShatteredCrown
         /// <summary>parley_hostile: words are done. The crew turns bandit and comes on.</summary>
         public void TurnHostile()
         {
-            DialogueStateManager.Current.Set(MetFlag);
+            DialogueStateManager.Current.Set(FlagName);
             Faction bandits = TSC_BanditFactionUtility.Get();
             List<Pawn> fighters = new List<Pawn>();
             foreach (Pawn pawn in group)
@@ -726,14 +786,43 @@ namespace TheShatteredCrown
                 LordMaker.MakeNewLord(bandits, new LordJob_AssaultColony(bandits,
                     canKidnap: false, canTimeoutOrFlee: true), map, fighters);
             }
-            Messages.Message("The looting party attacks!", leader ?? (Thing)null,
+            Messages.Message(AttackMessage, leader ?? (Thing)null,
                 MessageTypeDefOf.ThreatBig, historical: false);
+        }
+
+        /// <summary>
+        /// The crew is answered when nobody is left standing for their side,
+        /// however that happened. Deliberately NOT gated on the parley having
+        /// opened: a company that kills the collectors from the treeline has
+        /// answered the tribute question too, and without this the flag never
+        /// lands - the crew respawns on the next visit and the quest waits
+        /// for a fight that already happened.
+        /// </summary>
+        private void WatchForDefeat()
+        {
+            if (defeatSent || group.Count == 0)
+            {
+                return;
+            }
+            foreach (Pawn pawn in group)
+            {
+                if (pawn != null && pawn.Spawned && !pawn.Dead && !pawn.Downed)
+                {
+                    return; // still one on their feet
+                }
+            }
+            defeatSent = true;
+            DialogueStateManager.Current.Set(FlagName);
+            if (!defeatQuest.NullOrEmpty() && !defeatSignal.NullOrEmpty())
+            {
+                TSC_QuestSignals.Send(defeatQuest, defeatSignal);
+            }
         }
 
         /// <summary>parley_flee: the Arcana scare lands. They want no part of the hill.</summary>
         public void ScareOff()
         {
-            DialogueStateManager.Current.Set(MetFlag);
+            DialogueStateManager.Current.Set(FlagName);
             foreach (Pawn pawn in group)
             {
                 if (pawn != null && pawn.Spawned && !pawn.Dead)
@@ -742,7 +831,7 @@ namespace TheShatteredCrown
                         MentalStateDefOf.PanicFlee, "the hill's bad magic", forced: true);
                 }
             }
-            Messages.Message("The looting party wants no part of this place. They flee.",
+            Messages.Message(FleeMessage,
                 leader ?? (Thing)null, MessageTypeDefOf.NeutralEvent, historical: false);
         }
 
@@ -753,6 +842,13 @@ namespace TheShatteredCrown
             Scribe_Collections.Look(ref posts, "posts", LookMode.Value);
             Scribe_References.Look(ref leader, "leader");
             Scribe_Values.Look(ref opened, "opened");
+            Scribe_Values.Look(ref defeatSent, "defeatSent");
+            Scribe_Values.Look(ref defeatQuest, "defeatQuest");
+            Scribe_Values.Look(ref defeatSignal, "defeatSignal");
+            Scribe_Values.Look(ref dialogueDef, "dialogueDef");
+            Scribe_Values.Look(ref flagName, "flagName");
+            Scribe_Values.Look(ref attackMsg, "attackMsg");
+            Scribe_Values.Look(ref fleeMsg, "fleeMsg");
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 group = group ?? new List<Pawn>();

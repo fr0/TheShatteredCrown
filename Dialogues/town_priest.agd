@@ -1,0 +1,32 @@
+# The town priest: one per friendly settlement, at the altar in the stamped
+# temple. Heals wounds for a silver offering (Window_TSC_Temple). Like the
+# smith, deliberately brief - a service with a voice, not a character.
+
+dialogue TSC_Dialogue_TownPriest
+
+== start ==
+The priest is folding bandages at the altar, and does not stop when you come in. There are two cots along the wall, one of them occupied by someone breathing slowly.
+
+"Peace on the road. If you're hurt, say so; if you're paying, say that too. We take silver and we don't pretend otherwise. The lamps cost what they cost."
+
+* "We're hurt. What can you do?" -> service
+* "What can't you do?" -> limits
+* "Peace on your house." -> end
+
+== service ==
+"Wounds, mostly. Cuts, breaks, burns, the fevers that ride them." He sets the bandages down. "Bring them to the cot and we'll see what the offering comes to. Bad wounds cost more than scratches; that's arithmetic, not greed."
+
+* [Ask them to tend the party.] -> end
+    do temple_heal()
+* "Not today." -> end
+
+== limits ==
+"We close what's open. We don't grow back what's gone." He says it plainly, the way a man says a thing he has said many times to people who did not want to hear it. "A hand off at the wrist stays off. An old break that healed crooked stays crooked. Bad backs, failing eyes, the slow work of years - that's not a wound, that's a life. No offering moves it."
+
+He picks the bandages back up.
+
+"Anyone who tells you different is selling something worse than silver."
+
+* "Understood. We're hurt; help who you can." -> end
+    do temple_heal()
+* "Fair enough." -> end

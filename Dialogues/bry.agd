@@ -1,0 +1,29 @@
+# Bry Coalhand, fifteen, the Thornden smith's son (Act 3). Held at the
+# Brand outpost as surety; found downed, walks out with the company.
+# VOICE: a scared kid working hard at not being one.
+
+dialogue TSC_Dialogue_Bry
+
+entry freed if flag(TSC_BryFreed)
+
+== start ==
+The boy is all elbows and soot-dark hair, and he holds himself very straight, the way you do when you have decided the men holding you will not get to see anything else.
+
+"You're not the Brand." It comes out half question. He looks past you, counting your company, and something in his shoulders lets go by an inch. "My da sent you. He sent someone. I KNEW he - " He stops himself. Straightens again. "Bry Coalhand. I can walk. Whatever we're doing, I can walk."
+
+* "Your father's waiting, Bry. Stay behind us and stay low." -> out
+
+== out ==
+"Behind you and low. Yes." He says it back like an apprentice repeating a measurement. Then, quieter, with a glance at the walls around you:
+
+"They talk about the keep like it can't fall, you know. All of them, all the time, like saying it makes it true." A beat. "They say it the way scared people say things."
+
+* "Noted, Bry. Now we walk." -> end
+
+== freed ==
+Bry has a way of standing close to his father's forge, these days, even when there is nothing to do there.
+
+"I'm not going to say thank you AGAIN," he says, saying it again anyway with his whole face. "Da says the forge is yours for life. He means it. He re-means it every supper." He scuffs a heel. "When you go up to the keep - I know I can't come. But when it falls, ring the bell here first. I want to be the one who tells the village."
+
+* "You'll hear it first, Bry." -> end
+    do affinity(+5)

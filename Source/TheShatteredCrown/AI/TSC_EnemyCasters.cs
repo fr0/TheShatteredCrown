@@ -13,6 +13,21 @@ namespace TheShatteredCrown
         public int levels = 1;
     }
 
+    /// <summary>
+    /// Put on an AbilityDef: how the enemy caster AI should aim it. Without
+    /// a hint the AI aims at the party (the hexer's Scorch); with
+    /// targetAllies it aims at the caster's OWN side - the shaman's kit.
+    /// </summary>
+    public class TSC_AiCastHint : DefModExtension
+    {
+        /// <summary>Aim at the caster's own faction (self included) instead of the enemy.</summary>
+        public bool targetAllies;
+        /// <summary>Only worthwhile on the wounded (heals): most-hurt ally first.</summary>
+        public bool requiresInjury;
+        /// <summary>Skip allies already carrying this hediff (buffs don't stack).</summary>
+        public HediffDef skipIfHediff;
+    }
+
     /// <summary>Seeds classes onto generated pawns whose kind carries TSC_ClassExtension (e.g. the bandit hexer).</summary>
     [HarmonyPatch(typeof(PawnGenerator), nameof(PawnGenerator.GeneratePawn), typeof(PawnGenerationRequest))]
     public static class Patch_GeneratePawn_SeedClass
@@ -134,6 +149,11 @@ namespace TheShatteredCrown
             {
                 return null;
             }
+            TSC_AiCastHint hint = ability.def.GetModExtension<TSC_AiCastHint>();
+            if (hint != null && hint.targetAllies)
+            {
+                return FindAllyTarget(caster, range, hint);
+            }
             Pawn best = null;
             float bestDist = float.MaxValue;
             IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
@@ -150,6 +170,53 @@ namespace TheShatteredCrown
                 if (dist < bestDist)
                 {
                     bestDist = dist;
+                    best = candidate;
+                }
+            }
+            return best;
+        }
+
+        /// <summary>
+        /// The shaman's aim: own-faction pawns (self included), most-hurt
+        /// first for heals, unbuffed-nearest for buffs. Downed allies still
+        /// count - dragging a brigand back from the edge is the whole job.
+        /// </summary>
+        private Pawn FindAllyTarget(Pawn caster, float range, TSC_AiCastHint hint)
+        {
+            Pawn best = null;
+            float bestScore = float.MaxValue;
+            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn candidate = pawns[i];
+                if (candidate.Dead || candidate.Faction != caster.Faction
+                    || !candidate.Position.InHorDistOf(caster.Position, range)
+                    || !GenSight.LineOfSight(caster.Position, candidate.Position, map, skipFirstCell: true))
+                {
+                    continue;
+                }
+                if (hint.skipIfHediff != null
+                    && candidate.health.hediffSet.HasHediff(hint.skipIfHediff))
+                {
+                    continue;
+                }
+                float score;
+                if (hint.requiresInjury)
+                {
+                    float health = candidate.health.summaryHealth.SummaryHealthPercent;
+                    if (health >= 0.95f && candidate.health.hediffSet.BleedRateTotal <= 0f)
+                    {
+                        continue; // not hurt enough to spend the cast on
+                    }
+                    score = health; // most hurt wins
+                }
+                else
+                {
+                    score = (candidate.Position - caster.Position).LengthHorizontalSquared;
+                }
+                if (score < bestScore)
+                {
+                    bestScore = score;
                     best = candidate;
                 }
             }

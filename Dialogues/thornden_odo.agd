@@ -1,0 +1,56 @@
+# Odo Larkin, the old man on Thornden's well kerb (Act 3). He is the
+# village's memory and its only witness who will still talk afterward: the
+# pointer from the square to the reeve, who hands out The Surety.
+# VOICE: old, dry, unhurried. Says less than he knows, and knows all of it.
+
+dialogue TSC_Dialogue_Odo
+
+entry sent if flag(TSC_SuretyGiven)
+entry sent if quest_active(TSC_Act3_Surety)
+entry after if flag(TSC_TributeAnswered)
+
+== start ==
+An old man sits on the kerb of the well with his stick across his knees, in the middle of a square everyone else is finding reasons to be at the edge of.
+
+"Morning," he says, without getting up. "You'll want to stand somewhere else. They're due."
+
+* "Who's due?" -> collectors
+* "We'll stand here." -> end
+
+== collectors ==
+"The Brand." He says it the way you'd name weather. "Four of them, tribute day, same as five years of tribute days. I sit here for the same reason I sat here through the last lot and the lot before them. Somebody ought to see it."
+
+He looks up at you for the first time.
+
+"You'll do what you'll do. Just don't do it and then ride off. That's the part that costs us."
+
+* "Understood." -> end
+
+== after ==
+The old man has not moved off the kerb. The square has emptied and filled twice around him.
+
+"Well," he says. "I saw that."
+
+He works his jaw, thinking about it.
+
+"Five years I've sat here watching that man take the corn out of this village, and I never once saw him hurry. Today he hurried." He plants the stick and levers himself up. "Doesn't fix anything, mind. There's a debt still standing that you've just made worse, and it's not mine to explain to you."
+
+* "Whose is it?" -> hedda
+* "Worse how?" -> hedda
+
+== hedda ==
+"Hedda's. The reeve. Small grey woman, keeps the ledger, lives in the cottage with the good thatch." He points with the stick, unhurried. "Everything this village owes, she wrote down. Go and let her tell you what today cost, because she'll tell it straight and I'd only tell it long."
+
+He sits back down.
+
+"Go on. She'll be waiting for somebody to ask."
+
+* [Go and find the reeve.] -> end
+    do flag(TSC_OdoSentToHedda); grant_xp(25)
+
+== sent ==
+The old man lifts his stick an inch off the kerb in greeting.
+
+"She told you about the boy, then. Good. I'd get on with it, if I were you, and I'd not stop in the hills to admire anything."
+
+* "We're going." -> end

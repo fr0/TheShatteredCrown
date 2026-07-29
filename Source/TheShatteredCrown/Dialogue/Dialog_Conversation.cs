@@ -39,6 +39,8 @@ namespace TheShatteredCrown
         private const float OptionHeight = 34f;
         private const float OptionGap = 4f;
         private const float EntryGap = 12f;
+        /// <summary>Clearance between the gold frame and anything inside it.</summary>
+        private const float Padding = 8f;
         // Fantasy palette: dark leather ground, old gold frames, parchment ink.
         private static readonly Color PlayerColor = new Color(0.72f, 0.68f, 0.58f);
         private static readonly Color NpcTextColor = new Color(0.91f, 0.86f, 0.72f);
@@ -69,6 +71,15 @@ namespace TheShatteredCrown
 
         public override Vector2 InitialSize => new Vector2(780f, 580f);
 
+        /// <summary>
+        /// No vanilla chrome. RimWorld draws every window on a blue-grey
+        /// plate with its own border, which sat behind this dialog's leather
+        /// and gold and framed it in the wrong century. The scene draws its
+        /// own background; the margin is trimmed to 10 so that frame covers
+        /// the window exactly.
+        /// </summary>
+        protected override float Margin => 10f;
+
         public Dialog_Conversation(DialogueDef def, Pawn npc, Pawn interactor)
         {
             this.def = def;
@@ -85,6 +96,7 @@ namespace TheShatteredCrown
             closeOnAccept = false;
             closeOnCancel = false;
             doCloseX = true;
+            doWindowBackground = false;
             soundAppear = SoundDefOf.CommsWindow_Open;
         }
 
@@ -105,6 +117,10 @@ namespace TheShatteredCrown
             GUI.color = GoldBright;
             Widgets.DrawBox(frame.ContractedBy(4f), 1);
             GUI.color = Color.white;
+
+            // The frame is drawn on the full rect; everything after this sits
+            // inside it with room to breathe.
+            inRect = inRect.ContractedBy(Padding);
 
             // Left column: portrait + name
             Rect portraitRect = new Rect(inRect.x, inRect.y, PortraitWidth, PortraitHeight);
@@ -186,7 +202,7 @@ namespace TheShatteredCrown
             Widgets.EndScrollView();
 
             // Options
-            float optY = inRect.height - optionsHeight;
+            float optY = inRect.yMax - optionsHeight;
             for (int i = 0; i < visibleOptions.Count; i++)
             {
                 Rect btnRect = new Rect(transcriptRect.x, optY, transcriptRect.width, optionHeights[i]);

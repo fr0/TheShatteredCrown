@@ -695,7 +695,8 @@ Whoever carries it can invoke the Quickening once a day.</description>
 
   <!-- The reliquary shard's power: the whole party, briefly, at the dead
        king's marching pace. -->
-  <AbilityDef>
+  <!-- ParentName is load-bearing: the base supplies Verb_CastAbility. -->
+  <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_Quickening</defName>
     <label>quickening</label>
     <description>The whole party moves at double speed and strikes a third faster for 20 seconds, on every floor of the location. The shard allows this once a day; carrying it is the only price.</description>

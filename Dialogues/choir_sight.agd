@@ -5,6 +5,11 @@
 
 dialogue TSC_Dialogue_ChoirSight
 
+# The party can reach the bones AFTER settling the cantor (either way):
+# then "someone below is singing" would be nonsense - the recital is over.
+entry known if flag(TSC_CantorRested)
+entry known if flag(TSC_CantorFought)
+
 == start ==
 The lamplight finds them all at once: skulls, stacked rank on rank from flagstone to roof, filling the gallery wall ahead.
 
@@ -26,13 +31,23 @@ Not a burial. An audience. Somebody wanted the dead to hear.
     do grant_xp(10)
 
 == wren ==
-Wren does not answer at once. She has gone still in the way she does when a room is a piece of music, and when she speaks it is barely above the water-noise.
+Wren does not answer at once. She has gone still in the way she does when a room is a piece of music - but her eyes are moving along the rows like a page, and under the dread there is an awful, professional delight fighting to get out.
 
-"Ossuaries face the dead east, toward the morning. These face down." A pause. "It's the meter, do you see. The rows. Long, long, short. They're not stacked, they're *scored*. Somebody wrote the dead into the song."
+"Ossuaries face the dead east, toward the morning. These face *down*." She steps closer instead of back. "And look - the rows! Long, long, short. Do you see it? They're not stacked, they're *scored*. Somebody wrote the dead into the song. That's the most terrifying thing I've ever seen and part of me wants to applaud."
 
-She pulls her cloak tighter.
+She pulls her cloak tighter, which does not stop her taking one more step.
 
 "I'd like to meet whoever is still singing to them. And I'd like it very much to be on our terms."
 
 * [Move on.] -> end
     do grant_xp(15); affinity(+5)
+
+== known ==
+The lamplight finds them all at once: skulls, stacked rank on rank from flagstone to roof, filling the gallery wall ahead.
+
+They are not piled. They are placed - every one of them set level, every one of them facing the same way, down the passage toward the deep floor. Toward the chamber where the singing used to come from.
+
+An audience, seated the way a congregation sits, kept for eight hundred years. The party has already met their singer. Whatever this recital was, it has had its last verse, and the dead are still leaning in to listen.
+
+* [Move on.] -> end
+    do grant_xp(10)

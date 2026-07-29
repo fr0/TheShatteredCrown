@@ -226,8 +226,27 @@ namespace TheShatteredCrown
             if (canPickFeat)
             {
                 Rect next = new Rect(inRect.width - 200f, buttonY, 200f, 34f);
-                if (Widgets.ButtonText(next, "Choose a feat  →"))
+                // Moving on COMMITS a finished class choice. Without this the
+                // point stayed pending: the player picked class and
+                // proficiency, stepped to the feat page, took a feat, and got
+                // bounced back to a class page they thought they had already
+                // filled in - the dialog was right, and looked broken.
+                string nextLabel = ready ? "Confirm and choose a feat  →" : "Choose a feat  →";
+                if (Widgets.ButtonText(next, nextLabel))
                 {
+                    if (ready)
+                    {
+                        if (beginningNew)
+                        {
+                            TSC_ProgressionManager.Current.AssignPointNewClass(pawn, chosen, selectedProficiency);
+                        }
+                        else
+                        {
+                            TSC_ProgressionManager.Current.AssignPoint(pawn, chosen, selectedProficiency);
+                        }
+                        selectedProficiency = null;
+                        selectedClass = 0;
+                    }
                     page = 1;
                 }
             }
@@ -300,7 +319,9 @@ namespace TheShatteredCrown
             Widgets.EndScrollView();
 
             float buttonY = inRect.height - 38f;
-            if (canGoBack)
+            // Live check, same reason as the exit below: the Back button must
+            // vanish the moment the class point is spent.
+            if (canGoBack && TSC_ProgressionManager.Current.PendingPoints(pawn) > 0)
             {
                 Rect back = new Rect(0f, buttonY, 180f, 34f);
                 if (Widgets.ButtonText(back, "←  Class level"))
@@ -318,13 +339,20 @@ namespace TheShatteredCrown
             {
                 TSC_Feats.Take(pawn, selectedFeat);
                 selectedFeat = null;
-                if (TSC_Feats.Pending(pawn) <= 0 && !canGoBack)
+                // Re-ask LIVE: canGoBack was computed at the top of this
+                // frame, before the class point was spent, so trusting it
+                // here bounced the player back to a class page with nothing
+                // left to assign after they had finished both halves.
+                if (TSC_Feats.Pending(pawn) <= 0)
                 {
-                    Close();
-                }
-                else if (TSC_Feats.Pending(pawn) <= 0)
-                {
-                    page = 0;
+                    if (TSC_ProgressionManager.Current.PendingPoints(pawn) > 0)
+                    {
+                        page = 0; // a class level is genuinely still owed
+                    }
+                    else
+                    {
+                        Close(); // both halves spent: done
+                    }
                 }
             }
             GUI.color = Color.white;

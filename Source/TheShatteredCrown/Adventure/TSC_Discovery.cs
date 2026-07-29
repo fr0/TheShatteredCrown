@@ -300,12 +300,65 @@ namespace TheShatteredCrown
         }
 
         /// <summary>
+        /// Rooms are derived from the REGION grid, and the region updater is
+        /// commonly disabled while a map generates - so GetRoom returns null
+        /// for cells inside walls that plainly exist, and every "is this
+        /// indoors?" test silently answers no. That is why occupants landed
+        /// inside the ruin on some maps and in the open sand on others: pure
+        /// luck about whether something earlier had triggered a rebuild.
+        /// Force one before any room query.
+        /// </summary>
+        internal static void EnsureRooms(Map map)
+        {
+            if (map?.regionAndRoomUpdater == null)
+            {
+                return;
+            }
+            if (!map.regionAndRoomUpdater.Enabled)
+            {
+                map.regionAndRoomUpdater.Enabled = true;
+            }
+            map.regionAndRoomUpdater.RebuildAllRegionsAndRooms();
+        }
+
+        /// <summary>
+        /// Every cell inside the structure: enclosed rooms, standable, and
+        /// reachable from the map edge. Used to post occupants IN the ruin
+        /// rather than in the yard around it - a holdfast whose crew stands
+        /// outside in the rain is a camp, not a holdfast.
+        /// </summary>
+        internal static List<IntVec3> InteriorCells(Map map)
+        {
+            EnsureRooms(map);
+            List<IntVec3> cells = new List<IntVec3>();
+            TraverseParms walk = TraverseParms.For(TraverseMode.PassDoors);
+            foreach (IntVec3 cell in map.AllCells)
+            {
+                if (!cell.Standable(map))
+                {
+                    continue;
+                }
+                Room room = cell.GetRoom(map);
+                if (room == null || room.PsychologicallyOutdoors || room.CellCount < 4)
+                {
+                    continue;
+                }
+                if (map.reachability.CanReachMapEdge(cell, walk))
+                {
+                    cells.Add(cell);
+                }
+            }
+            return cells;
+        }
+
+        /// <summary>
         /// The best "inside" cell: enclosed (a real room, not the outdoors),
         /// standable, reachable from the map edge so the prize is never
         /// walled off, and as deep into the structure as possible.
         /// </summary>
-        private static IntVec3 FindInteriorCell(Map map)
+        internal static IntVec3 FindInteriorCell(Map map)
         {
+            EnsureRooms(map);
             IntVec3 best = IntVec3.Invalid;
             float bestScore = -1f;
             TraverseParms walk = TraverseParms.For(TraverseMode.PassDoors);
@@ -382,8 +435,13 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            IntVec3 post = map.Center;
-            if (!post.Walkable(map))
+            // Hold the RUIN, not the yard: the crew posts inside the
+            // structure when the layout built one, spread through its rooms,
+            // with a couple left outside as lookouts. Sites with no building
+            // (open camps) keep the old centre-post behaviour.
+            List<IntVec3> interior = GenStep_TSC_PlaceInStructure.InteriorCells(map);
+            IntVec3 post = interior.Count > 0 ? interior.RandomElement() : map.Center;
+            if (interior.Count == 0 && !post.Walkable(map))
             {
                 foreach (IntVec3 candidate in GenRadial.RadialCellsAround(map.Center, 60f, useCenter: false))
                 {
@@ -395,17 +453,78 @@ namespace TheShatteredCrown
                 }
             }
             int n = TSC_Threat.Count(map, count, scaledClamp);
+            // Ragtag crews stay ragtag - rusty swords, no armor - but once
+            // the party is casting spells in enchanted mail, bodies alone
+            // stop mattering. The crew's answer is its hexer: the one who
+            // found a book. Roughly one per four heads once the party has
+            // outgrown the grace levels, two in a big crew for a seasoned
+            // party. Explicit rosters (keep garrison etc.) manage their own.
+            int hexerCount = 0;
+            int shamanCount = 0;
+            PawnKindDef hexer = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_BanditHexer");
+            PawnKindDef shaman = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_BanditShaman");
+            if (roster == null && faction == "bandits")
+            {
+                float partyLevel = TSC_Threat.AverageLevelAboveGraceAt(map);
+                if (partyLevel > 0f)
+                {
+                    if (hexer != null)
+                    {
+                        hexerCount = Mathf.Clamp(n / 4, 1, partyLevel >= 2f ? 2 : 1);
+                    }
+                    // The shaman keeps the crew standing: one per big crew.
+                    if (shaman != null && n >= 6)
+                    {
+                        shamanCount = 1;
+                    }
+                }
+            }
             List<Pawn> guards = new List<Pawn>();
             for (int i = 0; i < n; i++)
             {
-                // Default roster keeps the old shape: every third one an archer.
+                // Default roster keeps the old shape: every third one an
+                // archer - with the last slots going to the casters (hexers
+                // at the very end, the shaman just before them).
                 PawnKindDef kind = roster != null
                     ? roster[i % roster.Count]
-                    : (archer != null && i % 3 == 2 ? archer : brigand);
+                    : (i >= n - hexerCount ? hexer
+                        : i >= n - hexerCount - shamanCount ? shaman
+                        : (archer != null && i % 3 == 2 ? archer : brigand));
                 Pawn guard = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
                     kind, holders, PawnGenerationContext.NonPlayer,
                     forceGenerateNewPawn: true, canGeneratePawnRelations: false));
-                IntVec3 cell = CellFinder.RandomClosewalkCellNear(post, map, 8);
+                // Most of the crew inside, spread across the rooms; the first
+                // two stand watch outside so the ruin still looks held from
+                // the approach.
+                IntVec3 cell;
+                if (interior.Count > 0 && i >= 2)
+                {
+                    cell = interior.RandomElement();
+                }
+                else if (interior.Count > 0)
+                {
+                    // Sentries: standable ground OUTSIDE the walls, within
+                    // sight of them, so the ruin reads as held on approach.
+                    cell = IntVec3.Invalid;
+                    for (int attempt = 0; attempt < 40; attempt++)
+                    {
+                        IntVec3 candidate = CellFinder.RandomClosewalkCellNear(post, map, 14);
+                        if (candidate.IsValid && candidate.Standable(map)
+                            && candidate.GetRoom(map)?.PsychologicallyOutdoors != false)
+                        {
+                            cell = candidate;
+                            break;
+                        }
+                    }
+                    if (!cell.IsValid)
+                    {
+                        cell = interior.RandomElement();
+                    }
+                }
+                else
+                {
+                    cell = CellFinder.RandomClosewalkCellNear(post, map, 8);
+                }
                 GenSpawn.Spawn(guard, cell, map);
                 guards.Add(guard);
             }
@@ -425,20 +544,42 @@ namespace TheShatteredCrown
     /// </summary>
     public class GenStep_TSC_Captive : GenStep
     {
+        /// <summary>Set for STORY captives (Bry): the named pawn is held here instead of a generated stranger.</summary>
+        public NamedNpcDef npc;
+
         public override int SeedPart => 668142935;
 
         public override void Generate(Map map, GenStepParams parms)
         {
-            PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("Villager");
-            if (kind == null)
+            Pawn captive = null;
+            if (npc != null)
             {
-                return;
+                captive = DialogueStateManager.Current.GetOrGenerateNamedNpc(npc, null);
+                if (captive == null || captive.Dead || captive.Spawned)
+                {
+                    return; // dead, or already out in the world: no doppelganger
+                }
             }
-            Pawn captive = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
-                kind, null, PawnGenerationContext.NonPlayer,
-                forceGenerateNewPawn: true, canGeneratePawnRelations: false,
-                mustBeCapableOfViolence: true));
-            IntVec3 den = map.Center;
+            if (captive == null)
+            {
+                PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("Villager");
+                if (kind == null)
+                {
+                    return;
+                }
+                captive = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                    kind, null, PawnGenerationContext.NonPlayer,
+                    forceGenerateNewPawn: true, canGeneratePawnRelations: false,
+                    mustBeCapableOfViolence: true));
+            }
+            // Captives are HELD: the den is the deepest enclosed room the
+            // layout built (same scoring as the strongbox), never a patch of
+            // open sand the site happens to be centred on.
+            IntVec3 den = GenStep_TSC_PlaceInStructure.FindInteriorCell(map);
+            if (!den.IsValid)
+            {
+                den = map.Center;
+            }
             if (!den.Walkable(map))
             {
                 foreach (IntVec3 candidate in GenRadial.RadialCellsAround(map.Center, 60f, useCenter: false))
@@ -451,6 +592,29 @@ namespace TheShatteredCrown
                 }
             }
             IntVec3 cell = CellFinder.RandomClosewalkCellNear(den, map, 6);
+            // A quest-critical prisoner must never end up somewhere the
+            // party cannot walk to: if the chosen cell cannot reach the map
+            // edge (sealed room, blocked by the layout), fall back to a
+            // reachable one rather than hiding the objective.
+            TraverseParms walk = TraverseParms.For(TraverseMode.PassDoors);
+            if (!cell.IsValid || !map.reachability.CanReachMapEdge(cell, walk))
+            {
+                IntVec3 rescue = IntVec3.Invalid;
+                foreach (IntVec3 candidate in GenRadial.RadialCellsAround(map.Center, 60f, useCenter: true))
+                {
+                    if (candidate.InBounds(map) && candidate.Standable(map)
+                        && map.reachability.CanReachMapEdge(candidate, walk))
+                    {
+                        rescue = candidate;
+                        break;
+                    }
+                }
+                Log.Warning($"[The Shattered Crown] Captive cell was unreachable; relocating to {rescue}.");
+                if (rescue.IsValid)
+                {
+                    cell = rescue;
+                }
+            }
             GenSpawn.Spawn(captive, cell, map);
             HealthUtility.DamageUntilDowned(captive, allowBleedingWounds: false);
             map.GetComponent<MapComponent_TSC_CaptiveRescue>()?.Register(captive);
@@ -471,27 +635,64 @@ namespace TheShatteredCrown
             captive = pawn;
         }
 
+        /// <summary>
+        /// Announced once, when the party first sets foot on the map: a
+        /// letter whose look-target jumps the camera to the prisoner. A
+        /// downed, silent pawn in one room of a generated ruin is a needle
+        /// in a haystack - a whole map was searched without finding one -
+        /// and "where is the objective" is not the puzzle this contract is
+        /// selling.
+        /// </summary>
+        private bool announced;
+
         public override void MapComponentTick()
         {
-            if (joined || captive == null || captive.Dead || !captive.Spawned
+            if (joined || captive == null || captive.Dead
                 || Find.TickManager.TicksGame % 60 != 0)
             {
+                return;
+            }
+            if (!announced && map.mapPawns.FreeColonistsSpawnedCount > 0)
+            {
+                announced = true;
+                Find.LetterStack.ReceiveLetter(
+                    "The prisoner",
+                    $"{captive.LabelShortCap} is being held here, alive and in no shape to walk out alone. "
+                    + "Reach them and they will throw in with the company.",
+                    LetterDefOf.NeutralEvent, captive);
+            }
+            // Scooped between polls: a pawn loading the caravan can pick the
+            // captive up inside one 60-tick window, and an unspawned pawn
+            // never passes the proximity check below - the rescue then rode
+            // out as a NEUTRAL passenger and the join never fired.
+            if (!captive.Spawned)
+            {
+                Pawn carrier = (captive.ParentHolder as Pawn_CarryTracker)?.pawn;
+                if (carrier != null && carrier.Faction == Faction.OfPlayer)
+                {
+                    JoinParty();
+                }
                 return;
             }
             foreach (Pawn colonist in map.mapPawns.FreeColonistsSpawned)
             {
                 if (colonist.Position.InHorDistOf(captive.Position, 3f))
                 {
-                    joined = true;
-                    captive.SetFaction(Faction.OfPlayer);
-                    Find.LetterStack.ReceiveLetter(
-                        $"{captive.LabelShortCap} freed",
-                        $"{captive.LabelShortCap} was not going to walk out of this place alone, and knows it. "
-                        + "They throw in with the party: no rate, no charter, just owed.",
-                        LetterDefOf.PositiveEvent, captive);
+                    JoinParty();
                     return;
                 }
             }
+        }
+
+        private void JoinParty()
+        {
+            joined = true;
+            captive.SetFaction(Faction.OfPlayer);
+            Find.LetterStack.ReceiveLetter(
+                $"{captive.LabelShortCap} freed",
+                $"{captive.LabelShortCap} was not going to walk out of this place alone, and knows it. "
+                + "They throw in with the party: no rate, no charter, just owed.",
+                LetterDefOf.PositiveEvent, captive);
         }
 
         public override void ExposeData()
@@ -499,6 +700,7 @@ namespace TheShatteredCrown
             base.ExposeData();
             Scribe_References.Look(ref captive, "captive");
             Scribe_Values.Look(ref joined, "joined");
+            Scribe_Values.Look(ref announced, "announced");
         }
     }
 

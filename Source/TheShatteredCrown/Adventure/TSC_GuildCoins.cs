@@ -60,7 +60,14 @@ namespace TheShatteredCrown
                 {
                     Thing coins = ThingMaker.MakeThing(CoinDef);
                     coins.stackCount = count;
-                    GenPlace.TryPlaceThing(coins, pawn.Position, map, ThingPlaceMode.Near);
+                    // INTO THE PACK. Payment used to land on the ground at a
+                    // pawn's feet, which meant a company that finished a
+                    // contract and rode out left its fee lying on the floor
+                    // of the ruin - the coins are quest reward, not litter.
+                    if (pawn.inventory?.innerContainer?.TryAdd(coins, false) != true)
+                    {
+                        GenPlace.TryPlaceThing(coins, pawn.Position, map, ThingPlaceMode.Near);
+                    }
                     landedNear = pawn;
                     return;
                 }
@@ -136,6 +143,12 @@ namespace TheShatteredCrown
         public bool Available()
         {
             if (thing == null)
+            {
+                return false;
+            }
+            // Slot deference: if another mod ships hand/foot armor, ours
+            // stands down (see TSC_ApparelCompat).
+            if (TSC_ApparelCompat.Deferred(thing))
             {
                 return false;
             }

@@ -2,6 +2,9 @@
 # the lead's settlement by TSC_Act2_BardLead; meeting her completes the
 # quest via the TSC_MetBard signal. Act 2 proper picks up from here -
 # this scene establishes her, the song, and where the song comes from.
+# VOICE: bubbly and excitable. She wants to share her stories and songs and
+# is genuinely delighted to chat. The fear belongs to ONE verse only - the
+# fifth - and lands harder for the contrast.
 
 dialogue TSC_Dialogue_Bard
 
@@ -10,11 +13,11 @@ entry joined if in_party()
 entry met if flag(TSC_MetBard)
 
 == start ==
-You find her by following the crowd: a common room packed shoulder to shoulder, and on the table by the hearth a woman with a battered lute, mid-verse. The song is about a king, and a crown, and the five pieces it broke into.
+You find her by following the crowd: a common room packed shoulder to shoulder, and on the table by the hearth a woman with a battered lute, mid-verse, clearly having the time of her life. The song is about a king, and a crown, and the five pieces it broke into.
 
-She sees your gear, or maybe what your gear has been through, and finishes the verse looking straight at you. The room empties slowly. She doesn't.
+She spots your gear over the crowd's heads, and her whole face lights up like you're the good part of the song arriving early. She finishes the verse looking straight at you, hops off the table, and lands already talking.
 
-"Wren Ashdown," she says. "You're no farmer come for the chorus. Ask."
+"Wren Ashdown! Sit, sit. No, wait, don't sit - look at you, you've been *places*, your boots have a better story than half this room." She spins the lute onto her back. "You're no farmer come for the chorus. You have a question. I love questions. Ask."
 
 * "Where did you learn that song?" -> song_source
 * "Those verses are Undercrown canon. One manuscript, in a locked vault. Explain that." -> song_source
@@ -22,16 +25,22 @@ She sees your gear, or maybe what your gear has been through, and finishes the v
 * [Say nothing. Set the shard on the table.] -> shard_reveal
 
 == shard_reveal ==
-She looks at it a long time. She does not touch it. When she finally speaks, the performer is gone and something warier is sitting in her place.
+For the first time all evening, Wren Ashdown stops talking.
 
-"So it's a true song," she says quietly. "I'd half convinced myself I made it up. That's the trouble, you see. I don't remember learning it."
+She looks at it a long time. She does not touch it. And then the delight comes back, but it comes back *changed*, wide-eyed, half a whisper:
+
+"It's true. It's TRUE. Do you understand what - I have been singing that song for two winters and it's the best song I know and it's *true*." She leans in over the shard, still not touching it. "Which is wonderful. And also the trouble. Because everyone asks where I learned it, and the honest answer is: I don't remember learning it."
 
 * "Start from the beginning." -> song_source
 
 == song_source ==
-"Everyone asks that, and I lie to everyone, because the truth doesn't rhyme." She sets the lute down, which reads like a door being locked. "Two winters ago I sang for coppers by the old cistern stairs, down where the city forgets to sweep. There was a beggar there who spoke in couplets. Old meter. I thought it was madness with good scansion."
+"Oh, you want the real version? Nobody asks for the real version!" She pulls her chair around backwards and sits on it like a saddle, arms folded on the backrest, delighted to be interrogated.
 
-"He went down the stairs one night - down, courier, where the cellars flood and honest people don't - and he never came back up. And a month later I caught myself singing verses I'd never written, in a meter I'd never studied, about a crown I'd never heard of. The song came *up* those stairs with me. I just can't tell you what carried it."
+"Two winters ago I'm singing for coppers by the old cistern stairs - down where the city forgets to sweep, best acoustics in the city, terrible tips. And there's a beggar there who talks in *couplets*. Old meter! I thought: madness, but with good scansion, which honestly describes half my favorite people."
+
+The tempo drops, just a little.
+
+"One night he goes down the stairs. Down-down. Where the cellars flood and honest people don't. And he never comes back up. And a month later I catch myself singing verses I never wrote, in a meter I never studied, about a crown I'd never heard of." She spreads her hands. "The song came up those stairs and picked me. I still can't tell you what carried it."
 
 * "Then the stairs are where I'm going." -> met_first
     do flag(TSC_MetBard); signal(TSC_Act2_BardLead, TSC_MetBard); affinity(+5)
@@ -39,15 +48,13 @@ She looks at it a long time. She does not touch it. When she finally speaks, the
     do flag(TSC_MetBard); signal(TSC_Act2_BardLead, TSC_MetBard)
 
 == met_first ==
-"The cistern stairs. The sunken cellars under the old city." She picks the lute back up, hugging it more than holding it. "I'll draw you the way. I'll even sing at your funeral, courier, if it comes to that - I'll have the material."
+"The cistern stairs! The sunken cellars, the whole drowned - yes. Yes, all right, this is happening." She grabs the lute off her back, flips it over, and starts drawing on the back of it in charcoal, narrating as she goes, because of course she narrates.
 
-She pauses at the edge of a thought.
+"Village square - here. Stairhead - here, still standing, prettiest ruin you'll ever see. Three floors down, and I have never been past the third step, which is not for lack of standing at the top of it talking myself into it."
+
+She stops drawing. For one beat the brightness banks down to something small and sincere.
 
 "Whatever taught a beggar Undercrown canon is still down there. Songs have to come from somewhere."
-
-She turns the lute over and draws on the back of it, in charcoal, without apology: a square, a stairhead, three lines going down.
-
-"That's the village. That's the stair. I've never been past the third step, and I've stood at the top of it more nights than I'll admit to."
 
 * "Then we go down. Mark it properly." -> lead_taken
     do flag(TSC_CellarsLeadTaken); give_quest(TSC_Act2_Cellars); grant_xp(25)
@@ -55,17 +62,19 @@ She turns the lute over and draws on the back of it, in charcoal, without apolog
 * [Take your leave.] -> end
 
 == lead_taken ==
-She blows the charcoal dust off the lute and hands you the map, which is to say she hands you her instrument, looks at what she has done, and takes it back to copy onto a scrap of paper like a sane person.
+She blows the charcoal dust off the lute, hands you her entire instrument, realizes what she has done, takes it back, and copies the map onto a scrap of paper at speed, talking the whole time.
 
-"There'll be water. There was always water at the bottom of the steps, even in a dry year." She hesitates over the last thing, then says it anyway. "Courier - if there's someone still down there singing it, don't lead with the sword. That's all. Just don't lead with the sword."
+"There'll be water - there was always water at the bottom, even dry years, bring good boots, I cannot overstate the boots." She hands over the paper, and hesitates over the last thing, then says it anyway, quiet and quick:
+
+"If there's someone still down there singing it - don't lead with the sword. That's all. Just don't lead with the sword."
 
 * "Understood." -> end
 * "Come with us and tell them yourself." -> recruit
 
 == met ==
-Wren is where the crowd is, as bards are. She lifts two fingers off the lute's neck in greeting.
+Wren is where the crowd is, as bards are. She spots you across the room and abandons a paying audience mid-anecdote.
 
-"Still above ground. Good. The stairs are where I said, and the song hasn't changed its mind."
+"You're back! Still above ground! I *knew* it - I'd have felt it in the song otherwise. That's how it works, I've decided, nobody can tell me different." She's already pulling you toward a quieter corner. "Tell me everything. No - wait - business first, I can be professional. What do you need?"
 
 * "The stairs. Draw me the way down, properly." -> lead_taken
     if not flag(TSC_CellarsLeadTaken)
@@ -75,22 +84,22 @@ Wren is where the crowd is, as bards are. She lifts two fingers off the lute's n
 * "Just passing through." -> end
 
 == recruit ==
-She stops playing. For a while she looks at the lute instead of you, and when she answers it's quieter than her singing voice.
+She opens her mouth for the instant yes. Then she catches herself, and for a moment she looks at the lute instead of you, thumb finding a worn spot on its neck.
 
-"I've spent two winters being scared of this song. Singing it in taverns with the door in reach." Her thumb finds a worn spot on the lute's neck. "But it's *mine*, isn't it. Whatever carried it up those stairs gave it to me, and I've been paying that debt in tavern coppers."
+"I've spent two winters being scared of one verse of this song. Singing the rest of it in taverns with the door in reach." A breath. "But it's *mine*, isn't it. Whatever carried it up those stairs gave it to *me*."
 
-She stands, and the fear is still there, but it has moved to the back of the queue.
+And the grin comes back, full strength, fear filed to the back of the queue where she clearly intends it to stay.
 
-"Someone has to be there to sing the ending. All right, courier. I ride with you - me, the lute, and the only true song left in the world."
+"Yes. YES. Someone has to be there to sing the ending, and it is going to be me. Me, the lute, and the only true song left in the world - courier, you have no idea how long I've wanted the song to go somewhere."
 
 * "Welcome to the company, Wren." -> end
     do join_party(); affinity(+5); grant_xp(50)
 * "Think on it. I'll ask again." -> end
 
 == joined ==
-Wren rides with the party the way she performed: watching everything, keeping the rhythm. The lute travels wrapped in oilcloth like a relic, which by now it might be.
+Wren rides with the party the way she performed: interested in everything, narrating half of it, keeping the rhythm. The lute travels wrapped in oilcloth like a relic, which by now it might be.
 
-"Courier. Need a verse, or just company?"
+"Courier! Perfect timing. I have three new verses about yesterday and at least one of them is good. Or - wait, is this business? I can do business."
 
 * "The stairs you sang beside. Draw me the way down." -> lead_taken
     if not flag(TSC_CellarsLeadTaken)
@@ -101,19 +110,21 @@ Wren rides with the party the way she performed: watching everything, keeping th
 * "Just company." -> end
 
 == joined_talk ==
-"Cold. Saddle-sore. Closer to the song than I've ever been." She thinks about it properly, because you asked properly. "In the taverns I performed it. Out here it feels less like singing and more like *following*. Like the verses are ahead of us on the road, leaving tracks."
+"Cold! Saddle-sore! Completely wonderful!" She counts the road's gifts off on her fingers like verses. "Do you know what I got in the taverns? Requests. Do you know what I get out here? *Material*."
 
-She shrugs the fear off her shoulders, practiced by now.
+Then, because you asked properly, she actually thinks about it, and the answer under the sparkle is steadier than you expected.
 
-"Ask me again when we're standing where the next verse happened. I'll tell you if I regret this."
+"In the taverns I performed the song. Out here it feels more like following it. Like the verses are ahead of us on the road, leaving tracks." She shrugs, bright again. "Ask me again when we're standing where the next verse happened. I'll sing you my answer - it'll be better rhymed."
 
 * "Fair enough, singer." -> end
     do flag(TSC_WrenRoadTalk); grant_xp(10); affinity(+5)
 
 == met_song ==
-She sings it complete this time, unhurried: the king, the shattering, the five roads the pieces took. Verses about a crypt in the hills - you know that one now. Verses about water, and cellars, and a thing that waits in the wet dark. And verses at the end in a meter so old it drags its feet, which she sings with her eyes closed and cannot translate.
+She doesn't just sing it, she *presents* it: room hushed, a word about each part before it arrives, delighted to have the full attention of someone who matters to the story. The king. The shattering. The five roads the pieces took - "crypt in the hills, you know that one NOW, don't you" - and verses about water, and cellars, and a thing that waits in the wet dark.
 
-"That last part isn't mine," she says afterward. "It isn't anyone's. That's the part that scares me."
+And then the last verses, in a meter so old it drags its feet, and the performance falls away entirely. She sings them with her eyes closed. She cannot translate them.
+
+"That last part isn't mine," she says afterward, quiet as she ever gets. "It isn't anyone's. That's the part that scares me." Then, brightening, because sharing it helped: "The rest of it, though. Good song. *Great* song."
 
 * "It's a map, Wren. All of it." -> end
     do grant_xp(25)

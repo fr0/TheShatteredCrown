@@ -1,0 +1,28 @@
+# The guild mage: one per friendly settlement, at the circle in the stamped
+# mage guild. Sells translocation (Window_TSC_Translocate) and enchantment
+# (Window_TSC_Enchant), both for silver.
+
+dialogue TSC_Dialogue_TownMage
+
+== start ==
+The mage is sitting on the edge of an inlaid marble circle, eating an apple, and does not stand up when you come in.
+
+"Two things for sale, and neither of them is advice. I can move you, and I can argue with your armour. Both cost silver, and the silver is not the hard part."
+
+* "Move us how far?" -> travel
+* "Argue with our armour?" -> enchant
+* "Neither today." -> end
+
+== travel ==
+"As far as there's a circle at the other end, which means any town that isn't trying to kill us this season." He turns the apple over. "Everyone standing in the ring goes: your people, your beasts, whatever they're carrying. What's lying on the floor stays on the floor, and I won't hear a word about it afterward."
+
+* "Show me the circles." -> end
+    do mage_translocate()
+* "Not yet." -> end
+
+== enchant ==
+"Armour remembers what it's for. Given time and silver, it can be taught something extra: a ward, a lightness, a bite, a quickness." He finishes the apple. "Plain armour only. One working to a piece. Two workings on one coat argue with each other, and they settle it through whoever is wearing it."
+
+* "Show me the bench." -> end
+    do mage_enchant()
+* "Another time." -> end

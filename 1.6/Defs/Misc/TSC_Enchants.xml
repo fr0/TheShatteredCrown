@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Armor enchantments (TSC_Enchants.cs). Minor by design: an enchanted
+       piece is a pleasant find, not a build-around. Each def is one
+       possible roll; loot picks uniformly among them. Effects apply only
+       while the piece is WORN.
+       ================================================================ -->
+
+  <TheShatteredCrown.TSC_EnchantDef>
+    <defName>TSC_Enchant_Warded</defName>
+    <label>warded</label>
+    <description>A ward against harm, worked into the armor by someone who knew the old words. The wearer takes slightly less damage from everything.</description>
+    <statOffsets>
+      <IncomingDamageFactor>-0.08</IncomingDamageFactor>
+    </statOffsets>
+    <flavor>The blow lands, and some of it simply is not there.</flavor>
+  </TheShatteredCrown.TSC_EnchantDef>
+
+  <TheShatteredCrown.TSC_EnchantDef>
+    <defName>TSC_Enchant_Fleet</defName>
+    <label>fleet</label>
+    <description>A lightness worked into the armor: it carries some of its own weight, and a little of the wearer's besides.</description>
+    <statOffsets>
+      <MoveSpeed>0.30</MoveSpeed>
+    </statOffsets>
+    <flavor>The road feels shorter in it.</flavor>
+  </TheShatteredCrown.TSC_EnchantDef>
+
+  <TheShatteredCrown.TSC_EnchantDef>
+    <defName>TSC_Enchant_Keen</defName>
+    <label>keen</label>
+    <description>An old battle-blessing: every blow and every shot the wearer lands strikes a little harder.</description>
+    <damageDealtFactor>1.10</damageDealtFactor>
+    <flavor>Edges bite deeper. Arrows arrive angrier.</flavor>
+  </TheShatteredCrown.TSC_EnchantDef>
+
+  <TheShatteredCrown.TSC_EnchantDef>
+    <defName>TSC_Enchant_Swift</defName>
+    <label>swift</label>
+    <description>A quickness worked into the joints of the armor: the wearer swings, draws, and aims a little faster.</description>
+    <statOffsets>
+      <MeleeCooldownFactor>-0.08</MeleeCooldownFactor>
+      <RangedCooldownFactor>-0.08</RangedCooldownFactor>
+      <AimingDelayFactor>-0.08</AimingDelayFactor>
+    </statOffsets>
+    <flavor>The armor is never the thing that is late.</flavor>
+  </TheShatteredCrown.TSC_EnchantDef>
+
+</Defs>

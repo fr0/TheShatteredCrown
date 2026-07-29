@@ -1,5 +1,6 @@
 # Maewyn confronts the player the moment her cellar lock is picked while she
 # is in the party (opened directly by the pick job - no walk-up).
+# VOICE: terse. The silence is the sentence; her words are the verdict.
 # Compile with:  scripts\Compile-Dialogue.ps1
 
 dialogue TSC_Dialogue_Maewyn_CellarTheft
@@ -7,9 +8,15 @@ dialogue TSC_Dialogue_Maewyn_CellarTheft
 == start ==
 The lock has barely finished yielding when you feel it: the silence of being watched by a druid and her raven.
 
-"I know my own lock's voice, rider."
+"I know my own lock's voice."
 
-Maewyn doesn't raise hers. She doesn't need to. "Thirty years, that lock. It has kept out storms, wolves, and two kings' tax collectors." Corvus clicks his beak once, like a gavel. "It couldn't keep out my own company."
+Maewyn doesn't raise hers. She doesn't need to. Corvus clicks his beak once, like a gavel.
+
+"Thirty years, that lock. Storms. Wolves. Two kings' tax collectors."
+
+She looks at you.
+
+"My own company."
 
 * "I should have asked. I'm sorry, Maewyn." -> sorry
     do flag(TSC_MaewynCellarAired)
@@ -21,20 +28,24 @@ Maewyn doesn't raise hers. She doesn't need to. "Thirty years, that lock. It has
 == sorry ==
 She looks at you for a long moment. Some of the frost goes out of it. Not all.
 
-"The book you may keep; knowledge should be shared, and you could have just asked. The trust will take longer to restock than the shelf."
+"Keep the book. You could have asked."
+
+She turns away, and adds, to the hills more than to you:
+
+"Trust restocks slower than shelves."
 
 * "It won't happen again." -> end
 
 == defiant ==
-"For the company's good, was it." Her voice is sharp as winter.
+Her voice comes back sharp as winter, and short as everything else she says.
 
-"Then the company can carry its own opinion of it. Keep the book. My locks are done being polite about the rest."
+"Keep the book. My locks are done being polite."
 
 * "Understood." -> end
 
 == silence ==
-The silence stretches, and she lets it. Corvus does the judging for both of them.
+The silence stretches, and she lets it. Corvus does the judging for both of them. When she finally speaks, it is three sentences, delivered like stones set down.
 
-"The book you may keep. Knowledge wants legs. Trust, rider, walks slower."
+"Keep the book. Knowledge wants legs. Trust walks slower."
 
 * "..." -> end

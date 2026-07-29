@@ -1,0 +1,140 @@
+# Madoc Emberlow - the sorcerer at the fire on the road (Act 3). Sitting
+# with Hew and Gille, who are dead, which he does not appear to know. He is
+# planning to assault the Iron Brand keep by himself at dawn, via the drain
+# under the east wall that Gille found.
+# VOICE: genuinely insane, genuinely friendly. Cheerful non sequiturs,
+# conversations with the dead, and sudden flashes of eerie, total lucidity
+# (mostly about fire, and once about grief). Never menacing, never pitiable
+# on purpose.
+
+dialogue TSC_Dialogue_Madoc
+
+entry joined if in_party()
+entry met if flag(TSC_MadocMet)
+
+== start ==
+The fire is small and sits unnaturally still, burning without a flicker, like a painting of a fire. Around it sit three figures: two leaned comfortably against a log, hoods down as if listening, and one very much awake, stirring an empty pot.
+
+The two against the log are dead. Days dead. The cold has been kind, but not that kind.
+
+"Company!" the live one says, delighted, and does not get up. "Sit, sit. Stew's nearly ready, isn't it, Hew? Hew says it needs thyme. Hew is a tyrant about thyme." He taps the empty pot with the spoon, generously. "Madoc Emberlow. And this is Hew, and that is Gille, and we are storming the Iron Brand keep at dawn. You're welcome to come! All of you. The fire says you'll do."
+
+* "Your friends are..." [Look at the two by the log.] -> friends
+* "Storm the keep? The three of you?" -> plan
+* [Sit down at the fire.] -> sit
+
+== sit ==
+The fire does not warm the way a fire should. It watches, a little. Madoc serves out invisible stew with the care of a man feeding his own family, a bowl for everyone at the fire, and two set by the log that nobody reaches for.
+
+"They're tired," he says, following your glance, fond as anything. "Long road. Gille hasn't complained once in days, and Gille COMPLAINS, believe me, it's how he loves things. Isn't it, Gille." He listens to the silence. He laughs at what it says. "See? Incorrigible."
+
+* "Your friends are..." [Look at the two by the log.] -> friends
+* "Tell me about this assault of yours." -> plan
+
+== friends ==
+"Tired," Madoc says again, and for exactly one heartbeat the cheer is a door standing open on an empty house. Then it shuts, warm again. "The Brand put arrows in them at the north ford. Gille took his out himself, cool as you like. They've been resting since. Resting's the thing! Can't storm a keep tired."
+
+The fire holds very still.
+
+"You mustn't worry about my friends," he says, kindly, as if you were the one who needed the comfort. "I'm looking after them."
+
+* [Insight] "Madoc. They took their rest. You know that." -> truth
+    if passive(Insight, 7)
+* "Of course. Can't storm a keep tired." -> plan
+    do affinity(+5)
+
+== truth ==
+Madoc stirs the pot. Around, and around, and around.
+
+"...I know," he says at last, to the pot, in a voice from a different man entirely, quiet and level and eight years older. "I know it in the mornings, mostly. The fire doesn't lie, you see. Fire never lies, that's the whole trouble with it. I ask it to show me Hew snoring and it just... shows me the ford." Around, and around. "So I don't ask in the mornings."
+
+He looks up, and the mad bright cheer climbs back into his face like a man putting on a coat against the cold, deliberately, because it is what he has.
+
+"They'd want to come anyway. To the keep. They'd HATE to miss it. So. We three - and all of YOU now, look at us, an ARMY - at dawn?"
+
+* "At dawn, Madoc. All of us." -> plan
+    do affinity(+10); grant_xp(25)
+
+== plan ==
+"Ah! The PLAN." Madoc sets down the spoon and leans in over the still fire, which obligingly bends toward him like a listening dog. "The Brand thinks the keep has one door, because the Brand counts like a chicken. One gate, ten men on it, very proud of themselves. But."
+
+He holds up one finger, delighted with the whole world.
+
+"There is a drain. Under the east wall, where the old kitchens dumped their wash-water down the hill. Gille found it - Gille can smell a way in through six feet of stone, it's his gift like fire is mine. It lets into the cellars. Wine, roots, rats, and NO guards, because the Brand doesn't guard what it doesn't know it owns." He beams. "We go in at dawn, up through the cellars, and I burn the Baron out of his own hall. That's the plan. It's a very good plan. Hew thinks the burning part is too loud, but Hew thinks everything is too loud."
+
+* "Come with us instead, Madoc. The company is storming that keep. Ride with us." -> recruit
+    do flag(TSC_BrandBackWay); flag(TSC_MadocMet); signal(TSC_Act3_RoadFire, TSC_MetMadoc)
+* "That drain just saved a lot of lives. We'll use it - together or not." -> respect
+    do flag(TSC_BrandBackWay); flag(TSC_MadocMet); signal(TSC_Act3_RoadFire, TSC_MetMadoc)
+
+== respect ==
+"Together is better," Madoc says, seriously, and for a moment the fire flickers like a real one. "Everything is. That's not madness, you know. That's the one thing I'm sure I've got right."
+
+He goes back to stirring the empty pot.
+
+"We'll be here. When you go to the walls, go at dawn, and go UNDER. And if you hear singing in the cellars, that's only me. I sing when I burn things. It keeps the fire company."
+
+* "Come with us, Madoc. Now. The company could use your fire." -> recruit
+* [Leave him to his fire.] -> end
+
+== recruit ==
+Madoc looks at Hew. Then at Gille. The fire holds its breath, and so, strangely, do you.
+
+"They'd tell me to go," he says softly. "Hew would say: Madoc, you great singed owl, you cannot take a keep with two tired men and a pot." A pause. "And he'd be right. He was always right. It's why Gille complained so much."
+
+He stands, all at once, and starts NOT packing - just picking up the pot and the spoon and leaving everything else exactly as it is: the bedrolls, the log, the two quiet figures against it, arranged and warm-looking and watched over by the unmoving fire.
+
+"They'll keep the camp," he says, in the voice you do not argue with, and then, bright as morning: "WELL. New company! I should warn you: I talk to fires, the fires talk back, and only one of us is lying. To the keep!"
+
+* "Welcome to the company, Madoc." -> welcomed
+    do join_party(); affinity(+5); grant_xp(50)
+* "Take the night. Say your goodbyes. We'll come back for you." -> end
+    do flag(TSC_MadocStayed)
+
+== welcomed ==
+He falls in beside you without one backward glance, which is how you know he is not able to take one.
+
+The fire behind him burns on, still and steady, keeping its watch over the camp until it has no one left to warm.
+
+"Now," says Madoc, cheerfully. "Has anyone in this company ever burned down anything LARGE? No? Oh, you're going to love it."
+
+* "This way, Madoc."
+
+== met ==
+Madoc is where you left him, feeding the still fire twigs it does not consume, keeping camp with the quiet company by the log.
+
+"Back!" he says, pleased, as if you had stepped away for firewood. "The keep's still there. I check with the fire every evening. The Baron eats too much pork and sleeps on the west side. The fire finds him very boring to watch."
+
+* "The offer stands: come with us, Madoc." -> recruit
+* "Just passing, Madoc. Keep your fire warm." -> end
+
+== joined ==
+Madoc travels the way he camps: cheerfully, in conversation with every cookfire, torch and candle the company owns. The fires seem fonder of him than fires should be.
+
+"Yes! Hello! Do you need something burned?" A pause. "That came out wrong. Do you need something? Additionally I can burn things."
+
+* "Teach me the sorcerer's way, Madoc." -> teaching
+    if not flag(TSC_MadocTaught)
+* "How are you holding up, away from your camp?" -> joined_talk
+    if affinity(>=10) and not flag(TSC_MadocCampTalk)
+* "Carry on, Madoc."
+
+== teaching ==
+"Teach! Yes! Excellent! Nobody ever asks, they just point at things and shout FASTER." He sits you down in front of the nearest flame, folds your hands around nothing, and is suddenly, completely serious, in that way he has, like the sun going behind a cloud.
+
+"First lesson. The fire is not your servant and it is not your friend. It is your COUNTERPART. It wants to eat and you want to think, and sorcery is the treaty. You feed it what you can spare, it shows you what you can bear, and NEITHER of you ever lies to the other. That's all sorcery is. The rest is wiggling your fingers."
+
+That evening, and for several after, he teaches: what to feed a flame to make it listen; how to hold heat in the mind's cupped hands without spilling it; and which promises a fire will hold you to.
+
+* [Learn the Sorcerer's way] "The treaty. I think I understand." -> end
+    if not flag(TSC_MadocTaught)
+    do flag(TSC_MadocTaught); learn_class(TSC_Class_Sorcerer); grant_xp(25); affinity(+5)
+* "This is... a lot of staring into fires, Madoc." -> end
+
+== joined_talk ==
+The question lands somewhere real, and Madoc lets it. He watches the campfire for a while - the ordinary, flickering campfire, that is fractionally less ordinary wherever he sits by it.
+
+"I hear them in it, some evenings," he says, conversationally, as if reporting the weather. "Hew and Gille. The fire doesn't lie, so I know it isn't them - it's the shape they left in me, crackling. But it's a good shape. It complains about the cold and it's a tyrant about thyme." He smiles at the flames, entirely at peace and entirely mad, and possibly neither. "You keep what you can carry, friend. I can carry a fire."
+
+* "Then carry it with us, as far as it goes." -> end
+    do flag(TSC_MadocCampTalk); grant_xp(10); affinity(+5)

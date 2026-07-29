@@ -74,4 +74,64 @@ namespace TheShatteredCrown
             return true;
         }
     }
+
+    /// <summary>
+    /// The quest-side half of the nomad fix. QuestGen_Get.GetMap only
+    /// accepts PLAYER HOME maps, and a nomadic party never owns one - so
+    /// every site-spawning quest generated with a null slate map, rooted
+    /// its tile search at PlanetTile -1 ("Attempted to access a tile with
+    /// ID -1", logged from QuestNode_GetSiteTile), and let the tile finder
+    /// fall back to a semi-random tile. Sites landed SOMEWHERE, which is
+    /// why this hid for so long; "3~8 tiles away" was quietly a lie.
+    ///
+    /// When vanilla comes up empty in an RPG-mode game, answer with where
+    /// the party actually is: the surface map (pocket chains walk to their
+    /// root) holding the most free colonists. Vanilla results are never
+    /// overridden.
+    /// </summary>
+    [HarmonyPatch(typeof(RimWorld.QuestGen.QuestGen_Get), nameof(RimWorld.QuestGen.QuestGen_Get.GetMap))]
+    public static class Patch_QuestGetMap_Nomads
+    {
+        public static void Postfix(ref Map __result)
+        {
+            if (__result != null || !TSC_RpgMode.Active)
+            {
+                return;
+            }
+            // OUR scripts only. This patch briefly answered EVERY map
+            // request, which let the storyteller's map-requiring quests
+            // (Odyssey signals and kin) pass their can-run tests in a
+            // homeless nomad game and start piling into the quest tab.
+            // During storyteller candidate checks no quest is being built,
+            // so this also leaves TestRun behavior fully vanilla.
+            RimWorld.QuestScriptDef generating = RimWorld.QuestGen.QuestGen.quest?.root;
+            if (generating?.defName == null || !generating.defName.StartsWith("TSC_"))
+            {
+                return;
+            }
+            Map best = null;
+            int bestCount = 0;
+            foreach (Map map in Find.Maps)
+            {
+                int colonists = map.mapPawns.FreeColonistsSpawnedCount;
+                if (colonists == 0)
+                {
+                    continue;
+                }
+                Map root = TSC_Threat.RootMap(map);
+                if (root == null || !root.Tile.Valid)
+                {
+                    continue;
+                }
+                if (colonists > bestCount)
+                {
+                    bestCount = colonists;
+                    // Pocket-floor parties claim their ROOT map: the site
+                    // search must anchor on a real world tile.
+                    best = root;
+                }
+            }
+            __result = best;
+        }
+    }
 }
