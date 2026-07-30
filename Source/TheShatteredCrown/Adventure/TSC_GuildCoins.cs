@@ -245,6 +245,7 @@ namespace TheShatteredCrown
                     }
                 }
             }
+            entries.AddRange(TSC_MedievalGear.GuildShelf());
             entries.SortBy(e => e.cost);
             return entries;
         }

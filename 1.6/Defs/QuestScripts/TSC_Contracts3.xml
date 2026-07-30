@@ -29,7 +29,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[rd_flavor]\n\nThis is not a camp you can walk into. They have walls, a hexer, and time to have used both. The guild is paying the deep rate for a reason.\n\nCharter silver and guild coin, on the last of them.</li>
+        <li>questDescription->[rd_flavor]\n\nThis is not a camp you can walk into. They have walls and a hexer. The guild is paying the premium rate for a reason.\n\nCharter silver and guild coin, on the last of them.</li>
         <li>rd_flavor->A crew holds a fortified ruin above the only road through the ridge, and charges for passage. Three smaller contracts have already lapsed on it.</li>
         <li>rd_flavor->What started as a camp is now a holding. The walls are mended and there is a watch. This is not a job for one rider.</li>
         <li>rd_flavor->The guild has lost two caravans and a factor to the same ruin. The factor is why the rate is this high.</li>
@@ -78,7 +78,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelRedoubtDone">Contract complete</label>
-                <text TKey="LetterTextRedoubtDone">The redoubt is taken and the road under it is open. Payment at the deep rate, and the factor writes your company's name where it will be read.</text>
+                <text TKey="LetterTextRedoubtDone">The redoubt is taken and the road under it is open. Payment at the premium rate.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>350</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>600</amount><coins>8</coins></li>
@@ -94,7 +94,11 @@
 
   <QuestScriptDef ParentName="TSC_ContractBase">
     <defName>TSC_Contract_Warren</defName>
-    <defaultChallengeRating>2</defaultChallengeRating>
+    <!-- Rated 3, not 2: two doubled sides is the largest body count on the
+         board. It plays easier than the raw number because the tenants spend
+         themselves on each other, but a company that walks in expecting a
+         rating-2 job walks into eight to sixteen hostiles. -->
+    <defaultChallengeRating>3</defaultChallengeRating>
     <questNameRules>
       <rulesStrings>
         <li>questName->Contract: [wr_name]</li>
@@ -106,7 +110,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[wr_flavor]\n\nTravel to the ruin and clear it out: BOTH sets of tenants, the squatters and the insects, have to be dead or driven off before the guild takes the building back. Leaving one lot in place finishes nothing.\n\nThey are hostile to you and to each other. A patient crew can let them do some of the work; an impatient one ends up between them.\n\nPay is charter silver and guild coin, on the building standing empty.</li>
+        <li>questDescription->[wr_flavor]\n\nTravel to the ruin and clear it out: BOTH sets of tenants, the squatters and the insects, have to be dead or driven off before the guild takes the building back. Leaving one lot in place finishes nothing.\n\nThey are hostile to you and to each other. Let them fight each other first if you can.\n\nPay is charter silver and guild coin, on the building standing empty.</li>
         <li>wr_flavor->A ruin the guild wants back has two occupants: squatters at one end, insects at the other. Neither has managed to shift the other.</li>
         <li>wr_flavor->Squatters took a waystation, then found out what was already living under it. The stand-off has held for a season.</li>
         <li>wr_flavor->There are two kinds of tracks going in and one kind coming out. The guild's surveyor did not stay to work out why.</li>
@@ -151,10 +155,10 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelWarrenDone">Contract complete</label>
-                <text TKey="LetterTextWarrenDone">Both sets of tenants are dealt with. The guild will have the roof back on before the rains.</text>
+                <text TKey="LetterTextWarrenDone">Both sets of tenants are dealt with. Payment as chartered.</text>
               </li>
-              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>220</xp></li>
-              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>360</amount><coins>5</coins></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>320</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>550</amount><coins>7</coins></li>
             </nodes>
           </node>
         </li>
@@ -179,7 +183,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[pk_flavor]\n\nThere is no building to fight from and no door to hold. They hunt in company, so expect them from more than one side.\n\nPay is charter silver and guild coin, on the ground being clear.</li>
+        <li>questDescription->[pk_flavor]\n\nThere is no building to fight from and no door to hold. They hunt as a pack, so expect them from more than one side.\n\nPay is charter silver and guild coin, on the ground being clear.</li>
         <li>pk_flavor->A pack has claimed a stretch of drove road and learned that drovers travel alone.</li>
         <li>pk_flavor->Something has been working the downs in a group. The guild's surveyor counted the kills and stopped going out alone.</li>
         <li>pk_flavor->Herders on the marked ground lost more animals this month than in the last two years. Last week they stopped losing animals and started losing herders.</li>
@@ -233,7 +237,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelPackDone">Contract complete</label>
-                <text TKey="LetterTextPackDone">The ground is clear and the drovers can use the road again. The guild pays on the tally.</text>
+                <text TKey="LetterTextPackDone">The ground is clear. The guild pays on the tally.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>200</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>300</amount><coins>4</coins></li>
@@ -313,7 +317,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelVaultDone">Contract complete</label>
-                <text TKey="LetterTextVaultDone">Three hundred years late, and set down on a factor's table at last. He strikes the line out himself.</text>
+                <text TKey="LetterTextVaultDone">The coffer is on the factor's table, three hundred years late. Payment as chartered.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>250</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>450</amount><coins>6</coins></li>
@@ -387,7 +391,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelShrineDone">Contract complete</label>
-                <text TKey="LetterTextShrineDone">The shrine is clear and the road past it is safe again. What it was being used for goes into a ledger riders do not see.</text>
+                <text TKey="LetterTextShrineDone">The shrine is clear and the road past it is safe again. Payment as chartered.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>220</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>340</amount><coins>5</coins></li>
@@ -467,7 +471,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelWreckDone">Contract complete</label>
-                <text TKey="LetterTextWreckDone">The coffer is back under seal on a factor's table. The drivers are still dead, and he does not pretend that balances.</text>
+                <text TKey="LetterTextWreckDone">The coffer is back under seal. Payment as chartered.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>180</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>280</amount><coins>3</coins></li>

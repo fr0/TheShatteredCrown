@@ -1,10 +1,72 @@
 using System;
+using System.Reflection;
 using HarmonyLib;
 using RimWorld.Planet;
 using Verse;
 
 namespace TheShatteredCrown
 {
+    /// <summary>
+    /// The backstop for the same problem, one layer down.
+    ///
+    /// Patch_TryFindRandomPlayerTile_Nomads below answers "where is the
+    /// player" when vanilla cannot, which covers the callers that ASK. Some
+    /// do not: QuestNode_Root_Loot_AncientComplex works out its own root tile
+    /// and hands it straight to the site finder, so when a nomadic party
+    /// leaves it holding PlanetTile -1 the search runs anyway and the planet
+    /// layer logs "Attempted to access a tile with ID -1" - once per quest,
+    /// every time the storyteller so much as CONSIDERS one, because the
+    /// eligibility test runs the search.
+    ///
+    /// Searching outward from a tile that does not exist has no meaningful
+    /// answer, so this says so: no tile found, cleanly, before the query is
+    /// built. The caller's own "could not find a site" path then runs exactly
+    /// as it would have. Deliberately NOT gated on RPG mode - an invalid root
+    /// is bad input from anybody.
+    /// </summary>
+    [HarmonyPatch]
+    public static class Patch_TryFindNewSiteTile_NoRoot
+    {
+        /// <summary>The overload that takes a root tile; the other one derives its own.</summary>
+        private static MethodBase Target()
+        {
+            foreach (MethodInfo method in typeof(TileFinder).GetMethods(AccessTools.all))
+            {
+                if (method.Name != "TryFindNewSiteTile")
+                {
+                    continue;
+                }
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length > 1 && parameters[1].ParameterType == typeof(PlanetTile))
+                {
+                    return method;
+                }
+            }
+            return null;
+        }
+
+        public static bool Prepare()
+        {
+            return Target() != null;
+        }
+
+        public static MethodBase TargetMethod()
+        {
+            return Target();
+        }
+
+        public static bool Prefix(ref PlanetTile tile, PlanetTile nearTile, ref bool __result)
+        {
+            if (nearTile.Valid)
+            {
+                return true;
+            }
+            tile = PlanetTile.Invalid;
+            __result = false;
+            return false;
+        }
+    }
+
     /// <summary>
     /// Vanilla's "where is the player" fallback assumes a settled home map:
     /// TryFindRandomPlayerTile only accepts maps that are IsPlayerHome with

@@ -83,7 +83,7 @@
                     <li Class="QuestNode_Letter">
                       <letterDef>NeutralEvent</letterDef>
                       <label TKey="LetterLabelLedgerFound">The countersigned pages</label>
-                      <text TKey="LetterTextLedgerFound">The toll book names a guild factor, in a hand you can match to your own charter. He signed off every caravan this crew took, days before they took it.\n\nHe is at a guild hall, working, expecting nothing. What you do about it is your decision.</text>
+                      <text TKey="LetterTextLedgerFound">The toll book names a guild factor, in a hand you can match to your own charter. He signed off every caravan this crew took, days before they took it.\n\nHe is at a guild hall and does not know you have the book. What you do about it is your decision.</text>
                     </li>
                     <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
                       <questDef>TSC_Quest_LedgerChoice</questDef>
@@ -119,7 +119,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->You are carrying a toll book that names a guild factor as the man who told bandits which caravans were worth stopping.\n\nTake it to a factor at any guild hall. Hand it in and let the guild deal with its own, or name a price for it. The guild pays in coin. He pays more, in silver, and will remember which you chose.</li>
+        <li>questDescription->You are carrying a toll book that names a guild factor as the man who told bandits which caravans were worth stopping.\n\nTake it to a factor at any guild hall. Hand it in, or sell it back to the man it names.\n\nThe guild pays less silver and settles the rest in guild coin. He pays a good deal more, all in silver.</li>
       </rulesStrings>
     </questDescriptionRules>
     <root Class="QuestNode_Sequence">
@@ -132,7 +132,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelLedgerTurnIn">The guild deals with its own</label>
-                <text TKey="LetterTextLedgerTurnIn">The book goes into a strongbox and out of your hands. Nobody thanks you directly.\n\nThe next factor you meet already knows your company's name, and the back of the locker opens easier.</text>
+                <text TKey="LetterTextLedgerTurnIn">The book goes into a strongbox and out of your hands. Nobody thanks you directly.\n\nThe guild settles in silver and coin both.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>250</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>200</amount><coins>10</coins></li>
@@ -149,7 +149,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>NeutralEvent</letterDef>
                 <label TKey="LetterLabelLedgerSell">A private arrangement</label>
-                <text TKey="LetterTextLedgerSell">He pays without haggling, which tells you the pages were worth more than you asked. The book goes into his fire.\n\nHe stays civil about it. He also never shows your company the back of the locker again.</text>
+                <text TKey="LetterTextLedgerSell">He pays without haggling, and the book goes into his fire.\n\nAll of it in silver. No coin, and no receipt.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>250</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>900</amount><coins>0</coins></li>

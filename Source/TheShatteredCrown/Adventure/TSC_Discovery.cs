@@ -406,6 +406,23 @@ namespace TheShatteredCrown
         /// <summary>"bandits" (default), "insects", or "wild" for no faction.</summary>
         public string faction = "bandits";
 
+        /// <summary>
+        /// "SW", "NE", "NW", or "SE": confine this crew to the end of the
+        /// structure nearest that map corner. For sites where two hostile
+        /// groups share one building (the warren). Unset, the crew spreads
+        /// through the whole interior as it always did.
+        ///
+        /// This exists because two groups scattered through the SAME rooms
+        /// start their war at map generation, and the player crosses the map
+        /// to find one side already routed. Partitioned to opposite ends,
+        /// with a defend radius that keeps each side home, the stand-off the
+        /// contract describes actually holds until the party disturbs it.
+        /// </summary>
+        public string holdEnd;
+
+        /// <summary>How far a partitioned crew will pursue from its post.</summary>
+        private const float HoldDefendRadius = 12f;
+
         public override int SeedPart => 771604318;
 
         private Faction ResolveFaction()
@@ -418,6 +435,30 @@ namespace TheShatteredCrown
                     return null;
                 default:
                     return TSC_BanditFactionUtility.Get();
+            }
+        }
+
+        private IntVec3 Corner(Map map, string end)
+        {
+            switch (end)
+            {
+                case "SW": return new IntVec3(0, 0, 0);
+                case "SE": return new IntVec3(map.Size.x - 1, 0, 0);
+                case "NW": return new IntVec3(0, 0, map.Size.z - 1);
+                case "NE": return new IntVec3(map.Size.x - 1, 0, map.Size.z - 1);
+                default: return IntVec3.Invalid;
+            }
+        }
+
+        private static string Opposite(string end)
+        {
+            switch (end)
+            {
+                case "SW": return "NE";
+                case "NE": return "SW";
+                case "NW": return "SE";
+                case "SE": return "NW";
+                default: return null;
             }
         }
 
@@ -440,7 +481,39 @@ namespace TheShatteredCrown
             // with a couple left outside as lookouts. Sites with no building
             // (open camps) keep the old centre-post behaviour.
             List<IntVec3> interior = GenStep_TSC_PlaceInStructure.InteriorCells(map);
+            // A crew given an end keeps to it: its half of the interior,
+            // post in the deepest part of that half.
+            IntVec3 own = Corner(map, holdEnd);
+            IntVec3 far = Corner(map, Opposite(holdEnd));
+            if (own.IsValid && far.IsValid && interior.Count > 1)
+            {
+                List<IntVec3> half = new List<IntVec3>();
+                foreach (IntVec3 cell in interior)
+                {
+                    if (cell.DistanceToSquared(own) < cell.DistanceToSquared(far))
+                    {
+                        half.Add(cell);
+                    }
+                }
+                if (half.Count > 0)
+                {
+                    interior = half;
+                }
+            }
             IntVec3 post = interior.Count > 0 ? interior.RandomElement() : map.Center;
+            if (own.IsValid && interior.Count > 0)
+            {
+                float best = float.MaxValue;
+                foreach (IntVec3 cell in interior)
+                {
+                    float d = cell.DistanceToSquared(own);
+                    if (d < best)
+                    {
+                        best = d;
+                        post = cell;
+                    }
+                }
+            }
             if (interior.Count == 0 && !post.Walkable(map))
             {
                 foreach (IntVec3 candidate in GenRadial.RadialCellsAround(map.Center, 60f, useCenter: false))
@@ -530,7 +603,13 @@ namespace TheShatteredCrown
             }
             if (guards.Count > 0 && holders != null)
             {
-                LordMaker.MakeNewLord(holders, new LordJob_DefendPoint(post), map, guards);
+                // The defend radius is the other half of the partition: the
+                // half-interior keeps them SPAWNING at their end, the radius
+                // keeps them from marching to the other one on first contact.
+                LordJob_DefendPoint job = own.IsValid
+                    ? new LordJob_DefendPoint(post, null, HoldDefendRadius)
+                    : new LordJob_DefendPoint(post);
+                LordMaker.MakeNewLord(holders, job, map, guards);
             }
         }
     }

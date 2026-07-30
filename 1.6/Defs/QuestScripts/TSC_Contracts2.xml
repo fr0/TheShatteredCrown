@@ -27,7 +27,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[nt_flavor]\n\nClear the building out. Look the place over before you commit to a room - whatever is in there knows the floor plan and you do not.\n\nPay is charter silver and guild coin.</li>
+        <li>questDescription->[nt_flavor]\n\nClear the building out. Look it over before you commit to a room: whatever is inside knows the layout.\n\nPay is charter silver and guild coin.</li>
         <li>nt_flavor->A waystation the guild still owns has stopped answering. The last rider to look through a window did not go inside.</li>
         <li>nt_flavor->An old works on the guild's books has been filling up from underneath. Nobody noticed until the well went bad.</li>
         <li>nt_flavor->Insects have taken a building the guild wants back before winter. When the roads close there is nowhere else to shelter on that stretch.</li>
@@ -93,7 +93,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelNestDone">Contract complete</label>
-                <text TKey="LetterTextNestDone">The building is empty. The guild will have masons in it before the month is out.</text>
+                <text TKey="LetterTextNestDone">The building is empty. Payment as chartered.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>200</xp>
@@ -129,7 +129,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[rs_flavor]\n\nThe holdfast is marked on your map. Get them out alive. The guild pays for the rider, not for the crew, so how you do it is your business.\n\nCharter silver and guild coin, on their return.</li>
+        <li>questDescription->[rs_flavor]\n\nThe holdfast is marked on your map. Get them out alive. The guild pays for the rider, not for the crew: you do not have to clear the place.\n\nCharter silver and guild coin, on their return.</li>
         <li>rs_flavor->A charter rider went out with a satchel and did not come back. A ransom demand did, in a hand the guild recognises.</li>
         <li>rs_flavor->One of the guild's own is being held for a price the guild will not pay. The factor was careful to say that is not the same as leaving them there.</li>
         <li>rs_flavor->A crew took a rider off the road three weeks ago and has fed them since. That means they want the money more than the trouble. It will not last.</li>
@@ -206,7 +206,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelRescueDone">Contract complete</label>
-                <text TKey="LetterTextRescueDone">The rider is out and on their feet. The guild pays the charter rate, and notes which company brought them back.</text>
+                <text TKey="LetterTextRescueDone">The rider is out and on their feet. The guild pays the charter rate.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>200</xp>

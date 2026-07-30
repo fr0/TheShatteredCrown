@@ -267,7 +267,7 @@
     <label>charge</label>
     <description>The caster sprints at five times normal move speed for 5 seconds. Close the line before the line closes you.
 
-In turn-based combat the surge grants +2 AP on cast, offsetting its cost.</description>
+In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost.</description>
     <iconPath>UI/TSC_Abilities/TSC_Charge</iconPath>
     <cooldownTicksRange>1200</cooldownTicksRange>
     <statBases>
@@ -288,7 +288,7 @@ In turn-based combat the surge grants +2 AP on cast, offsetting its cost.</descr
         <cost>10</cost>
       </li>
       <li Class="TheShatteredCrown.CompProperties_TSC_GrantAp">
-        <amount>2</amount>
+        <amount>4</amount>
       </li>
       <li Class="CompProperties_AbilityGiveHediff">
         <compClass>TheShatteredCrown.CompAbilityEffect_TSC_GiveHediffLeveled</compClass>

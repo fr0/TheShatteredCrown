@@ -178,6 +178,51 @@ namespace TheShatteredCrown
         }
     }
 
+    /// <summary>
+    /// How many able adventurers are standing here. Scenes that put words in
+    /// a companion's mouth need an alternative for the lone-adventurer start,
+    /// where the only person present is the one being spoken to.
+    ///
+    /// Counts the interactor's own map, not the whole campaign: what matters
+    /// to a scene is who is in the room.
+    /// </summary>
+    public class DialogueCondition_PartySize : DialogueCondition
+    {
+        public int min = -1;
+        public int max = -1;
+
+        public override bool Met(DialogueContext context)
+        {
+            Map map = context.interactor?.MapHeld;
+            int count = 0;
+            if (map != null)
+            {
+                foreach (Pawn pawn in map.mapPawns.FreeColonistsSpawned)
+                {
+                    if (!pawn.Dead && !pawn.Downed && pawn.RaceProps.Humanlike)
+                    {
+                        count++;
+                    }
+                }
+            }
+            else if (context.interactor != null)
+            {
+                RimWorld.Planet.Caravan caravan = RimWorld.Planet.CaravanUtility.GetCaravan(context.interactor);
+                if (caravan != null)
+                {
+                    foreach (Pawn pawn in caravan.PawnsListForReading)
+                    {
+                        if (pawn.IsFreeColonist && !pawn.Dead && pawn.RaceProps.Humanlike)
+                        {
+                            count++;
+                        }
+                    }
+                }
+            }
+            return (min < 0 || count >= min) && (max < 0 || count <= max);
+        }
+    }
+
     /// <summary>True when the NPC being talked to is asleep - route to a groggy night node (pair with the wake() effect).</summary>
     public class DialogueCondition_Sleeping : DialogueCondition
     {

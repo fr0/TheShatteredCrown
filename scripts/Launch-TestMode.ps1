@@ -4,6 +4,15 @@
 #
 # Usage:  powershell -ExecutionPolicy Bypass -File scripts\Launch-TestMode.ps1
 # Optional: -QuickTest  (skips the main menu, generates a small dev test map)
+#           -WithMO     (add Medieval Overhaul and its required frameworks,
+#                        loaded BEFORE this mod: overhauls first, content
+#                        after)
+#           -WithCE     (add Combat Extended, loaded AFTER this mod - CE
+#                        patches other people's content and only sees defs
+#                        already loaded, so the reverse order silently
+#                        leaves our weapons without CE stats)
+#           Both switches are independent on purpose: TSC+CE alone is the
+#           cleanest way to tell a CE problem from an MO one.
 #           -AutoClose  (unattended load checks: kill the game after
 #                        -AutoCloseSeconds [default 90] - long enough to load
 #                        defs and write errors to Player.log - then restore.
@@ -11,7 +20,8 @@
 #                        is really gone, then grace time for any config flush,
 #                        THEN restore, and verify the restored entry count.)
 
-param([switch]$QuickTest, [switch]$AutoClose, [int]$AutoCloseSeconds = 90)
+param([switch]$QuickTest, [switch]$AutoClose, [int]$AutoCloseSeconds = 90,
+      [switch]$WithMO, [switch]$WithCE)
 
 $gameDir = "X:\SteamLibrary\steamapps\common\RimWorld"
 $cfgDir  = "$env:USERPROFILE\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios"
@@ -42,20 +52,48 @@ $originalCount = $existingCount
 Copy-Item $cfg $backup -Force
 Write-Host "Backed up your mod list to $backup"
 
-@'
+# The list is composed rather than fixed so the optional overhauls can be
+# slotted in at the right POSITION, which is the whole point of testing
+# with them: order is the thing most likely to be wrong.
+$mods = [System.Collections.Generic.List[string]]::new()
+$mods.AddRange([string[]]@(
+    "brrainz.harmony",
+    "ludeon.rimworld",
+    "ludeon.rimworld.royalty",
+    "ludeon.rimworld.ideology",
+    "ludeon.rimworld.biotech",
+    "ludeon.rimworld.anomaly",
+    "ludeon.rimworld.odyssey"
+))
+
+if ($WithMO) {
+    # Medieval Overhaul's own required frameworks, then MO, all ahead of us.
+    $mods.AddRange([string[]]@(
+        "oskarpotocki.vanillafactionsexpanded.core",
+        "syrchalis.processor.framework",
+        "dankpyon.medieval.overhaul"
+    ))
+}
+
+$mods.Add("mlie.nwnrealfogofwar")
+$mods.Add("fr0.theshatteredcrown")
+
+if ($WithCE) {
+    # AFTER us, always. See About.xml's loadBefore rule for why.
+    # LOWERCASE, like every id RimWorld writes itself: the loader matches
+    # case-insensitively but the mod-list UI does not, so mixed case loads
+    # the mod and then draws it greyed out with an "Enable" button.
+    $mods.Add("ceteam.combatextended")
+}
+
+$activeMods = ($mods | ForEach-Object { "    <li>$_</li>" }) -join "`n"
+
+$modsConfig = @"
 <?xml version="1.0" encoding="utf-8"?>
 <ModsConfigData>
   <version>1.6.4871 rev590</version>
   <activeMods>
-    <li>brrainz.harmony</li>
-    <li>ludeon.rimworld</li>
-    <li>ludeon.rimworld.royalty</li>
-    <li>ludeon.rimworld.ideology</li>
-    <li>ludeon.rimworld.biotech</li>
-    <li>ludeon.rimworld.anomaly</li>
-    <li>ludeon.rimworld.odyssey</li>
-    <li>mlie.nwnrealfogofwar</li>
-    <li>fr0.theshatteredcrown</li>
+$activeMods
   </activeMods>
   <knownExpansions>
     <li>ludeon.rimworld.royalty</li>
@@ -65,7 +103,15 @@ Write-Host "Backed up your mod list to $backup"
     <li>ludeon.rimworld.odyssey</li>
   </knownExpansions>
 </ModsConfigData>
-'@ | Out-File $cfg -Encoding utf8
+"@
+$modsConfig | Out-File $cfg -Encoding utf8
+
+$extras = @()
+if ($WithMO) { $extras += "Medieval Overhaul" }
+if ($WithCE) { $extras += "Combat Extended" }
+if ($extras.Count -gt 0) {
+    Write-Host ("Test list includes: " + ($extras -join ", ")) -ForegroundColor Cyan
+}
 
 $gameArgs = @()
 if ($QuickTest) { $gameArgs += "-quicktest" }

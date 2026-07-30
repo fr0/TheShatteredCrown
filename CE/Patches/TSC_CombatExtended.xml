@@ -62,9 +62,15 @@
   </Operation>
 
   <!-- The fire arrow becomes a CE bullet. Its Flame extraDamages are left
-       alone: that is what makes it the ember bow rather than a bow. -->
-  <Operation Class="PatchOperationReplace">
-    <xpath>Defs/ThingDef[defName="TSC_Projectile_FireArrow"]/thingClass</xpath>
+       alone: that is what makes it the ember bow rather than a bow.
+
+       ADD, not Replace: the def inherits thingClass from
+       BaseProjectileNeolithic and declares none of its own, so there is no
+       node to replace and Replace fails the whole operation. Adding the
+       element to the child overrides the inherited value, which is what was
+       wanted all along. -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[defName="TSC_Projectile_FireArrow"]</xpath>
     <value>
       <thingClass>CombatExtended.BulletCE</thingClass>
     </value>

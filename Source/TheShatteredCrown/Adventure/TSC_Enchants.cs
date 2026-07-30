@@ -201,8 +201,19 @@ namespace TheShatteredCrown
     {
         public static void Postfix(Pawn pawn)
         {
+            // OfPlayerSilentFail, not OfPlayer. Apparel is generated during
+            // WORLD GENERATION too: FactionGenerator makes each faction's
+            // leader as it creates the faction, and the player faction may not
+            // exist yet when it does. OfPlayer logs "Could not find player
+            // faction" in that window, which turned starting a new game into a
+            // wall of red for every leader generated before us.
+            //
+            // Surfaced by adding Medieval Overhaul: more factions means more
+            // leaders generated ahead of the player's own faction. The bug was
+            // always there, just usually invisible.
+            Faction player = Faction.OfPlayerSilentFail;
             if (!TSC_RpgMode.Active || pawn?.apparel == null
-                || pawn.Faction == Faction.OfPlayer || !pawn.RaceProps.Humanlike)
+                || player == null || pawn.Faction == player || !pawn.RaceProps.Humanlike)
             {
                 return;
             }

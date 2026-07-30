@@ -279,7 +279,8 @@
 
   <!-- The assault: the keep, the Baron, the hoard, the third shard.
        If the party heard Madoc out, the map generates with Gille's drain
-       under the east wall (GenStep_TSC_BackWay). -->
+       under the east wall: the drain mouth outside the curtain drops into
+       the undercellar, whose far stair comes up inside (TSC_KeepCellar). -->
   <QuestScriptDef ParentName="TSC_MainChainBase">
     <defName>TSC_Act3_IronBrand</defName>
     <questNameRules>

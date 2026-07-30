@@ -33,7 +33,7 @@ update this file when those change.
   `1 + classLevel/4` to d10 checks.
 - **Energy**: every spell costs Energy (10/15/25), which regenerates
   during sleep. The Bard's Song of Rest is the only in-field restore.
-- **Turn-based mode**: every spell costs a flat **3 AP**. Ability gizmos
+- **Turn-based mode**: a turn is **8 AP**, and every spell costs a flat **6 AP**. Ability gizmos
   show the AP price and wear a red bar when unaffordable.
 - **Cast times**: the values below are the turn-based warmups. Outside
   turn-based mode every cast takes **2.5x** as long (real-time casting
@@ -179,7 +179,7 @@ stillness.*
 
 | Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
 |----|--------|--------|------|----------|-------|--------|
-| 1 | Flurry | 10 | 0.25s | 30 min | self | 40s: melee attacks 40% faster, +10 melee dodge. In turn-based mode the haste cuts attack AP costs (unarmed 2 AP drops to 1: four punches a round) |
+| 1 | Flurry | 10 | 0.25s | 30 min | self | 40s: melee attacks 40% faster, +10 melee dodge. In turn-based mode the haste cuts attack AP costs (unarmed 2 AP drops to 1: eight punches a round) |
 | 2 | Inner calm | 10 | 2s | 1 day | touch | Removes disease, infection, food poisoning, toxic buildup |
 | 4 | Stunning palm | 15 | 1s | 3 h | touch | Drops the touched target senseless with psychic shock (not animals) |
 

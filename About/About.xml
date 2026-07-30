@@ -29,7 +29,23 @@
     <li>brrainz.harmony</li>
     <li>Ludeon.RimWorld.Royalty</li>
     <li>Ludeon.RimWorld.Odyssey</li>
+    <!-- Big overhauls first, content after: the conventional shape, and it
+         keeps their patches applying to Core rather than racing ours.
+         Nothing here is required - this mod names no def from either of
+         them and detects their content at runtime instead. -->
+    <li>DankPyon.Medieval.Overhaul</li>
   </loadAfter>
+  <!-- Combat Extended must come AFTER this mod, and the reason is concrete:
+       CE patches other people's content. Its Patches folder and its gun and
+       apparel auto-patchers only see defs that are already loaded, and this
+       mod ships its own weapons and armour (the Kingsblade above all).
+       Loaded the wrong way round, CE never sees them: the Kingsblade keeps
+       vanilla Tools, which in CE's penetration model means no armour
+       penetration at all, and the campaign's one irreplaceable weapon
+       cannot trouble a man in plate. -->
+  <loadBefore>
+    <li>CETeam.CombatExtended</li>
+  </loadBefore>
   <!-- Royalty is NOT required: it is only in loadAfter so the optional
        MayRequire brazier in the village prefabs resolves when it is present.
        Every ability icon is this mod's own art, and the psycast-flavored

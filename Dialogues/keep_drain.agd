@@ -1,0 +1,33 @@
+# The drain grate outside the Iron Brand keep (Act 3). Opens on approach
+# (CompProperties_TSC_ProximityDialogue on TSC_KeepDrainGrate). The descent
+# is ONE-WAY: the grate drops the company at the far end of the undercellar
+# and does not open again, so the confirmation says so in plain words.
+
+dialogue TSC_Dialogue_KeepDrain
+
+== start ==
+The grate is where Madoc said it would be: a stone throat in the hillside, well east of the walls, half-choked with a century of leaf mould. The bars across it gave up at one corner a long time ago, and the gap they left is exactly a body wide.
+
+The air coming up out of it is colder than the day, and it smells of standing water and old smoke.
+
+* [Look into the gap.] -> look
+* "Not this way." -> end
+
+== look ==
+Steps. Cut ones, going down further than the light does, into water at the bottom that is not moving.
+
+Somewhere down there the drain runs under the curtain wall and comes up inside it, because the old kingdom built its cellars before it built its defences and never thought about what that meant. The Brand has held this hill for five years and it has plainly never once occurred to them either.
+
+* [Go down.] -> warn
+* [Leave it.] -> end
+
+== warn ==
+Look at the drop before anyone commits to it.
+
+A body fits going down. Nothing fits coming back up: the last dry step is well over head height above the water, and there is nothing to climb. Whoever goes into this comes out the other end, inside the walls, with the whole garrison between them and the gate.
+
+Everyone goes, or nobody does. And there is no second look at this once it is decided.
+
+* [Everyone goes. Down.] -> end
+    do descend(); flag(TSC_KeepDrainTaken)
+* [Back to the gate. We do this the loud way.] -> end

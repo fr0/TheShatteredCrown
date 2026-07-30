@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- The party sheet: the whole company on one screen. Hidden outside RPG
+       mode (MainButtonWorker_TSC_Party), because an ordinary colony has no
+       classes, feats or proficiencies to show. -->
+  <MainButtonDef>
+    <defName>TSC_Party</defName>
+    <label>party</label>
+    <description>The adventuring company: class levels, feats and spells for everyone, and who is best at each proficiency.</description>
+    <workerClass>TheShatteredCrown.MainButtonWorker_TSC_Party</workerClass>
+    <tabWindowClass>TheShatteredCrown.MainTabWindow_TSC_Party</tabWindowClass>
+    <order>35</order>
+    <validWithoutMap>true</validWithoutMap>
+    <!-- No default hotkey: F2 is Schedule, and every other F-key in that
+         range is taken by a vanilla tab. The player can bind one if they
+         want it. -->
+  </MainButtonDef>
+
+</Defs>

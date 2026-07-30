@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+  <!-- ==================================================================
+       Starting arrows, for Combat Extended only.
+
+       All three scenarios hand out a short bow. Under CE that bow needs
+       ammunition, so without this the company starts with a stick: the
+       first fight is a knife fight nobody planned, and the reason is
+       invisible until someone reads the encounter log.
+
+       This whole folder is gated behind IfModActive="CETeam.CombatExtended"
+       in LoadFolders.xml, so a player without CE never gets an arrow def
+       that would not resolve.
+
+       Ammo_Arrow_Stone is the entry tier and matches what CE sets as the
+       short bow's default projectile (Projectile_Arrow_Stone), so a fresh
+       company is loaded with the arrows their bow expects rather than
+       something they would have to swap.
+
+       Counts are one full bow's worth per bow the scenario grants; the
+       free company gets a second bow, so it gets double.
+       ================================================================== -->
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ScenarioDef[defName="TSC_LoneAdventurer"]/scenario/parts</xpath>
+    <value>
+      <li Class="ScenPart_StartingThing_Defined">
+        <def>StartingThing_Defined</def>
+        <thingDef>Ammo_Arrow_Stone</thingDef>
+        <count>120</count>
+      </li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ScenarioDef[defName="TSC_AdventureMode"]/scenario/parts</xpath>
+    <value>
+      <li Class="ScenPart_StartingThing_Defined">
+        <def>StartingThing_Defined</def>
+        <thingDef>Ammo_Arrow_Stone</thingDef>
+        <count>120</count>
+      </li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ScenarioDef[defName="TSC_FreeCompany"]/scenario/parts</xpath>
+    <value>
+      <li Class="ScenPart_StartingThing_Defined">
+        <def>StartingThing_Defined</def>
+        <thingDef>Ammo_Arrow_Stone</thingDef>
+        <count>240</count>
+      </li>
+    </value>
+  </Operation>
+
+</Patch>

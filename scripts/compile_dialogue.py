@@ -173,6 +173,23 @@ def parse_conditions(expr: str, path, lineno) -> list:
                 raise ParseError(path, lineno, "passive syntax: passive(<Proficiency>, <DC>)")
             conditions.append(Condition("DialogueCondition_Passive",
                                         {"proficiency": PROFICIENCIES[parts[0]], "difficulty": parts[1]}))
+        elif name == "party_size":
+            if negated:
+                raise ParseError(path, lineno, "'not party_size(...)' is not supported; use the opposite comparison")
+            m = re.match(r"^(>=|<=|>|<)\s*(\d+)$", arg.strip())
+            if not m:
+                raise ParseError(path, lineno, "party_size syntax: party_size(>=N | <=N | >N | <N)")
+            op, num = m.group(1), int(m.group(2))
+            fields = {}
+            if op == ">=":
+                fields["min"] = str(num)
+            elif op == ">":
+                fields["min"] = str(num + 1)
+            elif op == "<=":
+                fields["max"] = str(num)
+            else:
+                fields["max"] = str(num - 1)
+            conditions.append(Condition("DialogueCondition_PartySize", fields))
         elif name == "affinity":
             if negated:
                 raise ParseError(path, lineno, "'not affinity(...)' is not supported; use the opposite comparison")
@@ -197,7 +214,7 @@ def parse_conditions(expr: str, path, lineno) -> list:
                 fields["max"] = str(num - 1)
             conditions.append(Condition("DialogueCondition_Affinity", fields))
         else:
-            raise ParseError(path, lineno, f"unknown condition '{name}' (know: flag, quest_active, quest_succeeded, min_quests_succeeded, has_item, in_party, nearby, kind_on_map, dead, passive, affinity)")
+            raise ParseError(path, lineno, f"unknown condition '{name}' (know: flag, quest_active, quest_succeeded, min_quests_succeeded, has_item, in_party, nearby, kind_on_map, dead, passive, affinity, party_size)")
     return conditions
 
 
@@ -225,6 +242,13 @@ def parse_effects(expr: str, path, lineno) -> list:
             effects.append(Effect("DialogueEffect_GiveQuest", {"quest": arg, "sendLetter": "true"}))
         elif name == "give_quest_silent":
             effects.append(Effect("DialogueEffect_GiveQuest", {"quest": arg, "sendLetter": "false"}))
+        elif name == "lure":
+            # The keep cellar's crates: a share of the garrison comes down.
+            effects.append(Effect("DialogueEffect_TSC_Lure",
+                                  {"percent": arg} if arg else {}))
+        elif name == "descend":
+            # The keep's drain grate: the company drops into the undercellar.
+            effects.append(Effect("DialogueEffect_TSC_Descend", {}))
         elif name == "parley_hostile":
             # The npc's parley group (MapComponent_TSC_CryptParley) attacks.
             effects.append(Effect("DialogueEffect_TSC_ParleyHostile", {}))
@@ -322,7 +346,7 @@ def parse_effects(expr: str, path, lineno) -> list:
             effects.append(Effect("DialogueEffect_Affinity", fields))
         else:
             raise ParseError(path, lineno,
-                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, trade, grant_xp, learn_class, teach_class, grant_prof, affinity, parley_hostile, parley_flee, temple_heal)")
+                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, trade, grant_xp, learn_class, teach_class, grant_prof, affinity, parley_hostile, parley_flee, temple_heal, descend, lure)")
     return effects
 
 

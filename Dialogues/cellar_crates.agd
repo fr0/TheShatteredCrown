@@ -1,0 +1,66 @@
+# The crates at the foot of the stair, under the Iron Brand keep (Act 3).
+# Opens on approach (CompProperties_TSC_ProximityDialogue) and by right-click
+# afterwards. The company's answer to surfacing in a fully manned keep: make
+# a noise, fight the half that comes down here, climb into a thinner keep.
+#
+# {PLAYER} is the one who walked up and spotted it.
+
+dialogue TSC_Dialogue_CellarCrates
+
+# The lone-adventurer start has nobody to say it out loud to, so the scene
+# has a solo variant rather than a companion talking to an empty corridor.
+entry alone if party_size(<2)
+
+== start ==
+Barrels and crates, stacked four high against the wall where the stair goes up. Salt fish, by the smell, and something that was flour once. The Brand puts its stores where its stores have always gone.
+
+{PLAYER} stops walking. Looks at the stack. Looks up the stair. Looks back at the stack.
+
+"How thin do you want them," {PLAYER} says, "before we go up there?"
+
+* "Go on." -> plan
+* "We go up quiet. Leave it." -> end
+
+== plan ==
+"That lot comes down with a crash you could hear in Thornden. And what's at the top of these steps is a keep full of men who have never once in five years had to wonder what a noise in the cellar meant."
+
+A hand on the top crate. Not pushing yet.
+
+"So they send some down. Not all of them, they're not fools, but some. And they come down a stone stair into a dark corridor, in ones and twos, into us." A shrug. "It's not clever. It's just arithmetic. Every one that dies down here isn't up there when we come out."
+
+* "Do it." -> push
+    check Thievery 8 -> rigged | push
+* "Too loud. We take our chances above." -> end
+
+== push ==
+The stack goes over.
+
+* [Take positions and wait.] -> end
+    do lure(40); flag(TSC_KeepCratesTipped)
+
+== rigged ==
+{PLAYER} spends a minute on it first: a barrel set on its shoulder against the stack, a line of twine, the whole thing balanced to go over a slow count after everyone is clear and standing where they want to be standing.
+
+"Now they arrive to a room that's already ours."
+
+* [Take positions and wait.] -> end
+    do lure(60); flag(TSC_KeepCratesTipped)
+
+== alone ==
+Barrels and crates, stacked four high against the wall where the stair goes up. Salt fish, by the smell, and something that was flour once.
+
+{PLAYER} looks at the stack, and up the stair, and at the stack again, and does the arithmetic that nobody is there to argue with.
+
+That lot goes over with a crash they will hear at the top. Some of them come down to see. Not all - they are not fools - but some. And they come down a stone stair into a dark corridor, in ones and twos.
+
+Alone, that is either the best idea available or the last one. There is no third opinion coming.
+
+* [Push it over.] -> push_alone
+    check Thievery 8 -> rigged | push_alone
+* [Leave it. Go up quiet.] -> end
+
+== push_alone ==
+The stack goes over.
+
+* [Find an angle and wait.] -> end
+    do lure(40); flag(TSC_KeepCratesTipped)

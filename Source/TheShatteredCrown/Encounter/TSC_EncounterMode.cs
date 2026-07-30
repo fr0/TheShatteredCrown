@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -27,16 +28,30 @@ namespace TheShatteredCrown
     {
         public enum EncounterPhase { Turn, Environment }
 
-        public const int RoundTicks = 150;          // AP scaling basis: 1 AP = 37.5 ticks of "time"
-        public const float BaseAp = 4f;
-        public const float ActionApCost = 3f;       // spells: casting is most of a turn (Energy paces them across fights)
+        // A turn covers 300 ticks of "time" at 8 AP, so 1 AP is still 37.5
+        // ticks and every weapon prices exactly as it always did - what
+        // changed is that a turn now BUYS twice as much of it.
+        //
+        // The old 4 AP budget made every weapon in the game cost the whole
+        // turn (the cheapest, a knife, priced at 2.5), so nobody ever swung
+        // twice and the fast/slow axis of weapon design did nothing. Note that
+        // raising BaseAp ALONE cannot fix that: it appears in both the budget
+        // and SnapAp's divisor, so it cancels. The tick basis has to move with
+        // it, which is what these two numbers do together.
+        public const int RoundTicks = 300;          // AP scaling basis: 1 AP = 37.5 ticks of "time"
+        public const float BaseAp = 8f;
+        public const float ActionApCost = 6f;       // spells: casting is most of a turn (Energy paces them across fights)
+        // Deliberately NOT scaled with the pool. This is the floor haste
+        // pushes against: Flurry takes unarmed from 2 AP to 1, which is now
+        // eight punches in a turn instead of four. Raising it to 2 would have
+        // clamped that away and left the feat doing nothing in turn-based.
         public const float MinActionAp = 1f;
         // Full-pool ceiling: the slowest weapons (sniper ~8.8 AP of real cycle
         // time) are still subsidized, but a shot costs the ENTIRE turn - no
         // move-and-shoot on top.
-        public const float MaxActionAp = 4f;
+        public const float MaxActionAp = 8f;
         // Movement is charged by TIME SPENT MOVING, same currency as attacks:
-        // 4 AP = 150 ticks of walking = ~12 cells for a healthy pawn, fewer for
+        // 8 AP = 300 ticks of walking = ~24 cells for a healthy pawn, fewer for
         // the injured, more under speed buffs. Speed stats matter.
         public const float ApPerMoveTick = BaseAp / RoundTicks;
         public const float DryThresholdAp = 0.1f;
@@ -46,10 +61,10 @@ namespace TheShatteredCrown
         // seam. Player pawns only - enemies pay via the cede-first-cycle rule.
         // Capped below a full pool: a winded pawn always keeps at least 1 AP.
         public const float HangoverDecayPerTick = BaseAp / (2f * RoundTicks);
-        public const float MaxHangoverAp = BaseAp - 1f;
+        public const float MaxHangoverAp = BaseAp - 2f;
         // A solid hit (bullet/explosion/melee impact) staggers its victim.
         // In turn-based that is reframed as an AP charge - see NotifyStaggered.
-        public const float StaggerApCost = 1f;
+        public const float StaggerApCost = 2f;
 
         private const int EnvPhaseTicks = 120;      // 2s of world time between cycles
         private const int MaxTurnTicks = 900;       // hard cap per RESUME (15s safety net)
@@ -311,7 +326,7 @@ namespace TheShatteredCrown
             if (Instance != null && Instance.Active && Instance.MovedThisTurn(pawn)
                 && TSC_Feats.Has(pawn, "TSC_Feat_RunningStart"))
             {
-                cost = Mathf.Max(MinActionAp, cost - 1f);
+                cost = Mathf.Max(MinActionAp, cost - 2f);
             }
             return cost;
         }
@@ -784,7 +799,7 @@ namespace TheShatteredCrown
             }
             // Fresh pool, plus up to 1 unspent AP banked from their last turn.
             float carry = ap.TryGetValue(activePawn, out float unspent)
-                ? Mathf.Clamp(unspent, 0f, 1f)
+                ? Mathf.Clamp(unspent, 0f, 2f)
                 : 0f;
             ap.Remove(activePawn);
             apMessaged.Remove(activePawn);
@@ -914,7 +929,7 @@ namespace TheShatteredCrown
                     continue;
                 }
                 // Same AP treatment as a normal turn start (fresh pool + bank).
-                float carry = ap.TryGetValue(p, out float unspent) ? Mathf.Clamp(unspent, 0f, 1f) : 0f;
+                float carry = ap.TryGetValue(p, out float unspent) ? Mathf.Clamp(unspent, 0f, 2f) : 0f;
                 ap.Remove(p);
                 apMessaged.Remove(p);
                 if (carry > 0.05f)
@@ -3812,9 +3827,30 @@ namespace TheShatteredCrown
         }
     }
 
-    [HarmonyPatch(typeof(Verb_MeleeAttack), "TryCastShot")]
+    /// <summary>
+    /// Combat-log line for every melee attempt.
+    ///
+    /// Patched on BOTH the vanilla method and Combat Extended's override.
+    /// CombatExtended.Verb_MeleeAttackCE derives from Verb_MeleeAttack but
+    /// overrides TryCastShot, so a patch on the base alone never fires for a
+    /// CE swing - which quietly made the CE branch below unreachable and left
+    /// melee missing from the log in exactly the load order that announces
+    /// "melee stays fully supported".
+    /// </summary>
+    [HarmonyPatch]
     public static class Patch_MeleeAttempt_LogNumbers
     {
+        public static IEnumerable<MethodBase> TargetMethods()
+        {
+            yield return AccessTools.Method(typeof(Verb_MeleeAttack), "TryCastShot");
+            System.Type ce = AccessTools.TypeByName("CombatExtended.Verb_MeleeAttackCE");
+            MethodInfo ceCast = ce != null ? AccessTools.DeclaredMethod(ce, "TryCastShot") : null;
+            if (ceCast != null)
+            {
+                yield return ceCast;
+            }
+        }
+
         public static void Postfix(Verb_MeleeAttack __instance, bool __result)
         {
             TSC_EncounterController ctrl = TSC_EncounterController.Instance;
@@ -4147,10 +4183,36 @@ namespace TheShatteredCrown
     /// rejects (out of range, no line of sight) costs nothing. Same rule for
     /// the real-time exertion hangover.
     /// </summary>
-    [HarmonyPatch(typeof(Verb), nameof(Verb.TryStartCastOn),
-        typeof(LocalTargetInfo), typeof(LocalTargetInfo), typeof(bool), typeof(bool), typeof(bool), typeof(bool))]
+    /// <remarks>
+    /// Patched on the vanilla method AND on every override of it in the load
+    /// order. Combat Extended routes all shooting through
+    /// Verb_ShootCE : Verb_LaunchProjectileCE : Verb, and
+    /// Verb_LaunchProjectileCE OVERRIDES TryStartCastOn - so a patch on Verb
+    /// alone never fires for a CE shot, and ranged attacks cost NO AP at all.
+    /// A pawn could stand still and shoot until the arrows ran out.
+    /// </remarks>
+    [HarmonyPatch]
     public static class Patch_Verb_TryStartCastOn_ApCost
     {
+        /// <summary>
+        /// The six-argument overload, wherever it is declared. Resolved by
+        /// signature rather than by mod name, so any combat overhaul that
+        /// subclasses Verb gets charged the same way.
+        /// </summary>
+        public static IEnumerable<MethodBase> TargetMethods()
+        {
+            System.Type[] signature =
+            {
+                typeof(LocalTargetInfo), typeof(LocalTargetInfo),
+                typeof(bool), typeof(bool), typeof(bool), typeof(bool),
+            };
+            yield return AccessTools.Method(typeof(Verb), nameof(Verb.TryStartCastOn), signature);
+            foreach (System.Type type in TSC_VerbOverrides.Of(nameof(Verb.TryStartCastOn), signature))
+            {
+                yield return AccessTools.DeclaredMethod(type, nameof(Verb.TryStartCastOn), signature);
+            }
+        }
+
         public struct PendingCharge
         {
             public Pawn caster;
@@ -4222,9 +4284,18 @@ namespace TheShatteredCrown
             return true;
         }
 
+        /// <summary>Last tick each pawn was told it was dry, so a held order does not flood the log.</summary>
+        private static readonly Dictionary<Pawn, int> lastDryReport = new Dictionary<Pawn, int>();
+        private const int DryReportIntervalTicks = 120;
+
         public static void Postfix(Verb __instance, bool __result, PendingCharge __state)
         {
-            if (!__result || __state.caster == null)
+            if (!__result)
+            {
+                ReportDryWeapon(__state.caster ?? (__instance?.CasterPawn));
+                return;
+            }
+            if (__state.caster == null)
             {
                 return;
             }
@@ -4249,6 +4320,39 @@ namespace TheShatteredCrown
                     ctrl.NoteAttackCharged(__state.caster);
                 }
                 LogAbilityCast(ctrl, __instance, __state);
+            }
+        }
+
+        /// <summary>
+        /// A refused shot with an empty weapon, said out loud.
+        ///
+        /// Combat Extended stops the cast itself, which means the AP postfix
+        /// sees a false result, charges nothing, and returns - correct, but
+        /// from the player's side a pawn simply declines to shoot with no
+        /// reason given, in a mode where every other refusal is explained.
+        /// Only fires when CE's ammo system is actually on for that weapon.
+        /// </summary>
+        internal static void ReportDryWeapon(Pawn caster)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (caster == null || ctrl == null || !ctrl.Active || !ctrl.ActiveOn(caster.Map)
+                || !TSC_AmmoState.OutOfAmmo(caster))
+            {
+                return;
+            }
+            int now = Find.TickManager.TicksGame;
+            if (lastDryReport.TryGetValue(caster, out int last) && now - last < DryReportIntervalTicks)
+            {
+                return;
+            }
+            lastDryReport[caster] = now;
+            string weapon = caster.equipment?.Primary?.LabelShortCap ?? "weapon";
+            ctrl.AddLog($"{caster.LabelShortCap} has nothing to load: the {weapon} is empty.",
+                TSC_EncounterController.LogWorldColor);
+            if (caster.IsColonistPlayerControlled)
+            {
+                Messages.Message($"{caster.LabelShortCap} is out of ammunition for the {weapon}.",
+                    caster, MessageTypeDefOf.RejectInput, historical: false);
             }
         }
 

@@ -515,7 +515,230 @@
     <defName>TSC_IronBrandKeep_BackWay</defName>
     <linkWithSite>TSC_IronBrandKeep</linkWithSite>
     <order>490</order>
-    <genStep Class="TheShatteredCrown.GenStep_TSC_BackWay" />
+    <genStep Class="TheShatteredCrown.GenStep_TSC_KeepDrain">
+      <grateDef>TSC_KeepDrainGrate</grateDef>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ================================================================
+       Gille's drain: the way under the walls, and a ONE-WAY one.
+
+       The undercellar has a single portal and it stands inside the keep,
+       so the cave exit at the bottom of that stair comes up behind the
+       curtain. The party gets in through the grate below, which drops
+       them at the far end of the cellar and does not open again.
+       ================================================================ -->
+
+  <!-- The grate: no portal, just a thing that talks. Walking up to it
+       opens the conversation that offers the descent, and the warning. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_KeepDrainGrate</defName>
+    <label>drain grate</label>
+    <description>A stone throat in the hillside east of the keep, grated once and not for a long time. The old kingdom drained its cellars into this. The bars are gone at one corner and the gap is a body wide, and the air coming out of it is colder than the day.</description>
+    <thingClass>TheShatteredCrown.Building_TSC_DrainGrate</thingClass>
+    <size>(2,2)</size>
+    <passability>PassThroughOnly</passability>
+    <fillPercent>0.4</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <useHitPoints>false</useHitPoints>
+    <selectable>true</selectable>
+    <rotatable>false</rotatable>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/CaveEntranceA</texPath>
+      <drawSize>(2,2)</drawSize>
+      <color>(96,92,84)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_ProximityDialogue">
+        <dialogue>TSC_Dialogue_KeepDrain</dialogue>
+        <radius>5.9</radius>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- The stair inside the keep: the cellar's one and only portal, so the
+       cave exit down there pairs with THIS and comes up behind the wall. -->
+  <ThingDef ParentName="TSC_CellarStairsBase">
+    <defName>TSC_KeepCellarStair</defName>
+    <label>cellar stair</label>
+    <description>A shaft of worked steps going down under the keep, ending in water somewhere below. The Brand stores what it does not want seen down there, and stopped counting what else might be.</description>
+    <size>(2,2)</size>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/CaveEntranceA</texPath>
+      <drawSize>(2,2)</drawSize>
+      <color>(120,112,98)</color>
+    </graphicData>
+    <portal>
+      <pocketMapGenerator>TSC_Keep_Undercellar</pocketMapGenerator>
+      <exitDef>CaveExit</exitDef>
+      <pocketMapSize>80</pocketMapSize>
+    </portal>
+  </ThingDef>
+
+  <GenStepDef>
+    <defName>TSC_IronBrandKeep_CellarStair</defName>
+    <linkWithSite>TSC_IronBrandKeep</linkWithSite>
+    <order>492</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_KeepCellarStair">
+      <stairDef>TSC_KeepCellarStair</stairDef>
+    </genStep>
+  </GenStepDef>
+
+  <MapGeneratorDef ParentName="TSC_CellarLevelBase">
+    <defName>TSC_Keep_Undercellar</defName>
+    <label>the keep undercellar</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_KeepUndercellar</li>
+      <li>TSC_KeepUndercellarCache</li>
+      <li>TSC_KeepUndercellarCrates</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <GenStepDef>
+    <defName>TSC_KeepUndercellar</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>1</level>
+      <layoutDef>TSC_Catacombs</layoutDef>
+      <size>40</size>
+      <!-- NO dormant nests. The catacomb layout rolls insect clusters per
+           gallery, which is right for a delve the party chose to plumb and
+           wrong here: this is the EASY road in, bought with a one-way trip
+           and a scouting scene, and it must stay cheaper than the gate. The
+           budget prunes every dormant pack the layout leaves. -->
+      <maxDormantPacks>0</maxDormantPacks>
+      <!-- Lightly held on purpose. A couple of Brand storemen who are not
+           expecting the stairs to be used, or a few things living in the
+           water - never a floor fight. The garrison above is the fight. -->
+      <occupants>
+        <li>
+          <weight>2</weight>
+          <faction>bandits</faction>
+          <kinds>
+            <li>TSC_Bandit_Brigand</li>
+          </kinds>
+          <count>2~3</count>
+          <arrivalNote>Somebody is down here, and they are not expecting the stairs to be used.</arrivalNote>
+        </li>
+        <li>
+          <weight>1</weight>
+          <faction>insects</faction>
+          <kinds>
+            <li>Megascarab</li>
+          </kinds>
+          <count>0~2</count>
+          <arrivalNote>The drain has tenants. They were here before the Brand and they will be here after.</arrivalNote>
+        </li>
+      </occupants>
+      <spots>
+        <li>TSC_BrandStrongbox</li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- What the Brand keeps out of sight: the reason the drain route pays
+       for itself rather than just arriving early and poor. Worth well less
+       than the vault - the hoard upstairs is still the prize. -->
+  <!-- The Brand's own box. Locked, because a company that steals for a
+       living locks up what it stole: Thievery to pick it quietly, Athletics
+       to pry it loud, the same pair every sealed chest in the mod offers. -->
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_BrandStrongbox</defName>
+    <label>banded strongbox</label>
+    <description>An iron-banded box with the Brand's mark burned into the lid, sat in the wet where nobody upstairs has to look at it. Whatever is in it was taken off somebody, and then taken off whoever took it off them.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_CommonCache</contents>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Thievery</proficiency>
+            <dc>8</dc>
+            <label>Pick the lock (quiet)</label>
+            <successOpens>true</successOpens>
+            <successXp>25</successXp>
+            <successMessage>The lock gives without a sound. Nothing upstairs has any reason to look at the floor.</successMessage>
+            <failOpens>true</failOpens>
+            <failWakesDormant>true</failWakesDormant>
+            <failMessage>The pick slips and the lid bangs back, and the noise goes up the stair ahead of you.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>7</dc>
+            <label>Pry it open (loud)</label>
+            <successOpens>true</successOpens>
+            <successWakesDormant>true</successWakesDormant>
+            <successXp>15</successXp>
+            <successMessage>The bands come away with a crack that rolls off the wet stone and keeps going.</successMessage>
+            <failMessage>The bar bends; the lid does not. Whatever is inside stays there.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- The stack at the foot of the stair, and the plan it suggests. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_CellarCrates</defName>
+    <label>stacked stores</label>
+    <description>Barrels and crates stacked four high against the wall by the stair: salt fish, and something that used to be flour. The Brand has been putting its stores down here for five years and carrying them back up the same steps.</description>
+    <thingClass>TheShatteredCrown.Building_TSC_CellarCrates</thingClass>
+    <size>(2,2)</size>
+    <passability>PassThroughOnly</passability>
+    <fillPercent>0.5</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <useHitPoints>false</useHitPoints>
+    <selectable>true</selectable>
+    <rotatable>false</rotatable>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_LootChest</texPath>
+      <drawSize>(2,2)</drawSize>
+      <color>(150,128,96)</color>
+    </graphicData>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_ProximityDialogue">
+        <dialogue>TSC_Dialogue_CellarCrates</dialogue>
+        <radius>6.9</radius>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <GenStepDef>
+    <defName>TSC_KeepUndercellarCrates</defName>
+    <order>558</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarCrates">
+      <crateDef>TSC_CellarCrates</crateDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_KeepUndercellarCache</defName>
+    <order>555</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_KeepCellarCache">
+      <chestDef>TSC_BrandStrongbox</chestDef>
+      <chests>2</chests>
+      <silverStacks>1~2</silverStacks>
+      <silverPerStack>60~140</silverPerStack>
+    </genStep>
   </GenStepDef>
 
 </Defs>

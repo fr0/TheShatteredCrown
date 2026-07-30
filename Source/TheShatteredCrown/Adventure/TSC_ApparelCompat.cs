@@ -40,11 +40,11 @@ namespace TheShatteredCrown
                 {
                     if (handsSource == null && handGroups.Contains(group))
                     {
-                        handsSource = def.modContentPack?.Name ?? "another mod";
+                        handsSource = Describe(def);
                     }
                     if (feetSource == null && footGroups.Contains(group))
                     {
-                        feetSource = def.modContentPack?.Name ?? "another mod";
+                        feetSource = Describe(def);
                     }
                 }
                 if (handsSource != null && feetSource != null)
@@ -56,12 +56,26 @@ namespace TheShatteredCrown
             FeetCoveredByOtherMod = feetSource != null;
             if (HandsCoveredByOtherMod)
             {
-                Log.Message($"[The Shattered Crown] Hand armor detected from {handsSource}; the guild store's gauntlets stand down.");
+                Log.Message($"[The Shattered Crown] Hand coverage found on {handsSource}; the guild store's gauntlets stand down.");
             }
             if (FeetCoveredByOtherMod)
             {
-                Log.Message($"[The Shattered Crown] Foot armor detected from {feetSource}; the guild store's sabatons stand down.");
+                Log.Message($"[The Shattered Crown] Foot coverage found on {feetSource}; the guild store's sabatons stand down.");
             }
+        }
+
+        /// <summary>
+        /// Name the DEF, then its pack. Reporting only the pack is actively
+        /// misleading when one mod patches another's content: Combat Extended
+        /// adds Hands and Feet to vanilla plate armour, and the old message
+        /// read "detected from Core", which points the reader at the wrong mod
+        /// and hides the fact that the two pieces now collide on the same
+        /// layer.
+        /// </summary>
+        private static string Describe(ThingDef def)
+        {
+            string pack = def.modContentPack?.Name;
+            return pack.NullOrEmpty() ? def.defName : $"{def.defName} ({pack})";
         }
 
         private static HashSet<BodyPartGroupDef> Groups(params string[] names)

@@ -2,35 +2,17 @@
 
 The Shattered Crown turns RimWorld into a medieval party RPG. You do not build a colony. You ride out with a handful of companions, take work from the Wayfarers' Guild, meet new NPCs, complete quests, and get loot.
 
-[hr][/hr]
-[h1]What this mod is[/h1]
+[img]{{IMG_H_WHAT}}[/img]
 
 [b]A party, not a colony.[/b] You start alone on the road. Companions are found and recruited. Each one is a written character with their own voice, their own opinion of you, and their own reasons for coming along.
 
-[b]Conversations that matter.[/b] Hand-written dialogue scenes. Talk a raider captain out of a fight, lie to a village elder, ask a scholar what he is not telling you. Options gated behind skill checks show their odds up front.
+[b]Conversations that matter.[/b] Hand-written dialogue scenes.
 
 [img]{{IMG_DIALOGUE}}[/img]
 
-[b]Dice-based proficiency checks.[/b] A d10 system across eleven skills. Rolls happen in conversation, at locked chests, at shrines, at rotted bridges, and at anything else the world puts in your way.
+[b]Dice-based proficiency checks.[/b] A d10 system across eleven skills - Lore, Arcana, Thievery, Athletics, Persuasion, Survival, Perception, Insight, Investigation, Nature, Performance. Rolls happen in conversation, at locked chests, at shrines, at rotted bridges, and at anything else the world puts in your way.
 
-[table]
-[tr][th]Skill[/th][th]What it opens[/th][/tr]
-[tr][td]Lore[/td][td]Old scripts, makers' marks, who these people were[/td][/tr]
-[tr][td]Arcana[/td][td]Wards, seals, rites that still answer[/td][/tr]
-[tr][td]Thievery[/td][td]Locks, hidden pages, quiet crossings[/td][/tr]
-[tr][td]Athletics[/td][td]Forcing what will not open, and paying for it[/td][/tr]
-[tr][td]Persuasion[/td][td]Talking your way past, and talking your party down[/td][/tr]
-[tr][td]Performance[/td][td]Nerve and ceremony: the verse owed to the dead[/td][/tr]
-[tr][td]Insight[/td][td]Reading people through what they left behind[/td][/tr]
-[tr][td]Investigation[/td][td]Reconstructing what happened here[/td][/tr]
-[tr][td]Perception[/td][td]Noticing what the room is not saying[/td][/tr]
-[tr][td]Survival[/td][td]Tracks, ashes, how long ago and how many[/td][/tr]
-[tr][td]Nature[/td][td]What fed here, and whether it is coming back[/td][/tr]
-[/table]
-
-Difficulty classes rise as your party does, so a check never stops being a gamble.
-
-[b]Eleven classes, forty-one spells and abilities.[/b] Barbarian, Bard, Cleric, Druid, Monk, Paladin, Ranger, Rogue, Sorcerer, Warden, Wizard. Multiclass freely: every level-up offers a class level and a proficiency. Spells run on Energy, which recovers with sleep, and scale with your level in the class that granted them.
+[b]Eleven classes, over forty spells and abilities.[/b] Barbarian, Bard, Cleric, Druid, Monk, Paladin, Ranger, Rogue, Sorcerer, Warden, Wizard. Multiclass freely: every level-up offers a class level and a proficiency. Spells run on Energy, which recovers with sleep, and scale with your level in the class that granted them.
 
 [b]Turn-based tactical combat (optional).[/b] Flip on Turn-Based Mode and fights become initiative-order, action-point tactics: move, attack, cast, end turn, with a live hit-chance readout, an AP preview on every order, and a combat log that shows the actual numbers. Toggle it off and the game plays like ordinary RimWorld.
 
@@ -38,8 +20,11 @@ Difficulty classes rise as your party does, so a check never stops being a gambl
 
 [b]Dungeons with floors.[/b] Multi-level underground complexes you descend by finding the stairs: catacombs, flooded undercrofts, ossuaries, bandit-held works, hives. Each floor is generated fresh, and each one has been claimed by something different - so you learn how deep it goes by running out of stairs.
 
-[hr][/hr]
-[h1]Two ways to play[/h1]
+[img]{{IMG_TOWNS}}[/img]
+
+[b]Towns that earn their keep.[/b] Friendly settlements hang six signs: the guild hall posts contracts and hires out help, the tavern sells the company a night off, the smith trades in arms, the temple heals for a silver offering, the training hall drills skills for coin, and the mage guild enchants armor and moves the whole party between towns by circle.
+
+[img]{{IMG_H_MODES}}[/img]
 
 [b]The Shattered Crown[/b] - the authored campaign. A full quest chain with a written story.
 
@@ -47,10 +32,13 @@ Difficulty classes rise as your party does, so a check never stops being a gambl
 
 Both modes share every system. Both are started as scenarios from the normal new-game screen.
 
-[hr][/hr]
-[h1]Compatibility[/h1]
+[img]{{IMG_H_COMPAT}}[/img]
 
 [b]Requires:[/b] [url=https://steamcommunity.com/workshop/filedetails/?id=2009463077]Harmony[/url] and the Odyssey expansion (openable containers, tile mutators, underground structures).
+
+[b]Medieval Overhaul[/b] - supported. With MO installed, village blacksmiths and guild vendors stock MO weapons and armor, and MO gear turns up as quest loot. Nothing from MO is required.
+
+[b]Combat Extended[/b] - supported.
 
 [b]Suggested mods:[/b] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3391128917](NWN) Real Fog of War (Continued)[/url]
 
@@ -60,24 +48,52 @@ Works alongside most content mods. Anything that heavily rewrites melee resoluti
 
 [b]Not translated yet.[/b] English only.
 
-[hr][/hr]
-[h1]FAQ[/h1]
+[img]{{IMG_H_FAQ}}[/img]
 
-[b]How do I level up in a specific class?[/b]
+[u][b]How do I level up in a specific class?[/b][/u]
 You need to find and read class books that will teach you that class.
 From then on, anyone in your party can choose that class at level-up.
 
 In [i]The Shattered Crown[/i] scenario, some companions will teach you their class.
 
-[b]Compatible with Combat Extended?[/b]
-Yes, but not thoroughly tested. Let me know if there are problems.
+[u][b]Doesn’t this mod produce characters that are overpowered?[/b][/u]
+Yes, in vanilla contexts. RimWorld cannot balance against spells and feats it knows nothing about, so seasoned adventurers will handle many vanilla threats easily. This mod’s own quests scale their threats to your party, and those are meant to stay a challenge.
 
-The mod's weapons and armor get proper CE stats (loaded only if you run CE), and turn-based mode keeps working - melee, action points, turn order, and damage scaling all function normally.
-CE owns ranged ballistics and armor, so the ranged hit estimate and armor-soak readouts step aside and let CE do its job.
+[u][b]Since this is medieval themed, what about shields and two-handed weapons?[/b][/u]
+There are many other mods that add support for this - see Medieval Overhaul or Combat Extended. Rather than add my own, I decided to spend the effort on compatibility with these mods. If there is a compatibility or balance problem with one of them, please let me know.
 
-[hr][/hr]
-[h1]Credits[/h1]
+[u][b]I keep encountering non-medieval content! Is this a bug?[/b][/u]
+Enemies on this mod’s quests should carry medieval weapons; if they don’t, that is a bug. Elsewhere, the world is a ruin where most factions have fallen to lower tech, not a world where advanced tech never existed. If stray tech bothers you, lock the world to medieval with the Progression: Core mod.
 
-Spell and ability icons by Lorc (lorcblog.blogspot.com), CC BY 3.0, via game-icons.net.
+[u][b]Isn’t turn-based combat going to be too slow?[/b][/u]
+It might be with lots of pawns. However, there are some features that are meant to speed it up:
+
+1. Non-combatants (un-drafted pawns and animals) move together during the world turn, so they don’t take up individual turn slots.
+2. Enemies that will only perform move actions on their turn will move together if they are next to each other in initiative order.
+3. There is a configurable setting (mod options) that scales all damage taken in turn-based mode. Increase this for shorter (and more lethal) fights.
+
+That said, the sweet spot for turn-based combat is the intended way to play this mod: a party of 4-6 adventurers, not a colony with dozens of pawns.
+
+[u][b]Is this compatible with RimWorld of Magic or Vanilla Psycasts Extended?[/b][/u]
+Compatible? Yes, probably. Recommended? Definitely not. This mod’s spells use their own resource (Energy), which is independent of Mana or Psyfocus. If you use them together, you’ll end up with multiple ability systems that can coexist but don’t exactly mesh well.
+
+[u][b]Why not use Psyfocus instead of adding a new resource?[/b][/u]
+Two reasons, mainly:
+
+1. Relying on Psyfocus means that Royalty is required. Not a deal-breaker, but something I’d prefer to avoid if possible.
+2. Energy regenerates during sleep. Psyfocus regenerates by meditating. For an adventuring mod, the former feels much more on-brand. Getting your spells back after resting is a familiar mechanic for RPG systems.
+
+[u][b]My adventurers get sad after spending time in dark dungeons! How can I deal with this?[/b][/u]
+Yes, they do! You have options:
+
+1. Accept this as an interesting interaction with RimWorld’s vanilla systems, and find ways to keep your adventurers happy. Give them occasional entertainment and sunlight.
+2. Visit the tavern in friendly/neutral cities, and pay silver to increase your party’s mood.
+3. Change the setting in the mod’s options to add a mood buff every time a quest is completed.
+
+The setting is off by default, because I think that leaning into RimWorld’s systems is more interesting than bypassing them. But it’s there for players who would prefer to make it easier to manage their pawns' moods.
+
+[img]{{IMG_H_CREDITS}}[/img]
+
+Spell and ability icons by Lorc (lorcblog.blogspot.com) and gear icons by Delapouite (delapouite.com), both CC BY 3.0, via game-icons.net.
 
 Bug reports and save-breaking horror stories welcome in the comments.

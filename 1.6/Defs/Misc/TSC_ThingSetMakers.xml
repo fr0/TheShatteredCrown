@@ -168,6 +168,40 @@
     </root>
   </ThingSetMakerDef>
 
+  <!-- Grave goods: what TSC_Loot_Kingsblade is without the blade. -->
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_GraveGoods</defName>
+    <root Class="ThingSetMaker_Sum">
+      <options>
+        <li>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Gold</li>
+                </thingDefs>
+              </filter>
+              <countRange>25~60</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <chance>0.5</chance>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Silver</li>
+                </thingDefs>
+              </filter>
+              <countRange>120~300</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
   <!-- Small caches found in storerooms along the way -->
   <ThingSetMakerDef>
     <defName>TSC_Loot_CommonCache</defName>

@@ -321,6 +321,22 @@
     </comps>
   </ThingDef>
 
+  <!-- The generic reliquary chest: the same honours, WITHOUT the unique
+       blade. The Kingsblade chest above is placed by one thing only
+       (MapComponent_TSC_Reliquary, Act 2 floor 3); anything a layout drops
+       gets this instead, or the mod's one irreplaceable weapon turns up in
+       every catacomb that rolls a marble room. -->
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_IronboundChest_Grave</defName>
+    <label>reliquary chest</label>
+    <description>An ornate chest of dark wood and tarnished gold fittings, of the kind the old kingdom buried its honoured dead beside. Whatever was laid to rest with this one, it was not a sword.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_GraveGoods</contents>
+      </li>
+    </comps>
+  </ThingDef>
+
   <ThingDef ParentName="AncientSealedCrateBase">
     <defName>TSC_SupplyCache</defName>
     <label>old supply cache</label>

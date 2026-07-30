@@ -37,7 +37,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[bc_flavor]\n\nThe camp is marked on your map. Clear it out. Pay is charter silver and guild coin, on the last of them.</li>
+        <li>questDescription->[bc_flavor]\n\nThe camp is marked on your map. Clear it out. Pay is charter silver and guild coin when the last of them is down.</li>
         <li>bc_flavor->A bandit crew has set up on a road the guild's couriers use. They are charging for passage, and not only in coin.</li>
         <li>bc_flavor->Farmsteads in the marked hills have gone quiet, one after another. The guild traced it to a camp.</li>
         <li>bc_flavor->A guild caravan was taken whole - goods, animals and two drivers. The trail ends at a fortified camp.</li>
@@ -223,7 +223,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelDelveDone">Contract complete</label>
-                <text TKey="LetterTextDelveDone">The strongbox is on the factor's table and back under guild seal. Payment as chartered, and no questions about the lock.</text>
+                <text TKey="LetterTextDelveDone">The strongbox is back under guild seal. Payment as chartered.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>200</xp>
@@ -258,7 +258,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[dd_flavor]\n\nNobody agrees how far down the works go. Something has claimed every floor since they were abandoned, and the guild's surveyor did not stay long enough to write down what.\n\nThe coffer is on the lowest floor, however far down that is. Bring it up, and bring it to a guild hall. The guild pays the deep rate on delivery, in silver and coin.</li>
+        <li>questDescription->[dd_flavor]\n\nNobody agrees how far down the works go. Something has taken every floor since they were abandoned, and the guild's surveyor did not stay to find out what.\n\nThe coffer is on the lowest floor. Bring it up and take it to a guild hall. The guild pays the  on delivery, in silver and coin.</li>
         <li>dd_flavor->An old roadside ruin sits on works that go down further than the ruin is wide. The guild lost a coffer in them and has been embarrassed about it since.</li>
         <li>dd_flavor->The last crew the guild sent down came back one short and would not go again for triple pay. Their report is one line: it is not the same floor twice.</li>
         <li>dd_flavor->The works were a staging depot before the war. That means a strongroom, and the guild wants it opened before somebody else works that out.</li>
@@ -327,7 +327,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelDeepDelveDone">Contract complete</label>
-                <text TKey="LetterTextDeepDelveDone">Three floors down, three floors back up, and a long road after that. The coffer is on the factor's table. The guild pays the deep rate and puts your company on a short list of crews it will send down again.</text>
+                <text TKey="LetterTextDeepDelveDone">The coffer is on the factor's table. The guild pays the premium rate.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>350</xp>
@@ -358,7 +358,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[ht_flavor]\n\nThe locals call it [beastName], though not after dark.\n\nIts den is marked on your map. Go in and finish it. The guild pays on proof of the kill, in silver and coin.</li>
+        <li>questDescription->[ht_flavor]\n\nThe locals call it [beastName].\n\nIts den is marked on your map. Go in and finish it. The guild pays on proof of the kill, in silver and coin.</li>
         <li>ht_flavor->Something has been taking livestock in the marked hills. Last month it started taking people. The locals pooled a bounty and the guild matched it.</li>
         <li>ht_flavor->A beast has denned beside a droving road and learned that drovers are slower than sheep. The guild wants the road back.</li>
         <li>ht_flavor->Hunters went after it and came back fewer. The bounty doubled. The guild is done waiting.</li>

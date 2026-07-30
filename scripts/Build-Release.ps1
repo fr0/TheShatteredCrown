@@ -96,7 +96,10 @@ Write-Host "output: $OutputPath"
 if ($CopyDescription) {
     $descFile = Join-Path $root 'About\WorkshopDescription.txt'
     if (-not (Test-Path $descFile)) { throw "Not found: $descFile" }
-    $text = Get-Content $descFile -Raw
+    # -Encoding UTF8 is load-bearing: the file has no BOM, and without it
+    # Windows PowerShell reads ANSI - every curly quote in the FAQ reaches
+    # the clipboard as "â€™".
+    $text = Get-Content $descFile -Raw -Encoding UTF8
 
     # Image tokens -> real URLs. Steam only renders [img] from a URL it can
     # reach; the reliable source is images already uploaded to this very
