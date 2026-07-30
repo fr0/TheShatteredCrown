@@ -1,0 +1,99 @@
+# Tag vX.Y.Z -> build, package, GitHub release, Steam Workshop upload.
+#
+#   git tag v1.2.0 && git push origin v1.2.0
+#
+# Modeled on ilyvion/TacticsModeRedux's release flow, adapted to this
+# repo's staging rules (Build-Release.ps1 is the local twin: same ship
+# list, same exclusions).
+#
+# Secrets required for the Steam step (Settings -> Secrets -> Actions):
+#   STEAM_USERNAME   the uploading account
+#   STEAM_PASSWORD   its password
+#   STEAM_TFASEED    the Steam Guard shared secret (extract with
+#                    steamguard-cli); TOTP codes are minted from it in CI
+# Without them the release still happens on GitHub; the Steam step is
+# skipped rather than failed, so the pipeline is useful before the
+# secrets exist.
+#
+# The Workshop page DESCRIPTION is never touched: the upload sends only
+# content and a changenote, so the hand-pasted BBCode page (see
+# Build-Release.ps1 -CopyDescription) survives every release.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+env:
+  WORKSHOP_ITEM_ID: "3772466661"
+  MOD_NAME: TheShatteredCrown
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    # Secrets are not readable in step `if:` directly; routing through job
+    # env is the documented indirection.
+    env:
+      HAS_STEAM: ${{ secrets.STEAM_USERNAME != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version from tag
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Stamp version into About.xml and csproj
+        run: |
+          V="${{ steps.ver.outputs.version }}"
+          sed -i "s#<modVersion IgnoreIfNoMatchingField=\"True\">[^<]*</modVersion>#<modVersion IgnoreIfNoMatchingField=\"True\">$V</modVersion>#" About/About.xml
+          sed -i "s#<Version>[^<]*</Version>#<Version>$V</Version>#" Source/TheShatteredCrown/TheShatteredCrown.csproj
+          sed -i "s#<AssemblyVersion>[^<]*</AssemblyVersion>#<AssemblyVersion>$V.0</AssemblyVersion>#" Source/TheShatteredCrown/TheShatteredCrown.csproj
+          sed -i "s#<FileVersion>[^<]*</FileVersion>#<FileVersion>$V.0</FileVersion>#" Source/TheShatteredCrown/TheShatteredCrown.csproj
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile dialogues
+        run: python scripts/compile_dialogue.py
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build
+        run: dotnet build Source/TheShatteredCrown/TheShatteredCrown.csproj -c Release
+
+      # The ship list, mirrored from Build-Release.ps1: everything the
+      # GAME loads and nothing else - no sources, no scripts, no docs.
+      - name: Stage
+        run: |
+          mkdir -p "dist/$MOD_NAME"
+          cp -r About 1.6 CE Textures LoadFolders.xml "dist/$MOD_NAME/"
+          rm -f "dist/$MOD_NAME/About/WorkshopDescription.txt"
+
+      - name: Zip
+        run: |
+          cd dist
+          zip -r "../$MOD_NAME-v${{ steps.ver.outputs.version }}.zip" "$MOD_NAME"
+
+      - name: GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: ${{ env.MOD_NAME }}-v${{ steps.ver.outputs.version }}.zip
+
+      - name: Steam Workshop upload
+        if: ${{ env.HAS_STEAM == 'true' }}
+        uses: ZehMatt/steam-workshop-upload@v1
+        with:
+          appid: 294100
+          itemid: ${{ env.WORKSHOP_ITEM_ID }}
+          path: dist/${{ env.MOD_NAME }}
+          changenote: "v${{ steps.ver.outputs.version }} - see the GitHub release for details."
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
+          STEAM_TFASEED: ${{ secrets.STEAM_TFASEED }}

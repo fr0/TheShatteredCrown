@@ -1,0 +1,29 @@
+# Every push and PR: compile the dialogue DSL, build the assembly.
+# No RimWorld install needed - references come from NuGet
+# (Krafs.Rimworld.Ref / Lib.Harmony), which is what makes CI possible.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile dialogues
+        run: python scripts/compile_dialogue.py
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build
+        run: dotnet build Source/TheShatteredCrown/TheShatteredCrown.csproj -c Release
