@@ -95,6 +95,14 @@
     </genStep>
   </GenStepDef>
 
+  <!-- The toll book is GUARANTEED, and it travels with the crew: their
+       bookkeeper carries it and drops it where they fall (death, downing,
+       or fleeing the map - dropOnFall covers all three, and places the
+       book directly if the crew cannot spawn at all). As scattered debris
+       it could land in open scrub half a map from the toll house; on the
+       bookkeeper it is always where the fight happened. The branch may
+       still be missed by failing the roll or never trying it - never by
+       the spot failing to spawn somewhere findable. -->
   <GenStepDef>
     <defName>TSC_ContractLedger_Crew</defName>
     <linkWithSite>TSC_ContractLedger</linkWithSite>
@@ -102,19 +110,16 @@
     <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
       <count>4~6</count>
       <scaledClamp>3~10</scaledClamp>
+      <dropOnFall>TSC_FactorsLedger</dropOnFall>
     </genStep>
   </GenStepDef>
 
-  <!-- The toll book is GUARANTEED. The branch may be missed by failing the
-       roll or never trying it, but it must never be missed because the spot
-       did not spawn. -->
   <GenStepDef>
     <defName>TSC_ContractLedger_Spots</defName>
     <linkWithSite>TSC_ContractLedger</linkWithSite>
     <order>485</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
       <spots>
-        <li><def>TSC_FactorsLedger</def><count>1~1</count></li>
         <li><def>TSC_WatchPost</def><count>0~1</count></li>
         <li><def>TSC_CampfireCircle</def><count>0~1</count></li>
         <li><def>TSC_StrewnBaggage</def><count>0~1</count></li>

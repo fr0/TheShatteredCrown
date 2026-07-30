@@ -542,12 +542,24 @@
   <HediffDef ParentName="TSC_TimedBuffBase">
     <defName>TSC_Hediff_ChargedShot</defName>
     <label>charged shot</label>
-    <description>Every draw is measured, every loose is meant. The next arrows hit like judgment.</description>
+    <description>Every draw is measured, every loose is meant. The next arrows fly truer and hit like judgment.</description>
     <!-- Severity = CHARGES here, not the scale factor: plain hediff class.
          The damage bonus scales with ranger level in the projectile patch. -->
     <hediffClass>HediffWithComps</hediffClass>
     <initialSeverity>3</initialSeverity>
     <maxSeverity>3</maxSeverity>
+    <!-- The aim half of the buff. Vanilla resolves hit chance through
+         ShootingAccuracyPawn (+6 here: careful shooter is +5, and this
+         lasts three shots, not a lifetime). CE ignores this stat - its
+         model is sway and spread - so the CE folder patches this stage
+         with the CE stats instead (TSC_ChargedShotAim.xml). -->
+    <stages>
+      <li>
+        <statOffsets>
+          <ShootingAccuracyPawn>6</ShootingAccuracyPawn>
+        </statOffsets>
+      </li>
+    </stages>
     <comps>
       <li Class="HediffCompProperties_Disappears">
         <disappearsAfterTicks>3600</disappearsAfterTicks>
@@ -741,6 +753,34 @@
           <MeleeHitChance>2</MeleeHitChance>
           <ShootingAccuracyPawn>2</ShootingAccuracyPawn>
           <MentalBreakThreshold>-0.04</MentalBreakThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- The other answer: what a shrine leaves on a hand caught in the
+       offering niche. Mirror of the blessing and half its strength - a
+       bad feeling that fades, not a smiting. The theft not attempted
+       costs nothing; the theft BOTCHED is remembered for a while. -->
+  <HediffDef>
+    <defName>TSC_Hediff_ShrineCurse</defName>
+    <label>old rite's displeasure</label>
+    <description>A wrongness behind the eyes, picked up reaching into a place that was watching. Nothing follows you. It just watches you go, and you can feel it doing it. It fades in a day or so.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>true</isBad>
+    <initialSeverity>1</initialSeverity>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>90000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <MeleeHitChance>-1</MeleeHitChance>
+          <ShootingAccuracyPawn>-1</ShootingAccuracyPawn>
+          <MentalBreakThreshold>0.03</MentalBreakThreshold>
         </statOffsets>
       </li>
     </stages>

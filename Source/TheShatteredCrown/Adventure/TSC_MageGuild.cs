@@ -176,6 +176,18 @@ namespace TheShatteredCrown
         private readonly Pawn visitor;
         private Vector2 scroll;
 
+        // Computed ONCE at open, never per frame. DoWindowContents runs
+        // several times per frame while scrolling, and TranslocationPrice
+        // is a world-grid traversal search - dozens of settlements times
+        // several GUI events a frame was a pathfinding storm that lagged
+        // the whole game. Everything cached here is frozen while the
+        // window is up anyway: forcePause holds the world still, and the
+        // one thing that changes silver (buying passage) closes the window.
+        private Map map;
+        private List<Settlement> towns = new List<Settlement>();
+        private List<int> prices = new List<int>();
+        private int silver;
+
         public Window_TSC_Translocate(Pawn visitor)
         {
             this.visitor = visitor;
@@ -187,10 +199,21 @@ namespace TheShatteredCrown
 
         public override Vector2 InitialSize => new Vector2(680f, 560f);
 
+        public override void PostOpen()
+        {
+            base.PostOpen();
+            map = visitor?.MapHeld;
+            silver = TSC_Temple.SilverOnHand(map);
+            towns = TSC_MageGuild.Destinations(map);
+            prices.Clear();
+            foreach (Settlement town in towns)
+            {
+                prices.Add(map != null ? TSC_MageGuild.TranslocationPrice(map.Tile, town.Tile) : 0);
+            }
+        }
+
         public override void DoWindowContents(Rect inRect)
         {
-            Map map = visitor?.MapHeld;
-            int silver = TSC_Temple.SilverOnHand(map);
 
             Text.Font = GameFont.Medium;
             Widgets.Label(new Rect(0f, 0f, inRect.width - 200f, 34f), "The travelling circle");
@@ -209,7 +232,6 @@ namespace TheShatteredCrown
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
 
-            List<Settlement> towns = TSC_MageGuild.Destinations(map);
             Rect body = new Rect(0f, 76f, inRect.width, inRect.height - 76f - CloseButSize.y - 8f);
             if (towns.Count == 0)
             {
@@ -219,19 +241,23 @@ namespace TheShatteredCrown
             Rect view = new Rect(0f, 0f, body.width - 16f, towns.Count * 38f);
             Widgets.BeginScrollView(body, ref scroll, view);
             float y = 0f;
-            foreach (Settlement town in towns)
+            for (int i = 0; i < towns.Count; i++)
             {
-                DrawRow(new Rect(0f, y, view.width, 34f), town, map, silver);
+                // Cull rows outside the viewport: drawing forty labels that
+                // the scroll clips anyway is still forty label layouts.
+                if (y + 38f >= scroll.y && y <= scroll.y + body.height)
+                {
+                    DrawRow(new Rect(0f, y, view.width, 34f), towns[i], prices[i]);
+                }
                 y += 38f;
             }
             Widgets.EndScrollView();
         }
 
-        private void DrawRow(Rect row, Settlement town, Map map, int silver)
+        private void DrawRow(Rect row, Settlement town, int price)
         {
             Widgets.DrawBoxSolidWithOutline(row, new Color(0.13f, 0.12f, 0.10f), new Color(0.30f, 0.26f, 0.20f));
             Rect inner = row.ContractedBy(5f);
-            int price = TSC_MageGuild.TranslocationPrice(map.Tile, town.Tile);
 
             Widgets.Label(new Rect(inner.x, inner.y, inner.width - 200f, 22f),
                 $"{town.Label} ({town.Faction?.Name ?? "unaligned"})");

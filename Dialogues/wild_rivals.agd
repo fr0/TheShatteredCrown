@@ -1,0 +1,54 @@
+# A rival company at a discovered site (GenStep_TSC_RivalCompany, wired
+# through the same parley component as the crypt looters). They got here
+# first, they are not hostile, and every exit resolves the group:
+# parley_flee = they ride off the claim; parley_hostile = it comes to
+# steel. Paying them off costs real silver (take_item), gated so the
+# option cannot fire short. One meeting per group (TSC_WildRivalsMet).
+
+dialogue TSC_Dialogue_WildRivals
+
+== start ==
+Riders, and not bandits: road gear, guild-cut cloaks with no charter mark, picks and rope on the saddles. A crew working for themselves. Their leader stands up from the fire and does not reach for anything.
+
+"Well," she says. "The roads are getting crowded. We found this place first, friend, and we mean to work it. There's nothing here worth anyone bleeding over - so let's agree you rode on."
+
+* "The Wayfarers' charter says found claims go to chartered companies. You know the custom. Ride on."
+    check Persuasion 9 -> yields | stands
+    on success do parley_flee()
+* "We'll buy the claim. A hundred and fifty, silver, and you ride out ahead of the weather." -> bought
+    if has_item(Silver, 150)
+    do take_item(Silver, 150)
+    do parley_flee()
+* "It's ours now. Count your blades and count ours." -> fight
+    do parley_hostile()
+* [Leave them to their find and ride on.] -> end
+
+== yields ==
+She looks at your company a long moment: the arms, the horses, the charter mark you carry openly.
+
+"Custom," she says, the way people say words they are losing an argument to. "One day the guild's paper is going to write a cheque its riders can't cash. Not today, though." She whistles her crew up. "It's yours. Mind the low gallery."
+
+* [Watch them ride out.] -> end
+
+== stands ==
+"Custom cuts both ways, friend. Finders keep, that's the older custom." She sits back down without hurry. "We're not moving. You can share the country or you can make a thing of it."
+
+* "We'll buy the claim. A hundred and fifty, silver." -> bought
+    if has_item(Silver, 150)
+    do take_item(Silver, 150)
+    do parley_flee()
+* "Then we make a thing of it." -> fight
+    do parley_hostile()
+* [Let it go. Ride on.] -> end
+
+== bought ==
+She weighs the coin without counting it, which is its own kind of counting.
+
+"Pleasure doing business with the chartered classes." She stands, whistles her crew up, and within the quarter hour theirs is a line of dust on the road. The claim is yours, paid for.
+
+* [To work, then.] -> end
+
+== fight ==
+"Ah," she says, and there is real regret in it. "That's a poor trade for everyone." Then the fire is kicked out and the steel is out and the argument has changed languages.
+
+* [Steel.] -> end

@@ -234,8 +234,12 @@
     </prefabs>
     <parts>
       <Corpse>0.4</Corpse>
-      <!-- 0.35 could roll a completely empty barrow; Oswin promises tenants. -->
-      <DormantInsectCluster>0.75</DormantInsectCluster>
+      <!-- Halved from 0.75 in the insect cutback: the barrow keeps SOME
+           sleeping tenants (Oswin promises them, and the moss cellar's
+           guaranteed cluster backstops an unlucky roll), but the hive
+           wall-to-wall is gone. Roaming vermin and occupants carry the
+           rest of the danger now. -->
+      <DormantInsectCluster>0.4</DormantInsectCluster>
     </parts>
   </LayoutRoomDef>
 
@@ -270,7 +274,9 @@
     </prefabs>
     <parts>
       <Corpse>0.4</Corpse>
-      <DormantInsectCluster>0.4</DormantInsectCluster>
+      <!-- 0.4 -> 0.15 in the insect cutback: a nest is now the exception
+           a delve crew remembers, not the wallpaper. -->
+      <DormantInsectCluster>0.15</DormantInsectCluster>
     </parts>
   </LayoutRoomDef>
 

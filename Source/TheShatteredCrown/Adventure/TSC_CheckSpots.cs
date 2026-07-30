@@ -33,6 +33,20 @@ namespace TheShatteredCrown
         /// <summary>Success can bless the roller (shrine rites): a hediff applied to them.</summary>
         public HediffDef successHediff;
 
+        /// <summary>Success can pay out: things spawned beside the spot (cairn caches, pocketed offerings).</summary>
+        public ThingDef successLoot;
+        public IntRange successLootCount = new IntRange(1, 1);
+
+        /// <summary>And failure can cost more than pride (a shrine that notices the theft).</summary>
+        public HediffDef failHediff;
+
+        /// <summary>
+        /// Success reveals another wilderness discovery near this site's
+        /// world tile: the dead adventurer's journal points onward, and the
+        /// exploration loop feeds itself.
+        /// </summary>
+        public bool successDiscovery;
+
         /// <summary>
         /// A dialogue flag set when this approach succeeds (or fails).
         ///
@@ -151,6 +165,16 @@ namespace TheShatteredCrown
                 {
                     pawn.health.AddHediff(approach.successHediff);
                 }
+                if (approach.successLoot != null && parent.MapHeld != null)
+                {
+                    Thing loot = ThingMaker.MakeThing(approach.successLoot);
+                    loot.stackCount = System.Math.Max(1, approach.successLootCount.RandomInRange);
+                    GenPlace.TryPlaceThing(loot, parent.PositionHeld, parent.MapHeld, ThingPlaceMode.Near);
+                }
+                if (approach.successDiscovery && parent.MapHeld?.Tile != null)
+                {
+                    Find.World.GetComponent<TSC_DiscoveryManager>()?.TryDiscoverNear(parent.MapHeld.Tile);
+                }
                 if (!approach.successFlag.NullOrEmpty())
                 {
                     DialogueStateManager.Current.Set(approach.successFlag);
@@ -176,6 +200,10 @@ namespace TheShatteredCrown
             {
                 pawn.TakeDamage(new DamageInfo(approach.failDamageDef ?? DamageDefOf.Cut,
                     approach.failDamage, 0.3f, -1f, parent));
+            }
+            if (approach.failHediff != null && !pawn.health.hediffSet.HasHediff(approach.failHediff))
+            {
+                pawn.health.AddHediff(approach.failHediff);
             }
             if (!approach.failFlag.NullOrEmpty())
             {

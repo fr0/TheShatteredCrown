@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+  <!-- ==================================================================
+       TorchLamp's stuff-ness depends on the load order.
+
+       Vanilla TorchLamp is NOT madeFromStuff: passing any stuff logs
+       "TorchLamp is not madeFromStuff but stuff=WoodLog" (the bug we fixed
+       by passing none). Medieval Overhaul patches TorchLamp to BE
+       madeFromStuff, at which point passing none logs the mirror error
+       "TorchLamp is madeFromStuff but stuff=null" from every prefab spawn.
+
+       There is no single prefab entry that satisfies both, so the stuff is
+       added conditionally - keyed on the def's actual shape (does
+       TorchLamp have stuffCategories after all patches ran?), never on a
+       packageId, so any mod that makes torches stuff-based gets the same
+       treatment. This mod loads after MO, so MO's patch has already run
+       when this test is evaluated.
+       ================================================================== -->
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="TorchLamp"]/stuffCategories</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/PrefabDef[defName="TSC_Torch"]/things/TorchLamp</xpath>
+          <value><stuff>WoodLog</stuff></value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/PrefabDef[defName="TSC_VaultChest"]/things/TorchLamp</xpath>
+          <value><stuff>WoodLog</stuff></value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/PrefabDef[defName="TSC_Reliquary"]/things/TorchLamp</xpath>
+          <value><stuff>WoodLog</stuff></value>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+
+</Patch>

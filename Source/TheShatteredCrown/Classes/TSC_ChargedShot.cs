@@ -7,7 +7,7 @@ namespace TheShatteredCrown
 {
     /// <summary>
     /// Charged Shot (Ranger): while the TSC_Hediff_ChargedShot buff holds,
-    /// the caster's ranged projectiles deal 180% damage; each projectile
+    /// the caster's ranged projectiles deal 150% damage; each projectile
     /// IMPACT consumes one charge (severity), missed shots included - a
     /// spent arrow is spent. Multiply-at-read plus consume-at-impact means
     /// every projectile fired under the buff keeps its bonus even if the
@@ -15,7 +15,10 @@ namespace TheShatteredCrown
     /// </summary>
     internal static class TSC_ChargedShotUtility
     {
-        public const float BaseDamageFactor = 1.8f;
+        // 1.8 originally; trimmed to 1.5 when the buff gained an accuracy
+        // half and self-buffs dropped to half AP - the damage was the knob
+        // to pay those with.
+        public const float BaseDamageFactor = 1.5f;
 
         private static readonly AccessTools.FieldRef<Projectile, Thing> LauncherRef =
             AccessTools.FieldRefAccess<Projectile, Thing>("launcher");
@@ -29,7 +32,7 @@ namespace TheShatteredCrown
         private static AbilityDef AbilityDef =>
             cachedAbility ?? (cachedAbility = DefDatabase<AbilityDef>.GetNamedSilentFail("TSC_Ability_ChargedShot"));
 
-        /// <summary>The +80% bonus portion scales with ranger level: x1.8 at level 1, x2.28 at 5.</summary>
+        /// <summary>The +50% bonus portion scales with ranger level: x1.5 at level 1, x1.8 at 5.</summary>
         public static float DamageFactorFor(Pawn pawn)
         {
             return 1f + (BaseDamageFactor - 1f) * TSC_SpellScaling.Factor(pawn, AbilityDef);

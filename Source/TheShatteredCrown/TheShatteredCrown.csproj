@@ -17,40 +17,18 @@
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <Nullable>disable</Nullable>
-    <RimWorldManaged>X:\SteamLibrary\steamapps\common\RimWorld\RimWorldWin64_Data\Managed</RimWorldManaged>
-    <HarmonyMod>X:\SteamLibrary\steamapps\workshop\content\294100\2009463077</HarmonyMod>
   </PropertyGroup>
 
+  <!-- All references come from NuGet, none from the Steam install: the
+       same csproj builds on a machine with no RimWorld at all (GitHub
+       Actions). Krafs.Rimworld.Ref carries Assembly-CSharp and the Unity
+       modules for the pinned game version; Lib.Harmony is compile-only
+       (ExcludeAssets=runtime) because the Harmony MOD provides 0Harmony
+       at runtime and shipping a second copy is the classic mod bug. -->
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(RimWorldManaged)\Assembly-CSharp.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- Provided at runtime by the Harmony mod (brrainz.harmony); never shipped -->
-    <Reference Include="0Harmony">
-      <HintPath>$(HarmonyMod)\Current\Assemblies\0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>$(RimWorldManaged)\UnityEngine.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(RimWorldManaged)\UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>$(RimWorldManaged)\UnityEngine.IMGUIModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>$(RimWorldManaged)\UnityEngine.TextRenderingModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Lib.Harmony" Version="2.*" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 
 </Project>

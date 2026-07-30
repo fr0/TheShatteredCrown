@@ -38,6 +38,15 @@ namespace TheShatteredCrown
         public IntRange count = new IntRange(3, 5);
         /// <summary>Shown when the party first sets foot on the floor.</summary>
         public string arrivalNote;
+        /// <summary>
+        /// Wild only: the pack is RABID - permanent man-hunters instead of
+        /// wary predators. The deep floors' answer to losing their hives:
+        /// something that comes looking, where insects only held ground.
+        /// </summary>
+        public bool manhunter;
+
+        /// <summary>One kind rolled for the whole floor: `kinds` is a menu, not a zoo. Duplicates weight the roll.</summary>
+        public bool pickOneKind;
     }
 
     /// <summary>
@@ -373,9 +382,13 @@ namespace TheShatteredCrown
             }
             else if (vermin != null)
             {
+                // "wild" since the insect cutback: the vermin are rats and
+                // wolves now, and a wolf flying insect colors reads wrong.
+                // Predator kinds still menace the party the vanilla way -
+                // by hunting - and rats are what rats are: atmosphere.
                 profile = new TSC_DungeonOccupant
                 {
-                    faction = "insects",
+                    faction = "wild",
                     kinds = new List<PawnKindDef> { vermin },
                     count = verminCount,
                 };
@@ -406,6 +419,9 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            List<PawnKindDef> floorKinds = profile.pickOneKind
+                ? new List<PawnKindDef> { profile.kinds.RandomElement() }
+                : profile.kinds;
             for (int i = 0; i < count; i++)
             {
                 IntVec3 cell = CellFinder.RandomClosewalkCellNear(anchor, map, 5);
@@ -413,7 +429,7 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                PawnKindDef kind = profile.kinds.RandomElement();
+                PawnKindDef kind = floorKinds.RandomElement();
                 Pawn pawn = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind, faction,
                     PawnGenerationContext.NonPlayer, forceGenerateNewPawn: true));
                 GenSpawn.Spawn(pawn, cell, map);
@@ -426,6 +442,14 @@ namespace TheShatteredCrown
             if (faction != null)
             {
                 LordMaker.MakeNewLord(faction, new LordJob_DefendPoint(spawned[0].Position), map, spawned);
+            }
+            else if (profile.manhunter)
+            {
+                foreach (Pawn beast in spawned)
+                {
+                    beast.mindState?.mentalStateHandler?.TryStartMentalState(
+                        MentalStateDefOf.ManhunterPermanent, "rabid", forced: true);
+                }
             }
             if (!profile.arrivalNote.NullOrEmpty())
             {

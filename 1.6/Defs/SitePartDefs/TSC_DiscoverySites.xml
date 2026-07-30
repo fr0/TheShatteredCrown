@@ -45,8 +45,11 @@
     <linkWithSite>TSC_WildCave</linkWithSite>
     <order>485</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_WildBeasts">
+      <pickOneKind>true</pickOneKind>
       <kinds>
         <li>Warg</li>
+        <li>Cougar</li>
+        <li>WildBoar</li>
       </kinds>
       <count>1~2</count>
       <defendDen>false</defendDen>
@@ -92,9 +95,12 @@
     <linkWithSite>TSC_WildLair</linkWithSite>
     <order>485</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_WildBeasts">
+      <pickOneKind>true</pickOneKind>
       <kinds>
         <li>Bear_Grizzly</li>
+        <li>Bear_Grizzly</li>
         <li>Warg</li>
+        <li>Cougar</li>
       </kinds>
       <count>2~3</count>
       <defendDen>true</defendDen>
@@ -126,8 +132,9 @@
     <defName>TSC_WildTower_Structure</defName>
     <linkWithSite>TSC_WildTower</linkWithSite>
     <order>470</order>
-    <genStep Class="GenStep_AncientRuins">
-      <layoutDef>TSC_Waystation</layoutDef>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CollapsedTower">
+      <size>11</size>
+      <collapsed>true</collapsed>
     </genStep>
   </GenStepDef>
 
@@ -197,21 +204,28 @@
     <defName>TSC_WildTowerMagical_Structure</defName>
     <linkWithSite>TSC_WildTowerMagical</linkWithSite>
     <order>470</order>
-    <genStep Class="GenStep_AncientRuins">
-      <layoutDef>TSC_Waystation</layoutDef>
+    <!-- Intact, roofed, still: the sorcerer's tower kept its walls. -->
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CollapsedTower">
+      <size>13</size>
+      <collapsed>false</collapsed>
     </genStep>
   </GenStepDef>
 
   <!-- Something still keeps this tower. Same empty-map fix as the mundane
-       one, but the sorcerer's tower answers to what nested in it. -->
+       one, but the sorcerer's tower answers to what it bound: beasts that
+       came to the light one winter and never left the grounds again
+       (converted from insects in the cutback - defendDen already makes
+       them permanent hunters of trespassers, which IS the binding). -->
   <GenStepDef>
     <defName>TSC_WildTowerMagical_Keepers</defName>
     <linkWithSite>TSC_WildTowerMagical</linkWithSite>
     <order>483</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_WildBeasts">
+      <pickOneKind>true</pickOneKind>
       <kinds>
-        <li>Spelopede</li>
-        <li>Megascarab</li>
+        <li>Warg</li>
+        <li>Cougar</li>
+        <li>Lynx</li>
       </kinds>
       <count>2~4</count>
       <defendDen>true</defendDen>
@@ -499,6 +513,184 @@
           <def>TSC_CampfireCircle</def>
           <count>1~1</count>
         </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ the ones who came before
+       A fallen adventurer, chance-gated per site so they stay a find and
+       not furniture. Odds follow the tenants: a den that eats travellers
+       has eaten travellers; an empty magical tower mostly has not.
+       Some carry their journal (a check spot that reveals the place they
+       were headed next), some a sealed guild dispatch any factor pays to
+       receive - and in beast country, what got them lies nearby. -->
+  <GenStepDef>
+    <defName>TSC_WildCave_Fallen</defName>
+    <linkWithSite>TSC_WildCave</linkWithSite>
+    <order>492</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_FallenAdventurer">
+      <chance>0.45</chance>
+      <beastKinds><li>Warg</li></beastKinds>
+      <journalChance>0.35</journalChance>
+      <courierChance>0.2</courierChance>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildLair_Fallen</defName>
+    <linkWithSite>TSC_WildLair</linkWithSite>
+    <order>492</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_FallenAdventurer">
+      <chance>0.6</chance>
+      <silver>40~90</silver>
+      <beastKinds><li>Warg</li><li>Bear_Grizzly</li></beastKinds>
+      <beastChance>0.5</beastChance>
+      <journalChance>0.35</journalChance>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildTower_Fallen</defName>
+    <linkWithSite>TSC_WildTower</linkWithSite>
+    <order>492</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_FallenAdventurer">
+      <chance>0.35</chance>
+      <journalChance>0.35</journalChance>
+      <courierChance>0.25</courierChance>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildTowerMagical_Fallen</defName>
+    <linkWithSite>TSC_WildTowerMagical</linkWithSite>
+    <order>492</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_FallenAdventurer">
+      <chance>0.3</chance>
+      <bookChance>0.12</bookChance>
+      <journalChance>0.4</journalChance>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildCastle_Fallen</defName>
+    <linkWithSite>TSC_WildCastle</linkWithSite>
+    <order>492</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_FallenAdventurer">
+      <chance>0.35</chance>
+      <journalChance>0.35</journalChance>
+      <courierChance>0.25</courierChance>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ cold camps and cairns -->
+  <GenStepDef>
+    <defName>TSC_WildCave_Camp</defName>
+    <linkWithSite>TSC_WildCave</linkWithSite>
+    <order>493</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_ColdCamp">
+      <chance>0.3</chance>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildTower_Camp</defName>
+    <linkWithSite>TSC_WildTower</linkWithSite>
+    <order>493</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_ColdCamp">
+      <chance>0.35</chance>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildCastle_Camp</defName>
+    <linkWithSite>TSC_WildCastle</linkWithSite>
+    <order>493</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_ColdCamp">
+      <chance>0.3</chance>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildCave_Cairn</defName>
+    <linkWithSite>TSC_WildCave</linkWithSite>
+    <order>494</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_Cairn</def><count>0~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildLair_Cairn</defName>
+    <linkWithSite>TSC_WildLair</linkWithSite>
+    <order>494</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_Cairn</def><count>0~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ rival company
+       Somebody else is working the claim, and they are alive. Words first:
+       the parley component holds them neutral until the dialogue decides. -->
+  <GenStepDef>
+    <defName>TSC_WildCastle_Rivals</defName>
+    <linkWithSite>TSC_WildCastle</linkWithSite>
+    <order>496</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_RivalCompany">
+      <chance>0.25</chance>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildTower_Rivals</defName>
+    <linkWithSite>TSC_WildTower</linkWithSite>
+    <order>496</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_RivalCompany">
+      <chance>0.2</chance>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ the old battlefield
+       Its own discovery: open ground, a dozen long-dead, rusted weapon
+       litter, and one piece worth the grave-walking. No tenants - the
+       danger already happened. -->
+  <SitePartDef>
+    <defName>TSC_WildBattlefield</defName>
+    <label>old battlefield</label>
+    <description>A stretch of ground where two crews settled something years ago, and the crows settled the rest. Nobody buried anybody. What they carried is still out there in the grass.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Walk {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_DiscoverySiteExtension">
+        <weight>0.7</weight>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_WildBattlefield_Dead</defName>
+    <linkWithSite>TSC_WildBattlefield</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Battlefield" />
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_WildBattlefield_Spots</defName>
+    <linkWithSite>TSC_WildBattlefield</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_GrislyRemains</def><count>1~1</count></li>
+        <li><def>TSC_StrewnBaggage</def><count>0~1</count></li>
+        <li><def>TSC_Cairn</def><count>0~1</count></li>
       </spots>
     </genStep>
   </GenStepDef>

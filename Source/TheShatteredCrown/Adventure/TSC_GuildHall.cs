@@ -504,13 +504,7 @@ namespace TheShatteredCrown
                 }
             }
             TSC_ContractManager manager = Find.World.GetComponent<TSC_ContractManager>();
-            for (int i = open; i < 2 && manager != null; i++)
-            {
-                if (!manager.TryGenerateNow())
-                {
-                    break;
-                }
-            }
+            manager?.TopUpNow(2, open);
             Find.WindowStack.Add(new Window_TSC_ContractBoard(context.interactor));
         }
     }

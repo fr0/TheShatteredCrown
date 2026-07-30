@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+  <!-- Charged Shot's aim bonus, translated into Combat Extended's model.
+       Vanilla hit chance runs through ShootingAccuracyPawn (offset in the
+       base hediff def); CE ignores that stat entirely and resolves shots
+       through aim (AimingAccuracy) and weapon sway (SwayFactor). Same
+       promise in both systems: while the charge is held, the shot flies
+       truer. This folder only loads with CE, so the CE-only stat names
+       here always resolve. -->
+
+  <!-- AimingAccuracy only: it is CE's PAWN-side aim stat and feeds the
+       sway math directly. SwayFactor was considered and rejected - it is
+       a WEAPON-category stat, so a factor on a pawn hediff never gets
+       queried. -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/HediffDef[defName="TSC_Hediff_ChargedShot"]/stages/li/statOffsets</xpath>
+    <value>
+      <AimingAccuracy>0.25</AimingAccuracy>
+    </value>
+  </Operation>
+
+</Patch>

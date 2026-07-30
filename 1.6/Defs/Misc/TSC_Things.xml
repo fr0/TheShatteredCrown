@@ -1199,6 +1199,57 @@
     </projectile>
   </ThingDef>
 
+  <!-- A guild dispatch that never arrived, found on a dead courier in the
+       wilds. Any factor pays to receive it - the option appears in the
+       factor's dialogue while one is in the party's goods. Sealed on
+       purpose: what it says is the guild's business, and the pay is the
+       same either way. -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_SealedDispatch</defName>
+    <label>sealed guild dispatch</label>
+    <description>A waxed packet under the Wayfarers' seal, addressed in ledger-hand to any factor of the guild. The courier carrying it stopped being able to care about it some time ago. The guild pays for its mail, delivered by whoever delivers it.</description>
+    <graphicData>
+      <texPath>Things/Item/Book/Textbook/Textbook</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <color>(0.55,0.5,0.42)</color>
+    </graphicData>
+    <stackLimit>5</stackLimit>
+    <statBases>
+      <MaxHitPoints>60</MaxHitPoints>
+      <Mass>0.3</Mass>
+      <MarketValue>25</MarketValue>
+      <Flammability>1</Flammability>
+      <DeteriorationRate>1</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+  </ThingDef>
+
+  <!-- Magic Missile's bolt. The def's damage numbers are a FLOOR for
+       display; the real amount is computed at cast time (base + per-wizard-
+       level + feat mods) and rides the projectile - see
+       CompAbilityEffect_TSC_SpellBolt. Vanilla Projectile, deliberately:
+       ability projectiles are outside CE's weapon conversion, and the turn
+       engine's projectile hold sees it through ThingRequestGroup. -->
+  <ThingDef ParentName="BaseProjectileNeolithic">
+    <defName>TSC_Projectile_MagicMissile</defName>
+    <label>magic missile</label>
+    <thingClass>TheShatteredCrown.Projectile_TSC_Spell</thingClass>
+    <graphicData>
+      <texPath>Things/Projectile/Charge_Small</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <shaderType>TransparentPostLight</shaderType>
+      <color>(178,127,255)</color>
+    </graphicData>
+    <projectile>
+      <damageDef>Burn</damageDef>
+      <damageAmountBase>8</damageAmountBase>
+      <armorPenetrationBase>0.3</armorPenetrationBase>
+      <speed>36</speed>
+    </projectile>
+  </ThingDef>
+
   <ThingDef ParentName="BaseWeapon">
     <defName>TSC_Weapon_EmberBow</defName>
     <label>ember bow</label>

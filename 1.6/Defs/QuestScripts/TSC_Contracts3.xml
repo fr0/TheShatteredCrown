@@ -40,7 +40,8 @@
         <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
         <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
         <li Class="QuestNode_Set"><name>siteDistRange</name><value>4~13</value></li>
-        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
         <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
           <storeAs>sitePartDefs</storeAs>
           <storeFactionAs>siteFaction</storeFactionAs>
@@ -53,6 +54,7 @@
           <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
         </li>
         <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
 
         <li Class="QuestNode_Signal">
@@ -94,15 +96,15 @@
 
   <QuestScriptDef ParentName="TSC_ContractBase">
     <defName>TSC_Contract_Warren</defName>
-    <!-- Rated 3, not 2: two doubled sides is the largest body count on the
-         board. It plays easier than the raw number because the tenants spend
-         themselves on each other, but a company that walks in expecting a
-         rating-2 job walks into eight to sixteen hostiles. -->
+    <!-- Rated 3, not 2: two sides at 3~6 each is still the largest body
+         count on the board. It plays easier than the raw number because the
+         tenants spend themselves on each other, but a company that walks in
+         expecting a rating-2 job walks into six to twelve hostiles. -->
     <defaultChallengeRating>3</defaultChallengeRating>
     <questNameRules>
       <rulesStrings>
         <li>questName->Contract: [wr_name]</li>
-        <li>wr_name->Bad Neighbours</li>
+        <li>wr_name->Bad Neighbors</li>
         <li>wr_name->The Understanding</li>
         <li>wr_name->Two Sets of Tracks</li>
         <li>wr_name->Nobody Owns It</li>
@@ -121,7 +123,8 @@
         <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
         <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
         <li Class="QuestNode_Set"><name>siteDistRange</name><value>3~11</value></li>
-        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
         <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
           <storeAs>sitePartDefs</storeAs>
           <storeFactionAs>siteFaction</storeFactionAs>
@@ -133,6 +136,7 @@
           <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
         </li>
         <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
 
         <li Class="QuestNode_Signal">
@@ -193,7 +197,8 @@
       <nodes>
         <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
         <li Class="QuestNode_Set"><name>siteDistRange</name><value>3~10</value></li>
-        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
         <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
           <storeAs>sitePartDefs</storeAs>
           <storeFactionAs>siteFaction</storeFactionAs>
@@ -205,6 +210,7 @@
           <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
         </li>
         <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
 
         <!-- The pack itself: manhunter from the first tick, so there is no
@@ -276,7 +282,8 @@
         <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
         <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
         <li Class="QuestNode_Set"><name>siteDistRange</name><value>3~12</value></li>
-        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
         <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
           <storeAs>sitePartDefs</storeAs>
           <storeFactionAs>siteFaction</storeFactionAs>
@@ -289,6 +296,7 @@
           <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
         </li>
         <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
 
         <li Class="TheShatteredCrown.QuestNode_TSC_FailUnlessHolding">
@@ -356,7 +364,8 @@
         <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
         <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
         <li Class="QuestNode_Set"><name>siteDistRange</name><value>3~11</value></li>
-        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
         <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
           <storeAs>sitePartDefs</storeAs>
           <storeFactionAs>siteFaction</storeFactionAs>
@@ -369,6 +378,7 @@
           <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
         </li>
         <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
 
         <li Class="QuestNode_Signal">
@@ -430,7 +440,8 @@
         <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
         <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
         <li Class="QuestNode_Set"><name>siteDistRange</name><value>2~9</value></li>
-        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
         <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
           <storeAs>sitePartDefs</storeAs>
           <storeFactionAs>siteFaction</storeFactionAs>
@@ -443,6 +454,7 @@
           <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
         </li>
         <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
 
         <li Class="TheShatteredCrown.QuestNode_TSC_FailUnlessHolding">

@@ -33,7 +33,8 @@
         <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
         <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
         <li Class="QuestNode_Set"><name>siteDistRange</name><value>3~11</value></li>
-        <li Class="QuestNode_GetSiteTile"><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
         <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
           <storeAs>sitePartDefs</storeAs>
           <storeFactionAs>siteFaction</storeFactionAs>
@@ -46,6 +47,7 @@
           <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
         </li>
         <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
 
         <li Class="QuestNode_Signal">

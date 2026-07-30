@@ -557,16 +557,18 @@ In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost
       <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
         <cost>10</cost>
       </li>
-      <li Class="TheShatteredCrown.CompProperties_TSC_Damage">
+      <li Class="TheShatteredCrown.CompProperties_TSC_SpellBolt">
+        <projectileDef>TSC_Projectile_MagicMissile</projectileDef>
         <damage>8</damage>
         <damagePerLevel>2</damagePerLevel>
         <scaleClass>TSC_Class_Wizard</scaleClass>
         <armorPenetration>0.3</armorPenetration>
       </li>
+      <!-- No drawn line anymore: the bolt IS the line. The cast flash keeps
+           the caster's hands lit at the moment of release. -->
       <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
         <color>(0.7, 0.5, 1)</color>
         <scale>1.4</scale>
-        <line>true</line>
       </li>
     </comps>
   </AbilityDef>
@@ -1269,7 +1271,7 @@ In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_ChargedShot</defName>
     <label>charged shot</label>
-    <description>Every draw measured, every loose meant: the caster's next 3 ranged attacks deal 180% damage (charges last up to 60 seconds; a missed shot still spends its charge).</description>
+    <description>Every draw measured, every loose meant: the caster's next 3 ranged attacks fly truer (improved accuracy) and deal 150% damage (charges last up to 60 seconds; a missed shot still spends its charge).</description>
     <iconPath>UI/TSC_Abilities/TSC_ChargedShot</iconPath>
     <cooldownTicksRange>1200</cooldownTicksRange>
     <statBases>

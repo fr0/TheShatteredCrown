@@ -29,6 +29,68 @@ namespace TheShatteredCrown
         {
         }
 
+        /// <summary>
+        /// Save repair: quests bake their parts at GENERATION, and contracts
+        /// are generated when the board stocks them - so offers minted while
+        /// the site-tile search was broken are siteless forever, and every
+        /// one the player picks up is a dud with no map marker. The code fix
+        /// cannot reach them; this can. On load, any pending or ongoing
+        /// contract with no world object to its name is struck, the board
+        /// restocks under the fixed generator, and the player is told once.
+        /// </summary>
+        // Once per session, on the first world TICK - never in FinalizeInit.
+        // Learned the hard way: FinalizeInit runs inside Game.LoadGame BEFORE
+        // cross-references resolve, so every Scribe_References field in the
+        // game is still null there - and a spawned site is saved by
+        // REFERENCE, so the audit read every healthy ACCEPTED contract as
+        // siteless and struck it. By the first tick, references are real.
+        private bool auditDone;
+
+        /// <summary>
+        /// Save repair for the board's stock: offers minted while the tile
+        /// search was broken hold sites with unusable tiles (default tile 0,
+        /// an ocean) forever. ONLY un-accepted offers are judged - their
+        /// sites are deep-saved inside the quest part and thus fully loaded.
+        /// Accepted quests are left alone: their sites live in the world,
+        /// where the player can see the truth for themselves.
+        /// </summary>
+        private void AuditBoardStock()
+        {
+            int struck = 0;
+            List<Quest> quests = Find.QuestManager.QuestsListForReading;
+            for (int i = quests.Count - 1; i >= 0; i--)
+            {
+                Quest quest = quests[i];
+                if (quest.State != QuestState.NotYetAccepted || !IsContract(quest.root))
+                {
+                    continue;
+                }
+                bool hasSite = false;
+                foreach (QuestPart part in quest.PartsListForReading)
+                {
+                    if (part is QuestPart_SpawnWorldObject spawn && spawn.worldObject != null
+                        && Patch_TryFindNewSiteTile_NoWater.UsableSiteTile(spawn.worldObject.Tile))
+                    {
+                        hasSite = true;
+                        break;
+                    }
+                }
+                if (hasSite)
+                {
+                    continue;
+                }
+                quest.End(QuestEndOutcome.InvalidPreAcceptance, sendLetter: false, playSound: false);
+                struck++;
+            }
+            if (struck > 0)
+            {
+                Log.Message($"[The Shattered Crown] Struck {struck} board offer(s) holding unusable sites "
+                    + "(an older tile-search bug); the guild board will restock with sound ones.");
+                Messages.Message($"The guild audits its books: {struck} unsound contract(s) struck from the ledger.",
+                    MessageTypeDefOf.NeutralEvent, historical: false);
+            }
+        }
+
         public void KickstartFirstContract()
         {
             nextContractTick = 0;
@@ -36,19 +98,56 @@ namespace TheShatteredCrown
 
         /// <summary>
         /// A guild factor asked in person and the board was empty: generate
-        /// one now, off-cadence. The regular restock timer is untouched.
+        /// one now, off-cadence. The regular restock timer is untouched -
+        /// but the favor is ONCE A DAY. Uncooled, this was an infinite
+        /// faucet: take everything, reopen the board, and the factor
+        /// "found" two more in the satchel, forever. The world cadence
+        /// (1-3 days per posting) is the real economy; this is a courtesy
+        /// for a party that arrives to an empty board, not a bypass.
         /// </summary>
-        public bool TryGenerateNow()
+        private int nextOnDemandTick = -1;
+        private const int OnDemandCooldownTicks = 60000; // one day
+
+        /// <summary>
+        /// Top the board up to `target` offers in one visit. The cooldown
+        /// gates the VISIT, not each contract: the story scenario's board
+        /// restocks only through this path, so a per-contract cooldown
+        /// would quietly halve it. One satchel-opening a day, however many
+        /// postings come out of it.
+        /// </summary>
+        public int TopUpNow(int target, int openNow)
         {
             // Broader gate than the world-clock restock: a guild factor can
             // hand out work in EITHER scenario (story campaigns visit guild
             // halls too); only the automatic cadence is Adventure-only.
-            return TSC_RpgMode.Active && GenerateContract();
+            if (!TSC_RpgMode.Active || Find.TickManager.TicksGame < nextOnDemandTick)
+            {
+                return 0;
+            }
+            int made = 0;
+            for (int i = openNow; i < target; i++)
+            {
+                if (!GenerateContract())
+                {
+                    break;
+                }
+                made++;
+            }
+            if (made > 0)
+            {
+                nextOnDemandTick = Find.TickManager.TicksGame + OnDemandCooldownTicks;
+            }
+            return made;
         }
 
         public override void WorldComponentTick()
         {
             base.WorldComponentTick();
+            if (!auditDone)
+            {
+                auditDone = true;
+                AuditBoardStock();
+            }
             if (Find.TickManager.TicksGame % CheckIntervalTicks != 0
                 || !TSC_AdventureModeGate.Active)
             {
@@ -217,6 +316,7 @@ namespace TheShatteredCrown
         {
             base.ExposeData();
             Scribe_Values.Look(ref nextContractTick, "nextContractTick", -1);
+            Scribe_Values.Look(ref nextOnDemandTick, "nextOnDemandTick", -1);
         }
     }
 

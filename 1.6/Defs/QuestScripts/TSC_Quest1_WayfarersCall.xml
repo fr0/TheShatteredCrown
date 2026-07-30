@@ -54,6 +54,7 @@
         </li>
 
         <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance>
           <storeAs>siteTile</storeAs>
           <preferCloserTiles>true</preferCloserTiles>
         </li>

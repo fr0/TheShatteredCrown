@@ -164,6 +164,97 @@
             <successMessage>You do not know the words, so you use the ones you have, and you mean them. The company watches an eight-hundred-year-old errand finally get finished. Everyone walks out of the room lighter.</successMessage>
             <failMessage>You get about halfway before your voice gives away how little you know. Stopping there is worse than not starting.</failMessage>
           </li>
+          <li>
+            <proficiency>TSC_Prof_Thievery</proficiency>
+            <dc>6</dc>
+            <label>Pocket what was left</label>
+            <successXp>15</successXp>
+            <successLoot>Silver</successLoot>
+            <successLootCount>40~80</successLootCount>
+            <successMessage>Offerings are for the dead, and the dead have never once come to collect. The silver goes into your coat, and nothing in the room says a word about it.</successMessage>
+            <failHediff>TSC_Hediff_ShrineCurse</failHediff>
+            <failMessage>Your hand closes on the silver and the room goes quiet in a way rooms should not. You put it back. It does not help.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ wilds: the cairn -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_Cairn</defName>
+    <label>traveler's cairn</label>
+    <description>Stones stacked with intent, weathered by years. People build these to mark something, or to keep something down, or to keep something safe. There is one way to find out which.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_CollapsedPassage</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+      <color>(0.66,0.66,0.62)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>8</dc>
+            <label>Shift the stones</label>
+            <successXp>30</successXp>
+            <successLoot>Silver</successLoot>
+            <successLootCount>50~110</successLootCount>
+            <successWakesDormant>true</successWakesDormant>
+            <successMessage>Stone by stone, and loudly. Under the last of them: a wrapped bundle somebody meant to come back for.</successMessage>
+            <failMessage>The stack shifts wrong and settles deeper. Whatever is under there is under there for good now.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Thievery</proficiency>
+            <dc>7</dc>
+            <label>Read which stone bears the weight</label>
+            <successXp>35</successXp>
+            <successLoot>Silver</successLoot>
+            <successLootCount>50~110</successLootCount>
+            <successMessage>Every stack has one keystone, and whoever built this one wanted it findable. Two stones out, a reach in, and the cairn stands exactly as it stood.</successMessage>
+            <failMessage>You pull the wrong stone and spend a bad moment holding up the rest with your forearm. The cairn keeps what it keeps.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ wilds: the trail journal
+       Found with a fallen adventurer. Success calls the discovery manager:
+       the dead name the place they were headed next, and the exploration
+       loop feeds itself. -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_TrailJournal</defName>
+    <label>trail journal</label>
+    <description>A travel journal in a waxed wrap, half under its owner. The last pages are the ones that matter, if they can still be read.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BanditLedger</texPath>
+      <drawSize>(1.0,1.0)</drawSize>
+      <color>(0.72,0.62,0.48)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>7</dc>
+            <label>Work out where they were headed</label>
+            <successXp>35</successXp>
+            <successDiscovery>true</successDiscovery>
+            <successMessage>Water-stained, but the owner wrote like a surveyor: bearings, landmarks, days between them. The last entry names a place they never reached. You can find it.</successMessage>
+            <failMessage>The wax held the rain out and the rot in. The pages that named names are a gray felt.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>8</dc>
+            <label>Read the writer, not the words</label>
+            <successXp>35</successXp>
+            <successDiscovery>true</successDiscovery>
+            <successMessage>Forget the smeared entries: look at what they packed, which page is worn from rereading, which map corner is soft from a thumb. They were going somewhere they had circled a long time. You know roughly where.</successMessage>
+            <failMessage>A stranger's shorthand, a stranger's habits. Whatever they were chasing, they are done chasing it, and the journal keeps their counsel.</failMessage>
+          </li>
         </approaches>
       </li>
     </comps>

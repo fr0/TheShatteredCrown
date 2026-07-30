@@ -212,17 +212,27 @@ namespace TheShatteredCrown
                 return;
             }
             Thing thing = __instance.AnyThing;
+            // Player pawns only: the labels answer "whose kit am I about to
+            // sell?", a question that only exists on the player's side. The
+            // TRADER's stock also lives in a pawn's inventory (the smith is
+            // a pawn), and "(in Garrick's pack)" on the smith's own shelf
+            // was noise wearing the feature's clothes.
             if (thing is Apparel worn && worn.Wearer != null)
             {
-                __result += $" (worn by {worn.Wearer.LabelShortCap})";
+                if (worn.Wearer.IsColonistPlayerControlled)
+                {
+                    __result += $" (worn by {worn.Wearer.LabelShortCap})";
+                }
                 return;
             }
             switch (thing?.ParentHolder)
             {
-                case Pawn_EquipmentTracker rack when rack.pawn != null:
+                case Pawn_EquipmentTracker rack
+                    when rack.pawn != null && rack.pawn.IsColonistPlayerControlled:
                     __result += $" (carried by {rack.pawn.LabelShortCap})";
                     break;
-                case Pawn_InventoryTracker pack when pack.pawn != null:
+                case Pawn_InventoryTracker pack
+                    when pack.pawn != null && pack.pawn.IsColonistPlayerControlled:
                     __result += $" (in {pack.pawn.LabelShortCap}'s pack)";
                     break;
             }

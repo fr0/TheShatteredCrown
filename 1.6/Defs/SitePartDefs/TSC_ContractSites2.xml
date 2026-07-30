@@ -43,23 +43,30 @@
     </genStep>
   </GenStepDef>
 
-  <!-- The tenants. Same "post guards around a point" spawner the ruin uses,
-       now pointed at insects: the waystation layout consumes no threat
+  <!-- The tenants: a rabid pack (converted from insects in the cutback).
+       Manhunter is REQUIRED here, not flavor - passive wild animals are
+       not hostile threats, and this contract completes on
+       site.AllEnemiesDefeated. The waystation layout consumes no threat
        points of its own, so without this the map generates empty. -->
   <GenStepDef>
     <defName>TSC_ContractNest_Swarm</defName>
     <linkWithSite>TSC_ContractNest</linkWithSite>
     <order>483</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
-      <faction>insects</faction>
+      <faction>wild</faction>
+      <manhunter>true</manhunter>
+      <!-- One pack type rolled per site: wolves twice as often as the
+           rest, a lone-ish bear the nasty surprise. -->
+      <pickOneKind>true</pickOneKind>
       <kinds>
-        <li>Megascarab</li>
-        <li>Spelopede</li>
-        <li>Megascarab</li>
-        <li>Megaspider</li>
+        <li>Wolf_Timber</li>
+        <li>Wolf_Timber</li>
+        <li>Warg</li>
+        <li>WildBoar</li>
+        <li>Bear_Grizzly</li>
       </kinds>
       <count>3~5</count>
-      <scaledClamp>2~9</scaledClamp>
+      <scaledClamp>2~8</scaledClamp>
     </genStep>
   </GenStepDef>
 

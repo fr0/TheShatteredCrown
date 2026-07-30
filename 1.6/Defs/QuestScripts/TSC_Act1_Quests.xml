@@ -78,6 +78,7 @@
         <li Class="QuestNode_SubScript">
           <def>Util_GenerateSite</def>
         </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects">
           <worldObjects>$site</worldObjects>
         </li>
@@ -198,6 +199,7 @@
         <li Class="QuestNode_SubScript">
           <def>Util_GenerateSite</def>
         </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects">
           <worldObjects>$site</worldObjects>
         </li>
@@ -280,6 +282,7 @@
         <li Class="QuestNode_SubScript">
           <def>Util_GenerateSite</def>
         </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects">
           <worldObjects>$site</worldObjects>
         </li>
@@ -370,6 +373,7 @@
         <li Class="QuestNode_SubScript">
           <def>Util_GenerateSite</def>
         </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects">
           <worldObjects>$site</worldObjects>
         </li>
@@ -465,6 +469,7 @@
         <li Class="QuestNode_SubScript">
           <def>Util_GenerateSite</def>
         </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects">
           <worldObjects>$site</worldObjects>
         </li>
@@ -611,6 +616,7 @@
         <li Class="QuestNode_SubScript">
           <def>Util_GenerateSite</def>
         </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects">
           <worldObjects>$site</worldObjects>
         </li>

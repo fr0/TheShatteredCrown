@@ -1,5 +1,8 @@
 # The innkeeper: one per friendly settlement, behind the counter in the
-# stamped tavern. Sells the company a night off (Window_TSC_Tavern).
+# stamped tavern. Sells the company a night off (Window_TSC_Tavern) and
+# provisions for the road: gated on the coin, priced above market a
+# little, because the convenience of buying supper at the door is worth
+# a little.
 
 dialogue TSC_Dialogue_TownInnkeeper
 
@@ -11,7 +14,28 @@ The innkeeper is drying a tankard with a cloth that has seen better decades, and
 * "What does a night cost?" -> price
 * "Set out the benches." -> end
     do tavern_round()
+* "We need provisions for the road." -> provisions
 * "Some other night." -> end
+
+== provisions ==
+She jerks a thumb at the pantry door without putting the tankard down.
+
+"Road food, kitchen food, or the kind in bottles. Trail rations keep a month in a saddlebag. The meals want eating in a day or two, but they eat like food instead of like penance. And the ale is for the evening you finally stop somewhere."
+
+* "Rations. Enough for the road." (60 silver) -> provisions
+    if has_item(Silver, 60)
+    do take_item(Silver, 60)
+    do give_item(Pemmican, 40)
+* "Proper meals for the next few days." (130 silver) -> provisions
+    if has_item(Silver, 130)
+    do take_item(Silver, 130)
+    do give_item(MealSimple, 8)
+* "The kind in bottles." (155 silver) -> provisions
+    if has_item(Silver, 155)
+    do take_item(Silver, 155)
+    do give_item(Beer, 12)
+* "That's the lot." -> start
+* "Nothing today after all." -> end
 
 == price ==
 "Per head, and worth it." She sets the tankard down. "Hot food, a bench, and enough noise in here that nobody has to listen to themselves think. They'll walk out tomorrow lighter than they walked in."

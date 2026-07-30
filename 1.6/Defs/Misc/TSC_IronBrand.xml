@@ -633,12 +633,12 @@
         </li>
         <li>
           <weight>1</weight>
-          <faction>insects</faction>
+          <faction>wild</faction>
           <kinds>
-            <li>Megascarab</li>
+            <li>Rat</li>
           </kinds>
-          <count>0~2</count>
-          <arrivalNote>The drain has tenants. They were here before the Brand and they will be here after.</arrivalNote>
+          <count>1~3</count>
+          <arrivalNote>The drain has tenants: rats, sleek on whatever the Brand throws away. They were here before the Brand and they will be here after.</arrivalNote>
         </li>
       </occupants>
       <spots>

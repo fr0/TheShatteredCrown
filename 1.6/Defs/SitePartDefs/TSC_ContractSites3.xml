@@ -106,19 +106,20 @@
        the insects hold the other. They fight each other as readily as you,
        which is the point of the contract.
 
-       Both sides are deliberately twice the size of a comparable one-faction
-       garrison, because they spend themselves on each other before the party
-       matters. At the old 2~4 a side, the stand-off resolved itself: by the
-       time the company picked a corridor there were two survivors left and
-       the contract's whole premise had played out without them. A side has to
-       be big enough to still be a fight after it has had a fight. -->
+       Both sides run larger than a comparable one-faction garrison (3~6 a
+       side, half again the original 2~4), because they spend themselves on
+       each other once the player stirs the seam. The original size resolved
+       the stand-off before the party mattered; the doubled size (4~8) proved
+       over-tuned once the corner partition stopped the sides from bleeding
+       each other at map generation. A side has to be big enough to still be
+       a fight after it has had a fight - and no bigger. -->
   <GenStepDef>
     <defName>TSC_ContractWarren_Squatters</defName>
     <linkWithSite>TSC_ContractWarren</linkWithSite>
     <order>483</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
-      <count>4~8</count>
-      <scaledClamp>4~14</scaledClamp>
+      <count>3~6</count>
+      <scaledClamp>3~10</scaledClamp>
       <holdEnd>SW</holdEnd>
     </genStep>
   </GenStepDef>
@@ -133,8 +134,8 @@
         <li>Megascarab</li>
         <li>Spelopede</li>
       </kinds>
-      <count>4~8</count>
-      <scaledClamp>4~14</scaledClamp>
+      <count>3~6</count>
+      <scaledClamp>3~10</scaledClamp>
       <holdEnd>NE</holdEnd>
     </genStep>
   </GenStepDef>

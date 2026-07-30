@@ -198,6 +198,14 @@
       <variableDepth>true</variableDepth>
       <layoutDef>TSC_Catacombs</layoutDef>
       <size>44</size>
+      <!-- NO layout-rolled insect nests: the occupant profile is the floor's
+           tenant story now ("the Crownless are squatting the upper works"),
+           and a hive the layout smuggles in behind that note makes the note
+           a lie. Same prune the keep cellar uses. The reliquary room's
+           guaranteed cluster is included - on PROCEDURAL floors its chest
+           holds grave goods, not the Kingsblade, and it does not need a
+           guaranteed guardian. -->
+      <maxDormantPacks>0</maxDormantPacks>
       <stairsDef>TSC_DelveStairs_ToMiddle</stairsDef>
       <lootDef>TSC_GuildStrongbox</lootDef>
       <spots>
@@ -220,9 +228,21 @@
         </li>
         <li>
           <weight>1</weight>
+          <faction>wild</faction>
+          <pickOneKind>true</pickOneKind>
+          <count>2~3</count>
+          <arrivalNote>Droppings, dragged bones, and a den smell on the draught: something has moved into the upper works, and it is not hungry enough to be brave yet.</arrivalNote>
+          <kinds>
+            <li>Wolf_Timber</li>
+            <li>Wolf_Timber</li>
+            <li>WildBoar</li>
+          </kinds>
+        </li>
+        <li>
+          <weight>0.5</weight>
           <faction>insects</faction>
-          <count>4~6</count>
-          <arrivalNote>Chitin sign on every doorway, and the smell of a nest working somewhere ahead.</arrivalNote>
+          <count>2~4</count>
+          <arrivalNote>Chitin sign on the doorframes, fresh worked resin on the walls: a young nest has started on the upper floor. Small, for now.</arrivalNote>
           <kinds>
             <li>Megascarab</li>
           </kinds>
@@ -239,6 +259,7 @@
       <variableDepth>true</variableDepth>
       <layoutDef>TSC_Ossuary</layoutDef>
       <size>44</size>
+      <maxDormantPacks>0</maxDormantPacks>
       <stairsDef>TSC_DelveStairs_ToDeep</stairsDef>
       <lootDef>TSC_GuildStrongbox</lootDef>
       <spots>
@@ -251,9 +272,21 @@
       <occupants>
         <li>
           <weight>2</weight>
+          <faction>wild</faction>
+          <pickOneKind>true</pickOneKind>
+          <count>2~3</count>
+          <arrivalNote>Something big was driven underground here, and the middle works have been its larder long enough to smell like one.</arrivalNote>
+          <kinds>
+            <li>Warg</li>
+            <li>Cougar</li>
+            <li>WildBoar</li>
+          </kinds>
+        </li>
+        <li>
+          <weight>0.5</weight>
           <faction>insects</faction>
-          <count>3~5</count>
-          <arrivalNote>The middle works are a nest, and the nest has had this floor long enough to shape it.</arrivalNote>
+          <count>3~4</count>
+          <arrivalNote>Resin on the walls and a worked smell on the air: a nest has the middle works, and it has been here a while.</arrivalNote>
           <kinds>
             <li>Spelopede</li>
             <li>Megascarab</li>
@@ -292,6 +325,7 @@
       <variableDepth>true</variableDepth>
       <layoutDef>TSC_Ossuary</layoutDef>
       <size>40</size>
+      <maxDormantPacks>0</maxDormantPacks>
       <stairsDef>TSC_DelveStairs_ToLowest</stairsDef>
       <lootDef>TSC_GuildStrongbox</lootDef>
       <spots>
@@ -302,9 +336,23 @@
       <occupants>
         <li>
           <weight>2</weight>
+          <faction>wild</faction>
+          <manhunter>true</manhunter>
+          <pickOneKind>true</pickOneKind>
+          <count>2~4</count>
+          <arrivalNote>The pack down here is wrong: patchy coats, foam at the lip, no fear at all. Whatever they drank from the sump, they will not be reasoned with or waited out.</arrivalNote>
+          <kinds>
+            <li>Warg</li>
+            <li>Warg</li>
+            <li>Wolf_Timber</li>
+            <li>Bear_Grizzly</li>
+          </kinds>
+        </li>
+        <li>
+          <weight>1</weight>
           <faction>insects</faction>
           <count>2~4</count>
-          <arrivalNote>The deep floor is the hive's heart, and it is awake.</arrivalNote>
+          <arrivalNote>The deep floor is a nest, old and quiet and confident. Everything down here answers to it.</arrivalNote>
           <kinds>
             <li>Megaspider</li>
             <li>Spelopede</li>
@@ -341,6 +389,7 @@
       <variableDepth>true</variableDepth>
       <layoutDef>TSC_Ossuary</layoutDef>
       <size>38</size>
+      <maxDormantPacks>0</maxDormantPacks>
       <lootDef>TSC_GuildStrongbox</lootDef>
       <spots>
         <li>TSC_SealedDoor</li>
@@ -350,9 +399,22 @@
       <occupants>
         <li>
           <weight>2</weight>
+          <faction>wild</faction>
+          <manhunter>true</manhunter>
+          <pickOneKind>true</pickOneKind>
+          <count>2~3</count>
+          <arrivalNote>Rabid, starved, and down here in the dark a long time: whatever holds the bottom of the works stopped being animals in any way that helps you.</arrivalNote>
+          <kinds>
+            <li>Warg</li>
+            <li>Warg</li>
+            <li>Bear_Grizzly</li>
+          </kinds>
+        </li>
+        <li>
+          <weight>1</weight>
           <faction>insects</faction>
-          <count>2~4</count>
-          <arrivalNote>The sump is the hive's heart, and nothing has disturbed it in a very long time.</arrivalNote>
+          <count>2~3</count>
+          <arrivalNote>The sump belongs to a hive, and it has never once been disturbed. Until now.</arrivalNote>
           <kinds>
             <li>Megaspider</li>
             <li>Spelopede</li>

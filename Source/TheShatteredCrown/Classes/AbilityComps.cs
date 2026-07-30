@@ -581,6 +581,45 @@ namespace TheShatteredCrown
 
     // ---------------------------------------------------------------- direct damage
 
+    /// <summary>
+    /// The one place spell damage is computed: base + feat mods + either the
+    /// explicit per-level curve (scaleClass, Magic Missile) or the generic
+    /// scaling factor. Shared by the instant-damage comp and the spell
+    /// projectile so a bolt in flight hits exactly as hard as the old
+    /// instant hit did.
+    /// </summary>
+    public static class TSC_AbilityDamage
+    {
+        public static float Resolve(Pawn caster, AbilityDef ability, CompProperties_TSC_Damage props,
+            out float armorPen, out bool ignite)
+        {
+            float damage = props.damage;
+            armorPen = props.armorPenetration;
+            ignite = false;
+            foreach (TSC_FeatAbilityMod mod in TSC_FeatMods.ModsFor(caster, ability))
+            {
+                armorPen += mod.armorPenetrationBonus;
+                ignite |= mod.igniteTarget;
+            }
+            if (props.scaleClass != null && props.damagePerLevel > 0f)
+            {
+                // Explicit per-level curve: replaces the generic percentage
+                // factor, never stacks with it.
+                TSC_ClassRecord record = TSC_ProgressionManager.Current.RecordOf(caster);
+                int index = record.classes.IndexOf(props.scaleClass);
+                if (index >= 0)
+                {
+                    damage += record.levels[index] * props.damagePerLevel;
+                }
+            }
+            else
+            {
+                damage *= TSC_SpellScaling.Factor(caster, ability);
+            }
+            return damage;
+        }
+    }
+
     public class CompProperties_TSC_Damage : CompProperties_AbilityEffect
     {
         public float damage = 12f;
@@ -613,30 +652,9 @@ namespace TheShatteredCrown
                 return;
             }
             DamageDef damageDef = Props.damageDef ?? DamageDefOf.Burn;
-            float damage = Props.damage;
             float radius = Props.radius * TSC_FeatMods.RadiusFactor(caster, parent.def);
-            float armorPen = Props.armorPenetration;
-            bool ignite = false;
-            foreach (TSC_FeatAbilityMod mod in TSC_FeatMods.ModsFor(caster, parent.def))
-            {
-                armorPen += mod.armorPenetrationBonus;
-                ignite |= mod.igniteTarget;
-            }
-            if (Props.scaleClass != null && Props.damagePerLevel > 0f)
-            {
-                // Explicit per-level curve (Magic Missile): replaces the
-                // generic percentage factor, never stacks with it.
-                TSC_ClassRecord record = TSC_ProgressionManager.Current.RecordOf(caster);
-                int index = record.classes.IndexOf(Props.scaleClass);
-                if (index >= 0)
-                {
-                    damage += record.levels[index] * Props.damagePerLevel;
-                }
-            }
-            else
-            {
-                damage *= TSC_SpellScaling.Factor(caster, parent.def);
-            }
+            float damage = TSC_AbilityDamage.Resolve(caster, parent.def, Props,
+                out float armorPen, out bool ignite);
             if (radius <= 0.01f)
             {
                 target.Thing?.TakeDamage(new DamageInfo(damageDef, damage, armorPen, -1f, caster));

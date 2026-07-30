@@ -21,14 +21,35 @@ The guild's factor works from a table near the middle of town: ledger, ink, a st
     check Persuasion 8 -> rates_up | rates_flat
 * [Set the toll book on his ledger, open at the countersigned page.] -> ledger
     if flag(TSC_LedgerRead) and quest_active(TSC_Quest_LedgerChoice)
+* [Hand over the sealed dispatch from the dead courier.] -> dispatch
+    if has_item(TSC_SealedDispatch)
+    do take_item(TSC_SealedDispatch)
+    do give_item(Silver, 120)
+    do grant_xp(40)
 * "Nothing today." -> end
 
+== dispatch ==
+He reads the direction, then the seal, and his face does the small arithmetic of a man recognizing a dead colleague's handwriting.
+
+"That rider was due in the spring." He sets the packet unopened in the strongbox and counts silver onto the table without being asked. "The guild pays for its mail, delivered by whoever delivers it. That's the whole of the custom, and it's a good one. Where you found this - I won't ask. The roads keep what they keep."
+
+* "The roads keep what they keep." -> start
+* "That's all our business today." -> end
+
+# The contract board window opens the moment "What work is posted?" is
+# chosen (the effect rides that option), so by the time the player reads
+# THIS node they have already looked - the window was just closed over it.
+# The node is written for that moment: continuations, not an invitation
+# to do what was just done.
 == board ==
-He turns the board round so you can read it, and goes back to his ledger.
+He lets you read as long as you care to, working his ledger the while.
 
 "Take what suits. Pay is on completion, as chartered."
 
-* "Let me look." -> start
+* "Show me the board again." -> board
+    do contract_board()
+* "Other business, then." -> start
+* "That's the lot for today." -> end
 
 == ledger ==
 He reads it upside down out of habit, then turns it round and reads it properly.

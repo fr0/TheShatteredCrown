@@ -56,6 +56,7 @@
           <value>3~12</value>
         </li>
         <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance>
           <storeAs>siteTile</storeAs>
           <preferCloserTiles>true</preferCloserTiles>
         </li>
@@ -81,6 +82,7 @@
         <li Class="QuestNode_SubScript">
           <def>Util_GenerateSite</def>
         </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects">
           <worldObjects>$site</worldObjects>
         </li>
@@ -163,6 +165,7 @@
           <value>3~12</value>
         </li>
         <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance>
           <storeAs>siteTile</storeAs>
           <preferCloserTiles>true</preferCloserTiles>
         </li>
@@ -184,6 +187,7 @@
         <li Class="QuestNode_SubScript">
           <def>Util_GenerateSite</def>
         </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects">
           <worldObjects>$site</worldObjects>
         </li>
@@ -258,7 +262,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[dd_flavor]\n\nNobody agrees how far down the works go. Something has taken every floor since they were abandoned, and the guild's surveyor did not stay to find out what.\n\nThe coffer is on the lowest floor. Bring it up and take it to a guild hall. The guild pays the  on delivery, in silver and coin.</li>
+        <li>questDescription->[dd_flavor]\n\nNobody agrees how far down the works go. Something has taken every floor since they were abandoned, and the guild's surveyor did not stay to find out what.\n\nThe coffer is on the lowest floor. Bring it up and take it to a guild hall. The guild pays the premium rate on delivery, in silver and coin.</li>
         <li>dd_flavor->An old roadside ruin sits on works that go down further than the ruin is wide. The guild lost a coffer in them and has been embarrassed about it since.</li>
         <li>dd_flavor->The last crew the guild sent down came back one short and would not go again for triple pay. Their report is one line: it is not the same floor twice.</li>
         <li>dd_flavor->The works were a staging depot before the war. That means a strongroom, and the guild wants it opened before somebody else works that out.</li>
@@ -274,6 +278,7 @@
           <value>4~14</value>
         </li>
         <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance>
           <storeAs>siteTile</storeAs>
           <preferCloserTiles>true</preferCloserTiles>
         </li>
@@ -295,6 +300,7 @@
         <li Class="QuestNode_SubScript">
           <def>Util_GenerateSite</def>
         </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects">
           <worldObjects>$site</worldObjects>
         </li>
@@ -374,6 +380,7 @@
           <value>3~10</value>
         </li>
         <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance>
           <storeAs>siteTile</storeAs>
           <preferCloserTiles>true</preferCloserTiles>
         </li>
@@ -395,6 +402,7 @@
         <li Class="QuestNode_SubScript">
           <def>Util_GenerateSite</def>
         </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
         <li Class="QuestNode_SpawnWorldObjects">
           <worldObjects>$site</worldObjects>
         </li>

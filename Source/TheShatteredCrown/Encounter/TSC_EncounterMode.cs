@@ -118,6 +118,15 @@ namespace TheShatteredCrown
         private int enemyOutroEndTick = -1;
         private int phaseEndTick;
         private int attackBlockedTick = -1;
+
+        // The attack that never starts: job standing, no aim, no movement,
+        // nothing charged. Under CE this is usually CanHitTarget refusing
+        // from the current cell (range, or line of sight in the dark) - a
+        // state vanilla resolves by walking or ending the job, but which a
+        // frozen turn-based world holds forever.
+        private int stalledAttackTick = -1;
+        private Job stalledAttackJob;
+        private const int StalledAttackTicks = 90;
         private int cycleTurnTicks;
         private int cycleTurnsTaken;
         // Pod move: consecutive hostile turns that can ONLY be movement
@@ -244,9 +253,76 @@ namespace TheShatteredCrown
         /// so a weapon always costs the same no matter which tool the swing
         /// rolls. Spells flat.
         /// </summary>
+        /// <summary>Pure self-buffs cast at half price: a round-up, not a round.</summary>
+        public const float SelfBuffApCost = ActionApCost / 2f;
+
+        private static readonly Dictionary<AbilityDef, bool> selfBuffCache = new Dictionary<AbilityDef, bool>();
+
+        /// <summary>
+        /// Derived from the def's SHAPE, never from a list of names: an
+        /// ability that can target only the caster, whose comps are all
+        /// buff plumbing (energy cost, vfx, a hediff, an AP grant) with at
+        /// least one hediff among them. Rage and Charged Shot qualify;
+        /// anything that reaches beyond the caster - damage, other targets,
+        /// area effects - prices as a full spell. A new self-buff added
+        /// next month qualifies automatically.
+        /// </summary>
+        public static bool IsSelfBuff(AbilityDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+            if (selfBuffCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+            bool result = ComputeSelfBuff(def);
+            selfBuffCache[def] = result;
+            return result;
+        }
+
+        private static bool ComputeSelfBuff(AbilityDef def)
+        {
+            TargetingParameters tp = def.verbProperties?.targetParams;
+            if (tp == null || !tp.canTargetSelf || tp.canTargetPawns
+                || tp.canTargetBuildings || tp.canTargetLocations)
+            {
+                return false;
+            }
+            if (def.comps == null)
+            {
+                return false;
+            }
+            bool hasBuff = false;
+            foreach (AbilityCompProperties comp in def.comps)
+            {
+                if (comp is CompProperties_AbilityGiveHediff)
+                {
+                    hasBuff = true;
+                }
+                else if (!(comp is CompProperties_TSC_EnergyCost)
+                    && !(comp is CompProperties_TSC_Vfx)
+                    && !(comp is CompProperties_TSC_GrantAp))
+                {
+                    return false; // it does something beyond buffing the caster
+                }
+            }
+            return hasBuff;
+        }
+
+        public static float AbilityApCost(AbilityDef def)
+        {
+            return IsSelfBuff(def) ? SelfBuffApCost : ActionApCost;
+        }
+
         public static float AttackApCost(Verb verb)
         {
-            if (verb == null || verb is Verb_CastAbility)
+            if (verb is Verb_CastAbility castVerb)
+            {
+                return AbilityApCost(castVerb.ability?.def);
+            }
+            if (verb == null)
             {
                 return ActionApCost;
             }
@@ -707,6 +783,8 @@ namespace TheShatteredCrown
             enemyOutroEndTick = -1;
             pendingAdvance = false;
             projectileHoldCapTick = -1;
+            // A committed full attack belongs to the turn that ordered it.
+            ClearFullAttack();
             while (index < initiative.Count)
             {
                 Pawn candidate = initiative[index];
@@ -823,6 +901,7 @@ namespace TheShatteredCrown
                 }
             }
             CollectStaggerDebt(activePawn);
+            AdvanceAbilityCooldowns(activePawn, RoundTicks);
             AddLog(activePawn.IsColonistPlayerControlled
                     ? $"--- {activePawn.LabelShortCap}'s turn ---"
                     : $"--- enemy turn: {activePawn.LabelShortCap} ---",
@@ -937,6 +1016,7 @@ namespace TheShatteredCrown
                     ap[p] = BaseAp + carry;
                 }
                 CollectStaggerDebt(p);
+                AdvanceAbilityCooldowns(p, RoundTicks);
                 activeGroup.Add(p);
                 cycleTurnsTaken++;
             }
@@ -1157,20 +1237,22 @@ namespace TheShatteredCrown
         // during the ATTACKER's turn), collected when the victim's turn starts.
         private readonly Dictionary<Pawn, float> staggerDebt = new Dictionary<Pawn, float>();
 
-        private static readonly System.Reflection.FieldInfo StaggeredField =
-            AccessTools.Field(typeof(StaggerHandler), "staggered");
+        // ONLY the ticks field: 1.6's StaggerHandler has no "staggered" bool
+        // (Staggered is computed as staggerTicksLeft > 0). Requiring a field
+        // that no longer exists is what silently disabled the whole AP
+        // charge - TryClearStagger returned false on the null check and
+        // every stagger stood un-priced.
         private static readonly System.Reflection.FieldInfo StaggerTicksField =
             AccessTools.Field(typeof(StaggerHandler), "staggerTicksLeft");
 
         private static bool TryClearStagger(Pawn p)
         {
             StaggerHandler handler = p.stances?.stagger;
-            if (handler == null || StaggeredField == null || StaggerTicksField == null)
+            if (handler == null || StaggerTicksField == null)
             {
                 return false;
             }
             StaggerTicksField.SetValue(handler, 0);
-            StaggeredField.SetValue(handler, false);
             return true;
         }
 
@@ -1285,6 +1367,96 @@ namespace TheShatteredCrown
             }
         }
 
+        // Full attack: one order, every attack the budget covers. The mode is
+        // mostly the ABSENCE of the one-click stop above - each attack is
+        // still charged individually, and the existing can't-afford refusal
+        // is what ends the run. Tracked as (pawn, job, target) so a new
+        // order, a dead target, or a new turn all disengage it.
+        private Pawn fullAttackPawn;
+        private Job fullAttackJob;
+        private Thing fullAttackTarget;
+
+        /// <summary>
+        /// The player picks the mode with the button they pressed - one
+        /// button per attack type the pawn actually has. The earlier single
+        /// "smart" button guessed, and guessed wrong twice (an unarmed
+        /// charge substituted for a refused shot; a fist icon on an archer).
+        /// A refused order is refused OUT LOUD with the reason; nothing is
+        /// ever silently swapped for what the player asked.
+        /// </summary>
+        public void BeginFullAttack(Pawn p, Thing target, bool ranged)
+        {
+            if (p == null || target == null || p != activePawn)
+            {
+                return;
+            }
+            string fail = null;
+            System.Action order;
+            if (ranged)
+            {
+                order = FloatMenuUtility.GetRangedAttackAction(p, target, out fail);
+                if (order == null)
+                {
+                    Messages.Message(
+                        $"{p.LabelShortCap} can't shoot that from here: {(fail.NullOrEmpty() ? "no clear shot" : fail)}.",
+                        p, MessageTypeDefOf.RejectInput, historical: false);
+                    return;
+                }
+            }
+            else
+            {
+                order = FloatMenuUtility.GetMeleeAttackAction(p, target, out fail);
+                if (order == null)
+                {
+                    Messages.Message(
+                        $"{p.LabelShortCap} can't attack that: {(fail.NullOrEmpty() ? "no way to attack" : fail)}.",
+                        p, MessageTypeDefOf.RejectInput, historical: false);
+                    return;
+                }
+            }
+            order();
+            if (p.CurJob == null)
+            {
+                return; // the order itself was refused downstream
+            }
+            fullAttackPawn = p;
+            fullAttackJob = p.CurJob;
+            fullAttackTarget = target;
+            AddLog($"{p.LabelShortCap} commits to {target.LabelShortCap}.", LogWorldColor);
+        }
+
+        /// <summary>
+        /// True while the committed attack should keep repeating. Stale state
+        /// (job changed, target down or gone, different pawn) clears itself
+        /// here, so every caller sees either a live commitment or none.
+        /// </summary>
+        public bool FullAttackContinues(Pawn p)
+        {
+            if (fullAttackPawn == null || p != fullAttackPawn || p != activePawn)
+            {
+                return false;
+            }
+            if (p.CurJob == null || p.CurJob != fullAttackJob)
+            {
+                ClearFullAttack();
+                return false;
+            }
+            Thing t = fullAttackTarget;
+            if (t == null || t.Destroyed || (t is Pawn tp && (tp.Dead || tp.Downed)))
+            {
+                ClearFullAttack();
+                return false;
+            }
+            return true;
+        }
+
+        public void ClearFullAttack()
+        {
+            fullAttackPawn = null;
+            fullAttackJob = null;
+            fullAttackTarget = null;
+        }
+
         // The repeat attempt is detected INSIDE the job driver's tick (via the
         // verb prefix); ending the job right there crashes the driver's own
         // closure (NRE in JobDriver_AttackStatic). Stop it from the controller
@@ -1313,6 +1485,34 @@ namespace TheShatteredCrown
         private const int RoundStunTicks = 150;
         private static readonly System.Reflection.FieldInfo StunTicksLeftField =
             AccessTools.Field(typeof(StunHandler), "stunTicksLeft");
+
+        /// <summary>
+        /// Ability cooldowns tick only while the game is UNPAUSED, and a turn
+        /// is mostly paused deliberation - so a "600 tick" cooldown, two
+        /// rounds on paper, actually took however many rounds the fight's
+        /// unpaused slivers added up to. Advance every cooldown one round's
+        /// worth when the owner's turn starts, the same treatment stuns get:
+        /// a round REPRESENTS RoundTicks of time, so everything priced in
+        /// ticks should move at that rate. Cooldowns become countable in
+        /// turns: 600 = every other turn, 1200 = every fourth.
+        /// </summary>
+        private static readonly System.Reflection.FieldInfo CooldownEndField =
+            AccessTools.Field(typeof(Ability), "cooldownEndTick");
+
+        private static void AdvanceAbilityCooldowns(Pawn p, int ticks)
+        {
+            if (p?.abilities == null || CooldownEndField == null)
+            {
+                return;
+            }
+            foreach (Ability ability in p.abilities.AllAbilitiesForReading)
+            {
+                if (ability.CooldownTicksRemaining > 0 && CooldownEndField.GetValue(ability) is int end)
+                {
+                    CooldownEndField.SetValue(ability, end - ticks);
+                }
+            }
+        }
 
         private static void DrainStun(Pawn p, int ticks)
         {
@@ -1462,6 +1662,40 @@ namespace TheShatteredCrown
             return false;
         }
 
+        /// <summary>
+        /// The active pawn is mid-warmup on an attack that has ALREADY been
+        /// charged: AP is spent at cast start, but the arrow only exists
+        /// once the aim completes. Ending the turn in between cancels the
+        /// aim and eats the AP - "I ordered a shot, the game took it, and
+        /// nothing fired." Held open exactly like a projectile in flight,
+        /// under the same runaway cap; when the aim releases, the
+        /// projectile hold takes over seamlessly.
+        /// </summary>
+        private bool ActivePawnAiming()
+        {
+            return activePawn != null && activePawn.Spawned && !activePawn.Dead
+                && activePawn.stances?.curStance is Stance_Warmup;
+        }
+
+        /// <summary>
+        /// The gap the stance hold cannot see: a cast JOB that has not yet
+        /// put up its warmup stance - a spell queued on a paused battlefield
+        /// has no stance and no projectile, so both other holds pass, the
+        /// turn ends, and the bolt fires a turn late ("Magic Missile's
+        /// damage counted on the NEXT turn"). Holding on the job itself
+        /// covers the whole span: job starts -> warmup hold takes over ->
+        /// projectile hold lands the hit -> the turn may end.
+        /// </summary>
+        private bool ActivePawnCasting()
+        {
+            if (activePawn == null || !activePawn.Spawned || activePawn.Dead)
+            {
+                return false;
+            }
+            JobDef job = activePawn.CurJobDef;
+            return job == JobDefOf.CastAbilityOnThing || job == JobDefOf.CastAbilityOnWorldTile;
+        }
+
         /// <summary>End turn button / auto-advance.</summary>
         public void AdvanceTurn()
         {
@@ -1478,7 +1712,7 @@ namespace TheShatteredCrown
             // paused game, so waiting without resuming time would deadlock -
             // nothing ticks, the projectile never lands, and this never retries.
             TickManager tm = Find.TickManager;
-            if (ProjectilesInFlight())
+            if (ProjectilesInFlight() || ActivePawnAiming() || ActivePawnCasting())
             {
                 if (projectileHoldCapTick < 0)
                 {
@@ -1786,6 +2020,56 @@ namespace TheShatteredCrown
                     return;
                 }
             }
+            // The attack that never starts: an attack job with no aim, no
+            // movement, and nothing charged is waiting on a world condition
+            // that a frozen battlefield will never change. Say WHY out loud
+            // (this was "I ordered a shot, the line appeared, nothing
+            // happened, the turn timed out"), cancel the order, keep the AP.
+            if (p.IsColonistPlayerControlled && p.CurJob != null && !aiming
+                && (p.CurJob.def == JobDefOf.AttackStatic || p.CurJob.def == JobDefOf.AttackMelee)
+                && !HasAttackedInJob(p) && p.pather?.MovingNow != true)
+            {
+                if (stalledAttackJob != p.CurJob)
+                {
+                    stalledAttackJob = p.CurJob;
+                    stalledAttackTick = tm.TicksGame;
+                }
+                else if (tm.TicksGame - stalledAttackTick >= StalledAttackTicks)
+                {
+                    Verb verb = p.CurrentEffectiveVerb;
+                    LocalTargetInfo target = p.CurJob.targetA;
+                    string reason = "no way to attack from here";
+                    if (verb != null && target.IsValid)
+                    {
+                        if (!p.Position.InHorDistOf(target.Cell, verb.verbProps.range))
+                        {
+                            reason = $"out of range ({p.Position.DistanceTo(target.Cell):0.#} of {verb.verbProps.range:0.#})";
+                        }
+                        else if (!verb.CanHitTarget(target))
+                        {
+                            reason = "no clear line of fire";
+                        }
+                        else
+                        {
+                            reason = "the weapon cannot start the attack";
+                        }
+                    }
+                    AddLog($"{p.LabelShortCap} can't make the attack: {reason}. Order cancelled, AP kept.",
+                        LogWorldColor);
+                    Messages.Message($"{p.LabelShortCap} can't make the attack: {reason}.",
+                        p, MessageTypeDefOf.RejectInput, historical: false);
+                    stalledAttackJob = null;
+                    stalledAttackTick = -1;
+                    ClearFullAttack();
+                    p.jobs.EndCurrentJob(JobCondition.InterruptForced);
+                }
+            }
+            else
+            {
+                stalledAttackJob = null;
+                stalledAttackTick = -1;
+            }
+
             // Going nowhere: an enemy PATHING but not advancing a cell.
             //
             // A hostile whose route is plugged by its own allies (a corridor,
@@ -2084,7 +2368,7 @@ namespace TheShatteredCrown
                         from = dest;
                     }
                     cost += job.def == JobDefOf.CastAbilityOnThing || job.def == JobDefOf.CastAbilityOnWorldTile
-                        ? TSC_EncounterController.ActionApCost
+                        ? TSC_EncounterController.AbilityApCost(job.ability?.def)
                         : TSC_EncounterController.AttackApCostFor(p);
                 }
             }
@@ -2360,6 +2644,69 @@ namespace TheShatteredCrown
                 : SimpleColor.Yellow;
         }
 
+        // Targetability markers: which enemies the active pawn's ranged
+        // weapon can ACTUALLY hit from where they stand, asked of the same
+        // predicate the shot itself uses (Verb.CanHitTarget - virtual, so
+        // CE's sight rules answer for CE weapons). Green ring = a clear
+        // shot; red ring = inside range but no line of fire; nothing =
+        // beyond reach (the range ring already explains that). Cached and
+        // recomputed only when the shooter moves: LOS casts per enemy per
+        // frame would be waste, per reposition they are nothing.
+        private readonly List<Pawn> hittableCache = new List<Pawn>();
+        private readonly List<Pawn> blockedCache = new List<Pawn>();
+        private Pawn targetabilityPawn;
+        private IntVec3 targetabilityPos = IntVec3.Invalid;
+
+        private void DrawTargetability(TSC_EncounterController ctrl)
+        {
+            Pawn shooter = ctrl.ActivePawn;
+            Verb verb = shooter?.equipment?.PrimaryEq?.PrimaryVerb;
+            if (shooter == null || !shooter.IsColonistPlayerControlled
+                || verb == null || verb.verbProps.IsMeleeAttack)
+            {
+                targetabilityPawn = null;
+                return;
+            }
+            if (targetabilityPawn != shooter || targetabilityPos != shooter.Position)
+            {
+                targetabilityPawn = shooter;
+                targetabilityPos = shooter.Position;
+                hittableCache.Clear();
+                blockedCache.Clear();
+                float range = verb.verbProps.range;
+                foreach (Pawn enemy in map.mapPawns.AllPawnsSpawned)
+                {
+                    if (enemy.Dead || enemy.Downed || !ctrl.IsCombatant(enemy)
+                        || !enemy.HostileTo(Faction.OfPlayer))
+                    {
+                        continue;
+                    }
+                    if (verb.CanHitTarget(enemy))
+                    {
+                        hittableCache.Add(enemy);
+                    }
+                    else if (shooter.Position.InHorDistOf(enemy.Position, range))
+                    {
+                        blockedCache.Add(enemy); // in range, no line of fire
+                    }
+                }
+            }
+            for (int i = 0; i < hittableCache.Count; i++)
+            {
+                if (hittableCache[i].Spawned && !hittableCache[i].Dead)
+                {
+                    GenDraw.DrawCircleOutline(hittableCache[i].DrawPos, 0.55f, SimpleColor.Green);
+                }
+            }
+            for (int i = 0; i < blockedCache.Count; i++)
+            {
+                if (blockedCache[i].Spawned && !blockedCache[i].Dead)
+                {
+                    GenDraw.DrawCircleOutline(blockedCache[i].DrawPos, 0.55f, SimpleColor.Red);
+                }
+            }
+        }
+
         /// <summary>Pulsing translucent disc + ring marking the pawn whose turn it is (every mover during a pod-move phase).</summary>
         private void DrawActivePawnHighlight(TSC_EncounterController ctrl)
         {
@@ -2404,6 +2751,16 @@ namespace TheShatteredCrown
             GenDraw.DrawCircleOutline(center, pulse, ringColor);
             GenDraw.DrawCircleOutline(center, pulse - 0.07f, ringColor);
             GenDraw.DrawCircleOutline(center, pulse - 0.14f, ringColor);
+            // The weapon's honest reach, drawn CONTINUOUSLY for the active
+            // player pawn - vanilla only shows this ring inside the weapon
+            // gizmo's targeter, so right-click orders fly blind. Under CE a
+            // bow reaches 14 tiles where vanilla taught players 25.9, and
+            // "why won't she shoot" was usually this number.
+            if (player && p.equipment?.PrimaryEq?.PrimaryVerb is Verb ranged
+                && !ranged.verbProps.IsMeleeAttack && ranged.verbProps.range > 3f)
+            {
+                GenDraw.DrawRadiusRing(p.Position, ranged.verbProps.range);
+            }
         }
 
         /// <summary>Active-pawn highlight + world-space dashed line along the previewed path (runs on the render update).</summary>
@@ -2420,6 +2777,7 @@ namespace TheShatteredCrown
                 return;
             }
             DrawActivePawnHighlight(ctrl);
+            DrawTargetability(ctrl);
             if (previewNodes.Count < 2 || previewCostAp < 0f || !Find.TickManager.Paused)
             {
                 return;
@@ -3204,6 +3562,52 @@ namespace TheShatteredCrown
                             caster: mover);
                     },
                 };
+                // One order, every attack the budget covers: pick a target
+                // and the pawn keeps at it until the target drops or the AP
+                // runs out. One button per attack type the pawn has, so the
+                // choice of bow or blade is the player's, never a guess.
+                Pawn attacker = __instance;
+                TargetingParameters fullAttackParams = new TargetingParameters
+                {
+                    canTargetPawns = true,
+                    canTargetBuildings = true,
+                    canTargetLocations = false,
+                    validator = ti => ti.HasThing && ti.Thing != attacker
+                        && (!(ti.Thing is Pawn tp) || tp.HostileTo(attacker)),
+                };
+                if (FloatMenuUtility.UseRangedAttack(attacker))
+                {
+                    yield return new Command_TSC_FullAttack
+                    {
+                        pawn = attacker,
+                        ranged = true,
+                        defaultLabel = "Full attack (ranged)",
+                        defaultDesc = "Shoot the chosen target repeatedly until it goes down or "
+                            + "the action points run out. Ordering anything else cancels the "
+                            + "commitment.",
+                        icon = (attacker.equipment?.Primary?.def?.uiIcon as Texture2D)
+                            ?? TexCommand.Attack,
+                        targetingParams = fullAttackParams,
+                        action = t => ctrl.BeginFullAttack(attacker, t.Thing, ranged: true),
+                    };
+                }
+                // Melee is always on the table: a weapon if one is carried,
+                // fists if not - and the fist icon then tells the truth.
+                Thing meleeWeapon = attacker.equipment?.Primary != null
+                    && attacker.equipment.Primary.def.IsMeleeWeapon
+                    ? attacker.equipment.Primary : null;
+                yield return new Command_TSC_FullAttack
+                {
+                    pawn = attacker,
+                    ranged = false,
+                    defaultLabel = "Full attack (melee)",
+                    defaultDesc = "Close with the chosen target and keep swinging until it goes "
+                        + "down or the action points run out. Ordering anything else cancels "
+                        + "the commitment.",
+                    icon = (meleeWeapon?.def?.uiIcon as Texture2D) ?? TexCommand.AttackMelee,
+                    targetingParams = fullAttackParams,
+                    action = t => ctrl.BeginFullAttack(attacker, t.Thing, ranged: false),
+                };
                 yield return new Command_Action
                 {
                     defaultLabel = "End turn",
@@ -3435,7 +3839,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            string ap = $"{TSC_EncounterController.ActionApCost:0.#} AP";
+            string ap = $"{TSC_EncounterController.AbilityApCost(abilityCommand.Ability?.def):0.#} AP";
             __result = __result.NullOrEmpty() ? ap : $"{__result}\n{ap}";
         }
     }
@@ -3496,12 +3900,59 @@ namespace TheShatteredCrown
     }
 
     /// <summary>
+    /// The other half of attack pacing: the post-attack COOLDOWN stance.
+    /// Warmups are already compressed (above), so the dead air between a
+    /// full attack's swings was all recovery time - a melee weapon stands
+    /// 1.5-2s of real time between blows that AP has already paid for.
+    /// Capped, not zeroed: a beat of recovery keeps consecutive swings
+    /// readable as separate attacks. Weapons only - ability recovery keeps
+    /// its own rhythm.
+    /// </summary>
+    [HarmonyPatch(typeof(Stance_Cooldown), MethodType.Constructor,
+        new System.Type[] { typeof(int), typeof(LocalTargetInfo), typeof(Verb) })]
+    public static class Patch_StanceCooldown_TurnBasedPace
+    {
+        private const int TurnBasedCooldownCapTicks = 40;
+
+        public static void Prefix(ref int ticks, Verb verb)
+        {
+            if (verb == null || verb is Verb_CastAbility || Verse.Current.Game == null)
+            {
+                return;
+            }
+            Map map = verb.CasterPawn?.Map;
+            if (map == null)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl != null && ctrl.Active && !ctrl.ApproachMode && ctrl.ActiveOn(map)
+                && ticks > TurnBasedCooldownCapTicks)
+            {
+                ticks = TurnBasedCooldownCapTicks;
+            }
+        }
+    }
+
+    /// <summary>
     /// Unaffordable actions wear a red bar across the top of their gizmo:
     /// the active pawn's AP is below the cost, so clicking would only buy
     /// the "can't afford" message. Abilities price at the spell cost;
     /// weapon gizmos (Command_VerbTarget) at the pawn's attack cost.
     /// Companion to the AP price tag above.
     /// </summary>
+    /// <summary>
+    /// The full-attack buttons, typed so the shortfall bar can price them:
+    /// ranged at the pawn's shot cost, melee at the swing cost - the bar
+    /// means "not even ONE attack left in the budget", the same promise it
+    /// makes on the ordinary attack buttons.
+    /// </summary>
+    public class Command_TSC_FullAttack : Command_Target
+    {
+        public Pawn pawn;
+        public bool ranged;
+    }
+
     [HarmonyPatch(typeof(Command), nameof(Command.GizmoOnGUI))]
     public static class Patch_CommandAbility_ApShortfallBar
     {
@@ -3516,12 +3967,20 @@ namespace TheShatteredCrown
             if (__instance is Command_Ability abilityCommand)
             {
                 pawn = abilityCommand.Ability?.pawn;
-                cost = TSC_EncounterController.ActionApCost;
+                cost = TSC_EncounterController.AbilityApCost(abilityCommand.Ability?.def);
             }
             else if (__instance is Command_VerbTarget verbCommand)
             {
                 pawn = verbCommand.verb?.CasterPawn;
                 cost = pawn != null ? TSC_EncounterController.AttackApCostFor(pawn) : 0f;
+            }
+            else if (__instance is Command_TSC_FullAttack fullAttack)
+            {
+                pawn = fullAttack.pawn;
+                cost = pawn == null ? 0f
+                    : fullAttack.ranged
+                        ? TSC_EncounterController.AttackApCostFor(pawn)
+                        : TSC_EncounterController.MeleeApCostFor(pawn);
             }
             else if (__instance is Command_Target && __instance.defaultLabel == "CommandMeleeAttack".Translate())
             {
@@ -3887,6 +4346,46 @@ namespace TheShatteredCrown
     /// getter against a known maneuver identifies WHICH outcome this is.
     /// Only the miss branch floats; dodge keeps vanilla's own "dodge" mote.
     /// </summary>
+    /// <summary>
+    /// Who parried, and when. Combat Extended announces a block with its
+    /// own "Blocked" mote but logs the swing through the MISS rule pack -
+    /// so the miss-float patch below would stack "Miss" on top of CE's
+    /// "Blocked" for the same swing. CE's RegisterParryFor fires at the
+    /// moment of the block; noting it lets the miss float stand down.
+    /// Prepare-gated: without CE nothing here applies.
+    /// </summary>
+    [HarmonyPatch]
+    public static class Patch_CEParry_Note
+    {
+        private static readonly Dictionary<Pawn, int> lastParry = new Dictionary<Pawn, int>();
+
+        public static bool Prepare()
+        {
+            return TargetMethod() != null;
+        }
+
+        public static System.Reflection.MethodBase TargetMethod()
+        {
+            System.Type type = AccessTools.TypeByName("CombatExtended.ParryTracker");
+            return type != null ? AccessTools.Method(type, "RegisterParryFor") : null;
+        }
+
+        public static void Postfix(Pawn pawn)
+        {
+            if (pawn != null)
+            {
+                lastParry[pawn] = Find.TickManager.TicksGame;
+            }
+        }
+
+        /// <summary>Did this pawn block within the last few ticks?</summary>
+        public static bool JustParried(Pawn pawn)
+        {
+            return pawn != null && lastParry.TryGetValue(pawn, out int tick)
+                && Find.TickManager.TicksGame - tick <= 10;
+        }
+    }
+
     [HarmonyPatch(typeof(Verb_MeleeAttack), "CreateCombatLog")]
     public static class Patch_MeleeMiss_FloatText
     {
@@ -3926,6 +4425,11 @@ namespace TheShatteredCrown
             }
             ManeuverDef probe = ProbeManeuver();
             if (probe == null || rulePackGetter(probe) != probe.combatLogRulesMiss)
+            {
+                return;
+            }
+            // A blocked swing is not a miss: CE already floated "Blocked".
+            if (Patch_CEParry_Note.JustParried(victim))
             {
                 return;
             }
@@ -4220,12 +4724,49 @@ namespace TheShatteredCrown
             public bool realtime;
         }
 
-        public static bool Prefix(Verb __instance, ref bool __result, out PendingCharge __state)
+        /// <summary>Most-derived declarer of the 6-arg TryStartCastOn, per concrete verb type.</summary>
+        private static readonly Dictionary<System.Type, System.Type> topDeclarer
+            = new Dictionary<System.Type, System.Type>();
+
+        /// <summary>
+        /// True only in the OUTERMOST patched frame for this verb instance.
+        ///
+        /// CE's Verb_LaunchProjectileCE.TryStartCastOn calls base.TryStartCastOn,
+        /// and both are patched (they must be - patching only the base is how
+        /// CE shots were free). Without this check one shot ran two patched
+        /// bodies and was charged twice: 12 AP on an 8 AP turn, an archer in
+        /// permanent debt, and "can't afford another attack" every other turn.
+        /// Only the frame whose method is the most-derived declaration for
+        /// this instance's type acts; the base-call frame stands down.
+        /// </summary>
+        private static bool OutermostFrame(Verb instance, MethodBase original)
+        {
+            System.Type type = instance.GetType();
+            if (!topDeclarer.TryGetValue(type, out System.Type declarer))
+            {
+                System.Type[] signature =
+                {
+                    typeof(LocalTargetInfo), typeof(LocalTargetInfo),
+                    typeof(bool), typeof(bool), typeof(bool), typeof(bool),
+                };
+                declarer = AccessTools.Method(type, nameof(Verb.TryStartCastOn), signature)?.DeclaringType
+                    ?? typeof(Verb);
+                topDeclarer[type] = declarer;
+            }
+            return original.DeclaringType == declarer;
+        }
+
+        public static bool Prefix(Verb __instance, ref bool __result, out PendingCharge __state,
+            MethodBase __originalMethod)
         {
             __state = default;
             if (Verse.Current.Game == null || !__instance.CasterIsPawn)
             {
                 return true;
+            }
+            if (!OutermostFrame(__instance, __originalMethod))
+            {
+                return true; // inner base call of an already-charged shot
             }
             TSC_EncounterController ctrl = TSC_EncounterController.Instance;
             Pawn caster = __instance.CasterPawn;
@@ -4268,7 +4809,10 @@ namespace TheShatteredCrown
             // delivered its swing/burst, so block the repeat and ask the
             // controller to end the job on its own tick (never end a job from
             // inside its driver's tick). Leftover AP stays with the player.
-            if (caster.IsColonistPlayerControlled && ctrl.HasAttackedInJob(caster))
+            // A committed FULL attack is the sanctioned exception: the repeat
+            // is the point, and the AP check below is what ends it.
+            if (caster.IsColonistPlayerControlled && ctrl.HasAttackedInJob(caster)
+                && !ctrl.FullAttackContinues(caster))
             {
                 ctrl.RequestAttackJobStop(caster);
                 __result = false;
@@ -4277,6 +4821,14 @@ namespace TheShatteredCrown
             if (!ctrl.CanAffordAp(caster, cost))
             {
                 ctrl.NoteAttackBlocked(caster);
+                // Out of budget mid-commitment: end the attack job too, or it
+                // would sit re-attempting every cooldown for the rest of the
+                // turn, flooding refusals.
+                if (ctrl.FullAttackContinues(caster))
+                {
+                    ctrl.RequestAttackJobStop(caster);
+                    ctrl.ClearFullAttack();
+                }
                 __result = false;
                 return false;
             }

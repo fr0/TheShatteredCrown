@@ -169,8 +169,24 @@
       <layoutDef>TSC_Catacombs</layoutDef>
       <size>44</size>
       <stairsDef>TSC_CellarStairs_ToOssuary</stairsDef>
-      <vermin>Megascarab</vermin>
-      <verminCount>4~6</verminCount>
+      <!-- Rolled per save since the randomization pass: the same cellar
+           door opens onto different tenants in different playthroughs. -->
+      <occupants>
+        <li>
+          <weight>2</weight>
+          <faction>wild</faction>
+          <kinds><li>Rat</li></kinds>
+          <count>4~6</count>
+          <arrivalNote>The walls are scurrying. Rats, well fed on something, which down here is its own bad sign.</arrivalNote>
+        </li>
+        <li>
+          <weight>1</weight>
+          <faction>wild</faction>
+          <kinds><li>WildBoar</li></kinds>
+          <count>1~2</count>
+          <arrivalNote>Something heavy has been rooting through the fallen shelves, and the tusks marks on the doorframe are at knee height.</arrivalNote>
+        </li>
+      </occupants>
       <maxDormantPacks>2</maxDormantPacks>
       <spots>
         <li>TSC_BeggarsCamp</li>
@@ -188,8 +204,22 @@
       <layoutDef>TSC_Ossuary</layoutDef>
       <size>44</size>
       <stairsDef>TSC_CellarStairs_ToReliquary</stairsDef>
-      <vermin>Spelopede</vermin>
-      <verminCount>2~4</verminCount>
+      <occupants>
+        <li>
+          <weight>1</weight>
+          <faction>wild</faction>
+          <kinds><li>Wolf_Timber</li></kinds>
+          <count>2~3</count>
+          <arrivalNote>Wolves denned in the ossuary, quiet and watching. They know these galleries better than you will.</arrivalNote>
+        </li>
+        <li>
+          <weight>1</weight>
+          <faction>wild</faction>
+          <kinds><li>Cougar</li></kinds>
+          <count>1~2</count>
+          <arrivalNote>Kill-drag marks along the gallery floor, all leading the same direction. A cat is working these bones.</arrivalNote>
+        </li>
+      </occupants>
       <maxDormantPacks>2</maxDormantPacks>
       <spots>
         <li>TSC_ChoirBones</li>
@@ -206,8 +236,22 @@
       <level>3</level>
       <layoutDef>TSC_Ossuary</layoutDef>
       <size>40</size>
-      <vermin>Megaspider</vermin>
-      <verminCount>1~2</verminCount>
+      <occupants>
+        <li>
+          <weight>1</weight>
+          <faction>wild</faction>
+          <kinds><li>Warg</li></kinds>
+          <count>1~2</count>
+          <arrivalNote>Whatever drove the wolves out of the upper floors lives down here. The bones outside its den are not all animal.</arrivalNote>
+        </li>
+        <li>
+          <weight>1</weight>
+          <faction>wild</faction>
+          <kinds><li>Bear_Grizzly</li></kinds>
+          <count>1~1</count>
+          <arrivalNote>The den smell down here is one animal, and large. It has the deep floor to itself, and it means to keep it.</arrivalNote>
+        </li>
+      </occupants>
       <maxDormantPacks>1</maxDormantPacks>
     </genStep>
   </GenStepDef>
