@@ -1,0 +1,164 @@
+[h2]Ranger[/h2]
+[previewimg=46988249;sizeOriginal,floatLeft;class_ranger.png][/previewimg]
+
+The road's own child: tracker, archer, and field surgeon of last resort.
+
+
+[hr][/hr]
+[b]Proficiencies:[/b] Nature, Survival, Perception
+
+[h3]Charged Shot[/h3]
+
+[i]Level 1 - 10 energy, 20s cooldown[/i]
+
+Every draw measured, every loose meant: the caster's next 3 ranged attacks fly truer (improved accuracy) and deal 150% damage (charges last up to 60 seconds; a missed shot still spends its charge).
+
+[h3]Hunter's Mark[/h3]
+
+[i]Level 2 - 10 energy, 10s cooldown, range 28.9[/i]
+
+The ranger settles on a quarry and does not lose it. The marked target takes +18% damage from all sources and moves 15% slower for a full four minutes. It is not a burst; it is a hunt.
+
+[h3]Pass Without Trace[/h3]
+
+[i]Level 3 - 15 energy, 500s cooldown[/i]
+
+The whole party moves like woodsmen for 10 minutes: enemies notice them at 40% less distance while sneaking. Stacks with darkness and light gear. Does not itself hide anyone - the party must still be sneaking.
+
+[h3]Swift Quiver[/h3]
+
+[i]Level 4 - 15 energy, 20s cooldown[/i]
+
+For 60 seconds the caster's ranged attacks come 35% faster and shooting accuracy rises by 4.
+
+[h2]Rogue[/h2]
+[previewimg=46988261;sizeOriginal,floatLeft;class_rogue.png][/previewimg]
+
+Locks, shadows, and knives in that order. Rogues go where they aren't invited and leave with what isn't theirs.
+
+
+[hr][/hr]
+[b]Proficiencies:[/b] Thievery, Investigation, Perception
+
+[h3]Ambush[/h3]
+
+[i]Level 1 - 15 energy, 20s cooldown, range 1.9[/i]
+
+A single perfect strike from close quarters: deals 300% of the caster's normal weapon damage to an adjacent target.
+
+[h3]Shadowstep[/h3]
+
+[i]Level 2 - 10 energy, 10s cooldown, range 19.9[/i]
+
+Teleports the caster to a visible cell within 19.9 cells.
+
+[h3]Marked For Death[/h3]
+
+[i]Level 3 - 10 energy, 10s cooldown, range 23.9[/i]
+
+The rogue picks the one who dies first. The marked target takes +45% damage from all sources, but only for 40 seconds: a window to be used, not a debuff to leave running.
+
+[h3]Vanish[/h3]
+
+[i]Level 5 - 15 energy, 41.7s cooldown[/i]
+
+The caster becomes invisible for 15 seconds.
+
+[h2]Sorcerer[/h2]
+[previewimg=46988234;sizeOriginal,floatLeft;class_sorcerer.png][/previewimg]
+
+Magic as a temperament. Where the wizard studies, the sorcerer simply burns - and points the burning at whatever needs to stop existing.
+
+
+[hr][/hr]
+[b]Proficiencies:[/b] Arcana, Persuasion, Insight
+
+[h3]Scorch[/h3]
+
+[i]Level 1 - 10 energy, 5s cooldown, range 23.9[/i]
+
+Deals 14 burn damage to a single target with 30% armor penetration.
+
+[h3]Arc Lightning[/h3]
+
+[i]Level 2 - 15 energy, 10s cooldown, range 23.9, radius 3.9[/i]
+
+Deals 10 burn damage with 50% armor penetration to every enemy within 3.9 cells of the strike point. Allies are unharmed.
+
+[h3]Firestorm[/h3]
+
+[i]Level 4 - 25 energy, 41.7s cooldown, range 23.9, radius 3.5[/i]
+
+Sets off an explosion at the target point: 20 flame damage in a 3.5-cell radius, igniting fires. Damages allies and enemies alike.
+
+[h3]Frost Nova[/h3]
+
+[i]Level 5 - 15 energy, 20s cooldown, radius 4.9[/i]
+
+A ring of killing cold bursts from the caster: 10 frost damage to every enemy within 4.9 cells, and the survivors are chilled to half speed for 20 seconds. Allies are unharmed.
+
+[h2]Warden[/h2]
+[previewimg=46987766;sizeOriginal,floatLeft;class_warden.png][/previewimg]
+
+A soldier of the old watch: holds the line, shrugs off wounds, and dares the enemy to come and try.
+
+
+[hr][/hr]
+[b]Proficiencies:[/b] Athletics, Perception, Survival
+
+[h3]Charge[/h3]
+
+[i]Level 1 - 10 energy, 20s cooldown[/i]
+
+The caster sprints at five times normal move speed for 5 seconds. Close the line before the line closes you. In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost.
+
+[h3]Stand Fast[/h3]
+
+[i]Level 2 - 10 energy, 20s cooldown, range 6.9, radius 6.9[/i]
+
+Allies within 6.9 cells take 35% less damage for 40 seconds.
+
+[h3]Second Wind[/h3]
+
+[i]Level 3 - 15 energy, 500s cooldown[/i]
+
+Heals up to 15 points of the caster's own injuries, worst first.
+
+[h3]Challenge[/h3]
+
+[i]Level 5 - 15 energy, 10s cooldown, range 18.9, radius 6.9[/i]
+
+The warden's capstone dare: enemies within 6.9 cells of the target point suffer -15% consciousness, -15% moving, and sharply reduced melee hit chance and shooting accuracy for 40 seconds.
+
+[h2]Wizard[/h2]
+[previewimg=46987767;sizeOriginal,floatLeft;class_wizard.png][/previewimg]
+
+A student of the old sigils. What the ignorant call magic, the wizard calls unfinished homework.
+
+
+[hr][/hr]
+[b]Proficiencies:[/b] Arcana, Lore, Investigation
+
+[h3]Magic Missile[/h3]
+
+[i]Level 1 - 10 energy, 10s cooldown, range 23.9[/i]
+
+A bolt of raw sigil-force. Deals 8 burn damage plus 2 per wizard level to a single target (30% armor penetration): 10 at wizard 1, 18 at wizard 5.
+
+[h3]Arcane Ward[/h3]
+
+[i]Level 2 - 10 energy, 180s cooldown, range 23.9[/i]
+
+The warded target takes no damage from the next three attacks. Periodic harm such as fire burns through the ward. Lasts up to 30 seconds.
+
+[h3]Leaden Curse[/h3]
+
+[i]Level 3 - 10 energy, 10s cooldown, range 23.9[/i]
+
+The target moves at half speed and loses 20% manipulation for 45 seconds.
+
+[h3]Blink[/h3]
+
+[i]Level 5 - 15 energy, 10s cooldown, range 27.9[/i]
+
+Teleports the caster to a visible cell within 27.9 cells. The caster is briefly stunned on arrival.

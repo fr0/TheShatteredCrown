@@ -300,6 +300,52 @@ def make_crown():  # Kingsblade: gold crown, gem in the band
     return _halo(img)
 
 
+def make_mend_cross():  # Mending: green healing cross, light core
+    img, d, s = _glyph()
+    green, core = (110, 210, 120, 255), (222, 255, 224, 255)
+    w = s * 0.14
+    d.rectangle([s / 2 - w, s * 0.14, s / 2 + w, s * 0.86], fill=green)
+    d.rectangle([s * 0.14, s / 2 - w, s * 0.86, s / 2 + w], fill=green)
+    cw = w * 0.45
+    d.rectangle([s / 2 - cw, s * 0.24, s / 2 + cw, s * 0.76], fill=core)
+    d.rectangle([s * 0.24, s / 2 - cw, s * 0.76, s / 2 + cw], fill=core)
+    return _halo(img)
+
+
+def make_frost_flake():  # Chilled: pale blue six-armed snowflake
+    img, d, s = _glyph()
+    ice, core = (150, 210, 245, 255), (232, 248, 255, 255)
+    cx = cy = s / 2
+    for i in range(6):
+        a = math.radians(60 * i)
+        dx, dy = math.cos(a), math.sin(a)
+        d.line([(cx, cy), (cx + dx * s * 0.4, cy + dy * s * 0.4)], fill=ice, width=8)
+        # Side barbs two-thirds of the way out.
+        bx, by = cx + dx * s * 0.26, cy + dy * s * 0.26
+        for spread in (-30, 30):
+            b = math.radians(60 * i + spread)
+            d.line([(bx, by), (bx + math.cos(b) * s * 0.13, by + math.sin(b) * s * 0.13)],
+                   fill=ice, width=6)
+    d.ellipse([cx - 8, cy - 8, cx + 8, cy + 8], fill=core)
+    return _halo(img)
+
+
+def make_serpent_coil():  # Serpent Stance: jade serpent in an S-curve
+    img, d, s = _glyph()
+    jade = (96, 196, 132, 255)
+    # Body: thick S traced from sine points.
+    pts = [(s * (0.3 + 0.4 * (i / 20)), s * (0.82 - 0.64 * (i / 20))
+            + s * 0.13 * math.sin((i / 20) * math.pi * 2)) for i in range(21)]
+    d.line(pts, fill=jade, width=13, joint="curve")
+    # Head: ellipse at the top end, eye punched out.
+    hx, hy = pts[-1]
+    d.ellipse([hx - 13, hy - 11, hx + 13, hy + 11], fill=jade)
+    d.ellipse([hx + 1, hy - 5, hx + 6, hy], fill=(20, 40, 28, 255))
+    # Tongue flick.
+    d.line([(hx + 12, hy + 2), (hx + 22, hy + 6)], fill=(214, 80, 70, 255), width=4)
+    return _halo(img)
+
+
 # NOTE: TSC_SneakHood is NOT generated here - it is Lorc's "hood" from
 # game-icons.net (CC BY 3.0), rendered by scripts/fetch_game_icons.py.
 # Adding it back to GLYPHS would overwrite the licensed art.
@@ -319,6 +365,9 @@ GLYPHS = {
     "TSC_LeadWeight": make_lead_weight,
     "TSC_ThornSnare": make_thorn_snare,
     "TSC_BrandFlame": make_brand,
+    "TSC_MendCross": make_mend_cross,
+    "TSC_FrostFlake": make_frost_flake,
+    "TSC_SerpentCoil": make_serpent_coil,
 }
 
 

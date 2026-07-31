@@ -681,6 +681,59 @@ namespace TheShatteredCrown
         }
     }
 
+    public class CompProperties_TSC_MendWorst : CompProperties_AbilityEffect
+    {
+        public CompProperties_TSC_MendWorst()
+        {
+            compClass = typeof(CompAbilityEffect_TSC_MendWorst);
+        }
+    }
+
+    /// <summary>
+    /// The third shard's power: the dead king's mercy, and it is EXACTLY a
+    /// healer mech serum - HealthUtility.FixWorstHealthCondition, the same
+    /// call the serum's use-effect makes, so vanilla decides what "worst"
+    /// means (a missing leg regrows, a disease lifts, a scarred brain
+    /// mends) and this stays identical to the serum through any future
+    /// vanilla rebalance. Like every shard power, the cooldown belongs to
+    /// the SHARD: NoteCast stamps the world clock, so handing the shard to
+    /// someone else never resets the thirty days.
+    /// </summary>
+    public class CompAbilityEffect_TSC_MendWorst : CompAbilityEffect
+    {
+        public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
+        {
+            base.Apply(target, dest);
+            if (!(target.Thing is Pawn pawn))
+            {
+                return;
+            }
+            TaggedString healed = HealthUtility.FixWorstHealthCondition(pawn);
+            if (!healed.NullOrEmpty())
+            {
+                Messages.Message(healed, pawn, MessageTypeDefOf.PositiveEvent, historical: false);
+            }
+            if (pawn.Spawned)
+            {
+                FleckMaker.ThrowMetaIcon(pawn.Position, pawn.Map, FleckDefOf.HealingCross);
+            }
+            TSC_ShardTracker.Current?.NoteCast(parent.def);
+        }
+
+        public override bool Valid(LocalTargetInfo target, bool throwMessages = false)
+        {
+            if (!(target.Thing is Pawn))
+            {
+                if (throwMessages)
+                {
+                    Messages.Message("The mercy is for the living.", MessageTypeDefOf.RejectInput, historical: false);
+                }
+                return false;
+            }
+            return base.Valid(target, throwMessages);
+        }
+    }
+
     public class CompProperties_TSC_PartyHediff : CompProperties_AbilityEffect
     {
         public HediffDef hediff;

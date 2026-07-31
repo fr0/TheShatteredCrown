@@ -1,0 +1,121 @@
+[h1]Feats[/h1]
+
+One feat at character level 3 and every third level after. General feats are open to anyone; class feats require the listed class level and modify that class's abilities.
+
+[h2]General[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Effect[/th][/tr]
+[tr][td][b]Toughened[/b][/td][td]All incoming damage is reduced by 8%.[/td][/tr]
+[tr][td][b]Fleet Of Foot[/b][/td][td]Moves 0.4 cells per second faster. In turn-based combat this means more ground covered per action point.[/td][/tr]
+[tr][td][b]Hardy[/b][/td][td]Pain shock threshold raised by 0.15.[/td][/tr]
+[tr][td][b]Armored[/b][/td][td]+10% sharp armor and +15% blunt armor, on top of worn armor.[/td][/tr]
+[tr][td][b]Duelist[/b][/td][td]+4 melee hit chance and +5 melee dodge chance.[/td][/tr]
+[tr][td][b]Marksman[/b][/td][td]Shooting accuracy improved by 12%.[/td][/tr]
+[tr][td][b]Iron Will[/b][/td][td]Mental break threshold lowered by 0.15.[/td][/tr]
+[tr][td][b]Versatile[/b][/td][td]+1 to every proficiency check.[/td][/tr]
+[tr][td][b]Deep Reserves[/b][/td][td]+25 maximum spell energy, and energy regenerates 25% faster.[/td][/tr]
+[tr][td][b]Camp Doctor[/b][/td][td]+25% medical tend quality, and immunity is gained 20% faster.[/td][/tr]
+[tr][td][b]Last Stand[/b][/td][td]When this pawn would be downed, they stay standing for 5 more seconds instead. At most once every 10 seconds.[/td][/tr]
+[/table]
+
+[h2]Barbarian[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Requires[/th][th]Effect[/th][/tr]
+[tr][td][b]Bloodied Fury[/b][/td][td]Barbarian 2[/td][td]Rage's strength increases with the barbarian's missing health when cast.[/td][/tr]
+[tr][td][b]Reckless[/b][/td][td]Barbarian 3[/td][td]+15% melee damage, +10% damage taken.[/td][/tr]
+[tr][td][b]Won't Stay Down[/b][/td][td]Barbarian 4[/td][td]Unbreakable also removes any active stun when cast.[/td][/tr]
+[tr][td][b]Cleave[/b][/td][td]Barbarian 5[/td][td]Whirlwind's radius increases from 1.9 to 2.9 cells.[/td][/tr]
+[/table]
+
+[h2]Bard[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Requires[/th][th]Effect[/th][/tr]
+[tr][td][b]Carrying Voice[/b][/td][td]Bard 2[/td][td]Battle Hymn, Dirge, and Song of Rest radius +25%. Stacks with instrument bonuses.[/td][/tr]
+[tr][td][b]War Song[/b][/td][td]Bard 2[/td][td]Allies under Battle Hymn also gain +8% shooting accuracy.[/td][/tr]
+[tr][td][b]Lingering Lament[/b][/td][td]Bard 3[/td][td]Dirge lasts 70 seconds instead of 40.[/td][/tr]
+[tr][td][b]Encore[/b][/td][td]Bard 5[/td][td]Song of Rest restores the bard's own energy along with the company's.[/td][/tr]
+[/table]
+
+[h2]Cleric[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Requires[/th][th]Effect[/th][/tr]
+[tr][td][b]Shared Blessing[/b][/td][td]Cleric 2[/td][td]Blessing also applies to a second ally within 7 cells of the target, at full strength.[/td][/tr]
+[tr][td][b]Warm Hands[/b][/td][td]Cleric 3[/td][td]Healing Touch also stops all bleeding on the target.[/td][/tr]
+[tr][td][b]Chaplain[/b][/td][td]Cleric 3[/td][td]Allies within 10 cells get -0.12 mental break threshold.[/td][/tr]
+[tr][td][b]Purge[/b][/td][td]Cleric 4[/td][td]Cleanse's cooldown is reduced to a quarter.[/td][/tr]
+[/table]
+
+[h2]Druid[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Requires[/th][th]Effect[/th][/tr]
+[tr][td][b]Thorns[/b][/td][td]Druid 2[/td][td]Bramble Snare also deals 8 damage when applied.[/td][/tr]
+[tr][td][b]Herbcraft[/b][/td][td]Druid 2[/td][td]Nature's Balm also heals the nearest other injured ally within 5 cells, at half strength.[/td][/tr]
+[tr][td][b]Deep Roots[/b][/td][td]Druid 4[/td][td]Barkskin also grants 10% less incoming damage.[/td][/tr]
+[tr][td][b]Pack Bond[/b][/td][td]Druid 6[/td][td]The summoned bear lasts 50% longer and takes 20% less damage.[/td][/tr]
+[/table]
+
+[h2]Monk[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Requires[/th][th]Effect[/th][/tr]
+[tr][td][b]Running Start[/b][/td][td]Monk 2[/td][td]In turn-based combat, attacking after moving costs 1 less action point. In real time, melee attacks within 5 seconds of moving are 20% faster.[/td][/tr]
+[tr][td][b]Still Mind[/b][/td][td]Monk 2[/td][td]Inner Calm also restores 15 energy.[/td][/tr]
+[tr][td][b]Open Hand[/b][/td][td]Monk 3[/td][td]Unarmed strikes deal 20% more damage.[/td][/tr]
+[tr][td][b]Pressure Point[/b][/td][td]Monk 4[/td][td]Stunning Palm lasts 50% longer.[/td][/tr]
+[/table]
+
+[h2]Paladin[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Requires[/th][th]Effect[/th][/tr]
+[tr][td][b]Greater Lay On Hands[/b][/td][td]Paladin 2[/td][td]Lay On Hands heals 50% more.[/td][/tr]
+[tr][td][b]Judgement[/b][/td][td]Paladin 3[/td][td]All player attacks deal 10% more damage against a Righteous Brand target.[/td][/tr]
+[tr][td][b]Oathbound[/b][/td][td]Paladin 3[/td][td]The paladin gets -0.10 mental break threshold. Allies within 8 cells gain +10% sharp and blunt armor.[/td][/tr]
+[tr][td][b]Unyielding Aura[/b][/td][td]Paladin 4[/td][td]Aura of Courage's radius increases from 9.9 to 14.9 cells.[/td][/tr]
+[/table]
+
+[h2]Ranger[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Requires[/th][th]Effect[/th][/tr]
+[tr][td][b]Called Shot[/b][/td][td]Ranger 2[/td][td]Charged Shot grants one additional empowered shot.[/td][/tr]
+[tr][td][b]Trailcraft[/b][/td][td]Ranger 2[/td][td]+2 Survival and +2 Nature.[/td][/tr]
+[tr][td][b]Predator's Focus[/b][/td][td]Ranger 3[/td][td]The ranger's attacks deal 15% more damage against a Hunted target.[/td][/tr]
+[tr][td][b]Quickstring[/b][/td][td]Ranger 4[/td][td]Swift Quiver also grants +8% shooting accuracy.[/td][/tr]
+[/table]
+
+[h2]Rogue[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Requires[/th][th]Effect[/th][/tr]
+[tr][td][b]Backstab[/b][/td][td]Rogue 2[/td][td]Melee attacks deal 50% more damage against targets that are asleep, stunned, downed, fighting someone else, or attacked while the rogue is invisible.[/td][/tr]
+[tr][td][b]Light Fingers[/b][/td][td]Rogue 2[/td][td]+2 Thievery. Failed check-spot attempts never wake dormant creatures.[/td][/tr]
+[tr][td][b]Killing Window[/b][/td][td]Rogue 3[/td][td]A target that dies while Marked for Death refunds the mark's energy cost.[/td][/tr]
+[tr][td][b]Ghost[/b][/td][td]Rogue 5[/td][td]Vanish's cooldown is reduced by 40%.[/td][/tr]
+[/table]
+
+[h2]Sorcerer[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Requires[/th][th]Effect[/th][/tr]
+[tr][td][b]Forked Lightning[/b][/td][td]Sorcerer 2[/td][td]Arc Lightning's radius increases from 3.9 to 5.4 cells, with +25% armor penetration.[/td][/tr]
+[tr][td][b]Kindled[/b][/td][td]Sorcerer 3[/td][td]Scorch sets the target on fire.[/td][/tr]
+[tr][td][b]Overchannel[/b][/td][td]Sorcerer 3[/td][td]Spells can be cast without enough energy; the shortfall is paid in burn damage.[/td][/tr]
+[tr][td][b]Wildfire[/b][/td][td]Sorcerer 4[/td][td]Firestorm's radius increases from 3.5 to 4.6 cells.[/td][/tr]
+[/table]
+
+[h2]Warden[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Requires[/th][th]Effect[/th][/tr]
+[tr][td][b]Bulwark[/b][/td][td]Warden 2[/td][td]Stand Fast's radius increases from 6.9 to 10.4 cells.[/td][/tr]
+[tr][td][b]Opportunity Attacks[/b][/td][td]Warden 3[/td][td]When an enemy moves out of melee range, the warden automatically makes one melee attack against them. At most once every 10 seconds.[/td][/tr]
+[tr][td][b]Unmoved[/b][/td][td]Warden 3[/td][td]Second Wind heals 67% more and removes one timed affliction.[/td][/tr]
+[tr][td][b]Unignorable[/b][/td][td]Warden 5[/td][td]Enemies caught in Challenge turn to attack the warden.[/td][/tr]
+[/table]
+

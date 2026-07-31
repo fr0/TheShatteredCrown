@@ -193,6 +193,59 @@ namespace TheShatteredCrown
 
     // ---------------------------------------------------------------- area hediff
 
+    // ---------------------------------------------------------------- regen
+
+    public class HediffCompProperties_TSC_Regen : HediffCompProperties
+    {
+        public float healPerPulse = 2f;
+        public int pulseIntervalTicks = 300;
+
+        public HediffCompProperties_TSC_Regen()
+        {
+            compClass = typeof(HediffComp_TSC_Regen);
+        }
+    }
+
+    /// <summary>
+    /// Heal-over-time: healPerPulse severity of injuries closed per pulse,
+    /// worst wounds first (Prayer of Mending). The parent hediff's severity
+    /// is the caster's level factor (TimedBuffBase convention), so higher
+    /// clerics mend faster through the same duration.
+    /// </summary>
+    public class HediffComp_TSC_Regen : HediffComp
+    {
+        public HediffCompProperties_TSC_Regen Props => (HediffCompProperties_TSC_Regen)props;
+
+        public override void CompPostTick(ref float severityAdjustment)
+        {
+            Pawn pawn = parent.pawn;
+            if (pawn.Dead || !pawn.IsHashIntervalTick(Props.pulseIntervalTicks))
+            {
+                return;
+            }
+            float amount = Props.healPerPulse * Mathf.Max(1f, parent.Severity);
+            List<Hediff_Injury> injuries = new List<Hediff_Injury>();
+            pawn.health.hediffSet.GetHediffs(ref injuries);
+            injuries.SortByDescending(injury => injury.Severity);
+            bool healed = false;
+            foreach (Hediff_Injury injury in injuries)
+            {
+                if (amount <= 0f)
+                {
+                    break;
+                }
+                float heal = Mathf.Min(amount, injury.Severity);
+                injury.Heal(heal);
+                amount -= heal;
+                healed = true;
+            }
+            if (healed && pawn.Spawned)
+            {
+                FleckMaker.ThrowMetaIcon(pawn.Position, pawn.Map, FleckDefOf.HealingCross);
+            }
+        }
+    }
+
     public class CompProperties_TSC_AreaHediff : CompProperties_AbilityEffect
     {
         public HediffDef hediff;

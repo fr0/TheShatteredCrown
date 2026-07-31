@@ -252,14 +252,18 @@
     </stages>
   </HediffDef>
 
-  <!-- Wizard: Arcane Ward -->
+  <!-- Wizard: Arcane Ward. Severity = attacks left; the hediffClass
+       override matters because the base class is level-scaled and would
+       let SetMagnitude overwrite the charge count. -->
   <HediffDef ParentName="TSC_TimedBuffBase">
     <defName>TSC_Hediff_ArcaneWard</defName>
+    <hediffClass>TheShatteredCrown.TSC_Hediff_ArcaneWard</hediffClass>
     <label>arcane ward</label>
-    <description>A humming lattice of old sigils turns aside blade and bolt alike.</description>
+    <description>A humming lattice of old sigils swallows the next few blows outright. Slow harm such as fire seeps through where blades cannot.</description>
+    <initialSeverity>3</initialSeverity>
     <comps>
       <li Class="HediffCompProperties_Disappears">
-        <disappearsAfterTicks>7200</disappearsAfterTicks>
+        <disappearsAfterTicks>1800</disappearsAfterTicks>
         <showRemainingTime>true</showRemainingTime>
       </li>
       <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
@@ -267,13 +271,6 @@
         <offset>(0, 0, 0.72)</offset>
       </li>
     </comps>
-    <stages>
-      <li>
-        <statFactors>
-          <IncomingDamageFactor>0.50</IncomingDamageFactor>
-        </statFactors>
-      </li>
-    </stages>
   </HediffDef>
 
   <!-- Wizard: Leaden Curse -->
@@ -886,6 +883,82 @@
             <offset>0.10</offset>
           </li>
         </capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Cleric: Prayer of Mending. Wounds close on their own for half a
+       minute; the regen comp reads severity as the caster's level factor,
+       so a practiced cleric mends faster through the same prayer. -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Mending</defName>
+    <label>mending</label>
+    <description>The prayer stays in the flesh after the words end, drawing wounds closed a little at a time.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>1800</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_Regen">
+        <healPerPulse>2</healPerPulse>
+        <pulseIntervalTicks>300</pulseIntervalTicks>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_MendCross</mote>
+        <offset>(0, 0, 0.72)</offset>
+      </li>
+    </comps>
+  </HediffDef>
+
+  <!-- Sorcerer: Frost Nova's chill. Same half-speed idea as Leaden Curse
+       but shorter - the nova buys distance, the curse wins duels. -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_Chilled</defName>
+    <label>chilled</label>
+    <description>Cold in the joints and the blood. The legs answer late.</description>
+    <isBad>true</isBad>
+    <defaultLabelColor>(0.6, 0.8, 0.95)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>1200</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_FrostFlake</mote>
+        <offset>(0, 0, 0.72)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>0.5</MoveSpeed>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Monk: Serpent Stance. The monk's defense is not being where the
+       blow lands. Dodge is the whole identity - no armor, no ward. -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_SerpentStance</defName>
+    <label>serpent stance</label>
+    <description>Weight low, hands open, never twice in the same place. The strike finds only where the monk was.</description>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>1800</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_SerpentCoil</mote>
+        <offset>(0, 0, 0.72)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <MeleeDodgeChance>18</MeleeDodgeChance>
+          <MoveSpeed>0.3</MoveSpeed>
+        </statOffsets>
       </li>
     </stages>
   </HediffDef>

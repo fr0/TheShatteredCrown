@@ -1,0 +1,18 @@
+This guide is the player's reference for [b]The Shattered Crown[/b]: every class, every spell, every feat, with the real numbers - generated straight from the mod's files, so it is always current.
+
+[h1]Contents[/h1]
+[list]
+[*][b]Classes & Abilities[/b] - all 11 classes: what each is for, the proficiencies it trains, and its 44 abilities in unlock order with energy cost, cooldown, range and effect.
+[*][b]Feats[/b] - the general feats anyone can take, then the class feats and their requirements.
+[/list]
+
+[h1]The rules in brief[/h1]
+[list]
+[*]Every level-up offers a class level and a proficiency; multiclass freely.
+[*]One feat at character level 3 and every third level after.
+[*]Learning a class needs its class book, or a companion who teaches it.
+[*]Spells run on Energy, which recovers with sleep and scales with the class that granted them.
+[*]In turn-based combat, ability cooldowns tick one round per turn: a 10s cooldown is every other turn.
+[/list]
+
+Some late-campaign powers are deliberately left out. Find them.

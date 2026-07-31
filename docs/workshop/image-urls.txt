@@ -29,3 +29,19 @@ IMG_H_CREDITS=https://i.postimg.cc/MpM0ngtw/header-credits.png
 
 # Town facility signs strip (docs\workshop\towns.png)
 IMG_TOWNS=https://i.postimg.cc/Vs7m6hdv/towns.png
+
+# Steam guide icon strips (docs\wiki\steam\icons\*.png), injected into the
+# guide's Spells sections by scripts\make_wiki.py. Upload to postimg,
+# paste the direct .png links, re-run make_wiki.py, re-paste the sections.
+WIKI_BARBARIAN=46987757
+WIKI_BARD=46987758
+WIKI_CLERIC=46988204
+WIKI_DRUID=46987760
+WIKI_MONK=46988229
+WIKI_PALADIN=46988238
+WIKI_RANGER=46988249
+WIKI_ROGUE=46988261
+WIKI_SHARDS=
+WIKI_SORCERER=46988234
+WIKI_WARDEN=46987766
+WIKI_WIZARD=46987767

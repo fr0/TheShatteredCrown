@@ -95,6 +95,14 @@ namespace TheShatteredCrown
         }
         private const int ApproachRecheckTicks = 30; // approach mode: how often to look for engagement
         private const float EngageRadius = 40f;     // hostiles beyond this (with no target) stay dormant
+        // Proximity alone is NOT notice. The old rule started turn-based the
+        // moment a colonist crossed EngageRadius with line of sight - and the
+        // enemy, whose AI had noticed nothing, spent his opening turn standing
+        // at his post. Engagement now waits for evidence the enemy is actually
+        // IN the fight (a target on the party, or an attack, theirs or ours);
+        // raw proximity only counts at conversation distance, where "he has
+        // not noticed six armed riders" is not a story anyone believes.
+        private const float PointBlankEngageRadius = 6f;
 
         public static TSC_EncounterController Instance;
 
@@ -597,7 +605,7 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                if (p.Position.InHorDistOf(colonists[i].Position, EngageRadius)
+                if (p.Position.InHorDistOf(colonists[i].Position, PointBlankEngageRadius)
                     && GenSight.LineOfSight(p.Position, colonists[i].Position, m, skipFirstCell: true))
                 {
                     return true;
@@ -1548,6 +1556,21 @@ namespace TheShatteredCrown
         public void NoteHostileAttackDuringApproach(Pawn aggressor)
         {
             if (active && approachMode && aggressor != null && aggressor.Map == map)
+            {
+                phaseEndTick = Find.TickManager.TicksGame;
+            }
+        }
+
+        /// <summary>
+        /// The party attacked first: loosing an arrow IS announcing
+        /// yourselves, so the approach ends and turn order opens. Without
+        /// this, shrinking the proximity trigger to point-blank would have
+        /// opened a real-time free-fire window against enemies whose AI had
+        /// not caught up yet.
+        /// </summary>
+        public void NotePlayerAttackDuringApproach(Pawn attacker)
+        {
+            if (active && approachMode && attacker != null && attacker.Map == map)
             {
                 phaseEndTick = Find.TickManager.TicksGame;
             }
@@ -2667,10 +2690,19 @@ namespace TheShatteredCrown
                 targetabilityPawn = null;
                 return;
             }
-            if (targetabilityPawn != shooter || targetabilityPos != shooter.Position)
+            // The anchor is WHERE THE SHOT WOULD COME FROM: the hovered
+            // move destination while a path preview is up ("if I step
+            // there, whom can I hit?"), the pawn's feet otherwise. Same
+            // verb question either way - CanHitTargetFrom is the
+            // position-parameterized form, virtual, so CE's sight rules
+            // still give the answer.
+            IntVec3 anchor = previewNodes.Count >= 2 && previewCostAp >= 0f
+                ? previewNodes[previewNodes.Count - 1]
+                : shooter.Position;
+            if (targetabilityPawn != shooter || targetabilityPos != anchor)
             {
                 targetabilityPawn = shooter;
-                targetabilityPos = shooter.Position;
+                targetabilityPos = anchor;
                 hittableCache.Clear();
                 blockedCache.Clear();
                 float range = verb.verbProps.range;
@@ -2681,15 +2713,20 @@ namespace TheShatteredCrown
                     {
                         continue;
                     }
-                    if (verb.CanHitTarget(enemy))
+                    if (verb.CanHitTargetFrom(anchor, enemy))
                     {
                         hittableCache.Add(enemy);
                     }
-                    else if (shooter.Position.InHorDistOf(enemy.Position, range))
+                    else if (anchor.InHorDistOf(enemy.Position, range))
                     {
                         blockedCache.Add(enemy); // in range, no line of fire
                     }
                 }
+            }
+            // Previewing a move: show the weapon's reach from THERE too.
+            if (anchor != shooter.Position)
+            {
+                GenDraw.DrawRadiusRing(anchor, verb.verbProps.range);
             }
             for (int i = 0; i < hittableCache.Count; i++)
             {
@@ -4859,6 +4896,16 @@ namespace TheShatteredCrown
             if (__state.realtime)
             {
                 ctrl.NoteRealtimeAttack(__state.caster, __state.cost);
+                // The party striking first ends the approach: an arrow is an
+                // announcement. Pairs with the proximity trigger shrinking
+                // to point-blank - notice, attack, or breath distance are
+                // the three ways a fight starts, and nothing else is.
+                if (ctrl.ApproachMode && __state.caster.IsColonistPlayerControlled
+                    && __instance.CurrentTarget.Thing is Pawn struck
+                    && struck.HostileTo(Faction.OfPlayer))
+                {
+                    ctrl.NotePlayerAttackDuringApproach(__state.caster);
+                }
             }
             else if (ctrl.Active && __state.caster == ctrl.ActivePawn)
             {

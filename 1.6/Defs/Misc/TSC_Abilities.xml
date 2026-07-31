@@ -128,6 +128,43 @@
     </comps>
   </AbilityDef>
 
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_PrayerOfMending</defName>
+    <label>prayer of mending</label>
+    <description>Every ally within 6.9 cells of the caster mends over the next 30 seconds, closing about 12 points of injury each, worst wounds first.</description>
+    <iconPath>UI/TSC_Abilities/TSC_PrayerOfMending</iconPath>
+    <!-- Field medicine: castable undrafted (energy and cooldown still apply) -->
+    <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
+    <cooldownTicksRange>15000</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>30</Ability_Duration>
+    </statBases>
+    <targetRequired>False</targetRequired>
+    <verbProperties>
+      <warmupTime>1.5</warmupTime>
+      <range>0.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>25</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_AreaHediff">
+        <hediff>TSC_Hediff_Mending</hediff>
+        <radius>6.9</radius>
+        <alliesOnly>true</alliesOnly>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
+        <color>(0.6, 0.95, 0.55)</color>
+        <scale>6.9</scale>
+      </li>
+    </comps>
+  </AbilityDef>
+
   <!-- ============ Bard ============ -->
 
   <AbilityDef ParentName="TSC_AbilityBase">
@@ -576,11 +613,11 @@ In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_ArcaneWard</defName>
     <label>arcane ward</label>
-    <description>The warded target takes 50% less damage from all sources for 2 minutes.</description>
+    <description>The warded target takes no damage from the next three attacks. Periodic harm such as fire burns through the ward. Lasts up to 30 seconds.</description>
     <iconPath>UI/TSC_Abilities/TSC_ArcaneWard</iconPath>
-    <cooldownTicksRange>1200</cooldownTicksRange>
+    <cooldownTicksRange>10800</cooldownTicksRange>
     <statBases>
-      <Ability_Duration>120</Ability_Duration>
+      <Ability_Duration>30</Ability_Duration>
     </statBases>
     <verbProperties>
       <warmupTime>1</warmupTime>
@@ -769,6 +806,55 @@ In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost
       <li Class="TheShatteredCrown.CompProperties_TSC_Explosion">
         <radius>3.5</radius>
         <damage>20</damage>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_FrostNova</defName>
+    <label>frost nova</label>
+    <description>A ring of killing cold bursts from the caster: 10 frost damage to every enemy within 4.9 cells, and the survivors are chilled to half speed for 20 seconds. Allies are unharmed.</description>
+    <iconPath>UI/TSC_Abilities/TSC_FrostNova</iconPath>
+    <cooldownTicksRange>1200</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>20</Ability_Duration>
+    </statBases>
+    <hostile>true</hostile>
+    <targetRequired>False</targetRequired>
+    <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
+    <verbProperties>
+      <!-- Panic button: fast warmup on purpose - it is cast with enemies
+           already in the caster's face. -->
+      <warmupTime>0.5</warmupTime>
+      <range>0.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Damage">
+        <damage>10</damage>
+        <armorPenetration>0.3</armorPenetration>
+        <radius>4.9</radius>
+        <damageDef>TSC_Frost</damageDef>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_AreaHediff">
+        <hediff>TSC_Hediff_Chilled</hediff>
+        <radius>4.9</radius>
+        <alliesOnly>false</alliesOnly>
+        <enemiesOnly>true</enemiesOnly>
+        <includeCaster>false</includeCaster>
+        <touchMark>false</touchMark>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
+        <color>(0.65, 0.85, 1)</color>
+        <scale>4.9</scale>
+        <sparks>true</sparks>
       </li>
     </comps>
   </AbilityDef>
@@ -1168,6 +1254,44 @@ In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost
     </comps>
   </AbilityDef>
 
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_SerpentStance</defName>
+    <label>serpent stance</label>
+    <description>For 30 seconds the caster is much harder to hit in melee (+18 dodge chance) and moves +0.3 faster. The monk's armor is not being there.</description>
+    <iconPath>UI/TSC_Abilities/TSC_SerpentStance</iconPath>
+    <cooldownTicksRange>1200</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>30</Ability_Duration>
+    </statBases>
+    <targetRequired>False</targetRequired>
+    <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
+    <verbProperties>
+      <warmupTime>0.25</warmupTime>
+      <range>0.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>false</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>TheShatteredCrown.CompAbilityEffect_TSC_GiveHediffLeveled</compClass>
+        <hediffDef>TSC_Hediff_SerpentStance</hediffDef>
+        <onlyApplyToSelf>true</onlyApplyToSelf>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
+        <color>(0.5, 0.9, 0.6)</color>
+        <scale>1.5</scale>
+      </li>
+    </comps>
+  </AbilityDef>
+
   <!-- ============ Paladin ============ -->
 
   <AbilityDef ParentName="TSC_AbilityBase">
@@ -1262,6 +1386,39 @@ In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost
       <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
         <color>(1, 0.85, 0.45)</color>
         <scale>9.9</scale>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Smite</defName>
+    <label>smite</label>
+    <description>A hammerblow of holy fire: 20 burn damage to one adjacent enemy with 50% armor penetration.</description>
+    <iconPath>UI/TSC_Abilities/TSC_Smite</iconPath>
+    <cooldownTicksRange>900</cooldownTicksRange>
+    <aiCanUse>true</aiCanUse>
+    <hostile>true</hostile>
+    <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
+    <verbProperties>
+      <warmupTime>0.5</warmupTime>
+      <range>1.9</range>
+      <targetParams>
+        <canTargetSelf>false</canTargetSelf>
+        <canTargetAnimals>true</canTargetAnimals>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_EnergyCost">
+        <cost>15</cost>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Damage">
+        <damage>20</damage>
+        <armorPenetration>0.5</armorPenetration>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
+        <color>(1, 0.9, 0.5)</color>
+        <scale>1.5</scale>
+        <sparks>true</sparks>
       </li>
     </comps>
   </AbilityDef>

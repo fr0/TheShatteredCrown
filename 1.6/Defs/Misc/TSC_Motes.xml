@@ -193,4 +193,31 @@
     </graphicData>
   </ThingDef>
 
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_MendCross</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_MendCross</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_FrostFlake</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_FrostFlake</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_SerpentCoil</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_SerpentCoil</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.45</drawSize>
+    </graphicData>
+  </ThingDef>
+
 </Defs>

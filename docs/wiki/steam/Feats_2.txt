@@ -1,0 +1,9 @@
+[h2]Wizard[/h2]
+
+[table]
+[tr][th]Feat[/th][th]Requires[/th][th]Effect[/th][/tr]
+[tr][td][b]Focused Ward[/b][/td][td]Wizard 2[/td][td]Arcane Ward absorbs one additional attack and lasts up to 45 seconds.[/td][/tr]
+[tr][td][b]Heavy Curse[/b][/td][td]Wizard 3[/td][td]Leaden Curse also reduces the target's shooting accuracy by 25%.[/td][/tr]
+[tr][td][b]Efficient Casting[/b][/td][td]Wizard 3[/td][td]Every spell costs 20% less energy.[/td][/tr]
+[tr][td][b]Step Twice[/b][/td][td]Wizard 5[/td][td]Blink's cooldown is reduced by half.[/td][/tr]
+[/table]

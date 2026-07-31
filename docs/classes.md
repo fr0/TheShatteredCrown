@@ -41,12 +41,12 @@ update this file when those change.
 - **Spell scaling**: every spell's effect grows **+15% per level in the
   class that grants it** (level 5 = x1.6). MAGNITUDE scales, never
   duration: damage, healing, weapon-strike multipliers, buff/debuff
-  stat strengths (e.g. Arcane Ward's 50% reduction becomes 80% at
-  wizard 5; a mark's +30% becomes +48%), Charged Shot's damage bonus
+  stat strengths (e.g. a mark's +30% becomes +48%), Charged Shot's damage bonus
   (180% → 228%), and Song of Rest's energy restore. The tables below
   list level-1 baselines. Magic Missile instead uses its own steeper
   +2 damage/level curve. Durations, teleport ranges, Vanish/Stunning
-  Palm (vanilla effects), and the binary cleanses never scale.
+  Palm (vanilla effects), Arcane Ward's charge count, and the binary
+  cleanses never scale.
 - **Cooldowns** are listed in in-game time (2,500 ticks = 1 hour;
   60,000 = 1 day). Combat spells cool down fast; healing and utility
   spells are deliberately slow.
@@ -125,9 +125,18 @@ calls unfinished homework.*
 | Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
 |----|--------|--------|------|----------|-------|--------|
 | 1 | Magic missile | 10 | 1s | 15 min | 24 | 8 + 2 per wizard level burn damage to one target, 30% armor penetration (10 at wizard 1, 18 at 5) |
-| 2 | Arcane ward | 10 | 1s | 30 min | 24 | Target takes 50% less damage from all sources for 2 min |
+| 2 | Arcane ward | 10 | 1s | 3 min | 24 | Target takes no damage from the next 3 attacks (periodic harm like fire burns through); lasts up to 30s |
 | 3 | Leaden curse | 10 | 1s | 15 min | 24 | Target: half move speed, -20% manipulation for 45s |
 | 5 | Blink | 15 | 1s | 15 min | 28 | Teleports the caster to a visible cell; brief stun on arrival |
+
+The cleric, sorcerer, monk, and paladin capstones (all level 5):
+
+| Class | Spell | Energy | Cast | Cooldown | Effect |
+|-------|-------|--------|------|----------|--------|
+| Cleric | Prayer of mending | 25 | 1.5s | 6 hr | Allies within 6.9 cells regen ~12 injury over 30s, worst wounds first |
+| Sorcerer | Frost nova | 15 | 0.5s | 20 min | 10 frost damage to enemies within 4.9 cells of the caster + half speed for 20s; allies spared |
+| Monk | Serpent stance | 15 | 0.25s | 20 min | Caster: +18 melee dodge, +0.3 move for 30s |
+| Paladin | Smite | 15 | 0.5s | 15 min | 20 burn damage to one adjacent enemy, 50% armor penetration |
 
 ## Sorcerer
 
@@ -284,7 +293,7 @@ first, feat second.
 
 | Feat | Requires | Effect |
 |------|----------|--------|
-| Focused ward | Wizard 2 | Arcane Ward reduces incoming damage by 65% instead of 50%. |
+| Focused ward | Wizard 2 | Arcane Ward absorbs one additional attack and lasts up to 45 seconds. |
 | Heavy curse | Wizard 3 | Leaden Curse also reduces the target's shooting accuracy by 25%. |
 | Efficient casting | Wizard 3 | Every spell costs 20% less energy. |
 | Step twice | Wizard 5 | Blink's cooldown is reduced by half. |

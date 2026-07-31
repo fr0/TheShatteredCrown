@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Combat frost (Frost Nova). Vanilla's Frostbite DamageDef uses the
+       weather worker (random extremity damage, no instigator credit), so
+       spells need this Burn-shaped one: a normal injury worker that leaves
+       frostbite wounds and tests against heat armor. -->
+  <DamageDef>
+    <defName>TSC_Frost</defName>
+    <label>frost</label>
+    <workerClass>DamageWorker_AddInjury</workerClass>
+    <externalViolence>true</externalViolence>
+    <deathMessage>{0} has been killed by killing cold.</deathMessage>
+    <hediff>Frostbite</hediff>
+    <armorCategory>Heat</armorCategory>
+    <harmAllLayersUntilOutside>true</harmAllLayersUntilOutside>
+    <canUseDeflectMetalEffect>false</canUseDeflectMetalEffect>
+  </DamageDef>
+
+</Defs>

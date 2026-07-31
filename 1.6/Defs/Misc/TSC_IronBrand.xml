@@ -40,9 +40,46 @@
       <li>Manufactured</li>
     </thingCategories>
     <modExtensions>
-      <li Class="TheShatteredCrown.TSC_ShardAbilityExtension" />
+      <li Class="TheShatteredCrown.TSC_ShardAbilityExtension">
+        <ability>TSC_Ability_KingsMercy</ability>
+      </li>
     </modExtensions>
   </ThingDef>
+
+  <!-- The King's Mercy: the third shard's power. Exactly a healer mech
+       serum on one touched pawn (same vanilla call: the worst thing wrong
+       with them is made right), once every fifteen days. The cooldown
+       belongs to the shard, not the pawn - hand it around and the clock
+       travels with it. No energy cost: it is not the pawn's magic. -->
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_KingsMercy</defName>
+    <label>the king's mercy</label>
+    <description>Lay the shard against a living body and the worst thing wrong with it is made right: a lost limb regrown, a disease lifted, an old scar mended. Whatever the dead king could not do for his kingdom, his crown can still do for one person at a time. The shard allows this once in fifteen days; carrying it is the only price.</description>
+    <!-- The Healing Touch icon, tinted crown-gold: same hand, different
+         power - and no longer identical to the cleric's button. -->
+    <iconPath>UI/TSC_Abilities/TSC_KingsMercy</iconPath>
+    <cooldownTicksRange>900000</cooldownTicksRange>
+    <stunTargetWhileCasting>false</stunTargetWhileCasting>
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
+    <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
+    <verbProperties>
+      <warmupTime>2</warmupTime>
+      <range>3.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>true</canTargetPawns>
+        <canTargetAnimals>true</canTargetAnimals>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_MendWorst" />
+      <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
+        <color>(1, 0.92, 0.6)</color>
+        <scale>1.6</scale>
+      </li>
+    </comps>
+  </AbilityDef>
 
   <!-- The Baron: the Iron Brand's lord, posted on his hoard with his
        bodyguard (GenStep_TSC_IronBrandHoard). Heavy melee, the best steel

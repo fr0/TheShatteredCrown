@@ -28,6 +28,10 @@
         <ability>TSC_Ability_Cleanse</ability>
         <level>4</level>
       </li>
+      <li>
+        <ability>TSC_Ability_PrayerOfMending</ability>
+        <level>5</level>
+      </li>
     </unlocks>
   </TheShatteredCrown.TSC_ClassDef>
 
@@ -169,6 +173,10 @@
         <ability>TSC_Ability_Firestorm</ability>
         <level>4</level>
       </li>
+      <li>
+        <ability>TSC_Ability_FrostNova</ability>
+        <level>5</level>
+      </li>
     </unlocks>
   </TheShatteredCrown.TSC_ClassDef>
 
@@ -252,6 +260,10 @@
         <ability>TSC_Ability_StunningPalm</ability>
         <level>4</level>
       </li>
+      <li>
+        <ability>TSC_Ability_SerpentStance</ability>
+        <level>5</level>
+      </li>
     </unlocks>
   </TheShatteredCrown.TSC_ClassDef>
 
@@ -276,6 +288,10 @@
       <li>
         <ability>TSC_Ability_AuraOfCourage</ability>
         <level>4</level>
+      </li>
+      <li>
+        <ability>TSC_Ability_Smite</ability>
+        <level>5</level>
       </li>
     </unlocks>
   </TheShatteredCrown.TSC_ClassDef>

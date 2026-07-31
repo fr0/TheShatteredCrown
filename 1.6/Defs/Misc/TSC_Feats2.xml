@@ -170,11 +170,11 @@
   <TheShatteredCrown.TSC_FeatDef>
     <defName>TSC_Feat_FocusedWard</defName>
     <label>focused ward</label>
-    <description>Arcane Ward reduces incoming damage by 65% instead of 50%.</description>
+    <description>Arcane Ward absorbs one additional attack and lasts up to 45 seconds.</description>
     <category>Wizard</category>
     <order>10</order>
     <requirements><li><classDef>TSC_Class_Wizard</classDef><level>2</level></li></requirements>
-    <abilityMods><li><ability>TSC_Ability_ArcaneWard</ability><extraHediff>TSC_Hediff_Feat_FocusedWard</extraHediff></li></abilityMods>
+    <abilityMods><li><ability>TSC_Ability_ArcaneWard</ability><severityBonus>1</severityBonus><durationFactor>1.5</durationFactor></li></abilityMods>
   </TheShatteredCrown.TSC_FeatDef>
 
   <TheShatteredCrown.TSC_FeatDef>
@@ -458,16 +458,6 @@
       <li Class="HediffCompProperties_Disappears"><disappearsAfterTicks>7200</disappearsAfterTicks></li>
     </comps>
     <stages><li><statOffsets><ShootingAccuracyPawn>0.08</ShootingAccuracyPawn></statOffsets></li></stages>
-  </HediffDef>
-
-  <HediffDef ParentName="TSC_FeatHediffBase">
-    <defName>TSC_Hediff_Feat_FocusedWard</defName>
-    <label>focused ward</label>
-    <description>The ward, wound tighter.</description>
-    <comps>
-      <li Class="HediffCompProperties_Disappears"><disappearsAfterTicks>7200</disappearsAfterTicks></li>
-    </comps>
-    <stages><li><statFactors><IncomingDamageFactor>0.70</IncomingDamageFactor></statFactors></li></stages>
   </HediffDef>
 
   <HediffDef ParentName="TSC_FeatHediffBase">
