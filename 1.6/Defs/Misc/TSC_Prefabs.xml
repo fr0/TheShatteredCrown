@@ -59,6 +59,54 @@
     </things>
   </PrefabDef>
 
+  <!-- A pew: three chairs in a row, all facing the same way. -->
+  <PrefabDef>
+    <defName>TSC_Pew</defName>
+    <size>(3,1)</size>
+    <things>
+      <DiningChair>
+        <positions>
+          <li>(0, 0, 0)</li>
+          <li>(1, 0, 0)</li>
+          <li>(2, 0, 0)</li>
+        </positions>
+        <chance>0.85</chance>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+    </things>
+  </PrefabDef>
+
+  <!-- A run of bookcases against a wall (the scriptorium's shelving). -->
+  <PrefabDef>
+    <defName>TSC_BookRow</defName>
+    <edgeOnly>true</edgeOnly>
+    <size>(3,2)</size>
+    <things>
+      <Bookcase>
+        <position>(1,0,1)</position>
+        <relativeRotation>Opposite</relativeRotation>
+        <stuff>WoodLog</stuff>
+      </Bookcase>
+    </things>
+  </PrefabDef>
+
+  <!-- A copyist's desk: narrow table, one chair pulled up to it. -->
+  <PrefabDef>
+    <defName>TSC_WritingDesk</defName>
+    <size>(2,3)</size>
+    <things>
+      <Table1x2c>
+        <position>(0,0,1)</position>
+        <stuff>WoodLog</stuff>
+      </Table1x2c>
+      <DiningChair>
+        <position>(0,0,0)</position>
+        <chance>0.8</chance>
+        <stuff>WoodLog</stuff>
+      </DiningChair>
+    </things>
+  </PrefabDef>
+
   <PrefabDef>
     <defName>TSC_Torch</defName>
     <size>(1,1)</size>

@@ -116,6 +116,127 @@
     </parts>
   </LayoutRoomDef>
 
+  <!-- ============ Monastery rooms (Act 4) ============
+       No Corpse parts anywhere: the brothers are all in the ossuary and
+       the beds are made. The horror is the tidiness. -->
+
+  <!-- The chapel: altar, pews in rows, candle-dark marble. -->
+  <LayoutRoomDef>
+    <defName>TSC_MonChapel</defName>
+    <minSingleRectWidth>7</minSingleRectWidth>
+    <minSingleRectHeight>7</minSingleRectHeight>
+    <floorTypes>
+      <li>TileMarble</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_AltarNook>
+        <countRange>1~1</countRange>
+      </TSC_AltarNook>
+      <TSC_Pew>
+        <countPerHundredCells>4</countPerHundredCells>
+        <minMaxRange>2~6</minMaxRange>
+      </TSC_Pew>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>1~2</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+  </LayoutRoomDef>
+
+  <!-- The refectory: long boards set for a meal nobody finished. -->
+  <LayoutRoomDef>
+    <defName>TSC_Refectory</defName>
+    <canMergeWithAdjacentRoom>true</canMergeWithAdjacentRoom>
+    <minSingleRectWidth>6</minSingleRectWidth>
+    <minSingleRectHeight>6</minSingleRectHeight>
+    <floorTypes>
+      <li>WoodPlankFloor</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_DiningSet>
+        <countPerHundredCells>2</countPerHundredCells>
+        <minMaxRange>2~3</minMaxRange>
+      </TSC_DiningSet>
+      <TSC_Shelf_Wood>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>1~2</minMaxRange>
+      </TSC_Shelf_Wood>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>1~2</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+  </LayoutRoomDef>
+
+  <!-- The dormitory: bunks in rows, every one of them made. -->
+  <LayoutRoomDef>
+    <defName>TSC_Dormitory</defName>
+    <canMergeWithAdjacentRoom>true</canMergeWithAdjacentRoom>
+    <floorTypes>
+      <li>WoodPlankFloor</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_Bunk>
+        <countPerTenEdgeCells>3</countPerTenEdgeCells>
+        <minMaxRange>4~10</minMaxRange>
+      </TSC_Bunk>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>0~2</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+  </LayoutRoomDef>
+
+  <!-- The scriptorium: bookcases and copyists' desks. What the house was FOR. -->
+  <LayoutRoomDef>
+    <defName>TSC_Scriptorium</defName>
+    <minSingleRectWidth>6</minSingleRectWidth>
+    <minSingleRectHeight>6</minSingleRectHeight>
+    <floorTypes>
+      <li>WoodPlankFloor</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_BookRow>
+        <countPerTenEdgeCells>2</countPerTenEdgeCells>
+        <minMaxRange>2~6</minMaxRange>
+      </TSC_BookRow>
+      <TSC_WritingDesk>
+        <countPerHundredCells>3</countPerHundredCells>
+        <minMaxRange>2~4</minMaxRange>
+      </TSC_WritingDesk>
+      <TSC_Torch>
+        <countPerTenEdgeCells>1</countPerTenEdgeCells>
+        <minMaxRange>1~2</minMaxRange>
+      </TSC_Torch>
+    </prefabs>
+  </LayoutRoomDef>
+
+  <!-- The pantry: shelves inventoried down to nothing, a little hay. -->
+  <LayoutRoomDef>
+    <defName>TSC_Pantry</defName>
+    <canMergeWithAdjacentRoom>true</canMergeWithAdjacentRoom>
+    <floorTypes>
+      <li>FlagstoneGranite</li>
+    </floorTypes>
+    <prefabs>
+      <TSC_Shelf_Wood>
+        <countPerTenEdgeCells>2</countPerTenEdgeCells>
+        <minMaxRange>2~8</minMaxRange>
+      </TSC_Shelf_Wood>
+      <TSC_MonChestPrefab>
+        <countPerHundredCells>1</countPerHundredCells>
+        <minMaxRange>0~1</minMaxRange>
+      </TSC_MonChestPrefab>
+    </prefabs>
+    <scatter>
+      <Hay>
+        <groupsPerHundredCells>1~2</groupsPerHundredCells>
+        <itemsPerGroup>10~25</itemsPerGroup>
+        <groupDistRange>2~4</groupDistRange>
+      </Hay>
+    </scatter>
+  </LayoutRoomDef>
+
   <!-- ============ Castle rooms (Adventure Mode's ruined fortress) ============ -->
 
   <!-- The great hall: long boards, torch brackets, and whoever never left -->

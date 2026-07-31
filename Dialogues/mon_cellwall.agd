@@ -1,0 +1,19 @@
+# The written cell wall: success scene for the writing spot.
+
+dialogue TSC_Dialogue_MonCellWall
+
+== start ==
+The chalk lines cover the wall, packed close. It is the same evening prayer, written once a night for years. And over the years, the words change.
+
+KEEP US QUIET, LORD becomes KEEP IT QUIET. HOLD US IN YOUR HAND becomes just HOLD.
+
+* [Follow it down the wall.] -> down
+
+== down ==
+Near the floor the prayer is gone entirely. One word, once a night: whole. whole. whole.
+
+The last line was written by somebody lying down: LET ME BE WHOLE.
+
+That is not a monk's prayer. That is the crown's wanting, coming out through a dying man's hand.
+
+* [Step out of the cell.] -> end

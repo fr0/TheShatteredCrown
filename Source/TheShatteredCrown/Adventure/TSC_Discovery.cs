@@ -1220,11 +1220,39 @@ namespace TheShatteredCrown
     {
         /// <summary>Set for STORY captives (Bry): the named pawn is held here instead of a generated stranger.</summary>
         public NamedNpcDef npc;
+        /// <summary>Several named captives at one site (Act 5's road ambush holds Serra AND Oswin). Dead ones are skipped.</summary>
+        public List<NamedNpcDef> npcs = new List<NamedNpcDef>();
+        /// <summary>Quest signal sent once every captive here is free (Act 5's ambush completes on it).</summary>
+        public string allFreedSignalQuest;
+        public string allFreedSignal;
 
         public override int SeedPart => 668142935;
 
         public override void Generate(Map map, GenStepParams parms)
         {
+            MapComponent_TSC_CaptiveRescue rescueComp = map.GetComponent<MapComponent_TSC_CaptiveRescue>();
+            if (rescueComp != null && !allFreedSignal.NullOrEmpty())
+            {
+                rescueComp.allFreedSignalQuest = allFreedSignalQuest;
+                rescueComp.allFreedSignal = allFreedSignal;
+            }
+            if (npcs != null && npcs.Count > 0)
+            {
+                foreach (NamedNpcDef def in npcs)
+                {
+                    if (def == null)
+                    {
+                        continue;
+                    }
+                    Pawn named = DialogueStateManager.Current.GetOrGenerateNamedNpc(def, null);
+                    if (named == null || named.Dead || named.Spawned)
+                    {
+                        continue; // dead, or already out in the world
+                    }
+                    PlaceCaptive(map, named);
+                }
+                return;
+            }
             Pawn captive = null;
             if (npc != null)
             {
@@ -1293,12 +1321,44 @@ namespace TheShatteredCrown
             HealthUtility.DamageUntilDowned(captive, allowBleedingWounds: false);
             map.GetComponent<MapComponent_TSC_CaptiveRescue>()?.Register(captive);
         }
+
+        /// <summary>Same holding rules, for each of several named captives.</summary>
+        private static void PlaceCaptive(Map map, Pawn captive)
+        {
+            IntVec3 den = GenStep_TSC_PlaceInStructure.FindInteriorCell(map);
+            if (!den.IsValid || !den.Walkable(map))
+            {
+                den = map.Center;
+            }
+            TraverseParms walk = TraverseParms.For(TraverseMode.PassDoors);
+            IntVec3 cell = CellFinder.RandomClosewalkCellNear(den, map, 6);
+            if (!cell.IsValid || !map.reachability.CanReachMapEdge(cell, walk))
+            {
+                foreach (IntVec3 candidate in GenRadial.RadialCellsAround(map.Center, 60f, useCenter: true))
+                {
+                    if (candidate.InBounds(map) && candidate.Standable(map)
+                        && map.reachability.CanReachMapEdge(candidate, walk))
+                    {
+                        cell = candidate;
+                        break;
+                    }
+                }
+            }
+            GenSpawn.Spawn(captive, cell, map);
+            HealthUtility.DamageUntilDowned(captive, allowBleedingWounds: false);
+            map.GetComponent<MapComponent_TSC_CaptiveRescue>()?.Register(captive);
+        }
     }
 
     public class MapComponent_TSC_CaptiveRescue : MapComponent
     {
         private Pawn captive;
         private bool joined;
+        /// <summary>Extra captives held at the same site (Act 5 holds two).</summary>
+        private List<Pawn> others = new List<Pawn>();
+        /// <summary>Sent once every registered captive is free. Act 5's ambush quest listens for it.</summary>
+        public string allFreedSignalQuest;
+        public string allFreedSignal;
 
         public MapComponent_TSC_CaptiveRescue(Map map) : base(map)
         {
@@ -1306,7 +1366,70 @@ namespace TheShatteredCrown
 
         public void Register(Pawn pawn)
         {
-            captive = pawn;
+            if (captive == null)
+            {
+                captive = pawn;
+                return;
+            }
+            if (pawn != null && pawn != captive && !others.Contains(pawn))
+            {
+                others.Add(pawn);
+            }
+        }
+
+        /// <summary>Every captive here is free, dead, or gone.</summary>
+        private bool AllSettled()
+        {
+            if (!joined && captive != null && !captive.Dead)
+            {
+                return false;
+            }
+            foreach (Pawn other in others)
+            {
+                if (other != null && !other.Dead && other.Faction != Faction.OfPlayer)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private void TickOthers()
+        {
+            foreach (Pawn other in others)
+            {
+                if (other == null || other.Dead || other.Faction == Faction.OfPlayer)
+                {
+                    continue;
+                }
+                if (!other.Spawned)
+                {
+                    Pawn carrier = (other.ParentHolder as Pawn_CarryTracker)?.pawn;
+                    if (carrier != null && carrier.Faction == Faction.OfPlayer)
+                    {
+                        FreeOne(other);
+                    }
+                    continue;
+                }
+                foreach (Pawn colonist in map.mapPawns.FreeColonistsSpawned)
+                {
+                    if (colonist.Position.InHorDistOf(other.Position, 3f))
+                    {
+                        FreeOne(other);
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void FreeOne(Pawn pawn)
+        {
+            pawn.SetFaction(Faction.OfPlayer);
+            Find.LetterStack.ReceiveLetter(
+                pawn.LabelShortCap + " freed",
+                pawn.LabelShortCap + " was not going to walk out of this place alone, and knows it. "
+                + "They throw in with the company.",
+                LetterDefOf.PositiveEvent, pawn);
         }
 
         /// <summary>
@@ -1321,8 +1444,17 @@ namespace TheShatteredCrown
 
         public override void MapComponentTick()
         {
-            if (joined || captive == null || captive.Dead
-                || Find.TickManager.TicksGame % 60 != 0)
+            if (Find.TickManager.TicksGame % 60 != 0)
+            {
+                return;
+            }
+            TickOthers();
+            if (!allFreedSignal.NullOrEmpty() && AllSettled())
+            {
+                TSC_QuestSignals.Send(allFreedSignalQuest, allFreedSignal);
+                allFreedSignal = null;
+            }
+            if (joined || captive == null || captive.Dead)
             {
                 return;
             }
@@ -1375,6 +1507,13 @@ namespace TheShatteredCrown
             Scribe_References.Look(ref captive, "captive");
             Scribe_Values.Look(ref joined, "joined");
             Scribe_Values.Look(ref announced, "announced");
+            Scribe_Collections.Look(ref others, "otherCaptives", LookMode.Reference);
+            Scribe_Values.Look(ref allFreedSignalQuest, "allFreedSignalQuest");
+            Scribe_Values.Look(ref allFreedSignal, "allFreedSignal");
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && others == null)
+            {
+                others = new List<Pawn>();
+            }
         }
     }
 

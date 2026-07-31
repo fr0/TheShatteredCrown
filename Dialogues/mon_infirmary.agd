@@ -1,0 +1,19 @@
+# The infirmary log: success scene for the writing spot.
+
+dialogue TSC_Dialogue_MonInfirmary
+
+== start ==
+The infirmarer's hand is tidy and the entries are short.
+
+Midwinter: a pilgrim arrived at the gate, half frozen, clutching a wrapped bundle he refused to let go of. They fed him broth. He would not let go of the bundle.
+
+* [Turn the page.] -> next
+
+== next ==
+Second day: fever. He talked about a crown, about roads, about four other couriers scattered in other directions. He still would not let go.
+
+Third day, in the margin, smaller: died at morning prayers. Still holding it.
+
+Below that, in a different hand: HIS EFFECTS TAKEN DOWN. PRIOR ALONE. Whatever the pilgrim was carrying, the Prior took it below, and went alone.
+
+* [Close the log.] -> end

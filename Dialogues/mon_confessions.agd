@@ -1,0 +1,20 @@
+# The confession slips: success scene for the writing spot
+# (successDialogue). XP and the flag are the comp's job.
+
+dialogue TSC_Dialogue_MonConfessions
+
+== start ==
+{PLAYER} lifts the top layer of slips and unfolds them one by one.
+
+They are supposed to be confessions of sins. Instead, a dozen different hands across one winter all confess the same thing: I HEAR HUMMING. By the well. On the cellarium stair. In my teeth during prayers.
+
+* [Keep reading.] -> deeper
+
+== deeper ==
+None of them told each other. One novice writes: Brother P. hears it too. I watched him stop walking. We did not speak of it.
+
+Every brother thought he was the only one, and the rule kept it that way.
+
+The last slip in the box, in a very neat hand: I no longer hear it. It hears me.
+
+* [Put the slips back the way they were.] -> end

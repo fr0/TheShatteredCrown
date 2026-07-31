@@ -1,6 +1,6 @@
 # Classes and Abilities
 
-Class levels are assigned at level-up; every class also trains three proficiencies (bonus: 1 + class level / 4 on checks). Learning a class needs its class book, or a companion who teaches it. Energy recovers with sleep. In turn-based combat, cooldowns tick one round per turn: a 10s cooldown is every other turn.
+Class levels are assigned at level-up; every class also trains three proficiencies (bonus: 1 + class level / 4 on checks). Learning a class needs its class book, or a companion who teaches it. Energy recovers with sleep. In turn-based combat, cooldowns tick one round per turn (5s): a 10s cooldown is every other turn.
 
 ## Barbarian
 
@@ -128,7 +128,7 @@ Calls a grizzly bear out of the green dark to fight at the druid's side for 60 s
 
 ## Monk
 
-Discipline made flesh. The monk's weapon is the monk, kept sharp by stillness.
+Discipline made flesh. The monk's weapon is his fists, kept sharp by stillness.
 
 
 **Proficiencies:** Athletics, Insight, Perception
@@ -159,7 +159,7 @@ For 30 seconds the caster is much harder to hit in melee (+18 dodge chance) and 
 
 ## Paladin
 
-An oath with legs. Heals the fallen, heartens the fearful, and brands the wicked for what they are.
+A defender of justice. Heals the fallen, heartens the fearful, and brands the wicked for what they are.
 
 
 **Proficiencies:** Athletics, Persuasion, Insight
@@ -190,7 +190,7 @@ A hammerblow of holy fire: 20 burn damage to one adjacent enemy with 50% armor p
 
 ## Ranger
 
-The road's own child: tracker, archer, and field surgeon of last resort.
+The road's own child: tracker, archer, and expert of the wilds.
 
 
 **Proficiencies:** Nature, Survival, Perception
@@ -221,7 +221,7 @@ For 60 seconds the caster's ranged attacks come 35% faster and shooting accuracy
 
 ## Rogue
 
-Locks, shadows, and knives in that order. Rogues go where they aren't invited and leave with what isn't theirs.
+Locks, shadows, and knives. Rogues go where they aren't invited and leave with what isn't theirs.
 
 
 **Proficiencies:** Thievery, Investigation, Perception
@@ -346,6 +346,12 @@ Teleports the caster to a visible cell within 27.9 cells. The caster is briefly 
 ## Crown Shard Powers
 
 Granted by CARRYING a shard, not by any class. The cooldown belongs to the shard itself: hand it to another carrier and the clock travels with it. No energy cost.
+
+### Command
+
+*3 days cooldown, range 23.9*
+
+Speak to an enemy in the voice the crown was made for, and for sixty seconds they are yours: they turn, and they fight the people they came with. When the voice fades they remember whose side they were on, and they are not grateful. The shard allows this once in three days; carrying it is the only price.
 
 ### The King's Mercy
 

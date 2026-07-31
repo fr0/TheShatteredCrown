@@ -73,6 +73,20 @@ namespace TheShatteredCrown
         public bool crenellated = true;
         /// <summary>Corner towers and flanking gate towers: castle furniture, not camp furniture.</summary>
         public bool towers = true;
+        /// <summary>
+        /// When set, ONE thing of this def fills the gateway instead of door
+        /// leaves (the monastery's barred gate: a check-spot building sized
+        /// gateWidth x 1). Null keeps the vanilla doors.
+        /// </summary>
+        public ThingDef gateDef;
+        /// <summary>Torches in the yard. A dead house is dark.</summary>
+        public bool lit = true;
+        /// <summary>
+        /// A plain unlocked door mid-north face, with a stable lean-to just
+        /// inside: the working entrance the household actually used, and the
+        /// way in when the front gate will not move.
+        /// </summary>
+        public bool rearDoor;
 
         public override int SeedPart => 174495382;
 
@@ -124,7 +138,19 @@ namespace TheShatteredCrown
                 Towers(map, outer, stuff);
             }
             Gatehouse(map, inner, outer, gate, stuff);
-            Torches(map, inner, keep);
+            if (rearDoor)
+            {
+                RearDoor(map, inner, outer);
+            }
+            if (lit)
+            {
+                Torches(map, inner, keep);
+            }
+            // Remember exactly what "inside the walls" means. Deriving it
+            // later from wall positions was wrong the moment the map rolled
+            // scattered ruins: their walls stretched the bounding box to the
+            // map edge and the ghost greeted people still on the road.
+            map.GetComponent<MapComponent_TSC_MonasteryGhost>()?.SetCurtain(inner);
         }
 
         /// <summary>
@@ -309,8 +335,117 @@ namespace TheShatteredCrown
                 }
                 cell.GetEdifice(map)?.Destroy(DestroyMode.Vanish);
                 Sweep(map, cell);
-                GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Door, gateStuff ?? ThingDefOf.Steel), cell, map);
+                if (gateDef == null)
+                {
+                    GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Door, gateStuff ?? ThingDefOf.Steel), cell, map);
+                }
                 map.roofGrid.SetRoof(cell, RoofDefOf.RoofConstructed);
+            }
+            if (gateDef != null && gate.Count > 0 && gate[gate.Count / 2].InBounds(map))
+            {
+                GenSpawn.Spawn(ThingMaker.MakeThing(gateDef), gate[gate.Count / 2], map);
+            }
+        }
+
+        /// <summary>
+        /// The back way: a wooden door mid-north face, and the stables just
+        /// inside it. Deliveries never came through the front of a house like
+        /// this, and neither does anyone who fails to force the gate.
+        /// </summary>
+        private static void RearDoor(Map map, CellRect inner, CellRect outer)
+        {
+            int x = inner.minX + inner.Width / 2;
+            IntVec3 doorCell = new IntVec3(x, 0, inner.maxZ);
+            if (!doorCell.InBounds(map))
+            {
+                return;
+            }
+            doorCell.GetEdifice(map)?.Destroy(DestroyMode.Vanish);
+            Sweep(map, doorCell);
+            GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Door, ThingDefOf.WoodLog), doorCell, map);
+            IntVec3 face = new IntVec3(x, 0, outer.maxZ);
+            if (face.InBounds(map))
+            {
+                face.GetEdifice(map)?.Destroy(DestroyMode.Vanish);
+            }
+            BuildStable(map, doorCell);
+        }
+
+        /// <summary>
+        /// The stable itself: a small wood lean-to OUTSIDE the wall, east of
+        /// the back door, its open side facing the door path. Three walls, a
+        /// roof, straw underfoot, hay nobody has eaten in a long time.
+        /// Internal static: the monastery save-heal builds it onto maps
+        /// generated before it existed.
+        /// </summary>
+        internal static void BuildStable(Map map, IntVec3 doorCell)
+        {
+            CellRect stable = new CellRect(doorCell.x + 2, doorCell.z + 2, 6, 4).ClipInsideMap(map);
+            if (stable.Width < 3 || stable.Height < 3)
+            {
+                return;
+            }
+            TerrainDef straw = DefDatabase<TerrainDef>.GetNamedSilentFail("StrawMatting");
+            foreach (IntVec3 cell in stable)
+            {
+                if (!cell.InBounds(map))
+                {
+                    continue;
+                }
+                Sweep(map, cell);
+                bool perimeter = cell.z == stable.maxZ || cell.z == stable.minZ || cell.x == stable.maxX;
+                if (perimeter && cell.x != stable.minX)
+                {
+                    if (cell.GetEdifice(map) == null)
+                    {
+                        GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Wall, ThingDefOf.WoodLog), cell, map);
+                    }
+                }
+                else if (cell.GetEdifice(map) == null && straw != null && !cell.GetTerrain(map).IsWater)
+                {
+                    map.terrainGrid.SetTerrain(cell, straw);
+                }
+                map.roofGrid.SetRoof(cell, RoofDefOf.RoofConstructed);
+            }
+            ThingDef hay = DefDatabase<ThingDef>.GetNamedSilentFail("Hay");
+            if (hay != null)
+            {
+                Thing pile = ThingMaker.MakeThing(hay);
+                pile.stackCount = 30;
+                GenPlace.TryPlaceThing(pile, stable.ContractedBy(1).CenterCell, map, ThingPlaceMode.Near);
+            }
+            // The horses were never turned loose. Dessicated corpses render
+            // as skeletons: two of them, still in their stalls, beside hay
+            // they never finished.
+            PawnKindDef horseKind = DefDatabase<PawnKindDef>.GetNamedSilentFail("Horse");
+            if (horseKind != null)
+            {
+                CellRect inside = stable.ContractedBy(1);
+                IntVec3[] stalls =
+                {
+                    new IntVec3(inside.minX, 0, inside.maxZ),
+                    new IntVec3(inside.maxX, 0, inside.maxZ),
+                };
+                foreach (IntVec3 stall in stalls)
+                {
+                    if (!stall.InBounds(map) || !stall.Standable(map))
+                    {
+                        continue;
+                    }
+                    Pawn horse = PawnGenerator.GeneratePawn(horseKind, null);
+                    horse.Kill(null);
+                    Corpse corpse = horse.Corpse;
+                    if (corpse == null)
+                    {
+                        continue;
+                    }
+                    CompRottable rot = corpse.TryGetComp<CompRottable>();
+                    if (rot != null)
+                    {
+                        rot.RotProgress = 9999999f; // far past dessication
+                    }
+                    GenSpawn.Spawn(corpse, stall, map);
+                }
             }
         }
 

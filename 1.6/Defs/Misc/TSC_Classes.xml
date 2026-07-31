@@ -96,7 +96,7 @@
   <TheShatteredCrown.TSC_ClassDef>
     <defName>TSC_Class_Rogue</defName>
     <label>rogue</label>
-    <description>Locks, shadows, and knives in that order. Rogues go where they aren't invited and leave with what isn't theirs.</description>
+    <description>Locks, shadows, and knives. Rogues go where they aren't invited and leave with what isn't theirs.</description>
     <proficiencies>
       <li>TSC_Prof_Thievery</li>
       <li>TSC_Prof_Investigation</li>
@@ -241,7 +241,7 @@
   <TheShatteredCrown.TSC_ClassDef>
     <defName>TSC_Class_Monk</defName>
     <label>monk</label>
-    <description>Discipline made flesh. The monk's weapon is the monk, kept sharp by stillness.</description>
+    <description>Discipline made flesh. The monk's weapon is his fists, kept sharp by stillness.</description>
     <proficiencies>
       <li>TSC_Prof_Athletics</li>
       <li>TSC_Prof_Insight</li>
@@ -270,7 +270,7 @@
   <TheShatteredCrown.TSC_ClassDef>
     <defName>TSC_Class_Paladin</defName>
     <label>paladin</label>
-    <description>An oath with legs. Heals the fallen, heartens the fearful, and brands the wicked for what they are.</description>
+    <description>A defender of justice. Heals the fallen, heartens the fearful, and brands the wicked for what they are.</description>
     <proficiencies>
       <li>TSC_Prof_Athletics</li>
       <li>TSC_Prof_Persuasion</li>
@@ -299,7 +299,7 @@
   <TheShatteredCrown.TSC_ClassDef>
     <defName>TSC_Class_Ranger</defName>
     <label>ranger</label>
-    <description>The road's own child: tracker, archer, and field surgeon of last resort.</description>
+    <description>The road's own child: tracker, archer, and expert of the wilds.</description>
     <proficiencies>
       <li>TSC_Prof_Nature</li>
       <li>TSC_Prof_Survival</li>

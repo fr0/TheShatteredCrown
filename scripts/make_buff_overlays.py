@@ -300,6 +300,23 @@ def make_crown():  # Kingsblade: gold crown, gem in the band
     return _halo(img)
 
 
+def make_iron_crown():  # The Bandit Baron: dark iron crown, red gem
+    img, d, s = _glyph()
+    iron, edge, gem = (72, 74, 82, 255), (128, 132, 142, 255), (196, 52, 44, 255)
+    pts = [
+        (s * 0.14, s * 0.78), (s * 0.14, s * 0.34), (s * 0.30, s * 0.55),
+        (s * 0.50, s * 0.20), (s * 0.70, s * 0.55), (s * 0.86, s * 0.34),
+        (s * 0.86, s * 0.78),
+    ]
+    d.polygon(pts, fill=iron, outline=edge)
+    d.line([(s * 0.14, s * 0.72), (s * 0.86, s * 0.72)], fill=edge, width=4)
+    for x in (0.14, 0.5, 0.86):
+        y = 0.2 if x == 0.5 else 0.34
+        d.ellipse([s * x - 5, s * y - 5, s * x + 5, s * y + 5], fill=edge)
+    d.ellipse([s * 0.44, s * 0.56, s * 0.56, s * 0.68], fill=gem)
+    return _halo(img)
+
+
 def make_mend_cross():  # Mending: green healing cross, light core
     img, d, s = _glyph()
     green, core = (110, 210, 120, 255), (222, 255, 224, 255)
@@ -365,6 +382,7 @@ GLYPHS = {
     "TSC_LeadWeight": make_lead_weight,
     "TSC_ThornSnare": make_thorn_snare,
     "TSC_BrandFlame": make_brand,
+    "TSC_IronCrownMark": make_iron_crown,
     "TSC_MendCross": make_mend_cross,
     "TSC_FrostFlake": make_frost_flake,
     "TSC_SerpentCoil": make_serpent_coil,

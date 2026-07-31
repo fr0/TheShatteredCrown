@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Act 5: The Barrow of the First King. Opened from code when the
+       fourth shard rush closes (TSC_ShardTracker): title card, then
+       the road, then the interruption on it.
+       Road Ambush -> The Barrow of the First King.
+       ================================================================ -->
+
+  <!-- The interruption: Serra and Oswin, taken on the same road. The
+       rescue component sends TSC_Act5_Rescued when every living
+       captive is free. -->
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act5_RoadAmbush</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Taken on the Road</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->The road east runs a long way, and the company is not the only thing on it.\n\nSmoke off the track, and a scout's report that lands badly: a camp with prisoners in it, and two of them known. Serra and Oswin were walking the same road, on their own business, and somebody smaller and meaner got to them first.\n\nTake the camp. Get them out.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetPartySiteTile">
+          <storeAs>siteTile</storeAs>
+          <minDist>3</minDist>
+          <maxDist>8</maxDist>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_RoadHolding</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_Act5_Rescued</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelAct5Rescued">Out of the camp</label>
+                <text TKey="LetterTextAct5Rescued">They are on their feet, more or less, and they are coming along. Neither of them asks what the company is carrying, which means both of them already know.\n\nThe road east is long, and it is better walked with them than without.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>250</xp>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                <questDef>TSC_Act5_Barrow</questDef>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- The road's end. Arrival completes the opener; what is inside the
+       barrow is Act 5 proper. -->
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act5_Barrow</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Barrow of the First King</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Four pieces of a crown, and all four of them pulling the same direction.\n\nEast, past the mountains, on high ground: a long green mound older than the kingdom that ended, with a stone throat facing the dawn. The man the crown was made for is buried there, and so, the shards insist, is the last of it.\n\nWalk the road to its end.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetPartySiteTile">
+          <storeAs>siteTile</storeAs>
+          <minDist>12</minDist>
+          <maxDist>22</maxDist>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_FirstKingBarrow</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.MapGenerated</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NeutralEvent</letterDef>
+                <label TKey="LetterLabelBarrowArrived">The mound</label>
+                <text TKey="LetterTextBarrowArrived">The barrow is exactly where four pieces of a crown said it would be: a long green mound on the high ground, turf grown over stonework older than any kingdom on the maps, and a throat of dressed rock facing the sunrise.\n\nThe humming stops at the threshold. Whatever the shards have been pulling toward, they have stopped explaining themselves now that the company is standing at its door.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>200</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

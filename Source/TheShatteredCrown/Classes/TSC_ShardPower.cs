@@ -4,6 +4,7 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using Verse.AI.Group;
 
 namespace TheShatteredCrown
 {
@@ -65,10 +66,14 @@ namespace TheShatteredCrown
         public const string RushFlag = "TSC_ShardRushSeen";
         public const string TitleFlag = "TSC_Act2TitleShown";
         public const string Rush2Flag = "TSC_ShardRush2Seen";
+        public const string Rush3Flag = "TSC_ShardRush3Seen";
+        public const string Rush4Flag = "TSC_ShardRush4Seen";
         private Dictionary<string, int> lastCastTicks = new Dictionary<string, int>();
         private int lastStormTick = -999999; // legacy single-shard clock, migrated on load
         private bool titlePending;
         private bool act3Pending;
+        private bool act4Pending;
+        private bool act5Pending;
         private bool splitHealed;
 
         public TSC_ShardTracker(World world) : base(world)
@@ -94,9 +99,113 @@ namespace TheShatteredCrown
             }
         }
 
+        // ------------------------------------------------ the crown's command
+
+        private List<TSC_CommandedPawn> commanded = new List<TSC_CommandedPawn>();
+
+        /// <summary>Take one enemy onto the player's side for a while. Idempotent per pawn: a second command refreshes the clock.</summary>
+        public void CommandPawn(Pawn pawn, int durationTicks, HediffDef mark)
+        {
+            if (pawn == null || pawn.Dead)
+            {
+                return;
+            }
+            foreach (TSC_CommandedPawn existing in commanded)
+            {
+                if (existing.pawn == pawn)
+                {
+                    existing.endTick = Find.TickManager.TicksGame + durationTicks;
+                    return;
+                }
+            }
+            TSC_CommandedPawn loan = new TSC_CommandedPawn
+            {
+                pawn = pawn,
+                originalFaction = pawn.Faction,
+                endTick = Find.TickManager.TicksGame + durationTicks,
+                mark = mark,
+            };
+            commanded.Add(loan);
+            pawn.GetLord()?.Notify_PawnLost(pawn, PawnLostCondition.ForcedToJoinOtherLord);
+            pawn.SetFaction(Faction.OfPlayer);
+            if (pawn.mindState != null)
+            {
+                pawn.mindState.enemyTarget = null;
+            }
+            pawn.jobs?.StopAll();
+            if (mark != null && !pawn.health.hediffSet.HasHediff(mark))
+            {
+                pawn.health.AddHediff(mark);
+            }
+        }
+
+        /// <summary>
+        /// Hand them back. Called on expiry, on death, and on load-time
+        /// cleanup: a commanded enemy who stayed on the player's side would
+        /// corrupt faction hostility and site "all enemies defeated" counts.
+        /// </summary>
+        private void ReleaseCommand(TSC_CommandedPawn loan, bool announce)
+        {
+            Pawn pawn = loan.pawn;
+            if (pawn == null)
+            {
+                return;
+            }
+            if (loan.mark != null && pawn.health?.hediffSet != null)
+            {
+                Hediff worn = pawn.health.hediffSet.GetFirstHediffOfDef(loan.mark);
+                if (worn != null)
+                {
+                    pawn.health.RemoveHediff(worn);
+                }
+            }
+            if (pawn.Dead)
+            {
+                return; // nothing to give back
+            }
+            pawn.GetLord()?.Notify_PawnLost(pawn, PawnLostCondition.ForcedToJoinOtherLord);
+            if (loan.originalFaction != null)
+            {
+                pawn.SetFaction(loan.originalFaction);
+            }
+            pawn.jobs?.StopAll();
+            if (pawn.Spawned && pawn.Faction != null && pawn.Faction.HostileTo(Faction.OfPlayer))
+            {
+                // Back to being a problem, with a lord to organize it.
+                LordMaker.MakeNewLord(pawn.Faction,
+                    new LordJob_AssaultColony(pawn.Faction, canKidnap: false, canTimeoutOrFlee: true),
+                    pawn.Map, new List<Pawn> { pawn });
+            }
+            if (announce && pawn.Spawned)
+            {
+                MoteMaker.ThrowText(pawn.DrawPos, pawn.Map, "The voice fades", new UnityEngine.Color(0.9f, 0.8f, 0.6f));
+            }
+        }
+
+        private void TickCommands()
+        {
+            if (commanded.Count == 0)
+            {
+                return;
+            }
+            int now = Find.TickManager.TicksGame;
+            for (int i = commanded.Count - 1; i >= 0; i--)
+            {
+                TSC_CommandedPawn loan = commanded[i];
+                if (loan.pawn == null || loan.pawn.Destroyed || loan.pawn.Dead || now >= loan.endTick)
+                {
+                    ReleaseCommand(loan, announce: true);
+                    commanded.RemoveAt(i);
+                }
+            }
+        }
+
         public override void WorldComponentTick()
         {
             base.WorldComponentTick();
+            // Commands are short: they expire on their own second, not on
+            // the shard scan's minute.
+            TickCommands();
             if (Find.TickManager.TicksGame % ScanIntervalTicks != 0)
             {
                 return;
@@ -108,6 +217,10 @@ namespace TheShatteredCrown
             HealBakedShardCount();
             TryFireSecondRush();
             OpenAct3IfPending();
+            TryFireThirdRush();
+            OpenAct4IfPending();
+            TryFireFourthRush();
+            OpenAct5IfPending();
             foreach (ThingDef shardDef in TSC_Shards.AllDefs)
             {
                 AbilityDef ability = TSC_Shards.AbilityFor(shardDef);
@@ -380,37 +493,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            // SURFACE GATE: quest generation runs QuestNode_GetSiteTile from
-            // the party's current map, and a pocket dungeon floor has tile -1
-            // ("Attempted to access a tile with ID -1", seen live when the
-            // vision fired in the reliquary). Hold the curtain until someone
-            // stands under open sky; the act opens on the climb out.
-            bool surfaced = false;
-            foreach (Map m in Find.Maps)
-            {
-                if (m.mapPawns.FreeColonistsSpawnedCount > 0
-                    && TSC_Threat.RootMap(m) == m && m.Tile.Valid)
-                {
-                    surfaced = true;
-                    break;
-                }
-            }
-            // A party ON THE ROAD is above ground by definition: caravans
-            // have world tiles, and the party-rooted tile node anchors on
-            // them. Without this the re-grant stalls (journal empty) for as
-            // long as the party keeps riding.
-            if (!surfaced)
-            {
-                foreach (RimWorld.Planet.Caravan caravan in Find.WorldObjects.Caravans)
-                {
-                    if (caravan.IsPlayerControlled && caravan.Tile.Valid)
-                    {
-                        surfaced = true;
-                        break;
-                    }
-                }
-            }
-            if (!surfaced)
+            if (!PartySurfaced())
             {
                 return;
             }
@@ -423,7 +506,213 @@ namespace TheShatteredCrown
             }
             // The chain opener, not the assault: the fire on the road first,
             // then Thornden, then the surety, and the keep last.
-            QuestScriptDef script = DefDatabase<QuestScriptDef>.GetNamedSilentFail("TSC_Act3_RoadFire");
+            GrantChainOpener("TSC_Act3_RoadFire");
+        }
+
+        /// <summary>
+        /// The third rush: the hoard shard, lifted from under the Baron. It
+        /// fires on the first quiet moment with the shard in hand (the
+        /// vision waits out the assault on the keep, like the second rush
+        /// waited out its fight). Act 4 opens when the scene closes.
+        /// </summary>
+        private void TryFireThirdRush()
+        {
+            if (act4Pending || DialogueStateManager.Current.IsSet(Rush3Flag))
+            {
+                return;
+            }
+            ThingDef hoard = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_CrownShard_Hoard");
+            if (hoard == null)
+            {
+                return;
+            }
+            Pawn holder = null;
+            foreach (Pawn pawn in PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists)
+            {
+                if (HoldsShard(pawn, hoard))
+                {
+                    holder = pawn;
+                    break;
+                }
+            }
+            if (holder == null)
+            {
+                return;
+            }
+            Map map = holder.MapHeld;
+            if (map != null && GenHostility.AnyHostileActiveThreatToPlayer(map))
+            {
+                return;
+            }
+            if (Find.WindowStack.WindowOfType<Dialog_Conversation>() != null)
+            {
+                return;
+            }
+            DialogueStateManager.Current.Set(Rush3Flag);
+            DialogueDef rush = DefDatabase<DialogueDef>.GetNamedSilentFail("TSC_Dialogue_ShardRush3");
+            if (rush != null)
+            {
+                Find.WindowStack.Add(new Dialog_Conversation(rush, holder, holder));
+            }
+            act4Pending = true;
+        }
+
+        /// <summary>
+        /// The fourth rush: the undercell shard, lifted from between the two
+        /// biers. Same quiet-moment rule as the others. It hands over
+        /// Command and points at a man on a road - Act 5's opener, which is
+        /// NOT granted here: that act has yet to be built, and a vision
+        /// that promises a road is a better cliffhanger than a quest entry
+        /// pointing at nothing.
+        /// </summary>
+        private void TryFireFourthRush()
+        {
+            if (DialogueStateManager.Current.IsSet(Rush4Flag))
+            {
+                return;
+            }
+            ThingDef quiet = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_CrownShard_Undercell");
+            if (quiet == null)
+            {
+                return;
+            }
+            Pawn holder = null;
+            foreach (Pawn pawn in PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists)
+            {
+                if (HoldsShard(pawn, quiet))
+                {
+                    holder = pawn;
+                    break;
+                }
+            }
+            if (holder == null)
+            {
+                return;
+            }
+            Map map = holder.MapHeld;
+            if (map != null && GenHostility.AnyHostileActiveThreatToPlayer(map))
+            {
+                return;
+            }
+            if (Find.WindowStack.WindowOfType<Dialog_Conversation>() != null)
+            {
+                return;
+            }
+            DialogueStateManager.Current.Set(Rush4Flag);
+            DialogueDef rush = DefDatabase<DialogueDef>.GetNamedSilentFail("TSC_Dialogue_ShardRush4");
+            if (rush != null)
+            {
+                Find.WindowStack.Add(new Dialog_Conversation(rush, holder, holder));
+            }
+            act5Pending = true;
+        }
+
+        /// <summary>Act 5's curtain: the title card and the road east, once the vision closes.</summary>
+        private void OpenAct5IfPending()
+        {
+            if (!act5Pending)
+            {
+                return;
+            }
+            if (Find.WindowStack.WindowOfType<Dialog_Conversation>() != null)
+            {
+                return;
+            }
+            if (!PartySurfaced())
+            {
+                return;
+            }
+            act5Pending = false;
+            if (!DialogueStateManager.Current.IsSet("TSC_Act5CardShown"))
+            {
+                DialogueStateManager.Current.Set("TSC_Act5CardShown");
+                TSC_TitleCardManager.Show("Act 5", "The Barrow of the First King");
+            }
+            // The interruption first: the road east is where Serra and
+            // Oswin were taken. If BOTH are dead this campaign, that beat
+            // has no cast - go straight to the barrow.
+            GrantChainOpener(AnyRescuableCompanion() ? "TSC_Act5_RoadAmbush" : "TSC_Act5_Barrow");
+        }
+
+        private static bool AnyRescuableCompanion()
+        {
+            foreach (string defName in new[] { "TSC_Npc_Serra", "TSC_Npc_Oswin" })
+            {
+                NamedNpcDef def = DefDatabase<NamedNpcDef>.GetNamedSilentFail(defName);
+                if (def == null)
+                {
+                    continue;
+                }
+                Pawn pawn = DialogueStateManager.Current.GetNamedNpcIfExists(def);
+                // Never generated yet counts as available: the ambush is
+                // where this campaign meets them again.
+                if (pawn == null || (!pawn.Dead && pawn.Faction != Faction.OfPlayer))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>Act 4's curtain: the title card and the road to the monastery, once the vision closes.</summary>
+        private void OpenAct4IfPending()
+        {
+            if (!act4Pending)
+            {
+                return;
+            }
+            if (Find.WindowStack.WindowOfType<Dialog_Conversation>() != null)
+            {
+                return;
+            }
+            if (!PartySurfaced())
+            {
+                return;
+            }
+            act4Pending = false;
+            if (!DialogueStateManager.Current.IsSet("TSC_Act4CardShown"))
+            {
+                DialogueStateManager.Current.Set("TSC_Act4CardShown");
+                TSC_TitleCardManager.Show("Act 4", "The Silent Monastery");
+            }
+            GrantChainOpener("TSC_Act4_Monastery");
+        }
+
+        /// <summary>
+        /// SURFACE GATE: quest generation runs QuestNode_GetSiteTile from
+        /// the party's current map, and a pocket dungeon floor has tile -1
+        /// ("Attempted to access a tile with ID -1", seen live when the
+        /// vision fired in the reliquary). Hold each act's curtain until
+        /// someone stands under open sky; the act opens on the climb out.
+        /// </summary>
+        private static bool PartySurfaced()
+        {
+            foreach (Map m in Find.Maps)
+            {
+                if (m.mapPawns.FreeColonistsSpawnedCount > 0
+                    && TSC_Threat.RootMap(m) == m && m.Tile.Valid)
+                {
+                    return true;
+                }
+            }
+            // A party ON THE ROAD is above ground by definition: caravans
+            // have world tiles, and the party-rooted tile node anchors on
+            // them. Without this the grant stalls (journal empty) for as
+            // long as the party keeps riding.
+            foreach (RimWorld.Planet.Caravan caravan in Find.WorldObjects.Caravans)
+            {
+                if (caravan.IsPlayerControlled && caravan.Tile.Valid)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>Generate and auto-accept an act's opening quest, unless a live or won copy already exists.</summary>
+        private static void GrantChainOpener(string scriptDefName)
+        {
+            QuestScriptDef script = DefDatabase<QuestScriptDef>.GetNamedSilentFail(scriptDefName);
             if (script == null)
             {
                 return;
@@ -621,13 +910,28 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref lastStormTick, "lastStormTick", -999999);
             Scribe_Values.Look(ref titlePending, "titlePending");
             Scribe_Values.Look(ref act3Pending, "act3Pending");
+            Scribe_Values.Look(ref act4Pending, "act4Pending");
+            Scribe_Values.Look(ref act5Pending, "act5Pending");
             Scribe_Values.Look(ref splitHealed, "splitHealed");
+            Scribe_Collections.Look(ref commanded, "commanded", LookMode.Deep);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 if (lastCastTicks == null)
                 {
                     lastCastTicks = new Dictionary<string, int>();
                 }
+                if (commanded == null)
+                {
+                    commanded = new List<TSC_CommandedPawn>();
+                }
+                // A save made mid-command comes back with borrowed enemies
+                // still on the player's side. Hand them back immediately
+                // rather than trusting a timer across a reload.
+                for (int i = commanded.Count - 1; i >= 0; i--)
+                {
+                    ReleaseCommand(commanded[i], announce: false);
+                }
+                commanded.Clear();
                 // Pre-split saves tracked only Shardfall, in lastStormTick.
                 if (lastStormTick != -999999 && !lastCastTicks.ContainsKey("TSC_Ability_Shardfall"))
                 {
@@ -731,6 +1035,101 @@ namespace TheShatteredCrown
                 return false;
             }
             return base.Valid(target, throwMessages);
+        }
+    }
+
+    public class CompProperties_TSC_Command : CompProperties_AbilityEffect
+    {
+        public int durationTicks = 3600; // 60 seconds
+        public HediffDef markHediff;
+
+        public CompProperties_TSC_Command()
+        {
+            compClass = typeof(CompAbilityEffect_TSC_Command);
+        }
+    }
+
+    /// <summary>
+    /// The fourth shard's power: the crown speaks with a king's voice, and
+    /// one enemy obeys it for a minute.
+    ///
+    /// The target is moved to the player's faction, given a fresh lord, and
+    /// REGISTERED with the world tracker, which is what returns them. Doing
+    /// the revert on a world component rather than a hediff comp is
+    /// deliberate: the effect must end even if the pawn is downed, hauled
+    /// off, carried to another map, or the map is despawned mid-charm - a
+    /// permanently stolen enemy would break faction relations and quest
+    /// hostility counts (a site whose "all enemies defeated" signal can
+    /// never fire because one of them joined you).
+    /// </summary>
+    public class CompAbilityEffect_TSC_Command : CompAbilityEffect
+    {
+        public new CompProperties_TSC_Command Props => (CompProperties_TSC_Command)props;
+
+        public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
+        {
+            base.Apply(target, dest);
+            if (!(target.Thing is Pawn pawn) || pawn.Dead)
+            {
+                return;
+            }
+            TSC_ShardTracker.Current?.CommandPawn(pawn, Props.durationTicks, Props.markHediff);
+            TSC_ShardTracker.Current?.NoteCast(parent.def);
+            if (pawn.Spawned)
+            {
+                FleckMaker.ThrowMetaIcon(pawn.Position, pawn.Map, FleckDefOf.PsycastSkipInnerExit);
+                MoteMaker.ThrowText(pawn.DrawPos, pawn.Map, "Commanded", new UnityEngine.Color(1f, 0.9f, 0.55f));
+            }
+            Messages.Message($"{pawn.LabelShortCap} hears the crown and obeys.",
+                pawn, MessageTypeDefOf.PositiveEvent, historical: false);
+        }
+
+        public override bool Valid(LocalTargetInfo target, bool throwMessages = false)
+        {
+            Pawn pawn = target.Thing as Pawn;
+            if (pawn == null || pawn.Dead)
+            {
+                if (throwMessages)
+                {
+                    Messages.Message("The crown commands the living.", MessageTypeDefOf.RejectInput, historical: false);
+                }
+                return false;
+            }
+            if (!pawn.HostileTo(Faction.OfPlayer))
+            {
+                if (throwMessages)
+                {
+                    Messages.Message("They are not yours to take: the crown commands enemies.",
+                        MessageTypeDefOf.RejectInput, historical: false);
+                }
+                return false;
+            }
+            if (pawn.RaceProps.IsMechanoid)
+            {
+                if (throwMessages)
+                {
+                    Messages.Message("A machine has nothing to obey with.", MessageTypeDefOf.RejectInput, historical: false);
+                }
+                return false;
+            }
+            return base.Valid(target, throwMessages);
+        }
+    }
+
+    /// <summary>One enemy on loan: who they were, and when they go back.</summary>
+    public class TSC_CommandedPawn : IExposable
+    {
+        public Pawn pawn;
+        public Faction originalFaction;
+        public int endTick;
+        public HediffDef mark;
+
+        public void ExposeData()
+        {
+            Scribe_References.Look(ref pawn, "pawn");
+            Scribe_References.Look(ref originalFaction, "originalFaction");
+            Scribe_Values.Look(ref endTick, "endTick");
+            Scribe_Defs.Look(ref mark, "mark");
         }
     }
 

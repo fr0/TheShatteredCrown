@@ -249,6 +249,10 @@ def parse_effects(expr: str, path, lineno) -> list:
         elif name == "descend":
             # The keep's drain grate: the company drops into the undercellar.
             effects.append(Effect("DialogueEffect_TSC_Descend", {}))
+        elif name == "demoralize":
+            # Every hostile humanlike on the map takes Shaken (the Baron
+            # parley's Persuasion payoff).
+            effects.append(Effect("DialogueEffect_TSC_Demoralize", {}))
         elif name == "parley_hostile":
             # The npc's parley group (MapComponent_TSC_CryptParley) attacks.
             effects.append(Effect("DialogueEffect_TSC_ParleyHostile", {}))
@@ -346,7 +350,7 @@ def parse_effects(expr: str, path, lineno) -> list:
             effects.append(Effect("DialogueEffect_Affinity", fields))
         else:
             raise ParseError(path, lineno,
-                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, trade, grant_xp, learn_class, teach_class, grant_prof, affinity, parley_hostile, parley_flee, temple_heal, descend, lure)")
+                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, trade, grant_xp, learn_class, teach_class, grant_prof, affinity, parley_hostile, parley_flee, temple_heal, descend, lure, demoralize)")
     return effects
 
 

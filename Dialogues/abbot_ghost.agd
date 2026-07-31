@@ -1,0 +1,146 @@
+# Act 4's confrontation and rite. Fired once by
+# MapComponent_TSC_MonasteryGhost when a colonist approaches the chapel
+# altar AFTER the writings are assembled (TSC_MonWritingsRead).
+#
+# The abbot is the opposite of the doorkeeper: he speaks FLUENTLY. He
+# gave the vow; certainty pays his cost. The scene is his defense, the
+# player's judgment (which changes his last line, nothing else - the
+# dead are past saving), and then the rite: the truth of the house said
+# out loud, by voice, verse, or his own letter. Every path breaks the
+# vow; the checks color how it lands. The signal completes
+# TSC_Act4_SayItAloud and the flag unbars the undercell door.
+#
+# {PLAYER} is whoever walked up to the altar.
+
+dialogue TSC_Dialogue_AbbotGhost
+
+== start ==
+He is at the altar as if he had never left it: an old man in an abbot's habit, hands folded, more solid than the doorkeeper ever managed. When he speaks, the words come whole. The vow was never his to keep. It was his to give.
+
+"You have been reading my house," he says. "Then you know what I did. Say your piece, or let me say mine."
+
+* "Say yours." -> defense
+* "You killed them. Your own brothers." -> accuse
+* [Say nothing. Let the silence work on HIM for once.] -> silence
+
+== accuse ==
+"No." No heat in it. "The thing in the courier's pack killed them. I decided where they would die, and how much of the world they would take with them. Those were the choices on my desk. Show me the better choice I couldn't see and I will beg your pardon."
+
+He turns to the altar, and back.
+
+"Help would have come, if we rang. Armed help. And it would have left here carrying. You have carried pieces of that thing yourselves: tell me to my face that men who came to save us would have set it down again."
+
+* [You cannot.] -> defense
+* "You still chose for all of them." -> defense
+
+== silence ==
+The quiet stretches. He stands in it comfortably; it was his element long before it was his sentence. At last something in the old face gives.
+
+"The first visitors in eight hundred years," he says, "and they judge me by saying nothing. Mercy, or good aim. Let me say my piece."
+
+* [Listen.] -> defense
+
+== defense ==
+"A courier came to my gate dying, carrying a fifth of something that should never have been whole. Within a month my strongest were dreaming awake and my youngest were writing sins that were not sins. And my rule, MY rule, meant every man of them faced it alone."
+
+His folded hands tighten.
+
+"By the time I understood, half my house was in the ossuary. So I used what was left me. Quiet men are obedient men. I barred the gate. I cut the rope myself, so no weaker hour of mine could undo it. And I took the thing down to the undercell, laid it between the courier and the bier I meant for me, and stayed."
+
+He looks at {PLAYER}.
+
+"It held. Eight hundred years. Now you are here to take it, which means my house died for a delay. So before you judge: a delay that long is called an age, and ages are what mortal hands can actually buy. I bought one. Say what I did."
+
+* "You died between the wolf and the flock. It was well done." -> absolve
+* "You bought the age. But you spent men who never got a say. Both things are true." -> judge
+* "It was monstrous. Necessary, maybe. But monstrous." -> condemn
+
+== absolve ==
+Something goes out of the old shoulders.
+
+"Well done," he repeats, quietly, testing the words. "There was no one left to say it." He straightens. "Then finish it. The rule was mine to give and it is yours to break, and it breaks one way: the truth, said out loud, in this room. We could not. Do it for us."
+
+* [Speak the truth of the house.] -> rite
+
+== judge ==
+He nods slowly, a man hearing a fair sentence.
+
+"Both things are true. I have had eight hundred years to find the flaw in that, and I never did. Write it on my slate, if anyone ever cuts one." He gestures at the room. "Then finish it. The truth, out loud, where the words were owed. Say it for us."
+
+* [Speak the truth of the house.] -> rite
+
+== condemn ==
+"Monstrous," he agrees. "Necessary, certainly. I never confused the two. The monks of this house were murdered by a crown and buried by their abbot, and if there is a court past this one, I will answer there without complaint."
+
+He steps back from the altar, leaving it to the company.
+
+"But I cannot answer until the vow breaks, and it breaks one way: the truth, said out loud, in this room. We could not. You can."
+
+* [Speak the truth of the house.] -> rite
+
+== rite ==
+The candles are puddles and the light is the color of snow, but the room was built for one thing and it remembers how. The dead of the house are close now: not visible, but present, waiting on a word.
+
+How should it be said?
+
+* [Say it plainly, as to a room of brothers.] -> spoken
+    check Persuasion 8 -> spoken_well | spoken_rough
+* "Wren. Your song has needed its last verse for eight hundred years." -> sung
+    if in_party(TSC_Npc_Bard)
+* [Read the abbot's own letter aloud.] -> letter
+    check Lore 8 -> letter_well | spoken_rough
+    if flag(TSC_MonWriting_AbbotLetter)
+
+== spoken ==
+{PLAYER} stands where the reader stood at meals and says it.
+
+* [Continue.] -> spoken_well
+
+== spoken_well ==
+It comes out plain and whole: the courier and his burden. The humming each man hid from every other. The rule that made the hiding holy. The tallies wound down on purpose, the rope cut high, the gate barred, the last three niches sealed from inside. Said in order, in the room where words were owed, it is not a horror story. It is a garrison's honor roll.
+
+The house listens to the end.
+
+* [And the last word.] -> broken
+
+== spoken_rough ==
+It does not come out whole. The order tangles, names are missing, the middle has to be said twice. But it gets said, every hard part of it, out loud, by a living voice in this room. That turns out to be the entire requirement. The dead were monks, not critics.
+
+The house listens to the end.
+
+* [And the last word.] -> broken
+
+== sung ==
+Wren steps up beside the altar, and for once there is nothing performative in her.
+
+"The Quiet Brothers," she says. "The true last verse." She sings it: the courier on the winter road, the humming in the teeth, the brothers each alone in a full house, the knife at the bell rope, the niches sealed from within, the watch kept below. Her voice cracks once, and she lets it.
+
+The song her beggar carried up a cistern stair is finished now, on purpose.
+
+* [And the last word.] -> broken
+
+== letter ==
+{PLAYER} unfolds the letter the abbot sealed and never sent, and reads it aloud to the room it was always about.
+
+* [Continue.] -> letter_well
+
+== letter_well ==
+"Your Grace. I will never send this letter. I am writing it so that the truth exists somewhere, in my own hand." The abbot's own words, in a living voice, eight hundred years past their address. At the line about the bell rope, somewhere far above, metal shifts against wood. At "the house will die around it," the room is very quiet. At "I am doing it on purpose," the letter is finished, and so is the post it was written from.
+
+The abbot stands with his head bowed, hearing his own hand.
+
+* [And the last word.] -> broken
+
+== broken ==
+{PLAYER} says the last of it: "That is what happened to the Quiet Brothers. It is said now. Out loud. Rest."
+
+Far above, once, with no rope and no hand near it, the bell rings.
+
+The sound goes down through the house, and everywhere at the edge of seeing, the house lets go: the cloister, the cells, the galleries below. The abbot is the last. He bows once to the company, the full bow owed to guests.
+
+"The door below is open," he says. "Take it and go carefully. And whatever roads you walk..." Almost a smile. "...make a little noise on them."
+
+Gone. The chapel is only a room, and the house is only a house.
+
+* [Go down to the door.] -> end
+    do flag(TSC_MonasteryVowBroken); signal(TSC_Act4_SayItAloud, TSC_MonVowBroken); grant_xp(100)

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Act 5: The Barrow of the First King. Opened from code when the
+       fourth shard rush closes (TSC_ShardTracker): title card, then the
+       road. The act's first beat is an interruption - Serra and Oswin,
+       taken on the same road the party is walking, held at a bandit
+       camp. Rescue them and they throw in for the last act.
+       ================================================================ -->
+
+  <!-- The holding camp: whoever took them is small, mean, and did not
+       expect a company this size to come up the road behind them. -->
+  <SitePartDef>
+    <defName>TSC_RoadHolding</defName>
+    <label>bandits' holding camp</label>
+    <description>A camp off the road, thrown up in a hurry around a good haul: two prisoners worth more alive than the mules they were leading.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCamp</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCamp</expandingIconTexture>
+    <approachOrderString>Attack {0}</approachOrderString>
+    <approachingReportString>Approaching {0}.</approachingReportString>
+    <arrivedLetterDef>ThreatBig</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>200</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>true</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_RoadHolding</li>
+    </tags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Act5_RoadAmbush</whileQuestActive>
+        <noDetectionRaids>true</noDetectionRaids>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_RoadHolding_Camp</defName>
+    <linkWithSite>TSC_RoadHolding</linkWithSite>
+    <order>470</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Layout">
+      <layoutDef>TSC_Castle</layoutDef>
+      <size>28</size>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_RoadHolding_Guards</defName>
+    <linkWithSite>TSC_RoadHolding</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>5~7</count>
+      <scaledClamp>4~11</scaledClamp>
+      <kinds>
+        <li>TSC_Bandit_Brigand</li>
+        <li>TSC_Bandit_Archer</li>
+      </kinds>
+    </genStep>
+  </GenStepDef>
+
+  <!-- Both of them, if both are alive: the genstep skips the dead. -->
+  <GenStepDef>
+    <defName>TSC_RoadHolding_Captives</defName>
+    <linkWithSite>TSC_RoadHolding</linkWithSite>
+    <order>486</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Captive">
+      <npcs>
+        <li>TSC_Npc_Serra</li>
+        <li>TSC_Npc_Oswin</li>
+      </npcs>
+      <allFreedSignalQuest>TSC_Act5_RoadAmbush</allFreedSignalQuest>
+      <allFreedSignal>TSC_Act5_Rescued</allFreedSignal>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ================================================================
+       The barrow itself: the first king's grave, and the road's end.
+       The interior is Act 5 proper and is not built yet; arriving is
+       what the opening quest asks for.
+       ================================================================ -->
+
+  <SitePartDef>
+    <defName>TSC_FirstKingBarrow</defName>
+    <label>the Barrow of the First King</label>
+    <description>A long green mound on high ground, older than the kingdom that ended, with a stone throat facing the dawn. The crown was made for the man buried here. Every road the shards have drawn ends at this door.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</expandingIconTexture>
+    <approachOrderString>Travel to {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_FirstKingBarrow</li>
+    </tags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <noDetectionRaids>true</noDetectionRaids>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+</Defs>

@@ -1,0 +1,18 @@
+# The ossuary name-slates: success scene for BOTH reads of the spot
+# (dates and bones point at the same scene).
+
+dialogue TSC_Dialogue_MonSlates
+
+== start ==
+Centuries of name-slates: a burial every few years, old men dying old. Then the last winter shows up in the stonework. Four burials in one month. Six the next.
+
+* [Walk the row to its end.] -> endrow
+
+== endrow ==
+The stonework gets rougher toward the end of the row: fewer hands left to do the work, and weaker ones. The last three niches were sealed from the inside, by men who climbed in and pulled the slates shut after themselves.
+
+At the end of the row, one niche stands empty. Its slate was cut and never hung. The name on it is the abbot's.
+
+He is not buried here. He went further down, and stayed.
+
+* [Leave the brothers to their order.] -> end

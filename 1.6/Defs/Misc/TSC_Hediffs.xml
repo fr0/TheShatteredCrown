@@ -887,6 +887,27 @@
     </stages>
   </HediffDef>
 
+  <!-- The Bandit Baron's colors: a permanent overhead iron-crown mark so
+       the man himself is unmistakable across a crowded hall. Applied by
+       MapComponent_TSC_BaronParley the moment he is seen on a keep map,
+       which also retrofits saves that generated him before this existed. -->
+  <HediffDef>
+    <defName>TSC_Hediff_BaronMark</defName>
+    <hediffClass>HediffWithComps</hediffClass>
+    <label>the Bandit Baron</label>
+    <description>Five years of banners, and every one of them answers to this man.</description>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <initialSeverity>1</initialSeverity>
+    <defaultLabelColor>(0.85, 0.4, 0.35)</defaultLabelColor>
+    <comps>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_IronCrownMark</mote>
+        <offset>(0, 0, 0.78)</offset>
+      </li>
+    </comps>
+  </HediffDef>
+
   <!-- Cleric: Prayer of Mending. Wounds close on their own for half a
        minute; the regen comp reads severity as the caster's level factor,
        so a practiced cleric mends faster through the same prayer. -->

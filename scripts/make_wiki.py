@@ -110,7 +110,7 @@ def main():
              "three proficiencies (bonus: 1 + class level / 4 on checks). "
              "Learning a class needs its class book, or a companion who "
              "teaches it. Energy recovers with sleep. In turn-based combat, "
-             "cooldowns tick one round per turn: a 10s cooldown is every "
+             "cooldowns tick one round per turn (5s): a 10s cooldown is every "
              "other turn.", ""]
     for c in classes:
         label = title(c.findtext("label", "?"))

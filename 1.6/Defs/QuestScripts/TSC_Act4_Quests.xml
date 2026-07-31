@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Act 4: the Silent Monastery arc. Opened from code when the third
+       shard rush closes (TSC_ShardTracker): title card, then this quest.
+       This first quest is the journey; arriving completes it. The
+       monastery's own scenes are the rest of the act.
+       ================================================================ -->
+
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act4_Monastery</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Silent Monastery</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->The third shard showed a house of the old faith above the treeline: gate barred from the inside, beds made, bread gone to stone on the tables, and a room of books copied fair by hands that are all gone. Its kin waits there behind a closed door at the bottom of a stair.\n\nThe way is east along the old pilgrim road. Nothing living holds the house. The shard offered that as a comfort.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetPartySiteTile">
+          <storeAs>siteTile</storeAs>
+          <minDist>8</minDist>
+          <maxDist>16</maxDist>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_SilentMonastery</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.MapGenerated</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NeutralEvent</letterDef>
+                <label TKey="LetterLabelMonasteryArrived">The silent house</label>
+                <text TKey="LetterTextMonasteryArrived">The gate is exactly as the vision had it: barred from the inside, snow banked against timber nobody has opened in a lifetime. No smoke, no bell, no voices. The house stands whole on its shoulder of rock and does not acknowledge the company at all.\n\nThe brothers wrote everything down. Somewhere inside is what they knew, and behind a closed door at the bottom of a stair, what the shard wants.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>150</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- The investigation: granted by the doorkeeper's scene. Four of the
+       six writings tell the shape of it; the surface component counts
+       them and fires the signal. -->
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act4_QuietBrothers</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Quiet Brothers</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->The dead brother's plea was plain under the broken words: find out what happened to the house, and say it out loud.\n\nThe Quiet Brothers could not speak, so they wrote. Their story is still here, scattered through the house and the floors below it: confession slips, ledgers, a written wall, name-slates, a letter nobody sent. Read enough of it to know what happened.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MonWritingsRead</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NeutralEvent</letterDef>
+                <label TKey="LetterLabelWritingsRead">The shape of it</label>
+                <text TKey="LetterTextWritingsRead">A dying courier carried something in that could not be refused. It began to work on the brothers, and their own rule forbade the one thing that might have saved them: saying so. Each of them faced it alone, in silence, and wrote what he could not speak. And at the end, the ones still standing understood what they were keeping, and chose: bar the gate, cut the bell, let the house die around it so completely that nobody would ever come looking.\n\nIt should be said where the house can hear it. The chapel is where words were owed.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>200</xp>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                <questDef>TSC_Act4_SayItAloud</questDef>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- The rite: the abbot waits at his altar, and the truth gets said
+       out loud. His scene sends the signal when the words land. -->
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act4_SayItAloud</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Say It Aloud</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->The story is assembled and the house knows it. What remains is the thing the Quiet Brothers could never do: stand in the chapel and say, out loud, what happened here.\n\nGo to the altar. Someone will be waiting to hear it.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MonVowBroken</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelVowBroken">The bell</label>
+                <text TKey="LetterTextVowBroken">Far above, once, with no rope and no hand on it, the bell rings.\n\nThe door in the undercell stands open by a finger's width.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>250</xp>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                <questDef>TSC_Act4_Undercell</questDef>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- The undercell: down the last stair, through the open door. Completes
+       when the fourth shard is in hand and the floor is quiet - which it
+       always was. -->
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act4_Undercell</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Undercell Door</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->At the bottom of the last stair, the closed door from the vision is closed no longer.\n\nGo down and take the shard of the shattered crown.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+          <item>TSC_CrownShard_Undercell</item>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelQuietShard">Four of five</label>
+                <text TKey="LetterTextQuietShard">The fourth shard comes up off the chamber floor from between the two dead men who kept it.\n\nFour of five. The courier's strip said EAST, past the mountains, where the fifth road ends. The crown knows the way to the last of itself, and it is no longer pretending to be patient.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>400</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

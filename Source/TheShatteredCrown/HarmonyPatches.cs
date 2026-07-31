@@ -202,9 +202,22 @@ namespace TheShatteredCrown
             friendlyDisableApplied = true;
         }
 
-        private static bool IsShownFriendlyPrefix(MapComponent __instance, ref bool __result)
+        private static bool IsShownFriendlyPrefix(MapComponent __instance, int x, int z, ref bool __result)
         {
-            if (FriendlyRevealMap(__instance?.map))
+            Map map = __instance?.map;
+            // Bounds guard: RFoW's per-pawn hearing cache (nearByPawn) is
+            // refreshed every 200 ticks and never cleared on map change, so
+            // for a few seconds after a pawn crosses maps (the keep drain,
+            // the lure) it queries OLD-map positions against the NEW map's
+            // fog grid - IndexOutOfRange on our small pocket maps. An
+            // off-map cell is trivially "not shown"; the stale cache then
+            // rights itself on its own schedule.
+            if (map != null && ((uint)x >= (uint)map.Size.x || (uint)z >= (uint)map.Size.z))
+            {
+                __result = false;
+                return false;
+            }
+            if (FriendlyRevealMap(map))
             {
                 __result = true;
                 return false;
@@ -446,6 +459,38 @@ namespace TheShatteredCrown
                 && ___pawn != null && ___pawn.RaceProps.Humanlike
                 && ___pawn.Faction != null && ___pawn.Faction.IsPlayer
                 && TSC_ProgressionManager.Current.MaxEnergy(___pawn) > 0f;
+        }
+    }
+
+    /// <summary>
+    /// A thing that leaves its map without the despawn notification stays in
+    /// that map's tooltip giver list forever, and the list NREs on it every
+    /// OnGUI repaint (thing.Map is null by then) - the map interface dies
+    /// wholesale. Seen live after the keep-drain map moves; the leaker was
+    /// not identified from the stack, so this prunes stale entries before the
+    /// walk and NAMES them in the log, turning the next occurrence into a
+    /// one-line diagnosis instead of a broken UI.
+    /// </summary>
+    [HarmonyPatch(typeof(TooltipGiverList), nameof(TooltipGiverList.DispenseAllThingTooltips))]
+    public static class Patch_TooltipGiverList_PruneStale
+    {
+        private static readonly AccessTools.FieldRef<TooltipGiverList, List<Thing>> GiversField =
+            AccessTools.FieldRefAccess<TooltipGiverList, List<Thing>>("givers");
+
+        public static void Prefix(TooltipGiverList __instance)
+        {
+            List<Thing> givers = GiversField(__instance);
+            for (int i = givers.Count - 1; i >= 0; i--)
+            {
+                Thing thing = givers[i];
+                if (thing == null || !thing.Spawned || thing.Map == null)
+                {
+                    givers.RemoveAt(i);
+                    Log.Warning("[The Shattered Crown] Pruned stale tooltip giver: "
+                        + (thing == null ? "null" : thing.def?.defName + " \"" + thing.LabelCap + "\"")
+                        + " - it left the map without a despawn notification. Please report what preceded this.");
+                }
+            }
         }
     }
 }

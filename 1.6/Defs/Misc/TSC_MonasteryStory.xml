@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Act 4's investigation: the writings of the Quiet Brothers, and
+       what waits under the house. The story is told in six pieces,
+       found out of order; four are enough to know its shape
+       (MapComponent_TSC_MonasteryGhost counts them). The vow-of-silence
+       canon lives in Dialogues/monk_ghost.agd's header comment.
+       ================================================================ -->
+
+  <ThingDef Name="TSC_MonSpotBase" ParentName="BuildingBase" Abstract="True">
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>30</pathCost>
+    <fillPercent>0.3</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <statBases>
+      <MaxHitPoints>120</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+  </ThingDef>
+
+  <!-- ============================================ the six writings -->
+
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_MonWriting_Confessions</defName>
+    <label>confession slips</label>
+    <description>A box of paper scraps by the dormitory door, each folded twice: the house's one sanctioned outlet, written sins left for the abbot. The top layers are not sins in any usual sense.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BanditLedger</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+      <color>(220,212,190)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>6</dc>
+            <label>Read the confessions</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>30</successXp>
+            <successFlag>TSC_MonWriting_Confessions</successFlag>
+            <successDialogue>TSC_Dialogue_MonConfessions</successDialogue>
+            <successMessage>They are supposed to be confessions of sins. Instead, a dozen hands across one winter confess the same thing: I HEAR HUMMING. By the well. On the cellarium stair. In my teeth during prayers. None of them told each other; the rule kept it that way. The last slip, in a very neat hand: I no longer hear it. It hears me.</successMessage>
+            <failMessage>The slips crumble at a touch, ink to shadow. A few words survive: humming... stair... and on a firmer scrap, the word ALONE, underlined twice.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_MonWriting_Infirmary</defName>
+    <label>infirmary log</label>
+    <description>The infirmarer's book, open on its stand to the last winter, beside a bed made with corners that have outlasted the man who taught them.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BanditLedger</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+      <color>(190,170,140)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>6</dc>
+            <label>Read the log</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>30</successXp>
+            <successFlag>TSC_MonWriting_Infirmary</successFlag>
+            <successDialogue>TSC_Dialogue_MonInfirmary</successDialogue>
+            <successMessage>Midwinter: a pilgrim arrived half frozen, clutching a wrapped bundle he refused to let go of. Fever on the second day; he talked about a crown and about four other couriers on other roads. He died on the third morning, still holding it. Below, in a different hand: HIS EFFECTS TAKEN DOWN. PRIOR ALONE. Whatever he carried, the Prior took it below by himself.</successMessage>
+            <failMessage>Damp has fused the last winter into one grey brick of vellum. A margin survives: still holding.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_MonWriting_CellWall</defName>
+    <label>a written wall</label>
+    <description>A brother's cell, bed made, bowl inverted on the sill. Every reachable inch of the wall is written over in chalk, the lines packed close as weave.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_PrisonersMarks</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(200,200,205)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>6</dc>
+            <label>Read the wall</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>30</successXp>
+            <successFlag>TSC_MonWriting_CellWall</successFlag>
+            <successDialogue>TSC_Dialogue_MonCellWall</successDialogue>
+            <successMessage>It is the same evening prayer, written once a night for years, and over the years the words change. KEEP US QUIET, LORD becomes KEEP IT QUIET. Near the floor the prayer is gone entirely: just one word, once a night. Whole. The last line was written by somebody lying down: LET ME BE WHOLE. That is not a monk's prayer. That is the crown's wanting, coming out through a dying man's hand.</successMessage>
+            <failMessage>Chalk and eight hundred years do not keep. What remains is one word at floor height, and it might be WHOLE and it might be HOLE, and neither is good.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_MonWriting_AbbotLetter</defName>
+    <label>the abbot's unsent letter</label>
+    <description>A letter on the abbot's desk, folded, sealed, addressed to the Bishop of the old kingdom, and never given to any road. The sealing wax was pressed twice, as if the hand came back to make sure.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BanditLedger</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+      <color>(235,228,205)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>7</dc>
+            <label>Open the letter</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>40</successXp>
+            <successFlag>TSC_MonWriting_AbbotLetter</successFlag>
+            <successDialogue>TSC_Dialogue_MonAbbotLetter</successDialogue>
+            <successMessage>Your Grace. I will never send this letter. I am writing it so the truth exists somewhere, in my own hand. A pilgrim died in our infirmary carrying a piece of a crown, and since it came inside our walls my brothers have been sickening in their minds, one by one, each in silence. If I ring the bell, help will come: armed men, and one of them will leave carrying it. So: no bell, no letter, no help. I have barred the gate and cut the rope myself, so I cannot change my mind in a weak hour. The house will die around it, and the world will call it plague and stay away. I know exactly what I am doing, and I am doing it on purpose.</successMessage>
+            <failMessage>The wax crumbles but the ink has drowned. Two phrases surface: NO BELL, NO LETTER, NO HELP, and near the signature, ON PURPOSE.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_MonWriting_Tallies</defName>
+    <label>cellarer's tallies</label>
+    <description>The stores ledger, chained to its shelf the way valuable books are, in a storeroom where nothing has been valuable for a very long time.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_TallyLedger</texPath>
+      <drawSize>(1.1,1.1)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>6</dc>
+            <label>Read the tallies</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>30</successXp>
+            <successFlag>TSC_MonWriting_Tallies</successFlag>
+            <successDialogue>TSC_Dialogue_MonTallies</successDialogue>
+            <successMessage>A working house, in neat columns, for two hundred pages: grain in, candles in, wool in. Then the last winter, and the purchases stop on purpose: no candles, marked NOT NEEDED. No salt. No lamp oil. The final pages are not purchases at all. The cellarer counted everything the house had left and divided it by mouths and weeks: they knew exactly when the house would die, and wrote it down. The last line: we will not need the spring seed.</successMessage>
+            <failMessage>Rats have eaten the heart of the book. The spine holds one legible line, an entry near the end: NOT NEEDED.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_MonWriting_Slates</defName>
+    <label>ossuary name-slates</label>
+    <description>Burial niches in gallery rows, each sealed with a slate: a name, an office, a date in the old kingdom's reckoning. The galleries are full. The dates are the story.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_GravenStone</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(150,150,155)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>6</dc>
+            <label>Read the dates</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>30</successXp>
+            <successFlag>TSC_MonWriting_Slates</successFlag>
+            <successDialogue>TSC_Dialogue_MonSlates</successDialogue>
+            <successMessage>Centuries of name-slates: a burial every few years, old men dying old. Then the last winter shows up in the stonework: four burials in one month, six the next, the masonry getting rougher as fewer and weaker hands did the work. The last three niches were sealed from the inside, by men who climbed in and pulled the slates shut after themselves. One niche stands empty, its slate cut and never hung. The name on it is the abbot's. He is not buried here. He went further down, and stayed.</successMessage>
+            <failMessage>The slates have shed their letters. The shape of the story survives anyway: the niches crowd together at the end of the row like the last winter was in a hurry, and the final one gapes empty.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Survival</proficiency>
+            <dc>6</dc>
+            <label>Read the bones' order</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>30</successXp>
+            <successFlag>TSC_MonWriting_Slates</successFlag>
+            <successDialogue>TSC_Dialogue_MonSlates</successDialogue>
+            <successMessage>Read as remains rather than records: the early dead were laid by many hands. The late dead by few, then by two, and the last three sealed themselves in living; the bones do not let anyone pretend otherwise. One niche stands empty, its slate cut and never hung. The abbot's name. He is somewhere below, where the last stair goes.</successMessage>
+            <failMessage>Bones keep their counsel. Only the empty niche at the row's end says anything, and what it says is: one of them is not here.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ the extra bricks -->
+
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_MonSpot_BellTower</defName>
+    <label>the bell tower</label>
+    <description>The tower stair is sound but the ladder above is missing rungs, and the bell hangs in its wheel far overhead with no rope on the wheel at all.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_WatchPost</texPath>
+      <drawSize>(1.3,1.3)</drawSize>
+      <color>(140,135,125)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>9</dc>
+            <label>Climb to the bell</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>40</successXp>
+            <successFlag>TSC_MonBellSeen</successFlag>
+            <successMessage>The climb is bad and the belfry worse. The rope did not rot: it was cut, high, where it could not be reached from below, and the coil hung on a peg past the wheel. Somebody made certain that no brother, in whatever last hour, could weaken and ring for help. The bell itself is fine. It has just had nothing to say for eight hundred years.</successMessage>
+            <failMessage>The ladder sheds a rung and nearly a climber. From the highest safe step one detail resolves: the bell rope is not hanging where a bell rope hangs.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_MonSpot_Satchel</defName>
+    <label>the pilgrim's satchel</label>
+    <description>Among the stored effects of guests: one satchel apart from the others, oiled leather gone hard as wood, with a device worked into the flap that predates every kingdom on the current maps.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_StrewnBaggage</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(150,120,90)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>7</dc>
+            <label>Search the satchel</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>40</successXp>
+            <successFlag>TSC_MonSatchelRead</successFlag>
+            <successMessage>The device on the flap is the royal courier cipher: the dying pilgrim was a king's man, on a king's errand, eight hundred years after his king. Inside: a road warrant from a chancery that no longer exists, and a strip of vellum with five marks. Four are struck through. Under the fifth, one word in courier's shorthand: EAST, and a small drawing of mountains with a gap in them. He was not fleeing with his piece. He was delivering it, one of five couriers on five roads. Somewhere east through the mountains, the fifth road still has an end.</successMessage>
+            <failMessage>The leather has fused shut, and forcing it costs most of what it holds. A vellum strip survives: five marks, four struck through.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_MonSpot_PilgrimGraves</defName>
+    <label>pilgrim graves</label>
+    <description>Outside the wall, by the gate: a row of low mounds with road-stones for markers, the graves of people who arrived after the gate was barred. Somebody dug these, which is its own question, because it was not the monks.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_GraveMound</texPath>
+      <drawSize>(1.3,1.3)</drawSize>
+      <color>(130,125,110)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <sharedSpentGroup>TSC_PilgrimGraveRow</sharedSpentGroup>
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Survival</proficiency>
+            <dc>6</dc>
+            <label>Read the graves</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>30</successXp>
+            <successFlag>TSC_MonGravesSeen</successFlag>
+            <successDialogue>TSC_Dialogue_PilgrimGraves</successDialogue>
+            <successMessage>Seven mounds, dug over many years, not one winter: travelers who knocked, and waited, and died waiting in the season's teeth - and were buried by the NEXT travelers, who then waited in their turn. The last grave is shallow and one-handed work, the digger already weak. There is no eighth grave. Whoever dug the seventh walked away or lies somewhere unburied, and either way the road eventually learned: do not knock at the silent house.</successMessage>
+            <failMessage>Old mounds, old stones. However many they are, they all face the gate, like a queue that never moved.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_MonSpot_TwoBiers</defName>
+    <label>the two biers</label>
+    <description>Inside the sealed chamber: two stone biers, side by side. On one, a traveler laid out with honor, hands folded over nothing. On the other, an old man in an abbot's habit, laid out by no one, because there was no one left - he climbed up and folded his own hands.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_GrislyRemains</texPath>
+      <drawSize>(1.4,1.4)</drawSize>
+      <color>(170,165,155)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>6</dc>
+            <label>Pay respects, and read the room</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>40</successXp>
+            <successFlag>TSC_MonBiersSeen</successFlag>
+            <successMessage>The pilgrim was laid out by hands that honored him: washed, wrapped, his warrant folded under his fingers where a sword would go. The abbot laid himself: climbed onto the second bier alone, with the wrapped thing set on the floor between them. He took the last watch of his house. The dust says it was never disturbed. The watch held.</successMessage>
+            <failMessage>Two dead men and a room that wants quiet. It seems wisest to give it that.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ the cellarer's chest -->
+
+  <!-- What a house that counted itself down to nothing had no use for:
+       the tithe silver, the infirmary's reserve, the wool it never wove.
+       The tallies say the food went to zero ON PURPOSE, so the chest
+       holds no food. -->
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_MonasteryChest</defName>
+    <root Class="ThingSetMaker_RandomOption">
+      <options>
+        <li>
+          <weight>1</weight>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Silver</li>
+                </thingDefs>
+              </filter>
+              <countRange>50~110</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <weight>1</weight>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>MedicineHerbal</li>
+                </thingDefs>
+              </filter>
+              <countRange>5~10</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <weight>1</weight>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>Cloth</li>
+                </thingDefs>
+              </filter>
+              <countRange>30~60</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+  <ThingDef ParentName="AncientSealedCrateBase">
+    <defName>TSC_MonasteryChest</defName>
+    <label>cellarer's chest</label>
+    <description>A banded chest with its inventory chalked on the lid in a careful hand, the counts struck through one by one down to the last. What remains inside is whatever a dying house had no use for.</description>
+    <comps>
+      <li Class="CompProperties_LootSpawn">
+        <contents>TSC_Loot_MonasteryChest</contents>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <PrefabDef>
+    <defName>TSC_MonChestPrefab</defName>
+    <size>(1,1)</size>
+    <things>
+      <TSC_MonasteryChest>
+      </TSC_MonasteryChest>
+    </things>
+  </PrefabDef>
+
+  <!-- ============================================ the fourth shard -->
+
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_CrownShard_Undercell</defName>
+    <label>crown shard of the quiet</label>
+    <description>A broken fifth of a king's crown: a curve of band and one whole point, unworn and untouched, kept eight hundred years in the dark between two dead men who understood it. It is heavier than gold should be, and it is very, very pleased. One of five.\n\nIts gift has not yet spoken.</description>
+    <graphicData>
+      <texPath>Things/Item/TSC_CrownShard</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.9</drawSize>
+    </graphicData>
+    <techLevel>Medieval</techLevel>
+    <stackLimit>1</stackLimit>
+    <useHitPoints>false</useHitPoints>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <tradeability>None</tradeability>
+    <smeltable>false</smeltable>
+    <burnableByRecipe>false</burnableByRecipe>
+    <destroyOnDrop>false</destroyOnDrop>
+    <statBases>
+      <Mass>1.5</Mass>
+      <MarketValue>2500</MarketValue>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_ShardAbilityExtension">
+        <ability>TSC_Ability_Command</ability>
+      </li>
+    </modExtensions>
+  </ThingDef>
+
+  <!-- Command: the fourth shard's power. The crown speaks with a king's
+       voice and one enemy obeys it for a minute, then remembers whose side
+       they were on. The cooldown belongs to the SHARD (three days on the
+       world clock), so passing it around never resets it. -->
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_Command</defName>
+    <label>command</label>
+    <description>Speak to an enemy in the voice the crown was made for, and for sixty seconds they are yours: they turn, and they fight the people they came with. When the voice fades they remember whose side they were on, and they are not grateful. The shard allows this once in three days; carrying it is the only price.</description>
+    <iconPath>UI/TSC_Abilities/TSC_Command</iconPath>
+    <cooldownTicksRange>180000</cooldownTicksRange>
+    <statBases>
+      <Ability_Duration>60</Ability_Duration>
+    </statBases>
+    <hostile>true</hostile>
+    <verbProperties>
+      <warmupTime>1.5</warmupTime>
+      <range>23.9</range>
+      <targetParams>
+        <canTargetSelf>false</canTargetSelf>
+        <canTargetPawns>true</canTargetPawns>
+        <canTargetAnimals>true</canTargetAnimals>
+        <canTargetMechs>false</canTargetMechs>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Command">
+        <durationTicks>3600</durationTicks>
+        <markHediff>TSC_Hediff_Commanded</markHediff>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
+        <color>(1, 0.9, 0.55)</color>
+        <scale>1.6</scale>
+        <line>true</line>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <HediffDef>
+    <defName>TSC_Hediff_Commanded</defName>
+    <hediffClass>HediffWithComps</hediffClass>
+    <label>commanded</label>
+    <description>Hearing a voice that has been dead eight hundred years, and obeying it.</description>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <initialSeverity>1</initialSeverity>
+    <defaultLabelColor>(1, 0.9, 0.55)</defaultLabelColor>
+    <comps>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_IronCrownMark</mote>
+        <offset>(0, 0, 0.78)</offset>
+      </li>
+    </comps>
+  </HediffDef>
+
+  <!-- ============================================ the closed door -->
+
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_UndercellDoor</defName>
+    <label>the closed door</label>
+    <description>A door of grey wood bound in grey iron, at the bottom of the last stair, exactly where the vision stopped. There is no lock and no bar, and it does not open, because what holds a door like this shut is not carpentry.</description>
+    <thingClass>TheShatteredCrown.Building_TSC_UndercellDoor</thingClass>
+    <size>(1,1)</size>
+    <passability>Impassable</passability>
+    <fillPercent>1</fillPercent>
+    <blockLight>true</blockLight>
+    <holdsRoof>true</holdsRoof>
+    <useHitPoints>false</useHitPoints>
+    <rotatable>false</rotatable>
+    <selectable>true</selectable>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_SealedDoor</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+    </graphicData>
+    <building>
+      <isEdifice>true</isEdifice>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+  </ThingDef>
+
+  <JobDef>
+    <defName>TSC_OpenUndercellDoor</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_OpenUndercellDoor</driverClass>
+    <reportString>opening the door.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
+  <!-- ============================================ placement -->
+
+  <!-- Surface writings, each beside the furniture it belongs to. -->
+  <GenStepDef>
+    <defName>TSC_SilentMonastery_Writings</defName>
+    <linkWithSite>TSC_SilentMonastery</linkWithSite>
+    <order>488</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceAtFurniture">
+      <spots>
+        <li>
+          <def>TSC_MonWriting_Confessions</def>
+          <anchors>
+            <li>Shelf</li>
+            <li>Bookcase</li>
+          </anchors>
+        </li>
+        <li>
+          <def>TSC_MonWriting_Infirmary</def>
+          <anchors>
+            <li>Bed</li>
+            <li>Shelf</li>
+          </anchors>
+        </li>
+        <li>
+          <def>TSC_MonWriting_CellWall</def>
+          <anchors>
+            <li>Bed</li>
+          </anchors>
+        </li>
+        <li>
+          <def>TSC_MonWriting_AbbotLetter</def>
+          <anchors>
+            <li>Table1x2c</li>
+            <li>Bookcase</li>
+          </anchors>
+        </li>
+        <li>
+          <def>TSC_MonSpot_Satchel</def>
+          <anchors>
+            <li>Shelf</li>
+            <li>Bookcase</li>
+          </anchors>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The bell tower read keeps its own placement: it is not a book. -->
+  <GenStepDef>
+    <defName>TSC_SilentMonastery_BellSpot</defName>
+    <linkWithSite>TSC_SilentMonastery</linkWithSite>
+    <order>488</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <radius>22</radius>
+      <spots>
+        <li>
+          <def>TSC_MonSpot_BellTower</def>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The other six mounds. Any grave in the row can carry the read, but
+       the row is ONE opportunity: sharedSpentGroup spends them together. -->
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_PilgrimMound</defName>
+    <label>pilgrim grave</label>
+    <description>A low mound with a road-stone for a marker, facing the gate.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_GraveMound</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(125,120,105)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <sharedSpentGroup>TSC_PilgrimGraveRow</sharedSpentGroup>
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Survival</proficiency>
+            <dc>6</dc>
+            <label>Read the graves</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>30</successXp>
+            <successFlag>TSC_MonGravesSeen</successFlag>
+            <successDialogue>TSC_Dialogue_PilgrimGraves</successDialogue>
+            <successMessage>Seven mounds, dug over many years, not one winter: travelers who knocked, and waited, and died waiting in the season's teeth - and were buried by the NEXT travelers, who then waited in their turn. The last grave is shallow and one-handed work, the digger already weak. There is no eighth grave. Whoever dug the seventh walked away or lies somewhere unburied, and either way the road eventually learned: do not knock at the silent house.</successMessage>
+            <failMessage>Old mounds, old stones. However many they are, they all face the gate, like a queue that never moved.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- The graves, outside the wall by the gate: a row of seven, one of
+       which carries the read. -->
+  <GenStepDef>
+    <defName>TSC_SilentMonastery_Graves</defName>
+    <linkWithSite>TSC_SilentMonastery</linkWithSite>
+    <order>489</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_OutsideWallSpot">
+      <thingDef>TSC_MonSpot_PilgrimGraves</thingDef>
+      <rowDef>TSC_PilgrimMound</rowDef>
+      <rowCount>6</rowCount>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The chamber on the bottom floor. -->
+  <GenStepDef>
+    <defName>TSC_MonasteryUndercellChamber</defName>
+    <order>560</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_UndercellChamber" />
+  </GenStepDef>
+
+</Defs>

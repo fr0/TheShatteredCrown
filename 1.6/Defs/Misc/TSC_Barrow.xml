@@ -40,7 +40,7 @@
     </building>
     <portal>
       <pocketMapGenerator>TSC_BarrowUnderground</pocketMapGenerator>
-      <exitDef>CaveExit</exitDef>
+      <exitDef>TSC_StairsUp</exitDef>
       <pocketMapSize>75</pocketMapSize>
     </portal>
     <statBases>

@@ -27,7 +27,7 @@
     <canOverlapZones>false</canOverlapZones>
     <graphicData>
       <graphicClass>Graphic_Single</graphicClass>
-      <texPath>Things/Building/CaveEntranceA</texPath>
+      <texPath>Things/Building/TSC_StoneStairs</texPath>
       <drawSize>(3,3)</drawSize>
       <color>(105,110,120)</color>
     </graphicData>
@@ -52,6 +52,36 @@
     </inspectorTabs>
   </ThingDef>
 
+  <!-- The way back up, on every TSC pocket floor: vanilla CaveExit is "a
+       rope line to the surface", which is wrong for worked catacombs. Same
+       vanilla class and comps (the glow and the lightshafts are the point:
+       daylight down a stairwell), our ascending-stair art. -->
+  <ThingDef ParentName="PocketMapExit">
+    <defName>TSC_StairsUp</defName>
+    <label>stair up</label>
+    <description>A worked stone stair climbing toward daylight.</description>
+    <size>(3,3)</size>
+    <thingClass>CaveExit</thingClass>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_StoneStairsUp</texPath>
+      <drawSize>(3,3)</drawSize>
+    </graphicData>
+    <statBases>
+      <Flammability>0</Flammability>
+    </statBases>
+    <comps>
+      <li Class="CompProperties_Glower">
+        <glowRadius>10</glowRadius>
+        <glowColor>(140,160,184,0)</glowColor>
+      </li>
+      <li Class="CompProperties_Effecter">
+        <effecterDef>UndercaveMapExitLightshafts</effecterDef>
+      </li>
+    </comps>
+  </ThingDef>
+
   <!-- On the surface site: the cistern stairs Wren described. -->
   <ThingDef ParentName="TSC_CellarStairsBase">
     <defName>TSC_CisternStairs</defName>
@@ -60,13 +90,13 @@
     <size>(4,4)</size>
     <graphicData>
       <graphicClass>Graphic_Single</graphicClass>
-      <texPath>Things/Building/CaveEntranceA</texPath>
+      <texPath>Things/Building/TSC_StoneStairs</texPath>
       <drawSize>(4,4)</drawSize>
       <color>(105,110,120)</color>
     </graphicData>
     <portal>
       <pocketMapGenerator>TSC_Cellars_Undercroft</pocketMapGenerator>
-      <exitDef>CaveExit</exitDef>
+      <exitDef>TSC_StairsUp</exitDef>
       <pocketMapSize>90</pocketMapSize>
     </portal>
   </ThingDef>
@@ -77,7 +107,7 @@
     <description>A second stair, narrower than the first, cut straight down through the undercroft floor. The draft coming up it is dry, which after a floor of standing water is somehow worse.</description>
     <portal>
       <pocketMapGenerator>TSC_Cellars_Ossuary</pocketMapGenerator>
-      <exitDef>CaveExit</exitDef>
+      <exitDef>TSC_StairsUp</exitDef>
       <pocketMapSize>90</pocketMapSize>
     </portal>
   </ThingDef>
@@ -88,7 +118,7 @@
     <description>The last stair. It is dressed stone, not cut rock, and someone bothered to carve the risers: five of them, each with a road on it. The singing is not faint here.</description>
     <portal>
       <pocketMapGenerator>TSC_Cellars_Reliquary</pocketMapGenerator>
-      <exitDef>CaveExit</exitDef>
+      <exitDef>TSC_StairsUp</exitDef>
       <pocketMapSize>90</pocketMapSize>
     </portal>
   </ThingDef>
@@ -236,6 +266,7 @@
       <level>3</level>
       <layoutDef>TSC_Ossuary</layoutDef>
       <size>40</size>
+      <reliquary>true</reliquary>
       <occupants>
         <li>
           <weight>1</weight>

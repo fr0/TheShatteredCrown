@@ -194,6 +194,15 @@
   </ThingDef>
 
   <ThingDef ParentName="TSC_GlyphMarkBase">
+    <defName>TSC_Mote_IronCrownMark</defName>
+    <graphicData>
+      <texPath>Things/Mote/TSC_IronCrownMark</texPath>
+      <shaderType>Mote</shaderType>
+      <drawSize>0.5</drawSize>
+    </graphicData>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_GlyphMarkBase">
     <defName>TSC_Mote_MendCross</defName>
     <graphicData>
       <texPath>Things/Mote/TSC_MendCross</texPath>

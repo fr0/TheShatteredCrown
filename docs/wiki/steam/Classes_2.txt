@@ -1,7 +1,7 @@
 [h2]Ranger[/h2]
 [previewimg=46988249;sizeOriginal,floatLeft;class_ranger.png][/previewimg]
 
-The road's own child: tracker, archer, and field surgeon of last resort.
+The road's own child: tracker, archer, and expert of the wilds.
 
 
 [hr][/hr]
@@ -34,7 +34,7 @@ For 60 seconds the caster's ranged attacks come 35% faster and shooting accuracy
 [h2]Rogue[/h2]
 [previewimg=46988261;sizeOriginal,floatLeft;class_rogue.png][/previewimg]
 
-Locks, shadows, and knives in that order. Rogues go where they aren't invited and leave with what isn't theirs.
+Locks, shadows, and knives. Rogues go where they aren't invited and leave with what isn't theirs.
 
 
 [hr][/hr]

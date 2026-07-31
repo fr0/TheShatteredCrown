@@ -1,0 +1,74 @@
+# The fourth shard, out of the undercell (one-shot per save). Opened from
+# code (TSC_ShardTracker) the first time someone carries it and the
+# fighting is over; {PLAYER} is whoever lifted it off the chamber floor.
+#
+# This is the turn: the first three visions were the crown showing the
+# party where its kin lay. This one shows them what it wants them FOR.
+# The power it hands over is Command, and the scene makes clear that
+# what speaks through it is not the party.
+
+dialogue TSC_Dialogue_ShardRush4
+
+== start ==
+Four pieces in one pack, and the hum is no longer a hum. It is a chord, and it is pleased, and it has been waiting a long time to be this close to finished.
+
+The cold behind the breastbone is warm now. That is worse.
+
+* "Show us the fifth, then." -> ask
+* [Wrap it and walk out.] -> leave
+
+== leave ==
+{PLAYER} gets three steps toward the stair. The vision does not push. It waits, the way a door waits, and at the top of the stair it is still there, patient and entirely certain.
+
+There is no version of this where it does not get shown.
+
+* [Let it in.] -> ask
+
+== ask ==
+It does not show a place.
+
+For the first time in four acts, it shows a PERSON: a man on a road, seen from above and behind, walking with the unhurried stride of someone who has been walking for a very long time. He is carrying something wrapped, and around him the country is a country the party knows.
+
+He is close. He is coming this way. And the crown wants him found.
+
+* "Who is that?" -> who
+* "Is he carrying the fifth?" -> who
+
+== who ==
+No answer arrives, and the lack of one is deliberate; the shards have never been coy before. What comes instead is want, aimed at the man on the road, undisguised.
+
+Then, unbidden, something else: an understanding, laid into the mind like the road east was laid in before. The party knows how to use what they are carrying now. Speak with it, at someone who means you harm, and they will stop meaning it. For a minute. Because a crown said so.
+
+That is not a gift given to helpers. That is a tool handed to a hand it intends to keep using.
+
+* "It is arming us." -> armed
+* [Take the power anyway.] -> close
+
+== armed ==
+Four of five, and the thing has started outfitting its carriers.
+
+The monks understood this, and their answer was to wall it up with themselves. The Baron understood it and told himself he just wanted the armor. Every previous owner in this story worked out what the crown does to the people who hold it, and every one of them held onto it anyway.
+
+* [Take the power anyway.] -> close
+
+== close ==
+The vision lets go. The undercell is a stone room again, and the two dead men on their biers have finished a watch that lasted eight hundred years.
+
+Somewhere out there a man is walking a road with the last piece of this thing, and four fifths of a crown badly wants the party to meet him.
+
+* "Wren. It showed us a man this time." -> wren
+    if in_party(TSC_Npc_Bard)
+* [Take the road.] -> end
+    do grant_xp(25)
+
+== wren ==
+Wren does not answer straight away.
+
+"The songs never say what happened to the last courier," she says at last. "Four roads have endings. The fifth just stops." She looks at the wrapped bundle in {PLAYER}'s pack, and not kindly. "Maybe that is because he is still walking. Or maybe it is because whoever wrote the ending decided nobody should sing it."
+
+She shoulders her pack.
+
+"Either way, we are not the only ones looking for him now. We are just the ones being pointed."
+
+* [Take the road.] -> end
+    do grant_xp(25)

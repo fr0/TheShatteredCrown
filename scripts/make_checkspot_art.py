@@ -212,6 +212,32 @@ def make_bandit_ledger():
     save(img, "TSC_BanditLedger")
 
 
+def make_tally_ledger():
+    """The cellarer's tallies: a parchment of actual tally marks - four
+    strokes and a slash, group after group, and the count stopping."""
+    img, d = canvas()
+    _shadow(d)
+    d.polygon([(W(0.18), W(0.28)), (W(0.82), W(0.24)), (W(0.86), W(0.80)), (W(0.22), W(0.84))],
+              fill=(216, 202, 172, 255), outline=OUTLINE, width=LW)
+    d.line([W(0.18), W(0.28), W(0.22), W(0.84)], fill=WOOD_DARK, width=int(LW * 2))
+    lw = int(LW * 0.8)
+    rows = [(0.38, 3), (0.52, 3), (0.66, 2)]  # (y, complete groups)
+    for y, groups in rows:
+        x = 0.28
+        for g in range(groups):
+            for i in range(4):
+                sx = x + i * 0.035
+                d.line([W(sx), W(y), W(sx + 0.008), W(y + 0.09)], fill=INK, width=lw)
+            # The slash: fifth mark crossing the four.
+            d.line([W(x - 0.012), W(y + 0.075), W(x + 0.125), W(y + 0.012)], fill=INK, width=lw)
+            x += 0.19
+    # The last group was never finished: two strokes, no slash.
+    for i in range(2):
+        sx = 0.28 + 2 * 0.19 + i * 0.035
+        d.line([W(sx), W(0.66), W(sx + 0.008), W(0.75)], fill=INK, width=lw)
+    save(img, "TSC_TallyLedger")
+
+
 def make_grave_mound():
     img, d = canvas()
     _shadow(d)
@@ -461,6 +487,7 @@ if __name__ == "__main__":
     make_grisly_remains()
     make_watch_post()
     make_bandit_ledger()
+    make_tally_ledger()
     make_grave_mound()
     make_old_well()
     make_sealed_door()

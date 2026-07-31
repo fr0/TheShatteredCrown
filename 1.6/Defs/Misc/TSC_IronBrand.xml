@@ -81,9 +81,73 @@
     </comps>
   </AbilityDef>
 
+  <!-- The Baron's plate: five years of sleeping beside the shard soaked
+       into his iron. It weighs nothing to the wearer, turns steel like a
+       fortress wall, and holds warmth like a hearth stone - the one piece
+       of the hoard that was USED instead of counted. Unique: only the
+       Baron spawns in it, and it comes off him untainted (the iron does
+       not care who wears it; it has stopped caring about most things). -->
+  <ThingDef ParentName="ApparelBase">
+    <defName>TSC_Apparel_BaronPlate</defName>
+    <label>the Baron's plate</label>
+    <description>Overlapping plates of grey iron, mended by hands that knew how, worn every day for five years by a man who slept beside something that hums. The metal has learned things iron should not know: it sits on the shoulders like wool, sheds winter like a hearth stone, and turns a blade with a sound like a struck bell heard from far away.\n\nIt does not rust, and it does not care who wears it.</description>
+    <techLevel>Medieval</techLevel>
+    <smeltable>false</smeltable>
+    <graphicData>
+      <texPath>Things/Pawn/Humanlike/Apparel/PlateArmor/PlateArmor</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <color>(70,74,86)</color>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>360</MaxHitPoints>
+      <Mass>6</Mass>
+      <ArmorRating_Sharp>1.10</ArmorRating_Sharp>
+      <ArmorRating_Blunt>0.48</ArmorRating_Blunt>
+      <ArmorRating_Heat>0.55</ArmorRating_Heat>
+      <Insulation_Cold>40</Insulation_Cold>
+      <Insulation_Heat>8</Insulation_Heat>
+      <EquipDelay>10</EquipDelay>
+      <MarketValue>1850</MarketValue>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0</DeteriorationRate>
+    </statBases>
+    <equippedStatOffsets>
+      <!-- The magic is what is MISSING: plate's -0.8 move is not here.
+           The iron does not remember being heavy. -->
+      <PainShockThreshold>0.10</PainShockThreshold>
+    </equippedStatOffsets>
+    <thingCategories>
+      <li>ApparelArmor</li>
+    </thingCategories>
+    <tradeability>Sellable</tradeability>
+    <comps>
+      <li>
+        <compClass>CompQuality</compClass>
+      </li>
+    </comps>
+    <apparel>
+      <bodyPartGroups>
+        <li>Torso</li>
+        <li>Neck</li>
+        <li>Shoulders</li>
+        <li>Arms</li>
+        <li>Legs</li>
+      </bodyPartGroups>
+      <wornGraphicPath>Things/Pawn/Humanlike/Apparel/PlateArmor/PlateArmor</wornGraphicPath>
+      <layers>
+        <li>Middle</li>
+        <li>Shell</li>
+      </layers>
+      <careIfWornByCorpse>false</careIfWornByCorpse>
+    </apparel>
+    <colorGenerator Class="ColorGenerator_Single">
+      <color>(70,74,86)</color>
+    </colorGenerator>
+  </ThingDef>
+
   <!-- The Baron: the Iron Brand's lord, posted on his hoard with his
        bodyguard (GenStep_TSC_IronBrandHoard). Heavy melee, the best steel
-       banditry buys. -->
+       banditry buys, and his own plate on his back. -->
   <PawnKindDef ParentName="VillagerBase">
     <defName>TSC_IronBrandBaron</defName>
     <label>the Bandit Baron</label>
@@ -94,6 +158,9 @@
       <li>MedievalMeleeAdvanced</li>
     </weaponTags>
     <weaponMoney>500~800</weaponMoney>
+    <apparelRequired>
+      <li>TSC_Apparel_BaronPlate</li>
+    </apparelRequired>
   </PawnKindDef>
 
   <!-- The keep site. -->
@@ -603,13 +670,13 @@
     <size>(2,2)</size>
     <graphicData>
       <graphicClass>Graphic_Single</graphicClass>
-      <texPath>Things/Building/CaveEntranceA</texPath>
+      <texPath>Things/Building/TSC_StoneStairs</texPath>
       <drawSize>(2,2)</drawSize>
       <color>(120,112,98)</color>
     </graphicData>
     <portal>
       <pocketMapGenerator>TSC_Keep_Undercellar</pocketMapGenerator>
-      <exitDef>CaveExit</exitDef>
+      <exitDef>TSC_StairsUp</exitDef>
       <pocketMapSize>80</pocketMapSize>
     </portal>
   </ThingDef>
@@ -758,6 +825,15 @@
       </li>
     </comps>
   </ThingDef>
+
+  <!-- The push itself: ordered by right-click after the crates scene makes
+       the plan, so the company takes positions before the noise starts. -->
+  <JobDef>
+    <defName>TSC_TipCrates</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_TipCrates</driverClass>
+    <reportString>pushing the stack over.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
 
   <GenStepDef>
     <defName>TSC_KeepUndercellarCrates</defName>

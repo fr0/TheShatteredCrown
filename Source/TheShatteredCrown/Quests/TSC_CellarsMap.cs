@@ -199,6 +199,8 @@ namespace TheShatteredCrown
         public List<ThingDef> spots = new List<ThingDef>();
         /// <summary>Placed in a carved chamber at the deepest point (the delve's prize).</summary>
         public ThingDef lootDef;
+        /// <summary>Act 2's finale: the chorister, his altar, and the second shard. The Sunken Cellars' level 3 ONLY.</summary>
+        public bool reliquary;
 
         public override int SeedPart => 386612094 + level;
 
@@ -228,6 +230,8 @@ namespace TheShatteredCrown
                 map.roofGrid.SetRoof(cell, RoofDefOf.RoofRockThin);
             }
 
+            EnsureWayUp(map, rect);
+
             IntVec3 entry = MapGenerator.PlayerStartSpot;
             IntVec3 deepest = FarthestStandable(map, rect, entry);
 
@@ -256,14 +260,16 @@ namespace TheShatteredCrown
             PruneDormantPacks(map, rect, deepest);
             // On the reliquary floor the chorister is standing at `deepest`,
             // and insects are hostile to him as much as to the party. Keep
-            // the loose ones away from his chamber.
-            bool hasReliquary = !variableDepth && level >= 3;
-            SpawnOccupants(map, rect, entry, hasReliquary ? deepest : IntVec3.Invalid);
+            // the loose ones away from his chamber. EXPLICIT opt-in: the old
+            // "fixed depth, level 3" inference also described the monastery
+            // undercell, which got Aldis and a duplicate second shard
+            // dropped into Act 4 (seen live).
+            SpawnOccupants(map, rect, entry, reliquary ? deepest : IntVec3.Invalid);
             if (lootDef != null && (!variableDepth || isBottom))
             {
                 PlaceLoot(map, deepest);
             }
-            if (!variableDepth && level >= 3)
+            if (reliquary)
             {
                 map.GetComponent<MapComponent_TSC_Reliquary>()?.Build(deepest);
             }
@@ -484,6 +490,48 @@ namespace TheShatteredCrown
             }
             Thing loot = ThingMaker.MakeThing(lootDef, GenStuff.DefaultStuffFor(lootDef));
             GenPlace.TryPlaceThing(loot, spot, map, ThingPlaceMode.Near);
+        }
+
+        /// <summary>
+        /// The way back up, verified AFTER the floor exists. Vanilla's
+        /// PlaceCaveExit runs at order 400 - before this carve - and when
+        /// the rock grid leaves no standable cell, it drops the exit at the
+        /// map corner (and its out-of-bounds radial clear can kill the step
+        /// before the exit even spawns). Every floor of every cellar in the
+        /// mod uses this generator family, and a floor with no way up is a
+        /// tomb, so the exit is re-placed inside the carved rect whenever it
+        /// is missing, buried, or outside the floor proper. Runs during
+        /// pocket map generation, so the respawned exit pairs with its
+        /// portal through the normal SpawnSetup hook.
+        /// </summary>
+        private static void EnsureWayUp(Map map, CellRect rect)
+        {
+            Thing exit = TSC_KeepCellar.FindWayUp(map);
+            // Def check alongside the placement check: vanilla PlaceCaveExit
+            // hardcodes CaveExit, so a portal declaring a stair exit needs
+            // the spawned thing replaced, not just re-placed.
+            ThingDef wantDef = PocketMapUtility.currentlyGeneratingPortal?.def?.portal?.exitDef;
+            if (exit != null && (wantDef == null || exit.def == wantDef)
+                && TSC_KeepCellar.WayUpUsable(map, exit) && rect.Contains(exit.Position))
+            {
+                MapGenerator.PlayerStartSpot = exit.Position;
+                return;
+            }
+            Thing placed = TSC_KeepCellar.CutWayUp(map, PocketMapUtility.currentlyGeneratingPortal, exit);
+            if (placed == null)
+            {
+                // Even the carved floor had no 3x3 clearing (a dense layout
+                // roll): cut one by hand mid-floor and try once more.
+                foreach (IntVec3 cell in CellRect.CenteredOn(rect.CenterCell, 5, 5))
+                {
+                    CarveCell(map, cell);
+                }
+                placed = TSC_KeepCellar.CutWayUp(map, PocketMapUtility.currentlyGeneratingPortal, exit);
+            }
+            if (placed != null)
+            {
+                MapGenerator.PlayerStartSpot = placed.Position;
+            }
         }
 
         // ---------------------------------------------------------------- helpers

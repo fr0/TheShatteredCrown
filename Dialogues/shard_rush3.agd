@@ -1,0 +1,64 @@
+# The third shard rises from the Baron's hoard (one-shot per save). Opened
+# from code (TSC_ShardTracker) the first time someone carries it and the
+# keep's fighting is over; {PLAYER} is whoever lifted it from the pile.
+# Act 4 opens when this closes: the title card, then the road to the
+# Silent Monastery (TSC_Act4_Monastery).
+
+dialogue TSC_Dialogue_ShardRush3
+
+== start ==
+This one does not wait to be unwrapped. It starts in the hand.
+
+Three now. The hum is a chord, and under it the old cold satisfaction swells like a held breath let halfway out. Not whole, it does not say, because it does not use words. But closer.
+
+* [Let the vision come.] -> vision
+* [Make it wait until the wrappings are on.] -> wait
+
+== wait ==
+{PLAYER} winds the cloth tight, and the cold comes through anyway, patient as water finding a seam. It waited years at the bottom of a bandit's counting pile. It can wait out wool.
+
+The moment {PLAYER}'s attention loosens, it is there.
+
+* [Let it show, then.] -> vision
+
+== vision ==
+Stone again, but not a keep. A house on a mountain shoulder, walls whole, gate barred from the inside. A bell tower with the rope rotted off the wheel. Long halls of small doors, a chapel with the candles burned to puddles where they stood, and a room of books: shelf over shelf of them, copied steady by hands that are all gone.
+
+No fire. No voices. Nothing moves but snow off the roofline. And this time the vision does not narrow to a point of cold light. It narrows to a closed door at the bottom of a stair, and stops there, like a finger laid across lips.
+
+* "A monastery. Where are the monks?" -> monks
+* "What is behind the door?" -> door
+
+== monks ==
+The shard does not know, nor does not care. The stillness in the vision is total: bread gone to stone on the tables, beds made, gate barred from within. Whatever emptied the house was let in, or was already inside it.
+
+The certainty underneath is the same either way. The mountains east. The old pilgrim road. The house above the treeline: the Silent Monastery. Its kin waits there, behind the closed door, and nothing living holds it.
+
+Nothing living. The shard offers that as a comfort. It is not comforting.
+
+* [Mark the road east.] -> close
+
+== door ==
+The vision holds on the door and will not open it. From a thing that has spent three acts showing off its knowledge, the reticence says more than the showing ever did.
+
+What it will give is the way. The mountains east. The old pilgrim road. The house above the treeline: the Silent Monastery. Its kin waits behind that door, and nothing living holds it.
+
+Nothing living. The shard seems to think that is the good news.
+
+* [Mark the road east.] -> close
+
+== close ==
+The cold recedes to its usual weight behind the breastbone, and leaves the road east lying in the mind like a thing memorized years ago and only now recalled.
+
+* "Wren. A monastery with a barred gate and no monks. Any songs?" -> wren
+    if in_party(TSC_Npc_Bard)
+* [Wrap it with the others. Watch the east road.] -> end
+    do grant_xp(25)
+
+== wren ==
+Wren is quiet longer than she likes to be.
+
+"One. The Quiet Brothers. A house that took in every pilgrim, wrote down every story, and one winter stopped answering its bell. The song is all questions and no last verse; singers add their own, and none of them are good." She nods at the wrapped shard. "Every version agrees on this much: the brothers wrote everything down. If anyone alive or dead knows what that crown really is, it is shelved on that mountain."
+
+* [Wrap it with the others. Watch the east road.] -> end
+    do grant_xp(25)

@@ -44,7 +44,7 @@
     </building>
     <portal>
       <pocketMapGenerator>TSC_CryptUnderground</pocketMapGenerator>
-      <exitDef>CaveExit</exitDef>
+      <exitDef>TSC_StairsUp</exitDef>
       <pocketMapSize>90</pocketMapSize>
     </portal>
     <statBases>

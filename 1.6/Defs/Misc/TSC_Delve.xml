@@ -23,7 +23,7 @@
     <canOverlapZones>false</canOverlapZones>
     <graphicData>
       <graphicClass>Graphic_Single</graphicClass>
-      <texPath>Things/Building/CaveEntranceA</texPath>
+      <texPath>Things/Building/TSC_StoneStairs</texPath>
       <drawSize>(3,3)</drawSize>
       <color>(112,104,92)</color>
     </graphicData>
@@ -55,13 +55,13 @@
     <size>(4,4)</size>
     <graphicData>
       <graphicClass>Graphic_Single</graphicClass>
-      <texPath>Things/Building/CaveEntranceA</texPath>
+      <texPath>Things/Building/TSC_StoneStairs</texPath>
       <drawSize>(4,4)</drawSize>
       <color>(112,104,92)</color>
     </graphicData>
     <portal>
       <pocketMapGenerator>TSC_Delve_Level1</pocketMapGenerator>
-      <exitDef>CaveExit</exitDef>
+      <exitDef>TSC_StairsUp</exitDef>
       <pocketMapSize>90</pocketMapSize>
     </portal>
   </ThingDef>
@@ -72,7 +72,7 @@
     <description>A second flight, cut later and worse than the first. Whatever is using the lower works did not build this.</description>
     <portal>
       <pocketMapGenerator>TSC_Delve_Level2</pocketMapGenerator>
-      <exitDef>CaveExit</exitDef>
+      <exitDef>TSC_StairsUp</exitDef>
       <pocketMapSize>90</pocketMapSize>
     </portal>
   </ThingDef>
@@ -83,7 +83,7 @@
     <description>Another flight. The air coming up it is colder than the rock has any business being, and it moves, which means something down there is open to somewhere else.</description>
     <portal>
       <pocketMapGenerator>TSC_Delve_Level3</pocketMapGenerator>
-      <exitDef>CaveExit</exitDef>
+      <exitDef>TSC_StairsUp</exitDef>
       <pocketMapSize>90</pocketMapSize>
     </portal>
   </ThingDef>
@@ -94,7 +94,7 @@
     <description>A shaft rather than a stair, with rungs hammered into the rock by somebody in a hurry. Nothing about the works above suggested there was a floor under them, and yet here are the rungs, and they are worn.</description>
     <portal>
       <pocketMapGenerator>TSC_Delve_Level4</pocketMapGenerator>
-      <exitDef>CaveExit</exitDef>
+      <exitDef>TSC_StairsUp</exitDef>
       <pocketMapSize>90</pocketMapSize>
     </portal>
   </ThingDef>

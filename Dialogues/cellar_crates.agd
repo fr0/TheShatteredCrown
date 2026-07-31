@@ -3,10 +3,18 @@
 # afterwards. The company's answer to surfacing in a fully manned keep: make
 # a noise, fight the half that comes down here, climb into a thinner keep.
 #
+# The scene only MAKES the plan (and rolls the rigging). The push itself is
+# a separate right-click order on the crates (JobDriver_TSC_TipCrates), so
+# the company takes positions first and the noise starts on the player's
+# word, not when the dialogue closes.
+#
 # {PLAYER} is the one who walked up and spotted it.
 
 dialogue TSC_Dialogue_CellarCrates
 
+# Once the plan is made, reopening the scene must not re-roll the Thievery
+# check or re-plan; it just points at the waiting order.
+entry armed if flag(TSC_KeepCratesPlanned)
 # The lone-adventurer start has nobody to say it out loud to, so the scene
 # has a solo variant rather than a companion talking to an empty corridor.
 entry alone if party_size(<2)
@@ -28,23 +36,25 @@ A hand on the top crate. Not pushing yet.
 
 "So they send some down. Not all of them, they're not fools, but some. And they come down a stone stair into a dark corridor, in ones and twos, into us." A shrug. "It's not clever. It's just arithmetic. Every one that dies down here isn't up there when we come out."
 
-* "Do it." -> push
-    check Thievery 8 -> rigged | push
+* "Do it." -> ready
+    check Thievery 8 -> rigged | ready
 * "Too loud. We take our chances above." -> end
 
-== push ==
-The stack goes over.
+== ready ==
+"Then it goes over on your word." A hand flat against the crate that will start it, not pushing yet.
 
-* [Take positions and wait.] -> end
-    do lure(40); flag(TSC_KeepCratesTipped)
+"Put everyone where you want them standing when the Brand comes down that stair. Then give the word."
+
+* [Take positions first.] -> end
+    do flag(TSC_KeepCratesPlanned)
 
 == rigged ==
-{PLAYER} spends a minute on it first: a barrel set on its shoulder against the stack, a line of twine, the whole thing balanced to go over a slow count after everyone is clear and standing where they want to be standing.
+{PLAYER} spends a minute on it first: a barrel set on its shoulder against the stack, a line of twine, the whole thing balanced to go over on one pull from a safe corner.
 
-"Now they arrive to a room that's already ours."
+"Rigged. They will arrive to a room that is already ours. Put everyone where you want them, then give the word."
 
-* [Take positions and wait.] -> end
-    do lure(60); flag(TSC_KeepCratesTipped)
+* [Take positions first.] -> end
+    do flag(TSC_KeepCratesPlanned); flag(TSC_KeepCratesRigged)
 
 == alone ==
 Barrels and crates, stacked four high against the wall where the stair goes up. Salt fish, by the smell, and something that was flour once.
@@ -55,12 +65,27 @@ That lot goes over with a crash they will hear at the top. Some of them come dow
 
 Alone, that is either the best idea available or the last one. There is no third opinion coming.
 
-* [Push it over.] -> push_alone
-    check Thievery 8 -> rigged | push_alone
+* [Set it up.] -> ready_alone
+    check Thievery 8 -> rigged_alone | ready_alone
 * [Leave it. Go up quiet.] -> end
 
-== push_alone ==
-The stack goes over.
+== ready_alone ==
+The stack stays standing, one crate worked loose at the shoulder, a shove away from loud.
 
-* [Find an angle and wait.] -> end
-    do lure(40); flag(TSC_KeepCratesTipped)
+Find the angle first. Then the noise.
+
+* [Take a position first.] -> end
+    do flag(TSC_KeepCratesPlanned)
+
+== rigged_alone ==
+A minute of work: a barrel set on its shoulder against the stack, a line of twine, the whole thing balanced to go over on one pull from a safe corner.
+
+They will arrive to a corridor that is already an ambush. Pick the corner first.
+
+* [Take a position first.] -> end
+    do flag(TSC_KeepCratesPlanned); flag(TSC_KeepCratesRigged)
+
+== armed ==
+The stack stands where it was left: one push from loud, the plan already made. It only wants the word.
+
+* [Not yet.] -> end

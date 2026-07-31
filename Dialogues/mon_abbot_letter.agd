@@ -1,0 +1,28 @@
+# The abbot's unsent letter: success scene for the writing spot.
+# The same letter is read ALOUD at the rite (abbot_ghost.agd); the
+# quotes there must match this text.
+
+dialogue TSC_Dialogue_MonAbbotLetter
+
+== start ==
+The wax parts. The hand inside is firm and even.
+
+"Your Grace. I will never send this letter. I am writing it so that the truth exists somewhere, in my own hand."
+
+"A pilgrim died in our infirmary this winter. He was carrying a piece of a crown. Since it came inside our walls, my brothers have been sickening in their minds, one by one, each in silence. The thing wants to be found, carried, and made whole. Anyone who holds it long enough will want that too."
+
+* [Read on.] -> on
+
+== on ==
+"If I ring the bell, help will come. Armed men. And when they leave, one of them will be carrying it. I will not allow that. So: no bell, and no letter, and no help."
+
+"I have barred the gate. I cut the bell rope myself, so that I cannot change my mind in some weak hour. We will keep the thing here, the house will die around it, and the world will call it a plague and stay away."
+
+* [Finish it.] -> finish
+
+== finish ==
+"I do not ask forgiveness. I know exactly what I am doing, and I am doing it on purpose."
+
+{PLAYER} folds the letter along its old creases and sets it back on the desk.
+
+* [Leave it addressed to nobody.] -> end

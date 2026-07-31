@@ -23,6 +23,22 @@ namespace TheShatteredCrown
         public string label;
         public string successMessage;
         public string failMessage;
+        /// <summary>
+        /// A DialogueDef opened on success instead of the message toast -
+        /// for reads that deserve a scene (the pilgrim graves). The
+        /// successMessage remains as the fallback if the def is missing.
+        /// </summary>
+        public string successDialogue;
+
+        /// <summary>
+        /// A failed attempt does not spend the spot; it starts a retry
+        /// cooldown instead. For content that must never be LOST to a die
+        /// roll, only delayed - the monastery writings are the story of the
+        /// act, and a bad night's reading should mean coming back by better
+        /// light, not a hole in the plot.
+        /// </summary>
+        public bool failAllowsRetry;
+        public float retryHours = 8f;
 
         /// <summary>Success: open the parent (IOpenable crates), remove it (cleared obstacle), XP to the roller.</summary>
         public bool successOpens;
@@ -104,6 +120,13 @@ namespace TheShatteredCrown
     {
         public List<TSC_CheckApproach> approaches = new List<TSC_CheckApproach>();
 
+        /// <summary>
+        /// Spots sharing this key are ONE opportunity: resolving any of them
+        /// spends them all (the pilgrim grave row - seven graves, one read,
+        /// not seven retries of the same roll).
+        /// </summary>
+        public string sharedSpentGroup;
+
         public CompProperties_TSC_CheckSpot()
         {
             compClass = typeof(Comp_TSC_CheckSpot);
@@ -138,15 +161,35 @@ namespace TheShatteredCrown
             }
         }
 
+        public string RetryKey(int approachIndex)
+        {
+            string anchor = Props.sharedSpentGroup.NullOrEmpty() ? parent.ThingID : Props.sharedSpentGroup;
+            return "TSC_SpotRetry_" + anchor + "_" + approachIndex;
+        }
+
+        public bool CoolingDown(int approachIndex)
+        {
+            return DialogueStateManager.Current.IsCoolingDown(RetryKey(approachIndex));
+        }
+
         public void Resolve(Pawn pawn, int approachIndex)
         {
-            if (spent || approachIndex < 0 || approachIndex >= Props.approaches.Count)
+            if (spent || approachIndex < 0 || approachIndex >= Props.approaches.Count
+                || CoolingDown(approachIndex))
             {
                 return;
             }
-            spent = true;
             TSC_CheckApproach approach = Props.approaches[approachIndex];
             bool success = TSC_CheckUtility.Roll(pawn, approach.proficiency, approach.dc, out string line);
+            if (success || !approach.failAllowsRetry)
+            {
+                spent = true;
+                SpendGroup();
+            }
+            else
+            {
+                DialogueStateManager.Current.StartRetryCooldown(RetryKey(approachIndex), approach.retryHours);
+            }
             if (success)
             {
                 if (approach.successXp > 0)
@@ -179,8 +222,18 @@ namespace TheShatteredCrown
                 {
                     DialogueStateManager.Current.Set(approach.successFlag);
                 }
-                string text = approach.successMessage.NullOrEmpty() ? "It gives." : approach.successMessage;
-                Messages.Message($"{line}\n{text}", parent, MessageTypeDefOf.PositiveEvent, historical: false);
+                DialogueDef scene = approach.successDialogue.NullOrEmpty() ? null
+                    : DefDatabase<DialogueDef>.GetNamedSilentFail(approach.successDialogue);
+                if (scene != null)
+                {
+                    Messages.Message(line, parent, MessageTypeDefOf.PositiveEvent, historical: false);
+                    Find.WindowStack.Add(new Dialog_Conversation(scene, pawn, pawn));
+                }
+                else
+                {
+                    string text = approach.successMessage.NullOrEmpty() ? "It gives." : approach.successMessage;
+                    Messages.Message($"{line}\n{text}", parent, MessageTypeDefOf.PositiveEvent, historical: false);
+                }
                 if (approach.successRemoves && parent.Spawned)
                 {
                     parent.Destroy();
@@ -210,9 +263,33 @@ namespace TheShatteredCrown
                 DialogueStateManager.Current.Set(approach.failFlag);
             }
             string failText = approach.failMessage.NullOrEmpty() ? "It holds." : approach.failMessage;
+            if (approach.failAllowsRetry)
+            {
+                failText += " Try again later with fresh eyes.";
+            }
             Messages.Message($"{line}\n{failText}", parent,
                 approach.failWakesDormant ? MessageTypeDefOf.ThreatSmall : MessageTypeDefOf.NeutralEvent,
                 historical: false);
+        }
+
+        private void SpendGroup()
+        {
+            if (Props.sharedSpentGroup.NullOrEmpty() || parent.MapHeld == null)
+            {
+                return;
+            }
+            foreach (Thing thing in parent.MapHeld.listerThings.AllThings)
+            {
+                if (thing == parent)
+                {
+                    continue;
+                }
+                Comp_TSC_CheckSpot other = thing.TryGetComp<Comp_TSC_CheckSpot>();
+                if (other != null && other.Props.sharedSpentGroup == Props.sharedSpentGroup)
+                {
+                    other.spent = true;
+                }
+            }
         }
 
         private static void WakeDormantNear(Thing source)
@@ -274,6 +351,12 @@ namespace TheShatteredCrown
                 TSC_CheckApproach approach = approaches[i];
                 if (approach.proficiency == null)
                 {
+                    continue;
+                }
+                if (spot.CoolingDown(i))
+                {
+                    yield return new FloatMenuOption(
+                        $"{approach.label} (nothing new in it yet; come back later)", null);
                     continue;
                 }
                 int index = i;

@@ -3,6 +3,7 @@ using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 using Verse.AI.Group;
 
 namespace TheShatteredCrown
@@ -84,6 +85,142 @@ namespace TheShatteredCrown
             }
             AccessTools.Method(typeof(MapPortal), "GeneratePocketMap")?.Invoke(stair, null);
             return stair.PocketMap;
+        }
+
+        /// <summary>The floor's way back up, if it has one.</summary>
+        public static Thing FindWayUp(Map cellar)
+        {
+            foreach (Thing thing in cellar.listerThings.AllThings)
+            {
+                if (thing is PocketMapExit)
+                {
+                    return thing;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// An exit somebody can actually stand at: nothing built over it,
+        /// and at least one standable cell beside it. Vanilla's
+        /// PlaceCaveExit runs before the floor is carved, so on a bad rock
+        /// roll the exit lands at the map corner inside solid stone.
+        /// </summary>
+        public static bool WayUpUsable(Map cellar, Thing exit)
+        {
+            if (exit == null || !exit.Spawned)
+            {
+                return false;
+            }
+            foreach (IntVec3 cell in exit.OccupiedRect())
+            {
+                if (!cell.InBounds(cellar))
+                {
+                    return false;
+                }
+                Building edifice = cell.GetEdifice(cellar);
+                if (edifice != null && edifice != exit)
+                {
+                    return false;
+                }
+            }
+            foreach (IntVec3 cell in GenAdj.CellsAdjacent8Way(exit))
+            {
+                if (cell.InBounds(cellar) && cell.Standable(cellar))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Cut a fresh way up (or dig out a buried one). PocketMapExit pairs
+        /// itself to its portal through PocketMapUtility.currentlyGeneratingPortal
+        /// in SpawnSetup, so that hook is borrowed for the respawn - which is
+        /// also why this works both during map generation (the hook is already
+        /// set) and as a save repair (we set it ourselves).
+        /// </summary>
+        public static Thing CutWayUp(Map cellar, MapPortal entrance, Thing buried)
+        {
+            IntVec3 cell = ExitSpot(cellar);
+            if (!cell.IsValid)
+            {
+                return null;
+            }
+            if (buried != null && buried.Destroyed)
+            {
+                buried = null;
+            }
+            // The portal's declared exit, not vanilla's: PlaceCaveExit
+            // hardcodes CaveExit and never reads portal.exitDef, so the
+            // def swap (rope line -> stone stair) happens here. DeSpawn,
+            // not Destroy: exits are destroyable=false, and a despawned
+            // unreferenced thing simply never reaches the save.
+            ThingDef wantDef = entrance?.def?.portal?.exitDef ?? ThingDefOf.CaveExit;
+            if (buried != null && buried.def != wantDef)
+            {
+                if (buried.Spawned)
+                {
+                    buried.DeSpawn();
+                }
+                buried = null;
+            }
+            MapPortal remembered = PocketMapUtility.currentlyGeneratingPortal;
+            PocketMapUtility.currentlyGeneratingPortal = entrance ?? remembered;
+            Thing exit;
+            try
+            {
+                if (buried != null)
+                {
+                    buried.DeSpawn();
+                    exit = GenSpawn.Spawn(buried, cell, cellar);
+                }
+                else
+                {
+                    exit = GenSpawn.Spawn(ThingMaker.MakeThing(wantDef), cell, cellar);
+                }
+            }
+            finally
+            {
+                PocketMapUtility.currentlyGeneratingPortal = remembered;
+            }
+            Log.Message("[The Shattered Crown] Cellar way up was missing or buried; a cave exit was cut at " + cell + ".");
+            return exit;
+        }
+
+        /// <summary>A 3x3 standable, unbuilt clearing, as central as the floor offers.</summary>
+        private static IntVec3 ExitSpot(Map cellar)
+        {
+            IntVec3 best = IntVec3.Invalid;
+            float bestScore = float.MinValue;
+            foreach (IntVec3 cell in cellar.AllCells)
+            {
+                if (cell.DistanceToEdge(cellar) < 4)
+                {
+                    continue;
+                }
+                bool clear = true;
+                foreach (IntVec3 part in GenAdj.OccupiedRect(cell, Rot4.North, new IntVec2(3, 3)))
+                {
+                    if (!part.InBounds(cellar) || !part.Standable(cellar) || part.GetEdifice(cellar) != null)
+                    {
+                        clear = false;
+                        break;
+                    }
+                }
+                if (!clear)
+                {
+                    continue;
+                }
+                float score = -cell.DistanceTo(cellar.Center);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = cell;
+                }
+            }
+            return best;
         }
 
         /// <summary>
@@ -179,28 +316,45 @@ namespace TheShatteredCrown
             Map cellar = TSC_KeepCellar.EnsureCellar(stair);
             if (cellar == null)
             {
+                // The message is deliberately diegetic; the log carries the
+                // actual reason, because "sometimes choked" is undebuggable
+                // from the message alone.
+                Log.Warning("[The Shattered Crown] Drain descent failed: "
+                    + (stair == null ? "no stair could be placed in the keep."
+                        : "the stair exists but the pocket map did not generate."));
                 Messages.Message("The drain is choked solid. There is no way down here.",
                     MessageTypeDefOf.RejectInput, historical: false);
                 return;
             }
             // NEVER send anyone down a one-way trip into a map with no way
-            // up. If the cellar generated without its stair, the grate is
-            // simply choked and the company walks to the gate instead.
-            Thing stairUp = null;
-            foreach (Thing thing in cellar.listerThings.AllThings)
+            // up. Vanilla's PlaceCaveExit can lose the exit on a bad rock
+            // roll (it runs before the floor is carved), so a missing or
+            // buried way up is REPAIRED here rather than reported.
+            Thing stairUp = TSC_KeepCellar.FindWayUp(cellar);
+            if (!TSC_KeepCellar.WayUpUsable(cellar, stairUp))
             {
-                if (thing is PocketMapExit)
-                {
-                    stairUp = thing;
-                    break;
-                }
+                stairUp = TSC_KeepCellar.CutWayUp(cellar, stair, stairUp);
             }
             IntVec3 arrival = TSC_KeepCellar.FarSide(cellar);
             if (stairUp == null || !arrival.IsValid)
             {
+                Log.Warning("[The Shattered Crown] Drain descent failed: cellar generated but "
+                    + (stairUp == null ? "no way up could be placed." : "no standable arrival cell was found."));
                 Messages.Message("The drain is choked solid a little way in. There is no way through here.",
                     MessageTypeDefOf.RejectInput, historical: false);
                 return;
+            }
+            // If the far side cannot walk to the stair (a sealed-off layout
+            // roll), arrive beside the stair instead: a short cellar beats
+            // a tomb.
+            if (!cellar.reachability.CanReach(arrival, stairUp.Position, PathEndMode.Touch,
+                TraverseParms.For(TraverseMode.PassDoors)))
+            {
+                IntVec3 near = CellFinder.StandableCellNear(stairUp.Position, cellar, 8f);
+                if (near.IsValid)
+                {
+                    arrival = near;
+                }
             }
             List<Pawn> going = new List<Pawn>();
             foreach (Pawn pawn in surface.mapPawns.AllPawnsSpawned)
@@ -216,6 +370,9 @@ namespace TheShatteredCrown
                 IntVec3 cell = CellFinder.StandableCellNear(arrival, cellar, 8f);
                 pawn.DeSpawn();
                 GenSpawn.Spawn(pawn, cell.IsValid ? cell : arrival, cellar);
+                // Pawns crossing maps: rebuild the render tree or they draw
+                // as a null-key exception (same fix as the lure below).
+                pawn.Drawer?.renderer?.SetAllGraphicsDirty();
                 first = first ?? pawn;
             }
             if (first != null)
@@ -273,6 +430,25 @@ namespace TheShatteredCrown
                 return;
             }
             GenStep_TSC_PlaceInStructure.EnsureRooms(map);
+            // This step runs after the guards are posted (order 492 against
+            // their 483), so it can see exactly where they are standing.
+            List<IntVec3> hostiles = new List<IntVec3>();
+            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+            {
+                if (!pawn.Dead && !pawn.Downed && pawn.HostileTo(Faction.OfPlayer))
+                {
+                    hostiles.Add(pawn.Position);
+                }
+            }
+            // First choice, and a GUARANTEE when it lands: a proper back
+            // room - enclosed, doored, small enough to be a store rather
+            // than a hall, and containing not one member of the garrison.
+            IntVec3 backRoom = BackRoomSpot(map, stairDef, hostiles);
+            if (backRoom.IsValid)
+            {
+                GenSpawn.Spawn(ThingMaker.MakeThing(stairDef), backRoom, map);
+                return;
+            }
             List<IntVec3> indoors = new List<IntVec3>();
             foreach (IntVec3 cell in map.AllCells)
             {
@@ -301,23 +477,28 @@ namespace TheShatteredCrown
             }
             if (indoors.Count == 0)
             {
+                // Truly nothing inside the masonry (tiny keep, or the walls
+                // themselves are gone). The stair still has to exist - a
+                // missing stair is a permanently choked drain on this save -
+                // so take any standable ground away from the map edge.
+                foreach (IntVec3 cell in map.AllCells)
+                {
+                    if (cell.DistanceToEdge(map) >= 12 && cell.Standable(map)
+                        && cell.GetEdifice(map) == null)
+                    {
+                        indoors.Add(cell);
+                    }
+                }
+            }
+            if (indoors.Count == 0)
+            {
                 Log.Warning("[The Shattered Crown] Keep generated with nowhere to put the cellar stair.");
                 return;
             }
-            // Somewhere the garrison is NOT. This step runs after the guards
-            // are posted (order 492 against their 483), so it can see exactly
-            // where they are standing - and the first version did not look,
+            // Somewhere the garrison is NOT - the first version did not look,
             // which put the stair in a barracks and surfaced the company in
             // the middle of eleven Brand. The whole promise of a back way is
             // arriving behind the defence, not inside it.
-            List<IntVec3> hostiles = new List<IntVec3>();
-            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
-            {
-                if (!pawn.Dead && !pawn.Downed && pawn.HostileTo(Faction.OfPlayer))
-                {
-                    hostiles.Add(pawn.Position);
-                }
-            }
             if (hostiles.Count > 0)
             {
                 List<IntVec3> quiet = new List<IntVec3>();
@@ -342,11 +523,179 @@ namespace TheShatteredCrown
             // up in his lap would make the drain a cheat rather than a way
             // past the gate.
             indoors.Sort((a, b) => a.DistanceToEdge(map).CompareTo(b.DistanceToEdge(map)));
-            GenSpawn.Spawn(ThingMaker.MakeThing(stairDef), indoors[indoors.Count * 2 / 3], map);
+            Thing stair = GenSpawn.Spawn(ThingMaker.MakeThing(stairDef), indoors[indoors.Count * 2 / 3], map);
+            // No usable back room stood anywhere in the keep, so build one:
+            // the guarantee is walls and a door, not a hopeful distance.
+            EncloseStair(map, stair, hostiles);
+        }
+
+        /// <summary>
+        /// A store-not-a-hall to surface in: enclosed, reachable through a
+        /// door, small, and containing no member of the garrison. Among the
+        /// candidates, the quietest (farthest from any posted guard) wins,
+        /// with a nudge toward smaller rooms. Returns the stair spot inside
+        /// it, or Invalid when the keep rolled no such room. Internal: the
+        /// stair-heal component reuses it to relocate old-save stairs.
+        /// </summary>
+        internal static IntVec3 BackRoomSpot(Map map, ThingDef stairDef, List<IntVec3> hostiles)
+        {
+            IntVec3 best = IntVec3.Invalid;
+            float bestScore = float.MinValue;
+            foreach (Room room in map.regionGrid.AllRooms)
+            {
+                if (room.PsychologicallyOutdoors || room.IsHuge || room.TouchesMapEdge
+                    || room.CellCount < 16 || room.CellCount > 140)
+                {
+                    continue;
+                }
+                bool garrisoned = false;
+                foreach (IntVec3 cell in room.Cells)
+                {
+                    List<Thing> things = cell.GetThingList(map);
+                    for (int i = 0; i < things.Count; i++)
+                    {
+                        if (things[i] is Pawn occupant && !occupant.Dead
+                            && occupant.HostileTo(Faction.OfPlayer))
+                        {
+                            garrisoned = true;
+                            break;
+                        }
+                    }
+                    if (garrisoned)
+                    {
+                        break;
+                    }
+                }
+                if (garrisoned || !HasDoor(room, map))
+                {
+                    continue;
+                }
+                IntVec3 spot = SpotInRoom(room, map, stairDef);
+                if (!spot.IsValid)
+                {
+                    continue;
+                }
+                float score = NearestHostile(spot, hostiles) - room.CellCount * 0.03f;
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = spot;
+                }
+            }
+            return best;
+        }
+
+        /// <summary>A room the company can leave through a door, not by mining.</summary>
+        private static bool HasDoor(Room room, Map map)
+        {
+            foreach (IntVec3 cell in room.BorderCells)
+            {
+                if (cell.InBounds(map) && cell.GetDoor(map) != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>A clear footprint for the stair, wholly inside the room.</summary>
+        private static IntVec3 SpotInRoom(Room room, Map map, ThingDef stairDef)
+        {
+            foreach (IntVec3 cell in room.Cells)
+            {
+                bool fits = true;
+                foreach (IntVec3 part in GenAdj.OccupiedRect(cell, Rot4.North, stairDef.size))
+                {
+                    if (!part.InBounds(map) || !part.Standable(map)
+                        || part.GetEdifice(map) != null || part.GetRoom(map) != room)
+                    {
+                        fits = false;
+                        break;
+                    }
+                }
+                if (fits)
+                {
+                    return cell;
+                }
+            }
+            return IntVec3.Invalid;
+        }
+
+        /// <summary>
+        /// The built guarantee: when no suitable room exists, wall the stair
+        /// off into one - granite walls, a wooden door, a roof. The Brand
+        /// walled off its own cellar entrance years ago; the map just
+        /// finally shows it.
+        /// </summary>
+        private static void EncloseStair(Map map, Thing stair, List<IntVec3> hostiles)
+        {
+            if (stair == null || !stair.Spawned)
+            {
+                return;
+            }
+            CellRect roomRect = stair.OccupiedRect().ExpandedBy(2).ClipInsideMap(map);
+            ThingDef granite = DefDatabase<ThingDef>.GetNamedSilentFail("BlocksGranite") ?? ThingDefOf.WoodLog;
+            // Door: a non-corner edge cell whose inside and outside are both
+            // standable, as far from the garrison as the perimeter offers.
+            IntVec3 doorCell = IntVec3.Invalid;
+            float doorScore = float.MinValue;
+            foreach (IntVec3 cell in roomRect.EdgeCells)
+            {
+                bool corner = (cell.x == roomRect.minX || cell.x == roomRect.maxX)
+                    && (cell.z == roomRect.minZ || cell.z == roomRect.maxZ);
+                if (corner || cell.GetEdifice(map) != null)
+                {
+                    continue;
+                }
+                IntVec3 inward = new IntVec3(
+                    Mathf.Clamp(cell.x, roomRect.minX + 1, roomRect.maxX - 1), 0,
+                    Mathf.Clamp(cell.z, roomRect.minZ + 1, roomRect.maxZ - 1));
+                IntVec3 outward = cell + (cell - inward);
+                if (!outward.InBounds(map) || !outward.Standable(map) || !inward.Standable(map))
+                {
+                    continue;
+                }
+                float score = NearestHostile(cell, hostiles);
+                if (score > doorScore)
+                {
+                    doorScore = score;
+                    doorCell = cell;
+                }
+            }
+            foreach (IntVec3 cell in roomRect.EdgeCells)
+            {
+                if (cell == doorCell || cell.GetEdifice(map) != null)
+                {
+                    continue;
+                }
+                ClearForBuild(map, cell);
+                GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Wall, granite), cell, map);
+            }
+            if (doorCell.IsValid)
+            {
+                ClearForBuild(map, doorCell);
+                GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Door, ThingDefOf.WoodLog), doorCell, map);
+            }
+            foreach (IntVec3 cell in roomRect)
+            {
+                map.roofGrid.SetRoof(cell, RoofDefOf.RoofConstructed);
+            }
+        }
+
+        private static void ClearForBuild(Map map, IntVec3 cell)
+        {
+            foreach (Thing thing in new List<Thing>(cell.GetThingList(map)))
+            {
+                if (thing.def.category == ThingCategory.Plant || thing.def.category == ThingCategory.Item
+                    || thing.def.category == ThingCategory.Filth)
+                {
+                    thing.Destroy(DestroyMode.Vanish);
+                }
+            }
         }
 
         /// <summary>Distance from a cell to the closest posted guard.</summary>
-        private static float NearestHostile(IntVec3 cell, List<IntVec3> hostiles)
+        internal static float NearestHostile(IntVec3 cell, List<IntVec3> hostiles)
         {
             float nearest = float.MaxValue;
             for (int i = 0; i < hostiles.Count; i++)
@@ -356,7 +705,15 @@ namespace TheShatteredCrown
             return nearest;
         }
 
-        /// <summary>Standable ground inside the keep's own masonry, roofed or not.</summary>
+        /// <summary>
+        /// Standable ground inside the keep's own masonry, roofed or not.
+        /// Prefers deep inside (the bounds include the curtain wall, and a
+        /// stair in the courtyard is a stair the garrison is standing on),
+        /// but relaxes rather than fails: a hard 14-cell contraction was
+        /// EMPTY on small keeps, which killed the stair and reported the
+        /// drain choked - the same strict-query bug the roofed-room
+        /// requirement had, one layer down.
+        /// </summary>
         private static List<IntVec3> WithinWalls(Map map)
         {
             List<IntVec3> cells = new List<IntVec3>();
@@ -377,17 +734,113 @@ namespace TheShatteredCrown
                 minZ = UnityEngine.Mathf.Min(minZ, pos.z);
                 maxZ = UnityEngine.Mathf.Max(maxZ, pos.z);
             }
-            // Contracted hard: the bounds include the curtain wall, and a
-            // stair in the courtyard is a stair the garrison is standing on.
-            CellRect keep = CellRect.FromLimits(minX, minZ, maxX, maxZ).ContractedBy(14);
-            foreach (IntVec3 cell in keep)
+            CellRect bounds = CellRect.FromLimits(minX, minZ, maxX, maxZ);
+            foreach (int contraction in new[] { 14, 10, 6, 3 })
             {
-                if (cell.InBounds(map) && cell.Standable(map) && cell.GetEdifice(map) == null)
+                CellRect keep = bounds.ContractedBy(contraction);
+                foreach (IntVec3 cell in keep)
                 {
-                    cells.Add(cell);
+                    if (cell.InBounds(map) && cell.Standable(map) && cell.GetEdifice(map) == null)
+                    {
+                        cells.Add(cell);
+                    }
+                }
+                if (cells.Count > 0)
+                {
+                    return cells;
                 }
             }
             return cells;
+        }
+    }
+
+    /// <summary>
+    /// Old-save heal: a keep map generated before the back-room guarantee
+    /// carries its stair wherever the old distance-only rules put it - seen
+    /// live standing in the Baron's own vault. A saved map never
+    /// regenerates, so the placement is baked; this moves the stair to a
+    /// proper back room on the first tick the keep map runs. Idempotent: a
+    /// stair already in an ungarrisoned room is left alone.
+    /// </summary>
+    public class MapComponent_TSC_KeepStairHeal : MapComponent
+    {
+        private bool done;
+
+        public MapComponent_TSC_KeepStairHeal(Map map) : base(map)
+        {
+        }
+
+        public override void MapComponentTick()
+        {
+            if (done || Find.TickManager.TicksGame % 250 != 0)
+            {
+                return;
+            }
+            done = true;
+            if (!(map.Parent is RimWorld.Planet.Site site))
+            {
+                return;
+            }
+            bool keep = false;
+            for (int i = 0; i < site.parts.Count; i++)
+            {
+                if (site.parts[i].def?.defName == "TSC_IronBrandKeep")
+                {
+                    keep = true;
+                    break;
+                }
+            }
+            if (!keep)
+            {
+                return;
+            }
+            MapPortal stair = TSC_KeepCellar.FindStair(map);
+            if (stair == null)
+            {
+                return; // placed on demand by the grate, with the new rules
+            }
+            Room room = stair.Position.GetRoom(map);
+            bool exposed = room == null || room.PsychologicallyOutdoors;
+            if (!exposed)
+            {
+                foreach (IntVec3 cell in room.Cells)
+                {
+                    List<Thing> things = cell.GetThingList(map);
+                    for (int i = 0; i < things.Count; i++)
+                    {
+                        if (things[i] is Pawn occupant && !occupant.Dead
+                            && occupant.HostileTo(Faction.OfPlayer))
+                        {
+                            exposed = true;
+                            break;
+                        }
+                    }
+                    if (exposed)
+                    {
+                        break;
+                    }
+                }
+            }
+            if (!exposed)
+            {
+                return;
+            }
+            List<IntVec3> hostiles = new List<IntVec3>();
+            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+            {
+                if (!pawn.Dead && !pawn.Downed && pawn.HostileTo(Faction.OfPlayer))
+                {
+                    hostiles.Add(pawn.Position);
+                }
+            }
+            IntVec3 spot = GenStep_TSC_KeepCellarStair.BackRoomSpot(map, stair.def, hostiles);
+            if (!spot.IsValid || spot.GetRoom(map) == room)
+            {
+                return;
+            }
+            stair.DeSpawn();
+            GenSpawn.Spawn(stair, spot, map);
+            Log.Message("[The Shattered Crown] Cellar stair stood in a garrisoned room (old-save placement); moved to a back room at " + spot + ".");
         }
     }
 
@@ -423,6 +876,68 @@ namespace TheShatteredCrown
             {
                 Find.WindowStack.Add(new Dialog_Conversation(def, selPawn, selPawn));
             });
+            // The push is a separate order from the scene that plans it, so
+            // the company takes positions FIRST and the noise starts on the
+            // player's word, not when the dialogue closes.
+            if (!DialogueStateManager.Current.IsSet("TSC_KeepCratesPlanned")
+                || DialogueStateManager.Current.IsSet("TSC_KeepCratesTipped"))
+            {
+                yield break;
+            }
+            string label = DialogueStateManager.Current.IsSet("TSC_KeepCratesRigged")
+                ? "Pull the line: bring the stack down"
+                : "Push the stack over";
+            if (!selPawn.CanReach(this, PathEndMode.Touch, Danger.Deadly))
+            {
+                yield return new FloatMenuOption(label + " (no path)", null);
+                yield break;
+            }
+            FloatMenuOption push = new FloatMenuOption(label, delegate
+            {
+                JobDef tip = DefDatabase<JobDef>.GetNamedSilentFail("TSC_TipCrates");
+                if (tip != null)
+                {
+                    selPawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(tip, this), JobTag.Misc);
+                }
+            });
+            yield return FloatMenuUtility.DecoratePrioritizedTask(push, selPawn, this);
+        }
+    }
+
+    /// <summary>
+    /// The push itself, as an ordered job rather than a dialogue effect: the
+    /// scene at the crates makes the plan, the company takes its positions,
+    /// and THEN somebody walks over and gives the stack the shove. The
+    /// Thievery-rigged version pulls a bigger share of the garrison down.
+    /// </summary>
+    public class JobDriver_TSC_TipCrates : JobDriver
+    {
+        public override bool TryMakePreToilReservations(bool errorOnFailed)
+        {
+            return true;
+        }
+
+        protected override IEnumerable<Toil> MakeNewToils()
+        {
+            this.FailOnDespawnedOrNull(TargetIndex.A);
+            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
+            Toil heave = Toils_General.Wait(120);
+            heave.WithProgressBarToilDelay(TargetIndex.A);
+            yield return heave;
+            Toil tip = ToilMaker.MakeToil("TSC_TipCrates");
+            tip.initAction = delegate
+            {
+                // Two pawns ordered at once: the first shove wins.
+                if (DialogueStateManager.Current.IsSet("TSC_KeepCratesTipped"))
+                {
+                    return;
+                }
+                DialogueStateManager.Current.Set("TSC_KeepCratesTipped");
+                int percent = DialogueStateManager.Current.IsSet("TSC_KeepCratesRigged") ? 60 : 40;
+                DialogueEffect_TSC_Lure.LureGarrison(pawn.MapHeld, percent);
+            };
+            tip.defaultCompleteMode = ToilCompleteMode.Instant;
+            yield return tip;
         }
     }
 
@@ -443,7 +958,11 @@ namespace TheShatteredCrown
 
         public override void Apply(DialogueContext context)
         {
-            Map cellar = context.interactor?.MapHeld;
+            LureGarrison(context.interactor?.MapHeld, percent);
+        }
+
+        public static void LureGarrison(Map cellar, int percent)
+        {
             Map surface = TSC_KeepCellar.SurfaceOf(cellar);
             if (cellar == null || surface == null || surface == cellar)
             {
@@ -457,8 +976,13 @@ namespace TheShatteredCrown
             List<Pawn> garrison = new List<Pawn>();
             foreach (Pawn pawn in surface.mapPawns.AllPawnsSpawned)
             {
+                // The Baron never takes the bait: he is posted ON the hoard,
+                // does not investigate cellar noises personally, and his
+                // parley scene (baron_parley.agd) needs him standing on his
+                // gold when the company reaches the hall.
                 if (!pawn.Dead && !pawn.Downed && pawn.RaceProps.Humanlike
-                    && pawn.HostileTo(Faction.OfPlayer))
+                    && pawn.HostileTo(Faction.OfPlayer)
+                    && pawn.kindDef?.defName != "TSC_IronBrandBaron")
                 {
                     garrison.Add(pawn);
                 }
@@ -479,6 +1003,10 @@ namespace TheShatteredCrown
             for (int i = 0; i < coming; i++)
             {
                 Pawn pawn = garrison[i];
+                // Leaving the garrison is leaving its lord: DeSpawn alone
+                // keeps the membership, and a pawn cannot join the assault
+                // lord below while the defend-point lord above still owns it.
+                pawn.GetLord()?.Notify_PawnLost(pawn, PawnLostCondition.ForcedToJoinOtherLord);
                 IntVec3 cell = CellFinder.StandableCellNear(stair, cellar, 8f);
                 pawn.DeSpawn();
                 GenSpawn.Spawn(pawn, cell.IsValid ? cell : stair, cellar);

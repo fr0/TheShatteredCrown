@@ -1,6 +1,6 @@
 [h1]Classes and Abilities[/h1]
 
-Class levels are assigned at level-up; every class also trains three proficiencies (bonus: 1 + class level / 4 on checks). Learning a class needs its class book, or a companion who teaches it. Energy recovers with sleep. In turn-based combat, cooldowns tick one round per turn: a 10s cooldown is every other turn.
+Class levels are assigned at level-up; every class also trains three proficiencies (bonus: 1 + class level / 4 on checks). Learning a class needs its class book, or a companion who teaches it. Energy recovers with sleep. In turn-based combat, cooldowns tick one round per turn (5s): a 10s cooldown is every other turn.
 
 [h2]Barbarian[/h2]
 [previewimg=46987757;sizeOriginal,floatLeft;class_barbarian.png][/previewimg]
@@ -137,7 +137,7 @@ Calls a grizzly bear out of the green dark to fight at the druid's side for 60 s
 [h2]Monk[/h2]
 [previewimg=46988229;sizeOriginal,floatLeft;class_monk.png][/previewimg]
 
-Discipline made flesh. The monk's weapon is the monk, kept sharp by stillness.
+Discipline made flesh. The monk's weapon is his fists, kept sharp by stillness.
 
 
 [hr][/hr]
@@ -170,7 +170,7 @@ For 30 seconds the caster is much harder to hit in melee (+18 dodge chance) and 
 [h2]Paladin[/h2]
 [previewimg=46988238;sizeOriginal,floatLeft;class_paladin.png][/previewimg]
 
-An oath with legs. Heals the fallen, heartens the fearful, and brands the wicked for what they are.
+A defender of justice. Heals the fallen, heartens the fearful, and brands the wicked for what they are.
 
 
 [hr][/hr]

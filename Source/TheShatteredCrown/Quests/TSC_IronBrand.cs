@@ -159,4 +159,222 @@ namespace TheShatteredCrown
             return best;
         }
     }
+
+    /// <summary>
+    /// The Baron gets his say before the last fight of the act. Fires once,
+    /// the first time a colonist stands in sight of him on the keep map -
+    /// close enough for words, before the vault fight proper. The scene is
+    /// exposition and a choice of exits; every road out of it is a fight,
+    /// but Persuasion can leave the garrison shaken on the way in.
+    /// </summary>
+    public class MapComponent_TSC_BaronParley : MapComponent
+    {
+        private const int Interval = 60;
+        private const float TriggerRadius = 13.9f;
+        private bool checkedMap;
+        private bool isKeep;
+
+        public MapComponent_TSC_BaronParley(Map map) : base(map)
+        {
+        }
+
+        public override void MapComponentTick()
+        {
+            if (Find.TickManager.TicksGame % Interval != 0 || !TSC_RpgMode.Active)
+            {
+                return;
+            }
+            if (!checkedMap)
+            {
+                checkedMap = true;
+                if (map.Parent is RimWorld.Planet.Site site)
+                {
+                    for (int i = 0; i < site.parts.Count; i++)
+                    {
+                        if (site.parts[i].def?.defName == "TSC_IronBrandKeep")
+                        {
+                            isKeep = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!isKeep)
+            {
+                return;
+            }
+            Pawn baron = null;
+            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+            {
+                if (pawn.kindDef?.defName == "TSC_IronBrandBaron" && !pawn.Dead && !pawn.Downed)
+                {
+                    baron = pawn;
+                    break;
+                }
+            }
+            if (baron == null)
+            {
+                // No living Baron: on saves from before the lure excluded
+                // him, he answered the cellar noise himself and died a sword
+                // among swords - the player killed the act's villain without
+                // ever learning it. Name the body, once.
+                NoteFallenBaron();
+                return;
+            }
+            // His colors, before anything else: the iron-crown mark makes
+            // the man himself readable across a crowded hall. Applied here
+            // rather than at spawn so keeps already in saves get it too.
+            HediffDef mark = DefDatabase<HediffDef>.GetNamedSilentFail("TSC_Hediff_BaronMark");
+            if (mark != null && !baron.health.hediffSet.HasHediff(mark))
+            {
+                baron.health.AddHediff(mark);
+            }
+            // And his plate: kinds generated before the unique existed wear
+            // ordinary steel. Same retrofit logic as the mark.
+            DressBaron(baron);
+            if (DialogueStateManager.Current.IsSet("TSC_BaronParleySeen"))
+            {
+                return;
+            }
+            if (Find.WindowStack.WindowOfType<Dialog_Conversation>() != null)
+            {
+                return;
+            }
+            Pawn near = null;
+            foreach (Pawn colonist in map.mapPawns.FreeColonistsSpawned)
+            {
+                if (!colonist.Downed
+                    && colonist.Position.InHorDistOf(baron.Position, TriggerRadius)
+                    && GenSight.LineOfSight(colonist.Position, baron.Position, map, skipFirstCell: true))
+                {
+                    near = colonist;
+                    break;
+                }
+            }
+            DialogueDef def = DefDatabase<DialogueDef>.GetNamedSilentFail("TSC_Dialogue_BaronParley");
+            if (near == null || def == null)
+            {
+                return;
+            }
+            DialogueStateManager.Current.Set("TSC_BaronParleySeen");
+            // Put a face on the voice: when the scene closes, the Baron is
+            // the selected, centered pawn.
+            CameraJumper.TryJump(baron);
+            Find.Selector.ClearSelection();
+            Find.Selector.Select(baron);
+            Find.WindowStack.Add(new Dialog_Conversation(def, near, baron));
+        }
+
+        private void NoteFallenBaron()
+        {
+            if (DialogueStateManager.Current.IsSet("TSC_BaronFallenSeen")
+                || DialogueStateManager.Current.IsSet("TSC_BaronParleySeen"))
+            {
+                return;
+            }
+            Corpse corpse = FindBaronCorpse(map)
+                ?? FindBaronCorpse(TSC_KeepCellar.FindStair(map)?.PocketMap);
+            if (corpse == null)
+            {
+                return;
+            }
+            // A dead Baron still owns his plate: the campaign that killed
+            // him anonymously gets the unique off the body like any other.
+            if (corpse.InnerPawn != null)
+            {
+                DressBaron(corpse.InnerPawn);
+            }
+            DialogueStateManager.Current.Set("TSC_BaronFallenSeen");
+            Find.LetterStack.ReceiveLetter(
+                "The Bandit Baron",
+                "Somebody finally turns the body over. The big man in the grey plate, dead in the dark "
+                + "at the foot of his own stairs, is the Bandit Baron himself: when the stack went over, "
+                + "he came down with the rest to see about the noise, and died a sword among swords.\n\n"
+                + "Five years of banners ended in a cellar. Nobody above knows yet that they are already "
+                + "leaderless - and the plate on the body is worth the trip down on its own.",
+                LetterDefOf.NeutralEvent,
+                new LookTargets(corpse));
+        }
+
+        /// <summary>The unique plate, on whoever (or whatever) is the Baron now.</summary>
+        private static void DressBaron(Pawn baron)
+        {
+            ThingDef plateDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_Apparel_BaronPlate");
+            if (plateDef == null || baron.apparel == null)
+            {
+                return;
+            }
+            foreach (Apparel worn in baron.apparel.WornApparel)
+            {
+                if (worn.def == plateDef)
+                {
+                    return;
+                }
+            }
+            Apparel plate = (Apparel)ThingMaker.MakeThing(plateDef);
+            plate.TryGetComp<CompQuality>()?.SetQuality(QualityCategory.Excellent, ArtGenerationContext.Outsider);
+            baron.apparel.Wear(plate, dropReplacedApparel: false);
+        }
+
+        private static Corpse FindBaronCorpse(Map onMap)
+        {
+            if (onMap == null)
+            {
+                return null;
+            }
+            foreach (Thing thing in onMap.listerThings.ThingsInGroup(ThingRequestGroup.Corpse))
+            {
+                if (thing is Corpse corpse
+                    && corpse.InnerPawn?.kindDef?.defName == "TSC_IronBrandBaron")
+                {
+                    return corpse;
+                }
+            }
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// DSL effect demoralize(): the offer was made over the Baron's head
+    /// and his men heard the answer. Every hostile humanlike on the map
+    /// takes the Shaken debuff (War Cry's), held long enough to cover the
+    /// whole vault fight.
+    /// </summary>
+    public class DialogueEffect_TSC_Demoralize : DialogueEffect
+    {
+        public override void Apply(DialogueContext context)
+        {
+            Map map = context.interactor?.MapHeld;
+            HediffDef shaken = DefDatabase<HediffDef>.GetNamedSilentFail("TSC_Hediff_Shaken");
+            if (map == null || shaken == null)
+            {
+                return;
+            }
+            int hit = 0;
+            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+            {
+                if (pawn.Dead || !pawn.RaceProps.Humanlike || !pawn.HostileTo(Faction.OfPlayer))
+                {
+                    continue;
+                }
+                Hediff existing = pawn.health.hediffSet.GetFirstHediffOfDef(shaken);
+                if (existing != null)
+                {
+                    pawn.health.RemoveHediff(existing);
+                }
+                Hediff added = pawn.health.AddHediff(shaken);
+                HediffComp_Disappears timer = (added as HediffWithComps)?.TryGetComp<HediffComp_Disappears>();
+                if (timer != null)
+                {
+                    timer.ticksToDisappear = 7500;
+                }
+                hit++;
+            }
+            if (hit > 0)
+            {
+                Messages.Message("The words landed where the Baron could not see: "
+                    + hit + " of the Brand fight shaken.", MessageTypeDefOf.PositiveEvent, historical: false);
+            }
+        }
+    }
 }

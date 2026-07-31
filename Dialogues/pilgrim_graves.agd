@@ -1,0 +1,32 @@
+# The graves outside the monastery wall: the Survival read's success
+# outcome, played as a scene (the check spot's successDialogue) instead
+# of a message toast. The XP and the flag are handled by the spot; this
+# is presentation.
+#
+# {PLAYER} is whoever knelt at the row.
+
+dialogue TSC_Dialogue_PilgrimGraves
+
+== start ==
+{PLAYER} walks the row slowly.
+
+Seven mounds. Not one winter's work: the stones have weathered differently, the earth has settled differently, years apart, sometimes decades. Travelers who came up the pilgrim road, and knocked, and waited, and died waiting in the season's teeth.
+
+* "Then who buried them?" -> diggers
+* [Stand with them a moment.] -> stand
+
+== stand ==
+All seven mounds face the gate. Whatever order they died in, whoever they were, they were laid down the same way: looking at the door that stays closed, like a queue that never moved.
+
+The house has visitors again now, eight hundred years late, and this time they did not wait for permission.
+
+* "Then who buried them?" -> diggers
+
+== diggers ==
+The answer is in the row itself. Each grave was dug by whoever came after them: pilgrims burying the pilgrim before them, and then settling down by the gate to wait their own turn. The seventh grave is shallow, one-handed work, cut by a digger already weak when the digging started.
+
+There is no eighth grave.
+
+Whoever dug the seventh walked away, or lies somewhere on this mountain unburied. Either way, the road eventually learned the lesson the hard way, and carried it down to the valleys as a warning: do not knock at the silent house.
+
+* [Pay your respects, and move on.] -> end

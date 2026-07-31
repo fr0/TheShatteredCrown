@@ -1,0 +1,19 @@
+# The cellarer's tallies: success scene for the writing spot.
+
+dialogue TSC_Dialogue_MonTallies
+
+== start ==
+Two hundred pages of a working household: grain bought, candles bought, wool bought. Neat columns, initialed.
+
+Then the last winter, and the purchases stop. On purpose. No candles this quarter, marked *not needed*. No salt. No lamp oil.
+
+* [Read to the end.] -> final
+
+== final ==
+The final pages are not purchases at all. The cellarer counted everything the house had left and divided it: this much food, this many mouths, this many weeks. He wrote down the answer and initialed it.
+
+They knew exactly when the house would die. They chose the date themselves.
+
+The last line: we will not need the spring seed.
+
+* [Close the ledger.] -> end

@@ -280,4 +280,43 @@
     </parts>
   </StructureLayoutDef>
 
+  <!-- Act 4: the Silent Monastery. Intact where the castle is ruined - the
+       plague emptied it; nobody ever sacked it. Chapel, refectory,
+       dormitories, stores. Deliberately undamaged and unpruned: the horror
+       is that everything is exactly where the brothers left it. Act 4
+       proper hangs its scenes on these rooms; the layout spawns no
+       occupants of its own. -->
+  <StructureLayoutDef>
+    <defName>TSC_Monastery</defName>
+    <workerClass>LayoutWorker_AncientRuins</workerClass>
+    <canHaveMultipleLayoutsInRoom>true</canHaveMultipleLayoutsInRoom>
+    <shouldDamage>false</shouldDamage>
+    <areaPrunePercent>0</areaPrunePercent>
+    <minRoomWidth>7</minRoomWidth>
+    <minRoomHeight>7</minRoomHeight>
+    <wallDef>Wall</wallDef>
+    <wallStuffDef>BlocksGranite</wallStuffDef>
+    <doorStuffDef>WoodLog</doorStuffDef>
+    <wallLampChancePerPosition>0</wallLampChancePerPosition>
+    <ensureOneDoorUnlocked>true</ensureOneDoorUnlocked>
+    <canDisconnectRooms>false</canDisconnectRooms>
+    <roomDefs>
+      <TSC_MonChapel>
+        <countRange>1~1</countRange>
+      </TSC_MonChapel>
+      <TSC_Refectory>
+        <countRange>1~1</countRange>
+      </TSC_Refectory>
+      <TSC_Dormitory>
+        <countRange>1~2</countRange>
+      </TSC_Dormitory>
+      <TSC_Scriptorium>
+        <countRange>1~1</countRange>
+      </TSC_Scriptorium>
+      <TSC_Pantry>
+        <countRange>1~2</countRange>
+      </TSC_Pantry>
+    </roomDefs>
+  </StructureLayoutDef>
+
 </Defs>

@@ -80,7 +80,13 @@
     <label>ettersnap</label>
     <race>TSC_Ettersnap</race>
     <combatPower>90</combatPower>
-    <ecoSystemWeight>0.05</ecoSystemWeight>
+    <!-- "Almost none remain" has to be true mechanically too. Not in any
+         biome's wild list, out of the manhunter/ambush pools (the insect
+         base inherits canArriveManhunter true), and near-zero weight for
+         anything that picks by ecosystem share. The Act 1 cave and the
+         moss-lure quests spawn theirs by def, unaffected. -->
+    <canArriveManhunter>false</canArriveManhunter>
+    <ecoSystemWeight>0.001</ecoSystemWeight>
     <lifeStages>
       <li>
         <bodyGraphicData>

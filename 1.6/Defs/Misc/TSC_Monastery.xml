@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Act 4: the Silent Monastery. The third shard's vision points here
+       (Dialogues/shard_rush3.agd), the tracker shows the act card and
+       grants TSC_Act4_Monastery, and this is the site the quest spawns.
+       The arrival is the whole opener; the monastery's own scenes are
+       Act 4 proper and will build on this site.
+       ================================================================ -->
+
+  <SitePartDef>
+    <defName>TSC_SilentMonastery</defName>
+    <label>the Silent Monastery</label>
+    <description>A house of the old faith on a mountain shoulder, emptied in a single winter and never resettled. The gate is barred from the inside. The brothers copied every book that passed their door; whatever anyone ever knew of the crown is still shelved in the dark up there.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteKeep</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteKeep</expandingIconTexture>
+    <approachOrderString>Travel to {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_SilentMonastery</li>
+    </tags>
+    <modExtensions>
+      <!-- Story hub for the act: persists for good, like Thornden. -->
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <noDetectionRaids>true</noDetectionRaids>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_SilentMonastery_Structure</defName>
+    <linkWithSite>TSC_SilentMonastery</linkWithSite>
+    <order>470</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Layout">
+      <layoutDef>TSC_Monastery</layoutDef>
+      <size>42</size>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The gate: barred from the inside eight hundred years ago and not
+       interested in visitors. One heave (Athletics, very hard) tears the
+       bar's seat out of the stone; a failed heave stays failed - the way
+       in is then the stable door on the north face, no roll required. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_MonasteryGate</defName>
+    <label>the monastery gate</label>
+    <description>Oak a hand thick under an arch of dressed stone, grey with age and hard as iron. It is barred from the inside, which is a strange thing for a dead house to be, and it does not budge.</description>
+    <size>(3,1)</size>
+    <passability>Impassable</passability>
+    <fillPercent>1</fillPercent>
+    <blockLight>true</blockLight>
+    <holdsRoof>true</holdsRoof>
+    <useHitPoints>false</useHitPoints>
+    <rotatable>false</rotatable>
+    <selectable>true</selectable>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_MonasteryGate</texPath>
+      <drawSize>(3,1)</drawSize>
+    </graphicData>
+    <building>
+      <isEdifice>true</isEdifice>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Athletics</proficiency>
+            <dc>12</dc>
+            <label>Force the gate</label>
+            <successXp>50</successXp>
+            <successRemoves>true</successRemoves>
+            <successFlag>TSC_MonasteryGateForced</successFlag>
+            <successMessage>The bar does not break. Its seat does: a foot of dressed stone tears out of the jamb, and eight hundred years of shut swings slowly open.</successMessage>
+            <failMessage>The gate takes the shoulder and does not move. Whatever barred it meant it. A house this size fed itself; somewhere around the back there will be a door the carts used.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- The shell: high walls, whole (no breaches - nothing ever got in),
+       unlit (nobody lights a dead house), plain-topped, the barred gate in
+       the south face and the stable door in the north. -->
+  <GenStepDef>
+    <defName>TSC_SilentMonastery_Curtain</defName>
+    <linkWithSite>TSC_SilentMonastery</linkWithSite>
+    <order>472</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Curtain">
+      <margin>7</margin>
+      <gateWidth>3</gateWidth>
+      <breaches>0~0</breaches>
+      <towers>false</towers>
+      <crenellated>false</crenellated>
+      <lit>false</lit>
+      <rearDoor>true</rearDoor>
+      <gateDef>TSC_MonasteryGate</gateDef>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The squatters: what moves in when nothing bigger objects for eight
+       hundred years. No humans anywhere on this map by design - the act's
+       combat is vermin, and its heart is the mystery. -->
+  <GenStepDef>
+    <defName>TSC_SilentMonastery_Vermin</defName>
+    <linkWithSite>TSC_SilentMonastery</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_WildBeasts">
+      <kinds>
+        <li>Rat</li>
+      </kinds>
+      <count>5~8</count>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_SilentMonastery_Squatters</defName>
+    <linkWithSite>TSC_SilentMonastery</linkWithSite>
+    <order>486</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_WildBeasts">
+      <kinds>
+        <li>WildBoar</li>
+      </kinds>
+      <count>2~3</count>
+      <defendDen>true</defendDen>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ================================================================
+       The house below: three floors, each quieter than the last.
+       Surface -> cellarium (stores, rats) -> the brothers' ossuary
+       (their graves, laid down in order) -> the undercell, where the
+       vision's closed door waits. NOTHING LIVING on the bottom floor:
+       the shard said so, and the shard was right.
+       ================================================================ -->
+
+  <!-- The stairhead, placed inside the house by PlaceInStructure. -->
+  <ThingDef ParentName="TSC_CellarStairsBase">
+    <defName>TSC_MonasteryStairs</defName>
+    <label>cellarium stair</label>
+    <description>A worked stair going down under the house, swept clean by the last hands that used it. Cold, dry air rises out of it, and no sound at all.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_StoneStairs</texPath>
+      <drawSize>(3,3)</drawSize>
+      <color>(115,112,105)</color>
+    </graphicData>
+    <portal>
+      <pocketMapGenerator>TSC_Monastery_Cellarium</pocketMapGenerator>
+      <exitDef>TSC_StairsUp</exitDef>
+      <pocketMapSize>80</pocketMapSize>
+    </portal>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_CellarStairsBase">
+    <defName>TSC_MonStairs_ToOssuary</defName>
+    <label>stair to the ossuary</label>
+    <description>A narrower stair, the treads worn in the middle by slow processions. The brothers carried their dead down this way, for centuries, and then more often.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_StoneStairs</texPath>
+      <drawSize>(3,3)</drawSize>
+      <color>(115,112,105)</color>
+    </graphicData>
+    <portal>
+      <pocketMapGenerator>TSC_Monastery_Ossuary</pocketMapGenerator>
+      <exitDef>TSC_StairsUp</exitDef>
+      <pocketMapSize>80</pocketMapSize>
+    </portal>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_CellarStairsBase">
+    <defName>TSC_MonStairs_ToUndercell</defName>
+    <label>stair to the undercell</label>
+    <description>The last stair, cut steep and plain. The dust on the treads lies in a single unbroken skin: whoever went down last did not come back up, and nobody followed.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_StoneStairs</texPath>
+      <drawSize>(3,3)</drawSize>
+      <color>(115,112,105)</color>
+    </graphicData>
+    <portal>
+      <pocketMapGenerator>TSC_Monastery_Undercell</pocketMapGenerator>
+      <exitDef>TSC_StairsUp</exitDef>
+      <pocketMapSize>70</pocketMapSize>
+    </portal>
+  </ThingDef>
+
+  <GenStepDef>
+    <defName>TSC_SilentMonastery_Stairhead</defName>
+    <linkWithSite>TSC_SilentMonastery</linkWithSite>
+    <order>476</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceInStructure">
+      <thingDef>TSC_MonasteryStairs</thingDef>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ================================================ the levels -->
+
+  <MapGeneratorDef ParentName="TSC_CellarLevelBase">
+    <defName>TSC_Monastery_Cellarium</defName>
+    <label>the cellarium</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_MonasteryLevel1</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <MapGeneratorDef ParentName="TSC_CellarLevelBase">
+    <defName>TSC_Monastery_Ossuary</defName>
+    <label>the brothers' ossuary</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_MonasteryLevel2</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <MapGeneratorDef ParentName="TSC_CellarLevelBase">
+    <defName>TSC_Monastery_Undercell</defName>
+    <label>the undercell</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_MonasteryLevel3</li>
+      <li>TSC_MonasteryUndercellChamber</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <GenStepDef>
+    <defName>TSC_MonasteryLevel1</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>1</level>
+      <layoutDef>TSC_Catacombs</layoutDef>
+      <size>40</size>
+      <stairsDef>TSC_MonStairs_ToOssuary</stairsDef>
+      <!-- No insects anywhere under the silent house. -->
+      <maxDormantPacks>0</maxDormantPacks>
+      <spots>
+        <li>TSC_MonWriting_Tallies</li>
+      </spots>
+      <occupants>
+        <li>
+          <weight>1</weight>
+          <faction>wild</faction>
+          <kinds>
+            <li>Rat</li>
+          </kinds>
+          <count>3~5</count>
+          <arrivalNote>The cellarium has tenants: rats, generations deep in the brothers' stores. They found a way in that people never did.</arrivalNote>
+        </li>
+      </occupants>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_MonasteryLevel2</defName>
+    <order>552</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>2</level>
+      <layoutDef>TSC_Catacombs</layoutDef>
+      <size>40</size>
+      <stairsDef>TSC_MonStairs_ToUndercell</stairsDef>
+      <maxDormantPacks>0</maxDormantPacks>
+      <spots>
+        <li>TSC_MonWriting_Slates</li>
+      </spots>
+      <occupants>
+        <li>
+          <weight>1</weight>
+          <faction>wild</faction>
+          <kinds>
+            <li>Rat</li>
+          </kinds>
+          <count>1~2</count>
+          <arrivalNote>Even the rats keep to the stairward end of this floor. Past the first gallery of niches, nothing has disturbed the dust at all.</arrivalNote>
+        </li>
+      </occupants>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_MonasteryLevel3</defName>
+    <order>553</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>3</level>
+      <layoutDef>TSC_Catacombs</layoutDef>
+      <size>34</size>
+      <!-- Bottom floor: no stair down, no occupants, no dormant anything.
+           "Nothing living holds it." The closed door and what waits
+           behind it are placed by the act's finale content. -->
+      <maxDormantPacks>0</maxDormantPacks>
+    </genStep>
+  </GenStepDef>
+
+</Defs>

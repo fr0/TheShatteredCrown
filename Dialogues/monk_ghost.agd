@@ -1,0 +1,93 @@
+# Act 4's greeter: the doorkeeper's ghost, fired once by
+# MapComponent_TSC_MonasteryGhost when the party first stands inside the
+# curtain wall (forced gate or stable door - separate openings).
+#
+# CANON (decided 2026-07-31): the Quiet Brothers kept a vow of silence. A
+# dying pilgrim was carried in with the fourth shard; it worked on them
+# and none of them could SAY so - each brother faced it alone, in
+# silence, and died of it one at a time. They wrote everything down
+# instead. At the end, the survivors understood what the crown was and
+# chose to be its tomb: bar the gate, answer no bell, let the house die
+# around it. The ghost is the doorkeeper who let the pilgrim in. His
+# speech is broken because the vow outlived his death: every word is a
+# sin he commits on purpose, and it costs him.
+#
+# He must NOT explain any of this. He points at the writing. The act's
+# investigation does the explaining.
+#
+# {PLAYER} is the first one inside the walls.
+
+dialogue TSC_Dialogue_MonkGhost
+
+== start ==
+You enter the monastery, and look around.
+
+Stillness. This place has stood the test of time, but there are no occupants. An empty house waiting for boots to finally touch its grounds first.
+
+But, no. That is not quite right.
+
+The cold crosses the yard first. Then, between one blink and the next, a brother is standing in the cloister arch: grey habit, folded hands, a pale face. The dust on the floor remains undisturbed in his presence.
+
+He looks at {PLAYER} a long moment.
+
+"In," he says at last. The voice is a dry hinge. "You are... in."
+
+* "Who are you?" -> who
+* "What is this place?" -> place
+* [Say nothing. Wait.] -> wait
+
+== who ==
+The question makes him flinch.
+
+"Doorkeeper." Each word set down separately. "I kept... the door. I opened." A long stop. "I opened it."
+
+He does not finish the thought. Not finishing it looks like hard work.
+
+* "What happened here?" -> ask
+* [Read the man.] -> ask
+    check Insight 8 -> read | ask
+
+== place ==
+"House," he says. "Quiet house. We were..." His hands offer the cloister and the well in place of the sentence. "We kept quiet. It was our... it was how we." Stop. "We kept it."
+
+He sees it was not understood, and bows his head.
+
+* "What happened here?" -> ask
+* [Read the man.] -> ask
+    check Insight 8 -> read | ask
+
+== wait ==
+{PLAYER} waits. The brother seems to find this correct; some tension leaves the grey shoulders.
+
+"Patient," he says. "Good. They were... we were. Patient people."
+
+* [Keep waiting.] -> ask
+
+== read ==
+Under the broken delivery the reading is plain: not madness. Discipline. Every sentence breaks in the same place, at the edge of telling. This is a man ruled by routine, still keeping it, long dead.
+
+He is not unable to speak. He is not allowed. He is doing it anyway, a word at a time.
+
+* [Let him say what he can afford.] -> ask
+
+== ask ==
+"Cannot." His jaw works. "Cannot say. None of us... said. That was the." Stop. "That was the point."
+
+Then, with great care:
+
+"Wrote. We wrote it. All of it. Everything is..." The arm comes up, pointing into the dark halls. "Written. Read. Read what. Read *why*."
+
+* "You want us to find out what happened to you." -> plea
+* [Nod.] -> plea
+
+== plea ==
+"Find." A stop. "See it. Then... say it." For a moment the faded eyes are alive. "Out *loud*. Say what happened. To us. Here."
+
+The effort nearly takes him. He folds his hands again and adds, almost too quiet to catch:
+
+"Then we rest. Then... I."
+
+He is gone between one blink and the next, and the cold goes with him. The house stands open, all its pages waiting.
+
+* [Find out what happened to the Quiet Brothers.] -> end
+    do flag(TSC_MetMonkGhost); give_quest(TSC_Act4_QuietBrothers); grant_xp(25)
