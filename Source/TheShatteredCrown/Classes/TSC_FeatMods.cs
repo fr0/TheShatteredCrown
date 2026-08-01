@@ -109,6 +109,15 @@ namespace TheShatteredCrown
         public static int ProficiencyBonus(Pawn pawn, TSC_ProficiencyDef prof)
         {
             int bonus = 0;
+            // A druid who found her grove a keeper still has a grove: two
+            // years of teaching a girl by raven is two years of saying out
+            // loud what she knows (Dialogues/maewyn_grove.agd).
+            if (prof != null && prof.defName == "TSC_Prof_Nature"
+                && TSC_DefOf.TSC_Hediff_MaewynKept != null
+                && (pawn?.health?.hediffSet?.HasHediff(TSC_DefOf.TSC_Hediff_MaewynKept) ?? false))
+            {
+                bonus += 2;
+            }
             foreach (TSC_FeatDef feat in TSC_Feats.Taken(pawn))
             {
                 if (feat.proficiencyBonuses == null)

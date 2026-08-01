@@ -688,4 +688,32 @@ namespace TheShatteredCrown
             return moved;
         }
     }
+    /// <summary>
+    /// DSL effect npc_hediff(DefName): puts a hediff on the character being
+    /// talked to.
+    ///
+    /// For conversations that change somebody permanently rather than
+    /// changing the world - Madoc walking away from the still fire either
+    /// released or kindled, and being a different caster afterward. The
+    /// health tab is where a player looks to find out why, so that is where
+    /// the record goes.
+    /// </summary>
+    public class DialogueEffect_TSC_NpcHediff : DialogueEffect
+    {
+        public HediffDef hediff;
+
+        public override void Apply(DialogueContext context)
+        {
+            Pawn npc = context.npc;
+            if (hediff == null || npc?.health?.hediffSet == null || npc.Dead)
+            {
+                return;
+            }
+            if (!npc.health.hediffSet.HasHediff(hediff))
+            {
+                npc.health.AddHediff(hediff);
+            }
+        }
+    }
+
 }

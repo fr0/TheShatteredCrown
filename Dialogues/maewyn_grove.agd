@@ -1,0 +1,151 @@
+# The grove, on the return. Fired by MapComponent_TSC_MaewynGrove once the
+# party reaches the cottage with the quest open and Maewyn with them.
+#
+# What is here is not a disaster. Nothing burned it and nobody robbed it. It
+# has simply been left, and left is enough. That is the whole argument of
+# the scene: a kept thing stops being one the moment nobody keeps it.
+#
+# THE CHOICE IS NOT "stay or come with us". She is not leaving the company
+# and the player is never offered the chance to lose her. The choice is what
+# happens to thirty years of work now that she has admitted she cannot be in
+# two places: hand it to somebody, or give it back to the hills.
+#
+# {PLAYER} is whoever walks up with her.
+
+dialogue TSC_Dialogue_MaewynGrove
+
+== start ==
+The door is as she left it: shut, unlocked, and swollen into the frame so it takes a shoulder.
+
+Inside is fine. Dust, mouse sign, a cup she left out.
+
+Outside is where it shows.
+
+* [Look at the herb beds.] -> beds
+* [Look at the hives.] -> hives
+* [Watch Maewyn.] -> watch
+
+== beds ==
+The beds have not died. That would be simpler. They have gone *wild*: sagewort seeded through everything, the mint over the path, and something with a red stem that she did not plant taking over the south end.
+
+* [Read what is salvageable.] -> beds_check
+    check Nature 9 -> beds_ok | beds_bad
+* [Look at the hives.] -> hives
+* [Watch Maewyn.] -> watch
+
+== beds_check ==
+{PLAYER} works down the rows.
+
+* [Continue.] -> beds_ok
+
+== beds_ok ==
+Two beds are gone past saving and would need breaking and starting again. Four are recoverable by a hand that knows what it is looking at and is willing to spend a week on their knees.
+
+The ninth bed, the one at the top with the black soil, is untouched and thriving. Whatever is in it, nothing else will grow near it and nothing has tried.
+
+* [Look at the hives.] -> hives
+    do grant_xp(40)
+* [Watch Maewyn.] -> watch
+    do grant_xp(40)
+
+== beds_bad ==
+Green, brown, dead, alive. Somebody who knows plants could tell you which of it matters. Not you.
+
+* [Look at the hives.] -> hives
+* [Watch Maewyn.] -> watch
+
+== hives ==
+Half of them are silent. One has swarmed and gone; the honeycomb inside is robbed out and clean.
+
+The last is loud, overfull, and about a week from doing the same.
+
+* [Look at the herb beds.] -> beds
+* [Watch Maewyn.] -> watch
+
+== watch ==
+She does not do anything dramatic. She walks the rows and stops at the top bed, and stands there.
+
+Then she says, to the bed: "It only takes one season."
+
+* "It can be put right." -> right
+* "You could not have been in two places." -> two
+* [Wait.] -> two
+
+== right ==
+"It can. By somebody, on their knees, from spring." She does not turn round. "Not by me. I am back on the road with you in three days and we both know it."
+
+* [Continue.] -> two
+
+== two ==
+"No," she agrees. "I could not."
+
+She finally looks at the hollow properly, all of it at once, which she has been avoiding since the door.
+
+"Thirty years. I did not think of it as thirty years while I was doing it. It was Tuesday, and then it was Tuesday."
+
+* "So what happens to it?" -> choice
+
+== choice ==
+"That is the question I have been carrying since the raven, and I have not got an answer, so I am going to say the two out loud and see which one sounds worse."
+
+She holds up a hand, then a finger.
+
+"One. I find it a keeper. There is a girl at the valley farm who has been coming up here since she was nine to look at the bees, and who has asked me four times what the black bed is for, and who I have never once had to tell to be quiet."
+
+The second finger.
+
+"Two. I take what I can carry, open the hives, and let the hollow have it back. It was the hills' before it was mine. Thirty years is not very long to them."
+
+* "Give it to the girl." -> keeper
+* "Give it back to the hills." -> hills
+* "Which sounds worse to you?" -> worse
+
+== worse ==
+"Both." Immediately, and then, after a moment, honestly: "The girl is more work. I would have to teach her by raven for two years and she would do half of it wrong and I would not be there to see it."
+
+A pause.
+
+"The hills are cleaner and I would not have to think about it again. I notice that I want the clean one, and I notice why, and I do not much like it."
+
+* "Give it to the girl." -> keeper
+* "Give it back to the hills." -> hills
+
+== keeper ==
+"Aye," she says, and the tenseness in her shoulders drops half an inch.
+
+She sends the thin raven that evening, with a strip of bark-cord and a message she does not explain, and the bird goes without being asked twice.
+
+Then she spends two days teaching a hollow how to be handed over. Stakes in the ground. The swarming hive split. A list scratched on the inside of the door, in a hand that expects to be read by somebody who is not clever yet and is paying attention.
+
+* [Wait for her.] -> keeper_out
+
+== keeper_out ==
+On the last morning she puts the cup she left out back on the shelf. It is the only sentimental thing she has ever been seen to do.
+
+"She will do half of it wrong," she says, on the path down. "The half she gets right is nine kinds of plants that would otherwise stop existing in this valley."
+
+She does not look back at the hollow. She checks the sky twice for the bird, which comes to the same thing.
+
+* [Go east.] -> end
+    do flag(TSC_MaewynKeeper); npc_hediff(TSC_Hediff_MaewynKept); grant_xp(150); affinity(+15); signal(TSC_Maewyn_ThirtyYears, TSC_MaewynKeeperFound)
+
+== hills ==
+She takes it better than anyone expects, because she decided somewhere on the road and has been waiting to be asked.
+
+She opens the hives and walks away from them. She lifts what she wants out of the black bed, roots and all, into a box the size of a loaf. She cuts nothing, tidies nothing, and pulls no weeds.
+
+* [Wait for her.] -> hills_out
+
+== hills_out ==
+The last thing she does is take the door off its hinges and lay it flat in the grass, so that nothing has to break it to get in.
+
+"It will be gorse in four years," she says. "Then birch. There will be nothing left to show it was ever kept, by the time the next person comes up this hill."
+
+A long pause.
+
+"Good. It was not mine. It was on loan, I have handed it back, and an arrangement should end the way it was made."
+
+She shoulders the box and does not check the sky at all.
+
+* [Go east.] -> end
+    do flag(TSC_MaewynHills); npc_hediff(TSC_Hediff_MaewynLetGo); grant_xp(150); affinity(+10); signal(TSC_Maewyn_ThirtyYears, TSC_MaewynGaveBack)

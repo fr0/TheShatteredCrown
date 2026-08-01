@@ -277,6 +277,10 @@ def parse_effects(expr: str, path, lineno) -> list:
             # first (npc_hostile(TSC_Hediff_ElderBlood) for boss fights).
             effects.append(Effect("DialogueEffect_TSC_NpcHostile",
                                   {"hediff": arg} if arg else {}))
+        elif name == "npc_hediff":
+            # Permanent change to the character being talked to, recorded in
+            # their health tab: npc_hediff(TSC_Hediff_MadocLucid).
+            effects.append(Effect("DialogueEffect_TSC_NpcHediff", {"hediff": arg}))
         elif name == "message":
             effects.append(Effect("DialogueEffect_Message", {"text": arg}))
         elif name == "goodwill":

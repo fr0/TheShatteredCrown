@@ -22,7 +22,7 @@ The nearest one speaks, and his voice is the sound of a man who has had this sen
 * "Stand aside." -> refuse
 * [Answer with the chronicle: name the five roads and the five riders.] -> chronicle
     check Lore 15 -> chronicle_ok | chronicle_bad
-* [Sing them the five roads, as a lay, the way it was meant to be carried.] -> sung
+* [Sing them the five roads, as a lay, as it was meant to be carried.] -> sung
     check Performance 12 -> sung_ok | sung_bad
 
 == claim ==
@@ -55,14 +55,14 @@ The spear comes up a hand's width.
 
 * [Answer with the chronicle: name the five roads and the five riders.] -> chronicle
     check Lore 15 -> chronicle_ok | chronicle_bad
-* [Sing them the five roads, as a lay, the way it was meant to be carried.] -> sung
+* [Sing them the five roads, as a lay, as it was meant to be carried.] -> sung
     check Performance 12 -> sung_ok | sung_bad
 * "We were not sent, and we are not owed. Let us past anyway." -> plead
     check Persuasion 15 -> plead_ok | plead_bad
 * [Enough talking.] -> refuse
 
 == chronicle ==
-{PLAYER} answers the way the chronicle answers: not with a claim, but with the roads.
+{PLAYER} answers as the chronicle does: not with a claim, but with the roads.
 
 * [Continue.] -> chronicle_ok
 
@@ -107,14 +107,14 @@ He grounds his spear and stands aside.
     do guard_yield(); grant_xp(150)
 
 == plead_bad ==
-The words come out and they are the wrong words: too certain, too smooth, too much like a claim after all. Behind the visor, whatever was listening stops.
+The words come out and they are the wrong words: too certain, too smooth, a claim after all. Behind the visor, whatever was listening stops.
 
 "No," the oath-keeper says, almost gently. "That one we have had ready since before your language existed."
 
 * [Then it is spears.] -> refuse
 
 == sung ==
-Not a speech. A lay, in the old measure, the way a thing this size was always meant to be carried: five roads, five riders, one verse each.
+Not a speech. A lay, in the old measure: five roads, five riders, one verse each.
 
 * [Continue.] -> sung_ok
 
@@ -157,7 +157,7 @@ Then she stands there, in a room full of armed men, working something out.
 == sung_fifth2 ==
 The last four bars have never been sung by anyone, because until this morning they had not happened.
 
-They are about a man coming up a slope with a satchel that has been mended a hundred times. They are about eight hundred and eleven years of not arriving, and a road that ends the way the other four did not: not at a wall, not in a grave, not in a stranger's hands, but in the hands it was meant for, given rather than taken. They are about somebody putting a thing down.
+They are about a man coming up a slope with a satchel that has been mended a hundred times. They are about eight hundred and eleven years of not arriving, and a road that ends as the other four did not: not at a wall, not in a grave, not in a stranger's hands, but in the hands it was meant for, given rather than taken. They are about somebody putting a thing down.
 
 The tune resolves. It has been leaning forward for eight hundred years and it finally lands, and every stone in the chamber takes it.
 

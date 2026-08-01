@@ -255,6 +255,23 @@
     <modExtensions>
       <li Class="TheShatteredCrown.DialogueExtension">
         <dialogue>TSC_Dialogue_Madoc</dialogue>
+        <initiations>
+          <!-- His companion quest. Gated on the camp talk, where he first
+               admits out loud that what he hears in the fire is the shape
+               they left in him rather than the men: he does not open this
+               with people who have not already heard that. -->
+          <li>
+            <dialogue>TSC_Dialogue_MadocFire</dialogue>
+            <mtbDays>1.5</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
+                <flag>TSC_MadocCampTalk</flag>
+              </li>
+            </conditions>
+          </li>
+        </initiations>
       </li>
     </modExtensions>
   </PawnKindDef>

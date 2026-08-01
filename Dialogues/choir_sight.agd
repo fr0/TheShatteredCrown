@@ -31,7 +31,7 @@ Not a burial. An audience. Somebody wanted the dead to hear.
     do grant_xp(10)
 
 == wren ==
-Wren does not answer at once. She has gone still in the way she does when a room is a piece of music - but her eyes are moving along the rows like a page, and under the dread there is an awful, professional delight fighting to get out.
+Wren does not answer at once. Her eyes move along the rows like a page, and under the dread there is an awful, professional delight fighting to get out.
 
 "Ossuaries face the dead east, toward the morning. These face *down*." She steps closer instead of back. "And look - the rows! Long, long, short. Do you see it? They're not stacked, they're *scored*. Somebody wrote the dead into the song. That's the most terrifying thing I've ever seen and part of me wants to applaud."
 
@@ -47,7 +47,7 @@ The lamplight finds them all at once: skulls, stacked rank on rank from flagston
 
 They are not piled. They are placed - every one of them set level, every one of them facing the same way, down the passage toward the deep floor. Toward the chamber where the singing used to come from.
 
-An audience, seated the way a congregation sits, kept for eight hundred years. The party has already met their singer. Whatever this recital was, it has had its last verse, and the dead are still leaning in to listen.
+An audience in rows, kept for eight hundred years. The party has already met their singer. Whatever this recital was, it has had its last verse, and the dead are still leaning in to listen.
 
 * [Move on.] -> end
     do grant_xp(10)

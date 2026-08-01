@@ -15,7 +15,7 @@ entry met if flag(TSC_MetBard)
 == start ==
 You find her by following the crowd: a common room packed shoulder to shoulder, and on the table by the hearth a woman with a battered lute, mid-verse, clearly having the time of her life. The song is about a king, and a crown, and the five pieces it broke into.
 
-She spots your gear over the crowd's heads, and her whole face lights up like you're the good part of the song arriving early. She finishes the verse looking straight at you, hops off the table, and lands already talking.
+She spots your gear over the crowd's heads and her whole face lights up. She finishes the verse looking straight at you, hops off the table, and lands already talking.
 
 "Wren Ashdown! Sit, sit. No, wait, don't sit - look at you, you've been *places*, your boots have a better story than half this room." She spins the lute onto her back. "You're no farmer come for the chorus. You have a question. I love questions. Ask."
 
@@ -62,7 +62,7 @@ She stops drawing. For one beat the brightness banks down to something small and
 * [Take your leave.] -> end
 
 == lead_taken ==
-She blows the charcoal dust off the lute, hands you her entire instrument, realizes what she has done, takes it back, and copies the map onto a scrap of paper at speed, talking the whole time.
+She blows the charcoal dust off the lute, hands you her entire instrument, realizes what she has done and takes it back, then copies the map onto a scrap of paper at speed, talking the whole time.
 
 "There'll be water - there was always water at the bottom, even dry years, bring good boots, I cannot overstate the boots." She hands over the paper, and hesitates over the last thing, then says it anyway, quiet and quick:
 
@@ -97,7 +97,7 @@ And the grin comes back, full strength, fear filed to the back of the queue wher
 * "Think on it. I'll ask again." -> end
 
 == joined ==
-Wren rides with the party the way she performed: interested in everything, narrating half of it, keeping the rhythm. The lute travels wrapped in oilcloth like a relic, which by now it might be.
+Wren rides with the party as she performed: interested in everything, narrating half of it. The lute travels wrapped in oilcloth. That is about right for what it turned out to be.
 
 "Courier! Perfect timing. I have three new verses about yesterday and at least one of them is good. Or - wait, is this business? I can do business."
 

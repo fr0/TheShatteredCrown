@@ -8,7 +8,7 @@ entry asleep if sleeping()
 entry hub if flag(TSC_MetWilf)
 
 == start ==
-A long, thin man leans on his hoe like it holds him up. Everything droops: shoulders, mustache, a hat worn to shapelessness. His eyes are sharp.
+A long, thin man leans on his hoe like it holds him up. Everything droops: shoulders, mustache, a hat worn shapeless. His eyes are sharp.
 
 "Wilf Thistledown," he says, in the tone of a man confessing to something. "I farm the middle plot. The wet one. Mara will tell you it's good land, and Mara is right about everything except that."
 
@@ -19,7 +19,7 @@ A long, thin man leans on his hoe like it holds him up. Everything droops: shoul
 * "I'll leave you to your drainage." -> end
 
 == hub ==
-Wilf leans on his hoe like it is the only thing holding him up.
+Wilf shifts his weight on the hoe.
 
 "What do you need?"
 

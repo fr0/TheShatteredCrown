@@ -152,7 +152,34 @@ Bran checks the edge on his knife with a thumb.
     if flag(TSC_BranLoyal) and not flag(TSC_BranTaught)
 * "Anything on your mind, old watchman?" -> confidant
     if affinity(>=15) and not flag(TSC_BranConfided)
+* "Serra is riding with us now, Bran. Hesk." -> serra_time
+    if flag(TSC_BranCellarSeen) and in_party(TSC_Npc_Serra) and not flag(TSC_BranSerraTold)
 * "Carry on, Bran."
+
+# The other half of the cellar: he decided at the ruin whether Serra gets
+# told, and she does not join the company until Act 5, so the decision sits
+# with the player for two acts before it can be acted on.
+== serra_time ==
+Bran looks over at the fire, where Serra is doing something unhurried to a bowstring.
+
+"Aye," he says. "I have been finding reasons for a week. They are all good reasons and not one of them is the reason."
+
+* "Then go." -> serra_go
+    if flag(TSC_BranTellSerra)
+* "You said when you were ready." -> serra_wait
+    if not flag(TSC_BranTellSerra)
+
+== serra_go ==
+He stands up before he can talk himself out of it, and does not look back to see if anybody is following.
+
+* [Go with him.] -> end
+    do flag(TSC_BranSerraPending)
+
+== serra_wait ==
+"I did. I said that." He turns the knife over. "Ask me again. Keep asking me. Ready is not a thing I am going to arrive at on my own."
+
+* "I will keep asking." -> end
+    do flag(TSC_BranTellSerra); affinity(+5)
 
 == confidant ==
 Bran considers the road behind you both before he answers.
@@ -167,7 +194,7 @@ Bran looks you over the way he looked over the ruin's walls, checking for the we
 
 "The watch had a saying: anyone can swing steel, but standing still when everything around you says run, that's a trade." He unbuckles his gambeson and tosses it to you. "Put that on. We start with how to take a hit."
 
-The rest of the day is bruises, footwork, and the arithmetic of shields. By nightfall, your stance has changed.
+The rest of the day is bruises, footwork, and the hard small rules of shields. By nightfall, your stance has changed.
 
 * [Learn the Warden's trade] "Again tomorrow, Bran." -> end
     if not flag(TSC_BranTaught)

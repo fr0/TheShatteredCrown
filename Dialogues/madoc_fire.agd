@@ -1,0 +1,160 @@
+# Madoc Emberlow, companion quest: the fire at the north ford.
+#
+# CANON (madoc.agd): Hew and Gille took Iron Brand arrows at the ford and
+# died days before the party met him. He KNOWS - the truth node has him say
+# so, quietly, in a voice eight years older - and he puts the cheer back on
+# deliberately, "like a man putting on a coat against the cold, because it is
+# what he has". When he left with the company, the still fire stayed behind.
+#
+# NOTHING IN THIS SCENE IS ALIVE BUT HIM. The fire has no mind, no wants and
+# no bargain. It is a shape, and Madoc is holding it, and he has held it
+# without a break since the ford. He is the best in the world at this and has
+# never once had to think about it - which is why tonight, when it finally
+# costs him something, he cannot keep an ordinary campfire flickering.
+#
+# That also reframes the treaty speech he gives when he teaches. The treaty
+# is his poetry. There is no counterpart. There is a man with his hand shut.
+#
+# {PLAYER} is whoever is awake at the fire.
+
+dialogue TSC_Dialogue_MadocFire
+
+== start ==
+The company's campfire will not burn properly tonight.
+
+Every few minutes it goes still: flat, even, no flicker and no sound. Madoc leans over and stirs it and it burns like a fire again for a while. Then it goes still again.
+
+He has stopped talking. In this company that is new.
+
+* "Madoc." -> madoc
+    do give_quest(TSC_Madoc_StillFire)
+* [Sit down with him.] -> madoc
+    do give_quest(TSC_Madoc_StillFire)
+
+== madoc ==
+"I am doing that," he says, before anyone asks. "Not on purpose. That is rather the point."
+
+He turns his hand over and studies it with mild professional interest.
+
+"Fire is the one thing I have never had to think about. Not once. Not drunk, not bleeding, not at fifteen and showing off in front of a girl. And tonight I cannot keep an ordinary campfire flickering."
+
+* "Why not?" -> holding
+* "What are you doing to it?" -> holding
+* [Look at what he is actually doing.] -> read
+    check Arcana 9 -> read_ok | read_bad
+
+== read ==
+{PLAYER} looks at the fire the way Madoc taught: not at the flame, at the hand.
+
+* [Continue.] -> read_ok
+
+== read_ok ==
+You sense Madoc's concentration, emanating from the fire. But it is broken and haphazard.
+
+And behind it, much fainter and much further off, there is a second one. Older. Channeled without a break for days.
+
+This is not the fire itself. All of it is Madoc, and he has been doing it every hour since the ford without noticing.
+
+* "You have been keeping that other fire lit. From here. All this time." -> holding
+    do grant_xp(40)
+
+== read_bad ==
+It is a fire, and then it is a still fire, and then it is a fire again. Whatever is being done to it is being done somewhere {PLAYER} cannot follow.
+
+* "What are you doing to it?" -> holding
+
+== holding ==
+"You do not light my sort of fire and walk off. You hold it. It is no harder than keeping your hand closed: the trick is that you have to keep not opening it."
+
+He does not look up.
+
+"I closed my hand on a fire at the north ford so that Hew and Gille would be warm." A pause. "And I have not opened it since, and until tonight I did not realize I was still doing it."
+
+* "This entire time." -> season
+* "So open it." -> open
+
+== season ==
+"Yes. Small, steady, no trouble at all, burning over the two of them the entire time, because I am very good and it costs me almost nothing."
+
+"Almost nothing, every minute, for days. That adds up. The bill came in tonight, in a perfectly ordinary campfire, in front of people I like."
+
+* "So open it." -> open
+* "Why can you not just stop?" -> why
+
+== open ==
+"Yes." He does not move. "That is the thing to do, and I have known it."
+
+* "Why can you not just stop?" -> why
+* "We can sit here as long as it takes." -> ready
+
+== why ==
+"Because that would be it. The end of it."
+
+He finally looks up.
+
+"There is no treaty. I taught you there was. It is a lovely way to teach and it is not true. A fire is not a counterpart, it does not want anything, and it has never once kept a man warm out of kindness. It was me. All of it, the entire time, was me: somebody keeping their thoughts over two dead friends and calling it looking after them."
+
+* "Say it, then. We are here." -> ready
+* "Then keep holding it." -> keep
+* "You do not have to do this tonight." -> keep
+
+== ready ==
+He works at it for a while. It comes hard, and he is left to it.
+
+Then: two names. One ford. The number of arrows and the day of the week. That they are not resting. That they cannot feel cold and have not needed a fire since the day he set it. That he has been the only warm thing in that camp for a week, and that he is going to stop.
+
+* [Wait with him.] -> release
+* [Say the last of it with him, the part he cannot get out.] -> release
+    check Insight 9 -> release_helped | release
+    on success do affinity(+10)
+
+== release_helped ==
+He gets as far as *they are dead* and stops there, and the silence goes on long enough to be a problem.
+
+{PLAYER} says the rest of it with him, quietly, until his voice comes back and takes the last few words. They are the ones about the day of the week.
+
+* [Continue.] -> release
+
+== release ==
+He opens his hand.
+
+There is no sound and no sign. The campfire in front of him crackles and sags and spits and behaves exactly like a campfire. East, a small flame that has burned flat and unmoving over two men for days is simply not there any more.
+
+He cannot see it happen. He knows the moment it does, and something in his shoulders goes with it.
+
+"Well," he says at last, and there is nothing in his voice at all: no cheer, no madness, no coat. "That is that."
+
+* [Stay with him a while.] -> lucid
+* "That is that." -> lucid
+
+== lucid ==
+He stays out there until the sky goes grey. Nobody makes him.
+
+In the morning he is up first, laying a fire with kindling and a flint and no conversation. It lights on the third strike.
+
+"Sorry about last night," he says, and means it, without the smile. "I will be a bit boring for a while. It turns out a great deal of me was pointed the other way."
+
+Whatever he does with a flame after that, he does exactly, on the first attempt, every time.
+
+* [Let him be boring.] -> end
+    do flag(TSC_MadocLucid); npc_hediff(TSC_Hediff_MadocLucid); grant_xp(150); affinity(+15); signal(TSC_Madoc_StillFire, TSC_MadocReleased)
+
+== keep ==
+"Not tonight," he agrees, far too quickly, and the cheer comes back on like a lamp. "Quite right. Terrible hour for it."
+
+He closes his hand deliberately this time. That part is new. The campfire goes flat and still and stays that way until he remembers to stir it.
+
+"It is not heavy," he says, to the fire. "I have carried it this far without noticing. Now I shall carry it and notice. That is barely a change at all."
+
+* "Then carry it." -> kept
+* "We will be here when you want to put it down." -> kept
+
+== kept ==
+Something goes out of his shoulders. Whatever tonight was, it has been put down again, and he will be all right.
+
+"Right!" he says, to the camp at large. "Bed. Big day. Probably something to burn."
+
+And from that night on, every fire he touches is touched by a man who is doing something else at the same time. Most of it works. Some of it works far better than it has any business doing. Not even Madoc can say in advance which.
+
+* [Let him hold it.] -> end
+    do flag(TSC_MadocKindled); npc_hediff(TSC_Hediff_MadocKindled); grant_xp(150); affinity(+5); signal(TSC_Madoc_StillFire, TSC_MadocKept)

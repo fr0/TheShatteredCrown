@@ -1,0 +1,166 @@
+# The cellar under the border ruin. Fires by proximity when somebody reaches
+# the door, so the scene is the arrival rather than a roll.
+#
+# The checks inside are for what can be READ, not for whether the party is
+# allowed to have the scene. Perception dates the marks; Lore reads the
+# bowman's kit. Failing either loses information, never the moment.
+#
+# The truth held here, and it must stay ambiguous: Hesk was alone, the
+# raiders never came down, and the door was barred from the OUTSIDE by a
+# fallen beam, not by Bran. Bran could not have known that. Opening it would
+# have cost him nothing and saved a man - and he had no way of knowing that
+# either, and never will, because the beam is exactly what a man hears when
+# he is being hunted and does not want to be found.
+#
+# {PLAYER} is whoever gets there first.
+
+dialogue TSC_Dialogue_BranCellar
+
+== start ==
+The north end of the ruin is a heap. Slate, laths, a gable's worth of it, in a pile the height of a man.
+
+Bran stands at the edge of the pile with his hands at his sides.
+
+"Under there," he says. "Somewhere. It was standing when we scattered."
+
+* [Start clearing it.] -> clear
+
+== clear ==
+It takes the better part of the morning to get down to what is under the slate, and what is under the slate is a door.
+
+A good one. Oak, iron-strapped, hung by somebody who expected to keep something down there. Shut. And lying at an angle across it, wedged into the frame at both ends, a roof beam the thickness of a man's thigh.
+
+Bran has stopped working.
+
+* [Look at the beam.] -> beam
+* [Shift it.] -> open
+
+== beam ==
+The beam came down off the north gable and took the slate with it. There is no way to put it where it is from inside the cellar, and no way to shift it from down there either.
+
+Whatever barred that door barred it from up here, and it was not a person.
+
+* [Shift it.] -> open
+
+== open ==
+One end lifts on a lath used as a lever. The other walks sideways with a shoulder against it. It is heavy and awkward and one determined man could have done it in a quarter of an hour.
+
+The door swings out easily. It would have done on any day since, for one man with a lath and a shoulder.
+
+Bran does not go down first. He goes down third.
+
+* [Follow him.] -> below
+
+== below ==
+It is a dry cellar, and cold, and small. There is a man in it.
+
+He has been dead a long while and the cold has kept him tidy. He is sitting with his back against the wall opposite the stairs, facing the door, with an empty water skin beside him and a bow he could not string in a cellar this low.
+
+Not one of them speaks.
+
+* [Read the marks on the inside of the door.] -> marks
+    check Perception 9 -> marks_ok | marks_bad
+* [Look at his kit.] -> kit
+    check Lore 9 -> kit_ok | kit_bad
+* [Go to Bran.] -> bran
+
+== marks ==
+{PLAYER} takes the lamp to the inside face of the door.
+
+* [Continue.] -> marks_ok
+
+== marks_ok ==
+The inside of the door is scored to a depth of a finger. Boot heels, a knife, and then, lower down, hands.
+
+There is a tally cut into the frame beside it. Six strokes. Then a seventh, half finished.
+
+Six days. He was down there four days before he started hitting the door, and he kept at it for two, and then for one more day he was alive and not hitting anything.
+
+* [Go to Bran.] -> bran
+    do grant_xp(40)
+
+== marks_bad ==
+The inside of the door is scored and battered and it is impossible to say for how long, or in what order, or by a man who still believed he would be heard.
+
+* [Go to Bran.] -> bran
+
+== kit ==
+{PLAYER} crouches by the kit.
+
+* [Continue.] -> kit_ok
+
+== kit_ok ==
+A Thornden bow, the cheap kind, kept far better than it deserved. A guild tally-stick, stamped with the year he was taken on. And a linen map case, empty, with a note pushed into it that has gone almost to lace.
+
+What survives of the note is four words in a bad hand: *tell serra i tried*.
+
+He was not writing to whoever might find him. He was writing to somebody he expected to see.
+
+* [Go to Bran.] -> bran
+    do flag(TSC_BranHeskNote); grant_xp(40)
+
+== kit_bad ==
+A bow, a tally-stick, a map case with nothing in it. The kind of kit that tells you what a man did and nothing about what he was.
+
+* [Go to Bran.] -> bran
+
+== bran ==
+Bran has not moved off the bottom step.
+
+"Six days," he says, to nobody. "I was upstairs for twelve. I ate a rat on the eighth and I remember thinking it was the worst day of my life."
+
+He looks back up the steps at the beam, lying in the grass where it took one lath and one shoulder to move.
+
+"It was not raiders. It was a roof." A long pause. "And I never went and looked. That is the whole of it. Not that I could not lift it. That I sat forty feet away for two days and never once walked over to the pile."
+
+* "You could not have known." -> couldnt
+* "No. You could not." -> couldnt
+* [Let him have the silence.] -> couldnt
+
+== couldnt ==
+"I know. Nobody could have known what was under it." He says it without any weight at all. "Which is not the same as not being able to find out, and I will have an hour a day for the rest of my life to tell those two things apart."
+
+He comes up the steps.
+
+"Right. He is not staying down there."
+
+* "Where does he go?" -> where
+
+== where ==
+"Thornden. His mother is dead but his sister is not, and there is a yard behind the smithy with three of them in it already."
+
+He is not asking. Then he stops, halfway to the light, and asks anyway.
+
+"And Serra. That is not mine to decide alone. She has been carrying this with the wrong story attached to it, and I have been carrying the right one and not sharing it."
+
+* "Tell her. She has earned the truth." -> tell
+* "Tell her when you are ready. Not before." -> later
+* "Do not tell her. It changes nothing now." -> never
+
+== tell ==
+"Aye." He nods once. "Aye. She will take it badly and she will take it in front of me. That is the correct way round."
+
+* [Carry him up.] -> carry
+    do flag(TSC_BranTellSerra)
+
+== later ==
+"That is the answer I would have given, and I have noticed lately that it is the answer I give to everything." A dry sound that is not a laugh. "All right. When I am ready. I will try not to make that mean never."
+
+* [Carry him up.] -> carry
+    do flag(TSC_BranTellLater)
+
+== never ==
+Bran looks at you for a long moment.
+
+"No," he says, and it is the first time he has ever refused this company anything. "I have kept it this long and it has done me no good whatsoever. I am not asking her to forgive me. I am telling her what happened to her bowman, because somebody should and there is only me."
+
+* [Carry him up.] -> carry
+    do flag(TSC_BranTellSerra)
+
+== carry ==
+They bring him up in the afternoon and lay him on a cloak in the grass, and the door stands open behind them.
+
+Bran shoulders the bow himself and does not offer it to anyone.
+
+* [Start for Thornden.] -> end
+    do flag(TSC_BranCellarSeen); grant_xp(150); affinity(+10); signal(TSC_Bran_FourthName, TSC_BranFoundHesk)

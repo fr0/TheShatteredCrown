@@ -12,7 +12,7 @@
 dialogue TSC_Dialogue_PartWays
 
 == start ==
-{NPC} reads {PLAYER}'s face before a word is said, which is what a season on the road does to people.
+{NPC} reads {PLAYER}'s face before a word is said. A season on the road does that to people.
 
 "Ah," they say. "That kind of talk."
 
@@ -62,7 +62,7 @@ They check their kit with the unhurried thoroughness of somebody who intends to 
 == depart ==
 There is a handshake, or something close enough to one.
 
-"If it goes badly," {NPC} says, "I would rather hear it from a stranger in a tavern than not hear it at all. So: be somewhere a story can find you."
+"If it goes badly," {NPC} says, "I would rather hear it from a stranger in a tavern than not hear it at all. So: be somewhere a storyteller can find you."
 
 And then they are walking, and not looking back, because looking back is for people who intend to return and they have not decided about that yet.
 

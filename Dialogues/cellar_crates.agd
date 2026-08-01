@@ -34,7 +34,7 @@ Barrels and crates, stacked four high against the wall where the stair goes up. 
 
 A hand on the top crate. Not pushing yet.
 
-"So they send some down. Not all of them, they're not fools, but some. And they come down a stone stair into a dark corridor, in ones and twos, into us." A shrug. "It's not clever. It's just arithmetic. Every one that dies down here isn't up there when we come out."
+"So they send some down. Not all of them, they're not fools, but some. And they come down a stone stair into a dark corridor, in ones and twos, into us." A shrug. "It's not clever. It's just numbers. Every one that dies down here isn't up there when we come out."
 
 * "Do it." -> ready
     check Thievery 8 -> rigged | ready
@@ -59,7 +59,7 @@ A hand on the top crate. Not pushing yet.
 == alone ==
 Barrels and crates, stacked four high against the wall where the stair goes up. Salt fish, by the smell, and something that was flour once.
 
-{PLAYER} looks at the stack, and up the stair, and at the stack again, and does the arithmetic that nobody is there to argue with.
+{PLAYER} looks at the stack, and up the stair, and at the stack again, and works out the thing nobody is there to argue with.
 
 That lot goes over with a crash they will hear at the top. Some of them come down to see. Not all - they are not fools - but some. And they come down a stone stair into a dark corridor, in ones and twos.
 

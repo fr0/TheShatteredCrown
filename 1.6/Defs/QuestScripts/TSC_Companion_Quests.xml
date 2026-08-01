@@ -88,4 +88,216 @@ The brothers of the Silent Monastery took in the fourth rider at their gate and 
     </root>
   </QuestScriptDef>
 
+  <!-- ============ Madoc: The Still Fire ============ -->
+
+  <QuestScriptDef ParentName="TSC_CompanionQuestBase">
+    <defName>TSC_Madoc_StillFire</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Still Fire</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Hew and Gille took Iron Brand arrows at the north ford, and Madoc closed his hand on a fire so that they would be warm. He has not opened it since. It has been burning over them all season, small and steady, three weeks east of wherever the company happens to be.\n\nIt costs him almost nothing. Almost nothing, every minute, for a season, and tonight the bill arrived: the best fire shaper any of them has met cannot keep an ordinary campfire flickering.\n\nThere is nothing on the other end of this and no bargain to close. There is a man who has to decide to open his hand, and who cannot decide it without saying out loud what he has been doing.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MadocReleased</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NeutralEvent</letterDef>
+                <label TKey="LetterLabelMadocReleased">That is that</label>
+                <text TKey="LetterTextMadocReleased">Madoc said the whole of it out loud: two names, one ford, the number of arrows, the day of the week. That they are not resting, cannot get cold, and have not needed a fire since the day he set it.
+
+Then he opened his hand. The company's campfire crackled and spat and behaved like a campfire, and three weeks east a small flat flame stopped.
+
+He lays fires with a flint now, like anybody, and what he does with them he does exactly, first time. He is much quieter than he was, and he says those are the same fact.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MadocKept</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NeutralEvent</letterDef>
+                <label TKey="LetterLabelMadocKept">Terrible hour for grammar</label>
+                <text TKey="LetterTextMadocKept">Madoc closed his hand deliberately this time, which is new. The fire at the ford goes on burning over two men who cannot get cold, and he goes on holding it.
+
+Everything he does with a flame from here is done by a man doing something else at the same time. Most of it works. Some of it works far better than it should, and nobody can say in advance which.</text>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MadocLost</inSignal>
+          <node Class="QuestNode_End">
+            <outcome>Fail</outcome>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Bran: The Fourth Name ============ -->
+
+  <QuestScriptDef ParentName="TSC_CompanionQuestBase">
+    <defName>TSC_Bran_FourthName</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Fourth Name</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Raiders cut Bran off from the Wayfarer camp and he spent twelve days alone in a border ruin. On the fourth day something began hitting the cellar door from the inside, and it went on for the better part of two days, and he sat in the corner with his sword across his knees and did not open it.\n\nIt could have been raiders. They had run him into that ruin and they knew the ground. He has made that argument to himself about four hundred times and it is a good one.\n\nIt could also have been Hesk, the company's bowman, cut off in the same push. Serra thinks the pass took him. Bran has never said otherwise.\n\nThe ruin is three days back down the pass.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetPartySiteTile">
+          <storeAs>siteTile</storeAs>
+          <minDist>4</minDist>
+          <maxDist>11</maxDist>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_BranCellarRuin</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_BranFoundHesk</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NeutralEvent</letterDef>
+                <label TKey="LetterLabelBranHesk">Six days</label>
+                <text TKey="LetterTextBranHesk">The north end of the ruin came down before Bran ever got there, and the cellar door was under the heap of it. The party spent a morning taking slate off the pile. Under the slate: the door, and a roof beam off the north gable lying across it, which one lath and one shoulder were enough to move. There is no way to put it there from below and no way to shift it from down there, and Hesk was alone in that cellar for six days with a bow he could not string and a water skin he finished.\n\nBran was at the south end of that ruin for twelve days and never walked over to the pile. He could not have known what was under it, which is not the same as not being able to find out. He says he will know that for about an hour a day for the rest of his life.\n\nThe bowman goes home to Thornden, under his own name.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>150</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_BranLost</inSignal>
+          <node Class="QuestNode_End">
+            <outcome>Fail</outcome>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ Maewyn: Thirty Years ============ -->
+
+  <QuestScriptDef ParentName="TSC_CompanionQuestBase">
+    <defName>TSC_Maewyn_ThirtyYears</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Thirty Years</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->One of Maewyn's ravens has come back thin, carrying a sprig of sagewort gone to seed. It flowers in spring; it should not have seed on it in any year she is there.\n\nBoth birds have been flying home every few weeks all this time to look at a house with nobody in it. Nobody has cut anything since she left. The hives will swarm and die without a hand on them, and nine kinds of physic that grow nowhere else in the valley are going under mint and weed.\n\nShe said the hills could hold it a while. A while has turned out to have a length.\n\nGo back to the grove.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MaewynKeeperFound</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelMaewynKeeper">A list on the inside of a door</label>
+                <text TKey="LetterTextMaewynKeeper">The grove goes to a girl from the valley farm who has been walking up the hill since she was nine to look at the bees, and who asked four times what the black bed was for.\n\nMaewyn spent two days handing a hollow over: stakes in the ground, the swarming hive split, and a list scratched on the inside of the door in a hand that expects to be read by somebody who is not clever yet but is paying attention. She will be teaching by raven for two years, and the girl will do half of it wrong.\n\nThe half she gets right is nine kinds of physic that would otherwise stop existing in this valley.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>150</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MaewynGaveBack</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NeutralEvent</letterDef>
+                <label TKey="LetterLabelMaewynHills">Gorse in four years</label>
+                <text TKey="LetterTextMaewynHills">Maewyn opened the hives and walked away from them, lifted what she wanted out of the black bed into a box the size of a loaf, and cut nothing else.\n\nThe last thing she did was take the door off its hinges and lay it flat in the grass, so that nothing would have to break it to get in. Gorse in four years, she says. Birch after that. Nothing to show anybody was ever there.\n\n"It was not mine. It was on loan and I have handed it back, and that is the correct end of the arrangement."</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>150</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_MaewynLost</inSignal>
+          <node Class="QuestNode_End">
+            <outcome>Fail</outcome>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
 </Defs>

@@ -49,6 +49,20 @@
         <initiations>
           <!-- Maewyn seeks the player out on the road and offers the Druid's teaching -->
           <li>
+            <!-- Her companion quest. Late, and gated on affinity: the state
+                 of her grove is not a thing she raises with people she is
+                 merely working for. -->
+            <dialogue>TSC_Dialogue_MaewynRaven</dialogue>
+            <mtbDays>2</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_Affinity">
+                <min>15</min>
+              </li>
+            </conditions>
+          </li>
+          <li>
             <dialogue>TSC_Dialogue_Maewyn_RoadTalk</dialogue>
             <mtbDays>1</mtbDays>
             <once>true</once>
@@ -78,6 +92,33 @@
         <dialogue>TSC_Dialogue_Bran</dialogue>
         <initiations>
           <!-- Bram seeks the player out about a day after joining -->
+          <li>
+            <!-- And the telling, once he has decided to do it. He picks the
+                 moment himself: late, fire low, three of them awake. -->
+            <dialogue>TSC_Dialogue_BranSerra</dialogue>
+            <mtbDays>0.5</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
+                <flag>TSC_BranSerraPending</flag>
+              </li>
+            </conditions>
+          </li>
+          <li>
+            <!-- His companion quest. Held back until he has confided in the
+                 company once already (TSC_BranConfided): he does not open
+                 with the worst thing he has done. -->
+            <dialogue>TSC_Dialogue_BranDoor</dialogue>
+            <mtbDays>1.5</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
+                <flag>TSC_BranConfided</flag>
+              </li>
+            </conditions>
+          </li>
           <li>
             <dialogue>TSC_Dialogue_Bran_CampTalk</dialogue>
             <mtbDays>1</mtbDays>

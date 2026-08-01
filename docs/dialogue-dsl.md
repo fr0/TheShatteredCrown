@@ -95,6 +95,12 @@ display text. Indented lines under an option add behavior:
   DC ladder: **6** easy, **8** standard, **10** hard, **12+** heroic
   (specialists only).
 - `on success do ...` / `on fail do ...` - effects for each check outcome.
+- **Never write the proficiency into the option text of a checked option.** The
+  conversation window prepends `[Lore 12]` itself (Dialog_Conversation.OptionLabel),
+  scaled DC and all, so `* [Lore] [Read the wall.]` renders as `[Lore 12] [Lore]
+  [Read the wall.]`. Passive-gated options are the exception and DO carry the tag by
+  hand (`* [Insight] "..."` with `if passive(Insight, 8)`), because nothing is added
+  to those and the player would otherwise have no idea why the line is available.
 
 ## Emphasis in dialogue text
 
@@ -137,6 +143,7 @@ display text. Indented lines under an option add behavior:
 | `join_party()` | the NPC being talked to joins the player faction (companion recruit) |
 | `trade()` | opens the vanilla trade window with the NPC being talked to (they must be a standing trader - NamedNpcDef `traderKind`, e.g. Haldor); the talking colonist negotiates. Link the option back to the same node so the conversation resumes behind the trade screen |
 | `depart(NamedNpcDefName)` | sends that named character WALKING off their current map ("they left") - they leave their lord and jog for the map edge (vanilla exit lord), worldify on arrival, and respawn wherever the story next places them. Pair with NamedNpcDef `awayWhileQuestActive` to keep village regeneration from respawning them mid-quest |
+| `npc_hediff(HediffDefName)` | puts a hediff on the NPC being talked to - for conversations that change somebody permanently (Madoc leaves the still fire either `TSC_Hediff_MadocLucid` or `TSC_Hediff_MadocKindled`, and casts differently forever after) |
 | `wake()` | wakes the sleeping NPC being talked to. The asleep-node pattern ends the conversation after waking (`-> end`); the next talk enters the normal tree |
 | `grant_xp(50)` | grants XP to the whole party (levels/class unlocks) |
 | `learn_class(TSC_Class_Cleric)` | the TALKING COLONIST learns a class (level 1; banked levels are assigned via the Level up! dialog) |

@@ -11,7 +11,7 @@
 dialogue TSC_Dialogue_LastCourier
 
 == start ==
-He comes up the last of the slope while the company is still looking at the stone throat, and he does not hurry, because hurrying stopped meaning anything to him a very long time ago.
+He comes up the last of the slope while the company is still looking at the stone throat. He does not hurry. Hurrying stopped meaning anything to him a long time ago.
 
 A courier's satchel, worn through and mended and worn through again. A road warrant from a chancery that has not existed in eight centuries. Boots that have been resoled by people whose grandchildren are dust.
 
@@ -31,9 +31,9 @@ He stops when he sees the mound. Actually stops, mid-step, like a man walking in
 * [Continue.] -> looked
 
 == looked ==
-The satchel is eight hundred years old and mended a hundred times. The boots are new, and cheap, and the wrong size. The warrant in his hand has a chancery seal on it that no living clerk could forge because no living clerk has seen one.
+The satchel is eight hundred years old and mended a hundred times. The boots are new, and cheap, and the wrong size. The seal on his warrant is one no living clerk could forge, because no living clerk has seen one.
 
-And his hands are wrong. Not old: *worn*. The calluses of a man who has gripped the same strap for longer than calluses last, laid over each other so many times the skin has become leather.
+And his hands are wrong. Not old: *worn*. The calluses of a man who has gripped the same strap for longer than calluses last, laid over each other until the skin gave up and became leather.
 
 Whatever he is, he did not get that way in a lifetime, and he is not pretending.
 
@@ -121,7 +121,7 @@ And then the years arrive.
 == years ==
 It is not a collapse. It is more orderly than that, and much worse to watch.
 
-The colour goes first, out of his face and then out of the rest of him, the way dye leaves cloth left in a window. His hands, still half-raised from the handover, thin as the flesh under the skin gives up eight centuries of arrears in the space of three breaths. The satchel strap has worn a groove in his shoulder and the groove stays, because there is no longer enough of him for it to spring back out of.
+The colour goes first, out of his face and then out of the rest of him. His hands, still half-raised from the handover, thin as the flesh under the skin gives up eight centuries of arrears in three breaths. The satchel strap has worn a groove in his shoulder and the groove stays, because there is no longer enough of him for it to spring back out of.
 
 He does not seem frightened. He seems to be reading a bill he has been expecting for a very long time.
 
@@ -137,7 +137,7 @@ His knees fold. There is very little sound.
 
 "Eight hundred and eleven years of not arriving. And I put it in your hands, and it let go of me, and now the road is simply..."
 
-He does not finish it. The last thing he does with his eyes is look east, the way he came, as if it is the first time in eight centuries he has faced that direction on purpose.
+He does not finish it. The last thing he does with his eyes is look east, back down the road he came by, as if it is the first time in eight centuries he has faced that direction on purpose.
 
 * [Lay him down on the grass.] -> laid
 

@@ -14,14 +14,14 @@ The priest is folding bandages at the altar, and does not stop when you come in.
 * "Peace on your house." -> end
 
 == service ==
-"Wounds, mostly. Cuts, breaks, burns, the fevers that ride them." He sets the bandages down. "Bring them to the cot and we'll see what the offering comes to. Bad wounds cost more than scratches; that's arithmetic, not greed."
+"Wounds, mostly. Cuts, breaks, burns, the fevers that ride them." He sets the bandages down. "Bring them to the cot and we'll see what the offering comes to. Bad wounds cost more than scratches; that's the ledger, not greed."
 
 * [Ask them to tend the party.] -> end
     do temple_heal()
 * "Not today." -> end
 
 == limits ==
-"We close what's open. We don't grow back what's gone." He says it plainly, the way a man says a thing he has said many times to people who did not want to hear it. "A hand off at the wrist stays off. An old break that healed crooked stays crooked. Bad backs, failing eyes, the slow work of years - that's not a wound, that's a life. No offering moves it."
+"We close what's open. We don't grow back what's gone." He says it plainly, like a man saying a thing he has said many times to people who did not want to hear it. "A hand off at the wrist stays off. An old break that healed crooked stays crooked. Bad backs, failing eyes, the slow work of years - that's not a wound, that's a life. No offering moves it."
 
 He picks the bandages back up.
 

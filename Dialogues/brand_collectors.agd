@@ -19,7 +19,7 @@ The collector is the well-fed kind of dangerous, with a brand mark on his cloak-
 == scare ==
 He looks again. Slower.
 
-He sees whatever it is you have been becoming since the watchtower: the gear that has been through three acts of trouble, the scars with stories, the company that walks like it has already taken bigger walls than his. His men see him seeing it.
+He sees whatever it is you have been becoming since the watchtower: the gear, the scars, the company standing behind you like it has taken bigger walls than his. His men see him seeing it.
 
 "...The Brand will hear about this," he says, which is what men like him say instead of drawing steel. He backs one step before he turns, and the whole square notes it, and he knows the whole square notes it.
 
@@ -29,7 +29,7 @@ They leave the tribute cart standing where it is.
     do parley_flee(); signal(TSC_Act3_Thornden, TSC_CollectorsFled); flag(TSC_TributeAnswered); grant_xp(50)
 
 == scare_fail ==
-He looks again, slower - and finds his nerve where he left it, next to the arithmetic of four Brand men against your travel-worn few.
+He looks again, slower - and finds his nerve where he left it, next to the odds of four Brand men against your travel-worn few.
 
 "I count better than the reeve does," he says, and the boredom behind him is gone, hands finding hilts with the ease of practice. "And I'm paid either way."
 

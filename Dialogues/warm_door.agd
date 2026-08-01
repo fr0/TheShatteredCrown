@@ -12,7 +12,7 @@ dialogue TSC_Dialogue_WarmDoor
 == start ==
 The door is stone, and the stone is warm. Standing in front of it is like standing in front of a hearth with no fire.
 
-{PLAYER} puts out a hand. The warmth comes through the glove. There is no handle and no hinge, but the stone gives under the pressure, a finger's width, the way a door does when it is not locked and never has been.
+{PLAYER} puts out a hand. The warmth comes through the glove. There is no handle and no hinge, but the stone gives under the pressure, a finger's width. It is not locked. It never has been.
 
 Something on the other side moves. Not footsteps. A weight, shifting, the way ice shifts on a lake.
 

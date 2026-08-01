@@ -1,0 +1,68 @@
+# Bran tells Serra about the door. Only reachable once she is travelling
+# with the company (Act 5) and he chose to tell her.
+#
+# TIMING: this scene is Act 5 only - Serra does not travel with the company
+# until then.
+#
+# {PLAYER} is whoever is standing there when he finally does it.
+
+dialogue TSC_Dialogue_BranSerra
+
+== start ==
+Bran waits until the fire is low and there are three of them left awake. It is as close to alone with her as he is going to get.
+
+"Captain. Hesk did not die in the pass."
+
+Serra puts down what she is holding.
+
+* [Let him say it.] -> say
+* "He has been carrying this for weeks." -> say
+
+== say ==
+He says it plainly and in order, the way he does everything: the push, the ruin, the cellar, the four days, the hammering, the two days of it, the sword across his knees. The beam. Six strokes and a seventh half cut.
+
+He does not soften the number. He gives her the number first.
+
+* [Continue.] -> serra
+
+== serra ==
+Serra listens the whole way through without one interruption.
+
+Then: "Six days."
+
+"Yes."
+
+"And you were up there for twelve."
+
+"Yes."
+
+* [Wait.] -> verdict
+
+== verdict ==
+She looks at the fire for a long moment.
+
+"I put him in that pass," she says. "I took him on because he told the truth at a hiring, and I sent him up the north side because he was the only one I could spare, and I did not go back for four days because I was counting the ones I could still see."
+
+She looks up.
+
+"So that is the long and the short of it."
+
+* "You are not blaming him." -> blame
+* "What do you want to do?" -> do
+
+== blame ==
+"I am not absolving him either. I do not do that; it is not mine to hand out and he would not take it." Flat, and not unkind. "He heard a door and he made a call with the information he had, in a pass full of men who were hunting him. I have made that call. Everybody who has ever led anybody has made that call."
+
+"The difference is that mine came out on the right side often enough that people call me captain now."
+
+* "What do you want to do?" -> do
+
+== do ==
+"Where is he?"
+
+"Thornden. Behind the smithy, under his own name."
+
+"Then when this is finished, I am going to Thornden, and I am going to stand there, and then I am going to find his sister and tell her he was good at his work." She picks up what she was holding. "You are coming. Not as a penance. Because she should hear it from the two people who were nearest."
+
+* [Sit back down.] -> end
+    do flag(TSC_BranSerraTold); grant_xp(100); affinity(+10); affinity(TSC_Npc_Serra, +10)

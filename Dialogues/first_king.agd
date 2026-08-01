@@ -8,7 +8,7 @@
 dialogue TSC_Dialogue_FirstKing
 
 == start ==
-The lid grinds back, and what is inside is a small dry man in the remains of very good clothes, hands folded on a hollow where a crown should sit and does not.
+The lid grinds back. Inside is a small dry man in the remains of very good clothes, hands folded on a hollow where a crown should sit.
 
 He is nine hundred years dead. He opens his eyes anyway.
 
@@ -84,7 +84,7 @@ Nobody says anything. It is not that kind of moment.
 == wear ==
 The pieces go together without a seam, the way a word goes together out of letters, and it is not heavy at all.
 
-The dead king watches with an expression that has no anger in it whatsoever, which is the worst of the available expressions.
+The dead king watches with an expression that has no anger in it whatsoever. Of the available expressions, it is the worst.
 
 "There it is," he says. "Thirteen." He does not sound surprised, or angry, or even especially disappointed. "Do not be too hard on yourself. I lasted nine years, and I was the best of twelve."
 
@@ -108,7 +108,7 @@ The oath-keepers ask for the roads before anybody else can offer.
 
 They do not make a speech about it. One of them says "we saw the first five off," and another says "aye," and that is the whole of the discussion. Five of them, five pieces, five directions, and this time nobody is waiting at a door for them to come back, because there will be nobody left in the barrow to wait.
 
-They take the pieces the way men take up a pack they have carried before.
+They take up the pieces without ceremony. They have all carried packs before.
 
 "Better," the dead king says, and for the first time in the conversation he sounds like a man and not a lesson. "Mine at least know what they are holding. Mine will not be talked into putting it on."
 
@@ -130,7 +130,7 @@ Somewhere in the dark, four thin voices that have not been able to want anything
     do crown_ending(scatter)
 
 == entomb ==
-The pieces go into the hollow in the dead king's hands, one at a time, and they fit, and the wanting rises up so hard that the whole chamber leans.
+The pieces go into the hollow in the dead king's hands, one at a time. They fit. The wanting rises so hard the chamber leans.
 
 Then the lid goes back on, and the leaning stops.
 
@@ -158,9 +158,9 @@ So the company does it themselves: rubble into the stone throat, hour after hour
     do crown_ending(entomb)
 
 == leave ==
-{PLAYER} closes the lid on an old man and his empty hands, and leaves five pieces of a crown lying on the floor of a sealed room at the bottom of a barrow nobody has found in eight hundred years.
+{PLAYER} closes the lid on an old man and his empty hands. Five pieces of a crown stay on the floor of a sealed room, at the bottom of a barrow nobody has found in eight hundred years.
 
-The wanting follows them all the way up the throat and out into the daylight, and then it cannot follow any further, because nobody is carrying it.
+The wanting follows them up the throat and out into the daylight, and then it stops, because nobody is carrying it.
 
 Behind them, the mound is just a hill with good grass.
 

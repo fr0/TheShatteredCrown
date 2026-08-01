@@ -68,7 +68,58 @@ namespace TheShatteredCrown
         public static float Factor(Pawn pawn, AbilityDef ability)
         {
             float level = 1f + PerLevel * (CasterLevel(pawn, ability) - 1);
-            return level * TSC_Instruments.SongPower(pawn, ability);
+            return level * TSC_Instruments.SongPower(pawn, ability) * GriefFactor(pawn);
+        }
+
+        /// <summary>
+        /// What Madoc did with the fire he left keeping watch, expressed as
+        /// arithmetic (Dialogues/madoc_fire.agd).
+        ///
+        /// KINDLED - he kept the treaty open. The fires stay fond of him and
+        /// they are not reliable: every cast rolls somewhere between a damp
+        /// squib and something the company talks about for a week. Slightly
+        /// better on average than plain casting, and never the same twice.
+        ///
+        /// LUCID - he released it, and said the true thing out loud to a
+        /// thing that cannot be lied to. Steadier and stronger, every time,
+        /// which is exactly what he traded the coat for.
+        ///
+        /// Neither hediff exists on anybody else, so every other caster in
+        /// the game multiplies by 1.
+        /// </summary>
+        public static float GriefFactor(Pawn pawn)
+        {
+            HediffSet health = pawn?.health?.hediffSet;
+            if (health == null)
+            {
+                return 1f;
+            }
+            if (TSC_DefOf.TSC_Hediff_MadocLucid != null
+                && health.HasHediff(TSC_DefOf.TSC_Hediff_MadocLucid))
+            {
+                return 1.3f;
+            }
+            if (TSC_DefOf.TSC_Hediff_MadocKindled != null
+                && health.HasHediff(TSC_DefOf.TSC_Hediff_MadocKindled))
+            {
+                return Rand.Range(0.55f, 2.1f);
+            }
+            // Maewyn, after the grove (Dialogues/maewyn_grove.agd). Handing
+            // it to a keeper leaves her a source and a correspondence to
+            // keep up: a smaller lift, and she also keeps the Nature she has
+            // somewhere to practise (TSC_FeatMods.ProficiencyBonus). Giving
+            // it back to the hills puts all of it into the road instead.
+            if (TSC_DefOf.TSC_Hediff_MaewynKept != null
+                && health.HasHediff(TSC_DefOf.TSC_Hediff_MaewynKept))
+            {
+                return 1.15f;
+            }
+            if (TSC_DefOf.TSC_Hediff_MaewynLetGo != null
+                && health.HasHediff(TSC_DefOf.TSC_Hediff_MaewynLetGo))
+            {
+                return 1.3f;
+            }
+            return 1f;
         }
 
         /// <summary>

@@ -1,0 +1,103 @@
+# Bran Underhill, companion quest, part one: the door he did not open.
+#
+# CANON (bran.agd, Act 1): raiders cut him off from the Wayfarer camp and he
+# spent 12 days holed up alone in a border ruin, eating rats. His first
+# line to the player is "the company's alive. Or was, twelve days ago" - he
+# is counting three, and he already knows the count is wrong.
+#
+# TIMING: this fires mid-campaign, weeks after the pass. Hesk is one of
+# the reasons she eventually says it.
+#
+# THE POINT: opening the door might not have saved anybody. There were
+# raiders in that pass. Bran would probably have died too. Nobody will ever
+# know, including him, and that is the whole of the thing he carries.
+#
+# Fires as an initiation once he is in the party and warm to the company.
+# {PLAYER} is whoever he decides to say it to.
+
+dialogue TSC_Dialogue_BranDoor
+
+== start ==
+Bran has taken an unasked watch, as he does most nights. Tonight he has taken it sitting down.
+
+"Can I ask you a question about a thing that has no good answer? You do not have to answer it. I have had it rattling around in my head and I would like it to be in the open for a minute."
+
+* "Go on." -> ask
+* "That is what road partners are for." -> ask
+
+== ask ==
+"If somebody is hammering on a door and you cannot see them, and there are men in the pass who would very much like you to open it, how long do you wait?"
+
+He is not looking up.
+
+"Not a riddle. I have a number. I want to know if it is the right one."
+
+* "How long did you wait?" -> waited
+* "What was the number?" -> waited
+
+== waited ==
+"Two days."
+
+He lets that sit exactly as long as it needs to.
+
+"The ruin you found me in. The north end of it is down, and it came down before I got there, and under the heap of it is a cellar door."
+
+He turns his hand over.
+
+"On the fourth day something started hitting that door from underneath the pile, and it went on for the better part of two days, off and on, and I sat at the south end with my sword across my knees and I never once walked over to look."
+
+* "Raiders?" -> raiders
+* "You did not call out?" -> called
+* [Say nothing.] -> called
+
+== raiders ==
+"Could have been. You cannot tell what a noise under a slate heap is. It could be a man under it. It could as easily be men on the far side of it, working at the fall, because that is the one way into that ruin that does not come past me." A shrug that costs him something. "That is the argument. I have made it to myself about four hundred times and it is a good one."
+
+* "You did not call out?" -> called
+
+== called ==
+"I did not." Flat. "Not once. Because if it was raiders and I called out, they would know exactly where in that ruin I was."
+
+"And because if I walked over and started pulling slate off that pile and I was wrong, I would be standing in the open with my back turned and my hands full of roof."
+
+* "Who do you think it was?" -> hesk
+
+== hesk ==
+"Hesk." He says the name easily. That is worse than struggling with it. "Bowman. Serra took him on out of Thornden two winters back because he was the only person at the hiring who admitted he could not read a map."
+
+"He was cut off in the same push I was. Nobody has seen him since. And the ruin was the nearest roof to where we scattered. I would have gone there, and I did go there, and I have never once got it to come out any other way."
+
+* "You do not know that it was him." -> know
+* "Have you told Serra?" -> serra
+
+== know ==
+"No. I do not." He almost smiles. "That is the part I cannot get past. If I had opened that door and it was six raiders, I would be dead and so would everyone I have walked with since, and this whole road would have ended in a border ruin with nobody the wiser."
+
+"So it is not that I did the wrong thing. It is that I will never find out. There is a version of me that saved a man and a version that killed himself for nothing and I cannot get at either of them from here."
+
+* "Have you told Serra?" -> serra
+
+== serra ==
+Bran takes a while with that one.
+
+"No. Serra thinks the pass took him, along with the rest, and she has spent weeks carrying that on her own account. If I tell her, she stops carrying it and starts carrying *me*, and I am not sure that is a gift."
+
+He looks up.
+
+"But I would like to know what is behind that door. Whatever it is, I have been arguing with it ever since, and I would rather argue with something I have actually seen."
+
+* "Then we go and look." -> go
+* "It has been weeks, Bran. There may be nothing." -> nothing
+
+== nothing ==
+"Then there is nothing, and I will have walked a long way to find nothing, and I will take that." A short breath. "It would be the best available outcome and I do not expect it."
+
+* "Then we go and look." -> go
+
+== go ==
+"Aye." He stands, steadier for having said it out loud, and being steadier is not the same as being all right. "It is three days back down the pass. I can walk you to the north end with my eyes shut."
+
+"And if it is him: he goes home to Thornden, under his own name, and it gets written down. He was very bad at maps and very good at everything else and there is no reason at all for that to be a secret."
+
+* "Then we walk." -> end
+    do flag(TSC_BranDoorAsked); give_quest(TSC_Bran_FourthName); affinity(+10)

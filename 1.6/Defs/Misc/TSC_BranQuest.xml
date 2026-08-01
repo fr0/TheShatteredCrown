@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       Bran's companion quest: the cellar door in the border ruin he was
+       holed up in during Act 1, and the man who was behind it.
+
+       The site is the same ruin, generated fresh (Act 1's is long gone by
+       the time this fires), with one thing added: the door. Everything
+       that matters happens in Dialogues/bran_cellar.agd, which the door
+       opens by proximity - the scene is the arrival, not a roll. The
+       checks inside are for what can be READ off the room; failing them
+       costs information, never the moment.
+       ================================================================== -->
+
+  <SitePartDef>
+    <defName>TSC_BranCellarRuin</defName>
+    <label>the border ruin</label>
+    <description>The ruin Bran Underhill spent twelve days in, eating rats, while the raiders worked the pass. There is a cellar under the north end with a good oak door on it, and he never went down.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Return to {0}</approachOrderString>
+    <approachingReportString>Returning to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_BranCellarRuin</li>
+    </tags>
+  </SitePartDef>
+
+  <!-- Same bones as the Act 1 ruin: it should be recognisably the place. -->
+  <GenStepDef>
+    <defName>TSC_BranCellarRuin_Layout</defName>
+    <linkWithSite>TSC_BranCellarRuin</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Watchtower</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_BranCellarRuin_Door</defName>
+    <linkWithSite>TSC_BranCellarRuin</linkWithSite>
+    <order>478</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BranDoor">
+      <doorDef>TSC_BranCellarDoor</doorDef>
+    </genStep>
+  </GenStepDef>
+
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_BranCellarDoor</defName>
+    <label>the fallen north end</label>
+    <description>Slate, laths and a gable's worth of roof, in a pile the height of a man. It came down before Bran ever reached this ruin, and he spent twelve days at the other end of the building without once walking over to it.\n\nSomething is under there. He has known about the cellar since he was twenty.</description>
+    <size>(2,2)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>40</pathCost>
+    <fillPercent>0.4</fillPercent>
+    <useHitPoints>false</useHitPoints>
+    <selectable>true</selectable>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_CollapsedPassage</texPath>
+      <drawSize>(2.2,2.2)</drawSize>
+      <color>(126,124,118)</color>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_ProximityDialogue">
+        <dialogue>TSC_Dialogue_BranCellar</dialogue>
+        <radius>5.9</radius>
+      </li>
+    </comps>
+  </ThingDef>
+
+</Defs>

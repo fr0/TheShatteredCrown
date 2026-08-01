@@ -19,6 +19,14 @@ namespace TheShatteredCrown
         public static HediffDef TSC_Hediff_Summoned;
 
         public static HediffDef TSC_Hediff_Crowned;
+
+        public static HediffDef TSC_Hediff_MadocLucid;
+
+        public static HediffDef TSC_Hediff_MadocKindled;
+
+        public static HediffDef TSC_Hediff_MaewynKept;
+
+        public static HediffDef TSC_Hediff_MaewynLetGo;
         public static PawnKindDef TSC_Ettersnap;
         public static ThingDef TSC_RemembranceMoss;
         public static ThingDef TSC_MossCache;

@@ -145,7 +145,7 @@
             <dc>8</dc>
             <label>Read between the entries</label>
             <successXp>35</successXp>
-            <successMessage>Shares written down, then crossed out, then written smaller. One name gets its full portion every week while the others shrink. That is not a captain: that is somebody the rest are afraid of, and the arithmetic says the others have noticed too.</successMessage>
+            <successMessage>Shares written down, then crossed out, then written smaller. One name gets its full portion every week while the others shrink. That is not a captain: that is somebody the rest are afraid of, and the numbers say the others have noticed too.</successMessage>
             <failMessage>Numbers and names, and no thread you can follow from one to the other.</failMessage>
           </li>
           <li>

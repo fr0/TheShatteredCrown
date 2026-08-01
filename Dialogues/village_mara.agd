@@ -131,7 +131,7 @@ You dig a polite hole and find roots, worms, and the strong impression that the 
 * "Burn it, then. Whatever it is." -> patch_burned
 
 == patch_dumb ==
-It comes up easy, roots and all, the way it apparently always does. By the look Mara gives the cleared ground, you both know it's a rehearsal.
+It comes up easy, roots and all, as it apparently always does. By the look Mara gives the cleared ground, you both know it's a rehearsal.
 
 * "If it's back tomorrow, burn the patch whole." -> patch_burned
 

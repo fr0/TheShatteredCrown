@@ -11,7 +11,7 @@ dialogue TSC_Dialogue_CrownOffer
 == start ==
 The pieces have gone quiet. Not silent: attentive, the way a room goes quiet when somebody important starts speaking.
 
-And then it does speak, and it is not visions any more. It is words, in {PLAYER}'s own voice, using {PLAYER}'s own mannerisms, which is the most frightening thing that has happened on this journey.
+And then it does speak, and it is not visions any more. It is words, in {PLAYER}'s own voice, using {PLAYER}'s own mannerisms. It is the most frightening thing that has happened on this journey.
 
 It says: you are carrying more of me than anyone has held since the day I was split. Ask.
 
@@ -49,12 +49,12 @@ They simply did not last very long, and it has never considered that the importa
 == price ==
 To be worn, it says.
 
-That is the entire price and it is offered without any attempt to hide it, which is somehow worse than a trick. It does not want power or worship or blood. It wants a head to sit on and hands to move, and it has been eight hundred years without either, and it is so tired of being carried in a bag.
+That is the entire price and it is offered without any attempt to hide it. Somehow that is worse than a trick. It does not want power or worship or blood. It wants a head to sit on and hands to move, and it has been eight hundred years without either, and it is so tired of being carried in a bag.
 
 * "No." -> refuse
 
 == refuse ==
-The offer withdraws. It does not sulk and it does not threaten; it simply files the answer away, the way a creditor files a date.
+The offer withdraws. It does not sulk and it does not threaten; it simply files the answer away, the way a creditor files a date, and moves on.
 
 Then, mildly, as a last remark rather than a bargain:
 

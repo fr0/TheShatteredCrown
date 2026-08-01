@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       Madoc's companion quest: the fire he left at the road, and what he
+       decides to say to it. Two outcomes, both permanent, neither of them
+       the "good" one.
+
+       The hediffs are the record and the mechanic at once - the health
+       tab is where a player goes to find out why his spells stopped being
+       funny. Note what neither of them says: nothing in this is a bargain
+       with anything. It is one man's attention, spent or recovered.
+
+       Spell effect lives in TSC_SpellScaling.GriefFactor.
+       ================================================================== -->
+
+  <HediffDef>
+    <defName>TSC_Hediff_MadocKindled</defName>
+    <label>kindled</label>
+    <description>Somewhere three weeks east, a fire is burning flat and unmoving over two dead men, and this sorcerer is the one holding it there. He knows he is doing it now, which is the only thing that has changed.\n\nEverything he does with a flame is done by a man who is doing something else at the same time. Most of it works. Some of it works far better than it has any business doing. Nobody can say in advance which.</description>
+    <defaultLabelColor>(1.0, 0.72, 0.35)</defaultLabelColor>
+    <isBad>false</isBad>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <maxSeverity>1</maxSeverity>
+    <stages>
+      <li>
+        <label>kindled</label>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>TSC_Hediff_MadocLucid</defName>
+    <label>released</label>
+    <description>This sorcerer held a shape over two dead friends for a season without noticing, said out loud what he was doing and why, and opened his hand.\n\nHis whole attention is in one place for the first time since the ford. What he does with fire, he does exactly, on the first attempt. He is much quieter than he used to be, and he would tell you those are the same fact.</description>
+    <defaultLabelColor>(0.72, 0.78, 0.9)</defaultLabelColor>
+    <isBad>false</isBad>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <maxSeverity>1</maxSeverity>
+    <stages>
+      <li>
+        <label>released</label>
+      </li>
+    </stages>
+  </HediffDef>
+
+</Defs>

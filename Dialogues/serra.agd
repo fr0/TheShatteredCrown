@@ -140,7 +140,7 @@ She glances up.
     do flag(TSC_MetParty); signal(TSC_Act1_Camp, TSC_MetParty); give_quest(TSC_Act1_Ettersnap)
 
 == city_farewell ==
-Serra swings down off her horse in the middle of the city street and starts unstrapping her bedroll from the saddle, which is how you find out the decision has already been made.
+Serra swings down off her horse in the middle of the city street and starts unstrapping her bedroll from the saddle. That is how you find out the decision has already been made.
 
 "This is where we get off, courier." She nods at the rooftops around you. "The song is here, the bard is here, and whatever taught the song to a beggar is under our boots somewhere. Somebody should be standing on top of it who knows how to wait. That's the company's whole trade."
 
@@ -293,7 +293,7 @@ Serra studies you for a long moment. It's the same measuring look she gave you a
 
 "You ended the raider band my whole company couldn't shake. That buys you the thing I don't sell." She picks up the greatbow. "Walk with me. First lesson: the pass has been talking about you for days, and you haven't heard a word. We'll fix your ears, then your feet, then your draw."
 
-Two days of tracking, stillness, wind-reading, and loosing arrows at distances you'd have called impossible. Serra teaches the way she does everything: precisely, without waste.
+Two days of tracking, stillness, wind-reading, and loosing arrows at distances you'd have called impossible. Serra teaches as she does everything: precisely, without waste.
 
 * [Learn the Ranger's craft] "Understood, captain." -> hub
     if not flag(TSC_SerraTaught)
@@ -301,7 +301,7 @@ Two days of tracking, stillness, wind-reading, and loosing arrows at distances y
 * "Another time. The hunt first." -> hub
 
 == company_talk ==
-Serra looks at the fire for a while before answering, which is her version of clearing her throat.
+Serra looks at the fire for a while before answering. It is her version of clearing her throat.
 
 "Oswin signed on to read the world's oldest library and got eight weeks of rat stew. Never once asked to turn back. Bran holds any door you put him in front of and calls it a quiet life." She glances up at you. "That's the company."
 
@@ -312,7 +312,7 @@ Serra looks at the fire for a while before answering, which is her version of cl
 # build, or the quest otherwise died without the rites happening). Serra
 # re-marks the cave, which spawns a fresh site and creature.
 == remark ==
-Serra looks at you the way she looks at a snapped bowstring: recalculating.
+Serra looks at you as she would at a snapped bowstring: recalculating.
 
 "Lost the *cave*." She unrolls the map without another word and marks it again, pressing hard enough to tear. "The creature hasn't moved; it has outwaited better. Don't make me draw this a third time."
 
@@ -352,7 +352,7 @@ She looks up.
     do flag(TSC_Serra_Supplies)
 
 == rescued ==
-She is on her feet before anyone offers a hand, which is the most Serra thing available in the circumstances, and she does not thank anybody until she has counted heads.
+She is on her feet before anyone offers a hand, and she does not thank anybody until she has counted heads.
 
 "Four of you. Good." Then, flatly: "You will want to know how a Wayfarer company leader ends up roped in a shed. The answer is eleven of them and a bridge I should not have crossed at dusk. Write it down and learn from it, because I intend to never say it again."
 
@@ -376,7 +376,7 @@ She looks at the packs. Not the faces. The packs.
 * "Then you know why we cannot leave you here." -> told
 
 == told ==
-"Four." She takes that the way she takes weather. "Right."
+"Four." She takes that as she takes weather. "Right."
 
 A long pause, and then the only speech Serra Voss has ever given.
 
@@ -388,7 +388,7 @@ A long pause, and then the only speech Serra Voss has ever given.
     do flag(TSC_SerraRescueTalk); grant_xp(50)
 
 == rescued_hub ==
-Serra has her back to a rock and her eyes on the treeline, which is where they have been since the camp.
+Serra has her back to a rock and her eyes on the treeline. They have been there since the camp.
 
 "Say it."
 
@@ -406,7 +406,7 @@ She does not look away from the trees.
 * [Leave her to her watch.] -> end
 
 == hub_road ==
-"Too quiet, and quiet the wrong way. Not empty-quiet. Waiting-quiet." She shifts the spear. "Whatever is at the end of this, it has had eight hundred years to get ready and we have had a fortnight. I do not love the arithmetic."
+"Too quiet, and quiet the wrong way. Not empty-quiet. Waiting-quiet." She shifts the spear. "Whatever is at the end of this, it has had eight hundred years to get ready and we have had a fortnight. I do not love the odds."
 
 "But I have taken worse contracts on worse terms, and I am still here. Mostly."
 

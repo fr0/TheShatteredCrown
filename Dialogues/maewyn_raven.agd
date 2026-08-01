@@ -1,0 +1,85 @@
+# Maewyn Ashvale, companion quest, part one: the raven comes back thin.
+#
+# CANON (maewyn.agd): a stone cottage in a hollow, herb beds, four to six
+# hives, two ravens, THIRTY YEARS of keeping it. She is alone there - "the
+# hills talk," and then, quieter, "they don't answer." When she agreed to
+# ride she looked at the whole of it and said "the hills can hold it a
+# while," and pulled the door shut without locking it.
+#
+# There is no circle and no order and nobody waiting. That is the point. The
+# grove has no keeper because the keeper is here, and a while has turned out
+# to have a length.
+#
+# VOICE: terse. Her lines run short; the pauses and the bird do the talking.
+#
+# {PLAYER} is whoever is nearest when the raven lands.
+
+dialogue TSC_Dialogue_MaewynRaven
+
+== start ==
+The second raven comes in low and lands badly.
+
+It is thin. Maewyn takes it onto her wrist and goes through it without a word: keel, wing, feet, eyes. Corvus watches from her shoulder and does not make a sound, which from him is alarming.
+
+Then she opens its beak and takes out what it has carried the whole way.
+
+* [Wait.] -> what
+* "What is that?" -> what
+
+== what ==
+It is a sprig of something grey and dry, gone to seed and past it.
+
+She turns it over twice.
+
+"Sagewort. From the third bed." A pause. "It flowers in spring. It should not have seed on it in any year I am there."
+
+* "Meaning?" -> meaning
+* [Say nothing.] -> meaning
+
+== meaning ==
+"Meaning nobody cut it. Meaning nobody has cut anything since I left."
+
+She puts the bird on her knee. It stays there, which it has never done either.
+
+"He has been going back. Both of them have. Every few weeks, all this time, to look at a house with nobody in it." A pause. "This one stopped eating properly to bring me a weed."
+
+* "How long since you were there?" -> howlong
+* "You said the hills could hold it." -> hold
+
+== howlong ==
+She works it out. It takes her a moment, and the moment is the answer.
+
+"Too long, apparently."
+
+* "You said the hills could hold it." -> hold
+
+== hold ==
+"I did." Flat. "A while. I have been saying a while since the day I shut that door, and eventually a while turns into a long while."
+
+She looks at the sprig.
+
+"Thirty years I kept those beds. Hives, birds, the whole hollow. It does not keep itself. That was rather the arrangement."
+
+* "Then we go back." -> back
+* "It is a garden, Maewyn." -> garden
+
+== garden ==
+The look she gives you is not angry.
+
+"It is nine kinds of things that grow nowhere else in this valley. It is hives that will swarm and die without a hand on them. It is the only place within sixty miles where a trained hand can get what it needs to keep a person alive."
+
+A pause.
+
+"And a house. Yes. It is a garden."
+
+* "Then we go back." -> back
+
+== back ==
+"Aye."
+
+She does not thank you. She does not need to.
+
+"Two days off the road. Bring the shovel."
+
+* "Two days." -> end
+    do flag(TSC_MaewynGroveAsked); give_quest(TSC_Maewyn_ThirtyYears); affinity(+5)

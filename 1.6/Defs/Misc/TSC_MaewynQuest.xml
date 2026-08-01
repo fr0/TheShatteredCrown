@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       Maewyn's companion quest: thirty years of keeping, and what she
+       does about the fact that she cannot be in two places.
+
+       Neither outcome is the good one and neither is a punishment. One
+       leaves a living grove and a correspondence she has to keep up; the
+       other closes an account cleanly and puts everything into the road.
+       Spell effect lives in TSC_SpellScaling.GriefFactor; the Nature
+       point is in TSC_FeatMods.ProficiencyBonus.
+       ================================================================== -->
+
+  <HediffDef>
+    <defName>TSC_Hediff_MaewynKept</defName>
+    <label>corresponding</label>
+    <description>This druid handed thirty years of herb beds, hives and quiet to a farm girl who had been coming up the hill since she was nine to look at the bees, and is now teaching her by raven, badly, at two hundred miles.\n\nShe still has a garden and somebody to explain it to, and saying a thing out loud for two years is its own kind of practice. Her craft is steadier for it, and her hands remember more than they did.</description>
+    <defaultLabelColor>(0.62, 0.82, 0.55)</defaultLabelColor>
+    <isBad>false</isBad>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <maxSeverity>1</maxSeverity>
+    <stages>
+      <li>
+        <label>corresponding</label>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>TSC_Hediff_MaewynLetGo</defName>
+    <label>handed back</label>
+    <description>This druid opened her hives, lifted what she wanted out of the black bed into a box the size of a loaf, took her own door off its hinges and laid it flat in the grass so nothing would have to break it.\n\nShe expects gorse in four years and birch after that. Nothing of hers is waiting anywhere any more, and all of it goes into the work in front of her.</description>
+    <defaultLabelColor>(0.55, 0.62, 0.58)</defaultLabelColor>
+    <isBad>false</isBad>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <maxSeverity>1</maxSeverity>
+    <stages>
+      <li>
+        <label>handed back</label>
+      </li>
+    </stages>
+  </HediffDef>
+
+</Defs>

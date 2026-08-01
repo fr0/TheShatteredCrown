@@ -13,7 +13,7 @@ entry joined if in_party()
 entry met if flag(TSC_MadocMet)
 
 == start ==
-The fire is small and sits unnaturally still, burning without a flicker, like a painting of a fire. Around it sit three figures: two leaned comfortably against a log, hoods down as if listening, and one very much awake, stirring an empty pot.
+The fire is small and sits unnaturally still, burning without a flicker. Around it sit three figures: two leaned comfortably against a log, hoods down as if listening, and one very much awake, stirring an empty pot.
 
 The two against the log are dead. Days dead. The cold has been kind, but not that kind.
 
@@ -24,7 +24,7 @@ The two against the log are dead. Days dead. The cold has been kind, but not tha
 * [Sit down at the fire.] -> sit
 
 == sit ==
-The fire does not warm the way a fire should. It watches, a little. Madoc serves out invisible stew with the care of a man feeding his own family, a bowl for everyone at the fire, and two set by the log that nobody reaches for.
+The fire does not warm anything. It watches, a little. Madoc serves out invisible stew with the care of a man feeding his own family, a bowl for everyone at the fire, and two set by the log that nobody reaches for.
 
 "They're tired," he says, following your glance, fond as anything. "Long road. Gille hasn't complained once in days, and Gille COMPLAINS, believe me, it's how he loves things. Isn't it, Gille." He listens to the silence. He laughs at what it says. "See? Incorrigible."
 
@@ -82,7 +82,7 @@ Madoc looks at Hew. Then at Gille. The fire holds its breath, and so, strangely,
 
 "They'd tell me to go," he says softly. "Hew would say: Madoc, you great singed owl, you cannot take a keep with two tired men and a pot." A pause. "And he'd be right. He was always right. It's why Gille complained so much."
 
-He stands, all at once, and starts NOT packing - just picking up the pot and the spoon and leaving everything else exactly as it is: the bedrolls, the log, the two quiet figures against it, arranged and warm-looking and watched over by the unmoving fire.
+He stands, all at once, and starts NOT packing: he picks up the pot and the spoon and leaves everything else exactly as it is. The bedrolls. The log. The two quiet figures against it, and the fire that will go on watching them.
 
 "They'll keep the camp," he says, in the voice you do not argue with, and then, bright as morning: "WELL. New company! I should warn you: I talk to fires, the fires talk back, and only one of us is lying. To the keep!"
 
@@ -92,7 +92,7 @@ He stands, all at once, and starts NOT packing - just picking up the pot and the
     do flag(TSC_MadocStayed)
 
 == welcomed ==
-He falls in beside you without one backward glance, which is how you know he is not able to take one.
+He falls in beside you without one backward glance. That is how you know he cannot take one.
 
 The fire behind him burns on, still and steady, keeping its watch over the camp until it has no one left to warm.
 
@@ -132,7 +132,7 @@ That evening, and for several after, he teaches: what to feed a flame to make it
 * "This is... a lot of staring into fires, Madoc." -> end
 
 == joined_talk ==
-The question lands somewhere real, and Madoc lets it. He watches the campfire for a while - the ordinary, flickering campfire, that is fractionally less ordinary wherever he sits by it.
+The question lands somewhere real, and Madoc lets it. He watches the campfire for a while. It is an ordinary campfire, and slightly less ordinary wherever he sits by it.
 
 "I hear them in it, some evenings," he says, conversationally, as if reporting the weather. "Hew and Gille. The fire doesn't lie, so I know it isn't them - it's the shape they left in me, crackling. But it's a good shape. It complains about the cold and it's a tyrant about thyme." He smiles at the flames, entirely at peace and entirely mad, and possibly neither. "You keep what you can carry, friend. I can carry a fire."
 
