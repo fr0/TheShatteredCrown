@@ -130,7 +130,7 @@
                 <text TKey="LetterTextWetPlot">The culvert runs clear for the first time in years, and Wilf's field is merely damp, which for Wilf constitutes rapture.\n\nWhat was blocking it is more interesting: a carved stone that was never farmwork. It washed DOWN from the hills.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>100</xp>
+                <xp>150</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
@@ -222,7 +222,7 @@
                 <text TKey="LetterTextRidgeDone">The ridge camp is finished and its signal fire is out.\n\nCol will want to know. He may even use whole sentences.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>150</xp>
+                <xp>200</xp>
               </li>
             </nodes>
           </node>
@@ -295,7 +295,7 @@
                 <text TKey="LetterTextColdIron">Grave-iron, cold in the hand in any weather. Haldor will want it at his forge - and he promised payment in craft, not coin.\n\nTalk to Haldor about the commission.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>150</xp>
+                <xp>200</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
@@ -413,7 +413,7 @@
                 <text TKey="LetterTextKidsFound">Found: one adventurer, one accomplice, both intact and marched home under protest.\n\nWhatever Pip found up there, Old Wick went very quiet about it.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>150</xp>
+                <xp>200</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
@@ -450,7 +450,7 @@
                 <text TKey="LetterTextStoryTold">The story landed. By evening Bryn had retold it twice with improvements, and Harrowfield's opinion of you rose with each version.\n\n(All the villagers think a little better of you now.)</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>100</xp>
+                <xp>150</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
@@ -487,7 +487,7 @@
                 <text TKey="LetterTextPatch">The patch is dealt with, one way or another. Mara returned to her rows without ceremony, which from Mara is a parade.\n\nWhat it WAS is the more interesting question, and it does not have a farming answer.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>100</xp>
+                <xp>150</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>

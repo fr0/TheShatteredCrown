@@ -103,6 +103,31 @@ namespace TheShatteredCrown
 
         private List<TSC_CommandedPawn> commanded = new List<TSC_CommandedPawn>();
 
+        /// <summary>
+        /// Is this pawn on loan right now?
+        ///
+        /// Anything else that hands out lords has to ask, because a commanded
+        /// pawn is deliberately kept OUT of the lord system: the ally AI
+        /// drives it directly and nulls its duty every tick. Put it in a lord
+        /// anyway and the two arrangements fight - the pawn has a lord and no
+        /// duty, and vanilla logs that once per job tick, forever.
+        /// </summary>
+        public bool IsCommanded(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+            foreach (TSC_CommandedPawn loan in commanded)
+            {
+                if (loan.pawn == pawn)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>Take one enemy onto the player's side for a while. Idempotent per pawn: a second command refreshes the clock.</summary>
         public void CommandPawn(Pawn pawn, int durationTicks, HediffDef mark)
         {
@@ -131,8 +156,15 @@ namespace TheShatteredCrown
             if (pawn.mindState != null)
             {
                 pawn.mindState.enemyTarget = null;
+                // A raider mid-retreat keeps that intent through the
+                // faction change and simply walks off the map, which is
+                // how Command shipped: friendlies who flee rather than
+                // friendlies who fight.
+                pawn.mindState.exitMapAfterTick = -99999;
+                pawn.mindState.duty = null;
             }
             pawn.jobs?.StopAll();
+            loan.master = FindNearestColonist(pawn);
             if (mark != null && !pawn.health.hediffSet.HasHediff(mark))
             {
                 pawn.health.AddHediff(mark);
@@ -164,7 +196,12 @@ namespace TheShatteredCrown
                 return; // nothing to give back
             }
             pawn.GetLord()?.Notify_PawnLost(pawn, PawnLostCondition.ForcedToJoinOtherLord);
-            if (loan.originalFaction != null)
+            // Restored even when it was NOTHING. The old guard here skipped
+            // the call for a null original faction, which meant commanding a
+            // factionless pawn - a neutral barrow guard, say - handed it to
+            // the player permanently. Being nobody's is a faction state like
+            // any other and has to be given back.
+            if (pawn.Faction != loan.originalFaction)
             {
                 pawn.SetFaction(loan.originalFaction);
             }
@@ -182,6 +219,27 @@ namespace TheShatteredCrown
             }
         }
 
+        private static Pawn FindNearestColonist(Pawn pawn)
+        {
+            Map map = pawn?.MapHeld;
+            if (map == null)
+            {
+                return null;
+            }
+            Pawn best = null;
+            float bestDist = float.MaxValue;
+            foreach (Pawn colonist in map.mapPawns.FreeColonistsSpawned)
+            {
+                float dist = colonist.Position.DistanceTo(pawn.PositionHeld);
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    best = colonist;
+                }
+            }
+            return best;
+        }
+
         private void TickCommands()
         {
             if (commanded.Count == 0)
@@ -196,6 +254,12 @@ namespace TheShatteredCrown
                 {
                     ReleaseCommand(loan, announce: true);
                     commanded.RemoveAt(i);
+                    continue;
+                }
+                // Point them at the enemy, on the same pulse the summons use.
+                if (now % 30 == 0)
+                {
+                    TSC_AllyAi.Drive(loan.pawn, loan.master);
                 }
             }
         }
@@ -626,7 +690,7 @@ namespace TheShatteredCrown
             if (!DialogueStateManager.Current.IsSet("TSC_Act5CardShown"))
             {
                 DialogueStateManager.Current.Set("TSC_Act5CardShown");
-                TSC_TitleCardManager.Show("Act 5", "The Barrow of the First King");
+                TSC_TitleCardManager.Show("Act 5", "The Thirteenth King");
             }
             // The interruption first: the road east is where Serra and
             // Oswin were taken. If BOTH are dead this campaign, that beat
@@ -1123,6 +1187,8 @@ namespace TheShatteredCrown
         public Faction originalFaction;
         public int endTick;
         public HediffDef mark;
+        /// <summary>Who they fall in beside when there is nobody left to fight.</summary>
+        public Pawn master;
 
         public void ExposeData()
         {
@@ -1130,6 +1196,7 @@ namespace TheShatteredCrown
             Scribe_References.Look(ref originalFaction, "originalFaction");
             Scribe_Values.Look(ref endTick, "endTick");
             Scribe_Defs.Look(ref mark, "mark");
+            Scribe_References.Look(ref master, "master");
         }
     }
 

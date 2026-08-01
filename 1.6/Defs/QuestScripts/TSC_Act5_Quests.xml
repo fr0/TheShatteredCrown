@@ -65,8 +65,11 @@
                 <label TKey="LetterLabelAct5Rescued">Out of the camp</label>
                 <text TKey="LetterTextAct5Rescued">They are on their feet, more or less, and they are coming along. Neither of them asks what the company is carrying, which means both of them already know.\n\nThe road east is long, and it is better walked with them than without.</text>
               </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
+                <flag>TSC_Act5_Rescued</flag>
+              </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>250</xp>
+                <xp>750</xp>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
                 <questDef>TSC_Act5_Barrow</questDef>
@@ -138,7 +141,46 @@
                 <text TKey="LetterTextBarrowArrived">The barrow is exactly where four pieces of a crown said it would be: a long green mound on the high ground, turf grown over stonework older than any kingdom on the maps, and a throat of dressed rock facing the sunrise.\n\nThe humming stops at the threshold. Whatever the shards have been pulling toward, they have stopped explaining themselves now that the company is standing at its door.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>200</xp>
+                <xp>600</xp>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                <questDef>TSC_Act5_Crown</questDef>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- The campaign's last quest. It spawns nothing: the barrow's mouth,
+       the courier, the roads, the Honor Guard and the king are all on the
+       site already. It exists to hold the objective in the journal and to
+       end when the choice is made (DialogueEffect_TSC_CrownEnding sends
+       TSC_CrownResolved, whichever ending was picked). -->
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act5_Crown</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Shattered Crown</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Down the stone throat: five chambers with five roads cut into their walls, a throne room at the bottom, and the men who were left to guard it still standing at their post.\n\nRead the roads. Answer the Honor Guard, one way or the other. Open the sarcophagus, and decide what happens to the thing five riders died carrying.\n\nWhatever is chosen down there is the end of it.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_CrownResolved</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>3000</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>

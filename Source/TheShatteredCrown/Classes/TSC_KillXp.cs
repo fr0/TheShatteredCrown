@@ -43,6 +43,8 @@ namespace TheShatteredCrown
         {
             public bool eligible;
             public int xp;
+            /// <summary>Whoever struck the blow: the per-kill mood memory is theirs.</summary>
+            public Pawn killer;
         }
 
         public static Pending Evaluate(Pawn victim, DamageInfo? dinfo)
@@ -65,6 +67,7 @@ namespace TheShatteredCrown
                 {
                     return pending;
                 }
+                pending.killer = killer;
             }
             else if (!DiedAmongUs(victim))
             {
@@ -106,6 +109,8 @@ namespace TheShatteredCrown
             // Granted now, announced later: one message per kill would bury
             // the combat log in a firefight.
             TSC_ProgressionManager.Current.GrantXpToParty(pending.xp, "kills", announce: false);
+            // Optional, off by default, and stacking: one memory per kill.
+            TSC_MoodOptions.NoteKill(pending.killer);
             pendingXp += pending.xp;
             pendingKills++;
             lastKillTick = Find.TickManager.TicksGame;

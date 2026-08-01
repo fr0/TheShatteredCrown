@@ -193,6 +193,13 @@ namespace TheShatteredCrown
         /// then this plus one roaming pack from `vermin`/`occupants`.
         /// </summary>
         public int maxDormantPacks = 2;
+
+        /// <summary>
+        /// How many beast dens to lay on this floor. Each rolls the occupants
+        /// table separately, so a floor can hold wolves in one gallery and a
+        /// boar in another rather than one species everywhere.
+        /// </summary>
+        public IntRange dens = new IntRange(1, 1);
         /// <summary>Weighted occupant profiles; one is rolled per generated level. Takes precedence over `vermin`.</summary>
         public List<TSC_DungeonOccupant> occupants = new List<TSC_DungeonOccupant>();
         /// <summary>Set spots by def: check-spot props, the beggar's camp, the choir bones.</summary>
@@ -381,6 +388,17 @@ namespace TheShatteredCrown
 
         private void SpawnOccupants(Map map, CellRect rect, IntVec3 entry, IntVec3 keepClear)
         {
+            int count = Mathf.Max(1, dens.RandomInRange);
+            for (int den = 0; den < count; den++)
+            {
+                SpawnOneDen(map, rect, entry, keepClear, den == 0);
+            }
+        }
+
+        /// <summary>One pack, anchored in one place. announce: only the first
+        /// den narrates, so a two-den floor does not open with two notes.</summary>
+        private void SpawnOneDen(Map map, CellRect rect, IntVec3 entry, IntVec3 keepClear, bool announce)
+        {
             TSC_DungeonOccupant profile = null;
             if (occupants.Count > 0)
             {
@@ -457,7 +475,7 @@ namespace TheShatteredCrown
                         MentalStateDefOf.ManhunterPermanent, "rabid", forced: true);
                 }
             }
-            if (!profile.arrivalNote.NullOrEmpty())
+            if (announce && !profile.arrivalNote.NullOrEmpty())
             {
                 map.GetComponent<MapComponent_TSC_DelveArrival>()?.Announce(profile.arrivalNote);
             }
@@ -870,7 +888,7 @@ namespace TheShatteredCrown
             if (dialogue != null && thief != null)
             {
                 Messages.Message("The singing stops.", cantor, MessageTypeDefOf.NeutralEvent, historical: false);
-                Find.WindowStack.Add(new Dialog_Conversation(dialogue, thief, cantor));
+                Find.WindowStack.Add(new Dialog_Conversation(dialogue, cantor, thief));
             }
         }
 

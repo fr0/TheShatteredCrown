@@ -27,6 +27,15 @@ namespace TheShatteredCrown
         /// +1 DC per 3 levels of the party's best-in-that-skill member,
         /// capped at +4 so nothing becomes unreachable, and never applied
         /// below level 3 (the opening hours play exactly as authored).
+        ///
+        /// The cap stays at 4 on purpose. Raising it to 8 was measured and
+        /// reverted: it cannot touch a specialist (proficiency 23 against a
+        /// DC-7 check clears even on a natural 1, at any cap), and since
+        /// the scaling reads the PARTY'S BEST value, the only thing it
+        /// actually did was tax every other pawn for the specialist's
+        /// excellence - a focused pawn went 90% -> 70%, a generalist
+        /// 50% -> 30%. What gates an expert is an authored DC, not a
+        /// scaling constant, so the late acts carry high base DCs instead.
         /// </summary>
         private const int LevelsPerStep = 3;
         private const int MaxScaling = 4;

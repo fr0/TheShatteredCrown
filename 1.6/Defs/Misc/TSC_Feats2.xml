@@ -134,6 +134,15 @@
     <abilityMods><li><ability>TSC_Ability_SongOfRest</ability><energyRestoreIncludesCaster>true</energyRestoreIncludesCaster></li></abilityMods>
   </TheShatteredCrown.TSC_FeatDef>
 
+  <TheShatteredCrown.TSC_FeatDef>
+    <defName>TSC_Feat_CudgelChorus</defName>
+    <label>cudgel chorus</label>
+    <description>While an instrument is in hand, the bard deals 35% more melee damage and swings 20% more accurately. A lute is a hardwood club with strings on it.</description>
+    <category>Bard</category>
+    <order>50</order>
+    <requirements><li><classDef>TSC_Class_Bard</classDef><level>3</level></li></requirements>
+  </TheShatteredCrown.TSC_FeatDef>
+
   <!-- ================================================ Rogue -->
 
   <TheShatteredCrown.TSC_FeatDef>
@@ -458,6 +467,13 @@
       <li Class="HediffCompProperties_Disappears"><disappearsAfterTicks>7200</disappearsAfterTicks></li>
     </comps>
     <stages><li><statOffsets><ShootingAccuracyPawn>0.08</ShootingAccuracyPawn></statOffsets></li></stages>
+  </HediffDef>
+
+  <HediffDef ParentName="TSC_FeatHediffBase">
+    <defName>TSC_Hediff_Feat_CudgelChorus</defName>
+    <label>cudgel chorus</label>
+    <description>Holding the heavy end on purpose.</description>
+    <stages><li><statOffsets><MeleeHitChance>0.20</MeleeHitChance></statOffsets></li></stages>
   </HediffDef>
 
   <HediffDef ParentName="TSC_FeatHediffBase">

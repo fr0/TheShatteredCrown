@@ -38,7 +38,7 @@ namespace TheShatteredCrown
         /// light, not a hole in the plot.
         /// </summary>
         public bool failAllowsRetry;
-        public float retryHours = 8f;
+        public float retryHours = 4f;
 
         /// <summary>Success: open the parent (IOpenable crates), remove it (cleared obstacle), XP to the roller.</summary>
         public bool successOpens;
@@ -170,6 +170,12 @@ namespace TheShatteredCrown
         public bool CoolingDown(int approachIndex)
         {
             return DialogueStateManager.Current.IsCoolingDown(RetryKey(approachIndex));
+        }
+
+        /// <summary>Ticks until this approach can be tried again.</summary>
+        public int CooldownLeft(int approachIndex)
+        {
+            return DialogueStateManager.Current.CooldownLeft(RetryKey(approachIndex));
         }
 
         public void Resolve(Pawn pawn, int approachIndex)
@@ -355,8 +361,12 @@ namespace TheShatteredCrown
                 }
                 if (spot.CoolingDown(i))
                 {
+                    // The wait is a real number, so show it. "Come back later"
+                    // left the player guessing whether later meant minutes or
+                    // a day, which is not the tension this is going for.
                     yield return new FloatMenuOption(
-                        $"{approach.label} (nothing new in it yet; come back later)", null);
+                        $"{approach.label} (nothing new in it yet; try again in "
+                        + $"{spot.CooldownLeft(i).ToStringTicksToPeriod()})", null);
                     continue;
                 }
                 int index = i;

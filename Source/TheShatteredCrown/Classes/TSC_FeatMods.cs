@@ -216,6 +216,20 @@ namespace TheShatteredCrown
             {
                 factor *= 1.20f;
             }
+            // Cudgel Chorus: a lute is a hardwood club with strings on it,
+            // and a bard who has been swinging one since the first act
+            // knows exactly where the heavy end is. The instrument must be
+            // IN HAND - this is the melee half of the same trade-off the
+            // songs make, where holding an instrument costs you a weapon.
+            // The instrument IS the weapon (a lute swings by the neck for
+            // 11, by the body for 8), so this tests the held instrument
+            // rather than the unarmed marker Open Hand uses.
+            if (TSC_Feats.Has(attacker, "TSC_Feat_CudgelChorus")
+                && TSC_Instruments.Held(attacker) != null
+                && dinfo.Weapon == attacker.equipment?.Primary?.def)
+            {
+                factor *= 1.35f;
+            }
             // Backstab: melee only, against a target that is in no position
             // to answer - asleep or dormant, stunned or down, engaged with
             // somebody else, or struck from inside Vanish. Every test is
@@ -340,6 +354,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            TickCudgelChorus();
             buffer.Clear();
             buffer.AddRange(map.mapPawns.FreeColonistsSpawned);
             foreach (Pawn source in buffer)
@@ -371,6 +386,40 @@ namespace TheShatteredCrown
                 }
             }
             buffer.Clear();
+        }
+
+        /// <summary>
+        /// Cudgel Chorus's hit-chance half. Melee hit chance is a STAT, so
+        /// it cannot ride the damage patch: it needs a hediff, and the
+        /// hediff has to follow the instrument in and out of the pawn's
+        /// hands rather than being granted once. Applied and removed here
+        /// so putting the lute away costs the bonus immediately.
+        /// </summary>
+        private void TickCudgelChorus()
+        {
+            HediffDef def = DefDatabase<HediffDef>.GetNamedSilentFail("TSC_Hediff_Feat_CudgelChorus");
+            if (def == null)
+            {
+                return;
+            }
+            foreach (Pawn pawn in map.mapPawns.FreeColonistsSpawned)
+            {
+                if (pawn?.health?.hediffSet == null)
+                {
+                    continue;
+                }
+                bool earned = TSC_Feats.Has(pawn, "TSC_Feat_CudgelChorus")
+                    && TSC_Instruments.Held(pawn) != null;
+                Hediff worn = pawn.health.hediffSet.GetFirstHediffOfDef(def);
+                if (earned && worn == null)
+                {
+                    pawn.health.AddHediff(def);
+                }
+                else if (!earned && worn != null)
+                {
+                    pawn.health.RemoveHediff(worn);
+                }
+            }
         }
 
         private static void Refresh(Pawn pawn, string hediffName)

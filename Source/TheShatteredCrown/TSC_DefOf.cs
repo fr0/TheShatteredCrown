@@ -17,6 +17,8 @@ namespace TheShatteredCrown
         public static HediffDef TSC_Hediff_AdventurerLevel;
         public static HediffDef TSC_Hediff_Performed;
         public static HediffDef TSC_Hediff_Summoned;
+
+        public static HediffDef TSC_Hediff_Crowned;
         public static PawnKindDef TSC_Ettersnap;
         public static ThingDef TSC_RemembranceMoss;
         public static ThingDef TSC_MossCache;

@@ -1,0 +1,70 @@
+# Parting ways with a companion. ONE shared scene for all of them:
+# opened by right-clicking a story companion (TSC_PartWays), with {NPC}
+# carrying whichever name it is.
+#
+# The guards live in code (CanPartHere): no dismissing anyone mid-fight,
+# underground, downed, or carrying a piece of the crown. By the time this
+# opens, the parting is allowed - so the scene's only job is to make sure
+# the player meant it, and to let them say why.
+#
+# {PLAYER} is whoever walked over to say it.
+
+dialogue TSC_Dialogue_PartWays
+
+== start ==
+{NPC} reads {PLAYER}'s face before a word is said, which is what a season on the road does to people.
+
+"Ah," they say. "That kind of talk."
+
+* "This is where we part ways." -> why
+* [Actually, never mind.] -> end
+
+== why ==
+They do not argue. That is somehow worse than arguing.
+
+"Say why. Not for the argument. I would just rather carry the true reason than spend a year guessing at it."
+
+* "You have done enough. This last stretch does not need to be yours." -> spared
+* "The company is going somewhere I would not ask anyone to follow." -> honest
+* "It is simply time." -> blunt
+* [Reconsider.] -> end
+
+== spared ==
+"Enough." {NPC} turns the word over. "That is a kinder way to put it than most would manage."
+
+A nod, slowly.
+
+"I will take it. It even has the advantage of being partly true."
+
+* [Let them go.] -> depart
+* [Ask them to stay after all.] -> end
+
+== honest ==
+"No. You would not." A short breath that is almost a laugh. "And you are right that I would follow anyway if you asked, which I suspect is the actual reason you are not asking."
+
+They shoulder their pack.
+
+"Fine. I have been the one left behind before. It is survivable."
+
+* [Let them go.] -> depart
+* [Ask them to stay after all.] -> end
+
+== blunt ==
+"It is," {NPC} agrees. "Roads end. Companies come apart. Anyone who tells you otherwise has not been on many."
+
+They check their kit with the unhurried thoroughness of somebody who intends to be walking a long way.
+
+"No hard feelings that I intend to mention."
+
+* [Let them go.] -> depart
+* [Ask them to stay after all.] -> end
+
+== depart ==
+There is a handshake, or something close enough to one.
+
+"If it goes badly," {NPC} says, "I would rather hear it from a stranger in a tavern than not hear it at all. So: be somewhere a story can find you."
+
+And then they are walking, and not looking back, because looking back is for people who intend to return and they have not decided about that yet.
+
+* [Watch them go.] -> end
+    do part_ways()

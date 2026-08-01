@@ -1,0 +1,170 @@
+# The first king, when the sarcophagus is opened. Fired from
+# JobDriver_TSC_OpenKingsTomb. He is the only authority the crown cannot
+# spin: the only man who ever wore it whole.
+#
+# This scene delivers the truth and then hands the player the campaign's
+# last decision (crown_ending). {PLAYER} is whoever opened the lid.
+
+dialogue TSC_Dialogue_FirstKing
+
+== start ==
+The lid grinds back, and what is inside is a small dry man in the remains of very good clothes, hands folded on a hollow where a crown should sit and does not.
+
+He is nine hundred years dead. He opens his eyes anyway.
+
+"Ah," he says. His voice is a page turning. "It found somebody else."
+
+* "You are the first king." -> who
+* "It has been talking to us." -> talking
+* [Wait.] -> who
+
+== who ==
+"I was a chieftain with a good year and a thing I dug out of this hill," he says, "and then I was the first king, and then I was a lesson nobody read. In that order, and faster than you would think."
+
+He does not try to sit up. Whatever holds him here does not allow it.
+
+"They took it off my head and buried me under it, and then my son wore it. And then a cousin. Eleven of them inside a hundred years, every one of them brilliant and every one of them used up before forty, and not one of them able to say why."
+
+"It took the last of them burning her own hall down to end it. They broke the thing and sent five riders five directions, and they started them from this barrow, because this is where it was made and where I found it, and they had run out of ideas about where else it belonged."
+
+"I have had a very long time to work out what I would say to whoever put it back together. Would you like the short version or the true one?"
+
+* "The true one." -> truth
+* "The short one." -> short
+
+== short ==
+"Do not wear it."
+
+A pause.
+
+"That is the short version. It is completely useless, because every man who has ever been told it was already carrying the thing, and carrying it is most of the way to wearing it. Have the true one instead."
+
+* [The true one.] -> truth
+
+== talking ==
+"Of course it has. In your own voice, I expect, and reasonably." Something that might be pity crosses the dry face. "It did that to me on a hillside, when I was twenty-six and had just won something I did not deserve to win."
+
+* "What is it?" -> truth
+
+== truth ==
+"It is not a curse and it is not a god. It is a *want*. Somebody very old made a thing that could want, in this hill, before there was anybody in these valleys worth putting it on, and they did not think about what it would want. The answer turned out to be: to be worn, and through the wearing, to be everything."
+
+He lets that sit.
+
+"It kept every promise it made me. Every one. The kingdom I asked for, I got. The enemies, gone. The harvests, good. And every year there was less of ME making the decisions and more of IT, until at the end my own men could not tell which of us had given an order, and neither could I. I did not die of a blade. I ran out."
+
+"Then it did the same to eleven more in turn, and each of them thought they were the one who would be careful."
+
+His fingers move very slightly on the hollow at his chest.
+
+"Nine hundred years of lying here has bought me one piece of advice worth the trip. Do you want it?"
+
+* "Yes." -> advice
+* "Will it help?" -> advice
+
+== advice ==
+"It wants without stopping, and it has wanted the same thing since the day it was split: to be whole, and worn. That part never sleeps and you will not talk it out of it. What it cannot do is reach. It has no hands and it has never had any, and that is its one weakness and it is total. Eight centuries of manoeuvring pieces of itself across four graves and a bandit's counting room and a house full of men who died rather than pass it on, and every single step of that had to be walked by somebody else."
+
+The dry eyes come up.
+
+"So the only question that has ever mattered is the one you are about to answer, standing over my coffin with all five pieces and nobody left to stop you. Not whether you are strong enough to hold it. Whether you can put it down."
+
+* [Decide.] -> choice
+
+== choice ==
+Four pieces in the company's packs and the fifth from the road, and the hollow in the dead king's hands exactly the shape of all of them together.
+
+Nobody says anything. It is not that kind of moment.
+
+* [Put it together. Wear it.] -> wear
+* [Break the roads open again: five pieces, five directions, five new riders.] -> scatter
+* [Lay it in the coffin with him and seal the barrow.] -> entomb
+* [Leave it exactly where it lies. Walk out. Tell no one.] -> leave
+
+== wear ==
+The pieces go together without a seam, the way a word goes together out of letters, and it is not heavy at all.
+
+The dead king watches with an expression that has no anger in it whatsoever, which is the worst of the available expressions.
+
+"There it is," he says. "Thirteen." He does not sound surprised, or angry, or even especially disappointed. "Do not be too hard on yourself. I lasted nine years, and I was the best of twelve."
+
+Whatever happens after this, it will be told about for a long time, and the tellers will disagree about whose idea any of it was.
+
+* [The Shattered Crown.] -> end
+    do crown_ending(wear)
+
+== scatter ==
+The company splits the crown the way it was split the first time: five pieces, five roads, and this time the carriers will be told exactly what they are carrying before they set out.
+
+Which leaves the question of who carries them.
+
+* [Who rides?] -> scatter_guard
+    if flag(TSC_HonorGuardStands)
+* [Who rides?] -> scatter_hired
+    if not flag(TSC_HonorGuardStands)
+
+== scatter_guard ==
+The oath-keepers ask for the roads before anybody else can offer.
+
+They do not make a speech about it. One of them says "we saw the first five off," and another says "aye," and that is the whole of the discussion. Five of them, five pieces, five directions, and this time nobody is waiting at a door for them to come back, because there will be nobody left in the barrow to wait.
+
+They take the pieces the way men take up a pack they have carried before.
+
+"Better," the dead king says, and for the first time in the conversation he sounds like a man and not a lesson. "Mine at least know what they are holding. Mine will not be talked into putting it on."
+
+Somewhere in the dark, four thin voices that have not been able to want anything for a very long time start wanting again, in five directions at once.
+
+* [The Shattered Crown.] -> end
+    do crown_ending(scatter)
+
+== scatter_hired ==
+Five riders who are not from this story, because the men whose job this was are lying on the floor of the chamber behind them and cannot be asked.
+
+The carriers are told the truth, which is more than the first five got. Whether that helps is a question for somebody eight hundred years from now.
+
+"It will work," the dead king says. "For about eight hundred years. Which is not nothing. Nothing is what I managed."
+
+Somewhere in the dark, four thin voices that have not been able to want anything for a very long time start wanting again, in five directions at once.
+
+* [The Shattered Crown.] -> end
+    do crown_ending(scatter)
+
+== entomb ==
+The pieces go into the hollow in the dead king's hands, one at a time, and they fit, and the wanting rises up so hard that the whole chamber leans.
+
+Then the lid goes back on, and the leaning stops.
+
+"Good," says the first king, from inside, quite clearly, and then says nothing else ever again.
+
+* [Go up.] -> entomb_kept
+    if flag(TSC_HonorGuardStands)
+* [Go up.] -> entomb_alone
+    if not flag(TSC_HonorGuardStands)
+
+== entomb_kept ==
+Outside, the Honor Guard are already at work on the stone throat with the patience of men who have been waiting nine hundred years for a job to finish.
+
+Nobody gives them an order. There was never anybody left to give them one, and they never needed it.
+
+* [The Shattered Crown.] -> end
+    do crown_ending(entomb)
+
+== entomb_alone ==
+Outside, the chamber is quiet in the particular way of a room where a fight has finished. The plate lies where it fell, and there is nobody left on this floor to seal anything.
+
+So the company does it themselves: rubble into the stone throat, hour after hour, until the way down is a hillside again. It is not a ceremony and nobody talks much. The men whose post this was would probably have done it faster.
+
+* [The Shattered Crown.] -> end
+    do crown_ending(entomb)
+
+== leave ==
+{PLAYER} closes the lid on an old man and his empty hands, and leaves five pieces of a crown lying on the floor of a sealed room at the bottom of a barrow nobody has found in eight hundred years.
+
+The wanting follows them all the way up the throat and out into the daylight, and then it cannot follow any further, because nobody is carrying it.
+
+Behind them, the mound is just a hill with good grass.
+
+"Someone will find it," Wren says, eventually. Nobody argues. But it will not be them, and it will not be soon, and after five acts of this that turns out to be worth more than a better ending.
+
+* [The Shattered Crown.] -> end
+    do crown_ending(leave)

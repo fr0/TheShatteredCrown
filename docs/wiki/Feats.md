@@ -35,6 +35,7 @@ One feat at character level 3 and every third level after. General feats are ope
 | **War Song** | Bard 2 | Allies under Battle Hymn also gain +8% shooting accuracy. |
 | **Lingering Lament** | Bard 3 | Dirge lasts 70 seconds instead of 40. |
 | **Encore** | Bard 5 | Song of Rest restores the bard's own energy along with the company's. |
+| **Cudgel Chorus** | Bard 3 | While an instrument is in hand, the bard deals 35% more melee damage and swings 20% more accurately. A lute is a hardwood club with strings on it. |
 
 ## Cleric
 

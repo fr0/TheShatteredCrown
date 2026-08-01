@@ -1,0 +1,160 @@
+# The Honor Guard, at the threshold of the throne room. Fired once by
+# MapComponent_TSC_Barrow when a colonist reaches the chamber.
+#
+# They are NOT a monster closet: they spawn factionless and neutral, and
+# they challenge. The company can answer with what four acts taught them
+# (Lore: the chronicle; Persuasion: the plain truth) or refuse and fight.
+# guard_yield() stands them down; guard_fight() sets them on the party.
+#
+# {PLAYER} is whoever came through the door first.
+
+dialogue TSC_Dialogue_HonorGuard
+
+== start ==
+They are standing where they have always been standing: five men in plate that has not rusted, spears grounded, facing the door. Not asleep. Not dead in any way that stopped them.
+
+The nearest one speaks, and his voice is the sound of a man who has had this sentence ready for a very long time and has never once needed it.
+
+"Name yourself, and say by what right you come to the king's rest."
+
+* "We carry four pieces of his crown. We came to finish it." -> claim
+* "We came because the crown pointed us here. That is the whole truth." -> truth
+* "Stand aside." -> refuse
+* [Answer with the chronicle: name the five roads and the five riders.] -> chronicle
+    check Lore 15 -> chronicle_ok | chronicle_bad
+* [Sing them the five roads, as a lay, the way it was meant to be carried.] -> sung
+    check Performance 15 -> sung_ok | sung_bad
+
+== claim ==
+The spears do not move, but something behind the visor does.
+
+"Claimants." He says the word the way a man says a diagnosis. "We were told to expect you. Not you in particular. Somebody, eventually, carrying pieces and an explanation and a belief in it."
+
+He shifts his grip.
+
+"Say the rest of it. Say what you mean to do when the thing is whole."
+
+* "Wear it, if it comes to that." -> honest
+* "Put it beyond anyone's reach. Including ours." -> truth
+* "We do not know yet." -> honest
+
+== truth ==
+"The crown pointed you." A long pause. "Yes. It does that. It was pointing men at this door while we were still breathing, and it never once got one the whole way. You are the first thing it has managed to steer as far as this doorway."
+
+The spear comes up a hand's width.
+
+"You at least know you were pointed. Whether that makes you better company than the ones who never arrived, I could not say. It is not, by itself, a right."
+
+* [Answer with the chronicle: name the five roads and the five riders.] -> chronicle
+    check Lore 15 -> chronicle_ok | chronicle_bad
+* "Then judge us on what we do next." -> honest
+* "Enough. Stand aside." -> refuse
+
+== honest ==
+"An honest answer." He looks at the company a while. "That is not what we were braced for."
+
+* [Answer with the chronicle: name the five roads and the five riders.] -> chronicle
+    check Lore 15 -> chronicle_ok | chronicle_bad
+* [Sing them the five roads, as a lay, the way it was meant to be carried.] -> sung
+    check Performance 15 -> sung_ok | sung_bad
+* "We were not sent, and we are not owed. Let us past anyway." -> plead
+    check Persuasion 15 -> plead_ok | plead_bad
+* [Enough talking.] -> refuse
+
+== chronicle ==
+{PLAYER} answers the way the chronicle answers: not with a claim, but with the roads.
+
+* [Continue.] -> chronicle_ok
+
+== chronicle_ok ==
+The north road and the hill grave. The road under the city and the man told to sing. The east road and the hands the piece fell through. The winter road and the house that barred its own gate. And the fifth, which the carvers left unfinished, because its rider has not stopped walking.
+
+Five roads, five riders, and what each of them cost. Nobody who was merely greedy could recite it.
+
+The oath-keeper listens to the end. Then he does something none of them have done in nine hundred years: he lowers his spear.
+
+"You have carried it and you have read it, and you came anyway. So did we." He steps back from the tomb. "Go and see him, then. He has been waiting for somebody who knew the whole of it."
+
+* [Approach the sarcophagus.] -> end
+    do guard_yield(); grant_xp(200); flag(TSC_HonorGuardChronicle)
+
+== chronicle_bad ==
+{PLAYER} has the understanding of it and loses the order: the roads tangle, a rider goes to the wrong grave, the winter house arrives two centuries early.
+
+The oath-keeper waits it out with the patience of stone.
+
+"Pieces of it," he says. "You have pieces of everything, it seems." The spear stays level. "Try again with something truer, or try the other way."
+
+* "We were not sent, and we are not owed. Let us past anyway." -> plead
+    check Persuasion 15 -> plead_ok | plead_bad
+* [Enough talking.] -> refuse
+
+== plead ==
+{PLAYER} stops arguing rights and says the plain thing instead.
+
+* [Continue.] -> plead_ok
+
+== plead_ok ==
+"We have no writ and no blood claim, and the thing in our packs wants us here, which we know is the worst possible reason to be standing in a doorway. Every man who kept a piece of it died keeping it, and we have read all their handwriting. We are not here to be kings. We are here because somebody has to be the last ones to touch it, and it might as well be people who understand what that costs."
+
+Silence in the plate.
+
+"That," the oath-keeper says at last, "is not the answer we were waiting for. We have had nine hundred years to work out what somebody would say when they finally came down here. We had a great many versions ready. Every one of them ended in the word *mine*."
+
+He grounds his spear and stands aside.
+
+* [Approach the sarcophagus.] -> end
+    do guard_yield(); grant_xp(150)
+
+== plead_bad ==
+The words come out and they are the wrong words: too certain, too smooth, too much like a claim after all. Behind the visor, whatever was listening stops.
+
+"No," the oath-keeper says, almost gently. "That one we have had ready since before your language existed."
+
+* [Then it is spears.] -> refuse
+
+== sung ==
+Not a speech. A lay, in the old measure, the way a thing this size was always meant to be carried: five roads, five riders, one verse each.
+
+* [Continue.] -> sung_ok
+
+== sung_ok ==
+The north road and the man who lay down in the grave he dug. The road under the city and the singer left with an order and no relief. The east road and the piece that fell through eight hundred years of hands. The winter road and the house that barred its own gate. And the fifth, held back at the end where the tune wants resolving and does not get it, because that rider has not stopped walking.
+
+The chamber does what stone chambers do to a voice pitched properly. Somewhere in the third verse, something happens that nobody expects.
+
+The oath-keepers know the names.
+
+Not from the song. From before it. These were men they drank with, argued with, and saw off at a gate on five different mornings, and they have stood at this door for nine hundred years, the last eight of those centuries without ever hearing what became of any of them.
+
+When it ends, the nearest one has to try twice before his voice works.
+
+"We waited for the riders," he says. "Nobody came back to tell us. We did not know if it worked."
+
+He steps out of the doorway and grounds his spear, and the rest of the line follows without being told.
+
+"Go in, singer. Whatever you decide down there: that was well sung, and we are in your debt for it."
+
+* [Approach the sarcophagus.] -> end
+    do guard_yield(); grant_xp(250); flag(TSC_HonorGuardSung)
+
+== sung_bad ==
+The measure slips. The verses come out in the wrong order, the fourth road takes the third road's ending, and the tune that should resolve on the fifth simply stops.
+
+The oath-keeper waits it out with the patience of stone, and something in the plate has gone stiff.
+
+"I knew those men," he says quietly. "Try that again properly, or try another way."
+
+* "We were not sent, and we are not owed. Let us past anyway." -> plead
+    check Persuasion 15 -> plead_ok | plead_bad
+* [Enough talking.] -> refuse
+
+== refuse ==
+Nobody in that plate is surprised.
+
+"We are the Honor Guard of the first king," he says, "and this is the post. It was never really a question of whether you would be allowed. It was a question of what you would say first."
+
+The spears come level all along the line.
+
+* [Take the tomb.] -> end
+    do guard_fight(); flag(TSC_HonorGuardFought)

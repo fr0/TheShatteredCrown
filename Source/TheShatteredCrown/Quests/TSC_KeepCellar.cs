@@ -1018,8 +1018,12 @@ namespace TheShatteredCrown
             Faction owner = lured.Count > 0 ? lured[0].Faction : null;
             if (owner != null)
             {
+                // canSteal: false - same reason as the barrow guard. These
+                // are the keep's own garrison, lured into their own cellar;
+                // breaking off to carry the party's packs back up the stairs
+                // is not a thing a garrison does.
                 LordMaker.MakeNewLord(owner, new LordJob_AssaultColony(owner,
-                    canKidnap: false, canTimeoutOrFlee: true), cellar, lured);
+                    canKidnap: false, canTimeoutOrFlee: true, canSteal: false), cellar, lured);
             }
             int left = garrison.Count - lured.Count;
             Find.LetterStack.ReceiveLetter(

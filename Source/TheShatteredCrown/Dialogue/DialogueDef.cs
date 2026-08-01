@@ -197,7 +197,7 @@ namespace TheShatteredCrown
         /// </summary>
         [NoTranslate]
         public string retryKey;
-        public float retryHours = 8f;
+        public float retryHours = 4f;
     }
 
     /// <summary>Attach to a PawnKindDef to make pawns of that kind conversable.</summary>

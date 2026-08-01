@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       The eleven who came after him, buried in the same chamber, in
+       poorer boxes than his.
+
+       They are furniture with names. Nothing here is a puzzle and nothing
+       here is a fight: a player who reads all eleven learns what the
+       first king spends the whole conversation trying to tell them, which
+       is that every one of these people was clever, careful, and certain
+       they would be the exception. Reigns get shorter as the labels go
+       up. That is the entire argument.
+
+       Placed by GenStep_TSC_ThroneRoom, which finds them by defName.
+       ================================================================== -->
+
+  <ThingDef Name="TSC_KingTombBase" ParentName="BuildingBase" Abstract="True">
+    <size>(1,2)</size>
+    <!-- Not rotatable: Graphic_Single does not turn with the footprint, so
+         a sideways tomb would draw as an upright one lying across two
+         cells. They are all laid the same way, which suits a burial row. -->
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>40</pathCost>
+    <fillPercent>0.5</fillPercent>
+    <useHitPoints>false</useHitPoints>
+    <selectable>true</selectable>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_KingTomb</texPath>
+      <drawSize>(1.25,2.25)</drawSize>
+      <color>(146,144,136)</color>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>300</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_KingTombBase">
+    <defName>TSC_KingTomb_Second</defName>
+    <label>the second king's tomb</label>
+    <description>His son. Nineteen when it came to him, which it did the same week it came off his father, because nobody could think of a reason to wait.\n\nSeven years. The band on the lid is cut by the same hand as the first king's, and it is the last one that is.</description>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_KingTombBase">
+    <defName>TSC_KingTomb_Third</defName>
+    <label>the third king's tomb</label>
+    <description>A cousin, and by all accounts a decent one. Six years.\n\nHe won a war whose cause nobody wrote down, on the grounds that everyone alive already knew it. Nobody alive knows it.</description>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_KingTombBase">
+    <defName>TSC_KingTomb_Fourth</defName>
+    <label>the fourth king's tomb</label>
+    <description>Six years. She built the east road, the good one, the one that is still there and still carries carts.\n\nShe is not on it anywhere. No milestone, no bridge, no gate. It was finished the year she died and the naming of it never happened.</description>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_KingTombBase">
+    <defName>TSC_KingTomb_Fifth</defName>
+    <label>the fifth king's tomb</label>
+    <description>Five years. He wrote the laws on inheritance and water rights that clerks in three kingdoms still copy out, usually without knowing whose they were.\n\nThe lid has been opened and closed again at some point. Somebody checked.</description>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_KingTombBase">
+    <defName>TSC_KingTomb_Sixth</defName>
+    <label>the sixth king's tomb</label>
+    <description>The only one who tried to give it away. Four years.\n\nHe got as far as the gate of this barrow with it in his hands, and then he turned around and went home wearing it, and he never spoke about the walk back.</description>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_KingTombBase">
+    <defName>TSC_KingTomb_Seventh</defName>
+    <label>the seventh king's tomb</label>
+    <description>Five years. She asked it for a harvest and it gave her eleven at once: the grain came up in a single season, all of it, everywhere, and the fields have never been right since.\n\nShe asked for nothing else afterward. It made no difference.</description>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_KingTombBase">
+    <defName>TSC_KingTomb_Eighth</defName>
+    <label>the eighth king's tomb</label>
+    <description>Three years, and used up at thirty-one, which the court recorded as a wasting illness.\n\nThe court physician's notes survive in the reliquary at the monastery. They describe a man in perfect health who was running out.</description>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_KingTombBase">
+    <defName>TSC_KingTomb_Ninth</defName>
+    <label>the ninth king's tomb</label>
+    <description>Four years. He kept a diary every day of his reign, which is more than any of the others managed.\n\nEvery entry after the second year is in a hand that is very nearly his.</description>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_KingTombBase">
+    <defName>TSC_KingTomb_Tenth</defName>
+    <label>the tenth king's tomb</label>
+    <description>Three years. She won every argument she ever entered, including the ones she had alone, in a locked room, out loud.\n\nHer council stopped bringing her questions in the second year. Not out of fear. There was simply no point.</description>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_KingTombBase">
+    <defName>TSC_KingTomb_Eleventh</defName>
+    <label>the eleventh king's tomb</label>
+    <description>Two years. The shortest of them, and the only one anybody wept for.\n\nHe was nineteen, he was good at it, and the household who buried him carved the lid themselves rather than send out for a mason.</description>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_KingTombBase">
+    <defName>TSC_KingTomb_Twelfth</defName>
+    <label>the twelfth king's tomb</label>
+    <description>The last one. She sent the crown out of her hall in five directions on five roads, with five riders who knew what they were carrying, and then she barred the doors and set the hall alight with herself inside it, so that there would be nothing left for it to come back to.\n\nThis box holds what they could carry out of the ashes. It is not heavy.</description>
+  </ThingDef>
+
+</Defs>

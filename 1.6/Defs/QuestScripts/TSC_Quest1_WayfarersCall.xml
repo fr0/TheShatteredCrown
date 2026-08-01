@@ -166,7 +166,7 @@
                 <description>You found Bran Underhill, the party's scout, alive in the border ruin, and he's marked the company's campsite on your maps.\n\nTravel to the Wayfarers' camp and find the rest of Serra Voss's party.</description>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>200</xp>
+                <xp>300</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>

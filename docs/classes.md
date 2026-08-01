@@ -25,12 +25,19 @@ update this file when those change.
     - Oswin → **Wizard** (after earning `TSC_OswinRespect`)
     - Maewyn → **Druid** (in-party road conversation)
 - **XP and levels**: XP comes from quest completions and dialogue
-  (checks, confidences). Level N → N+1 costs **200 x N XP** (200, 400,
-  600...; doubled 2026-07-23 - a full Act 1 run lands around level
-  4-5). Level-ups are banked and spent via the **Level up!** dialog;
-  multiclass pawns assign levels per class.
+  (checks, confidences), kills, and check spots. Level N → N+1 costs
+  **400 x N XP** (400, 800, 1200...). Cumulative: level 5 at 4,000,
+  level 8 at 11,200, **level 10 at 18,000**. The main chain pays about
+  16,000 with act rewards scaling up (Act 1 x1.5 through Acts 4-5 x3),
+  so a normal run finishes Act 5 around **level 10**, a rushed one at 9,
+  a completionist at 11. Level-ups are banked and spent via the
+  **Level up!** dialog; multiclass pawns assign levels per class.
 - **Proficiencies**: each class trains three; trained proficiencies add
-  `1 + classLevel/4` to d10 checks.
+  `1 + classLevel/4` to d10 checks. Each level-up also awards a
+  proficiency pick worth **+2 if it is one of that class's three**, +1
+  otherwise, so a specialist funnelling every pick reaches 20+ by level
+  10 while a generalist sits nearer 6. See `checks.md` for what that
+  does to DCs.
 - **Energy**: every spell costs Energy (10/15/25), which regenerates
   during sleep. The Bard's Song of Rest is the only in-field restore.
 - **Turn-based mode**: a turn is **8 AP**, and every spell costs a flat **6 AP**. Ability gizmos
@@ -76,9 +83,10 @@ steadies the party with blessings.*
 ## Bard
 
 *A singer of the old songs: war-hymns for battle, verses for work,
-dirges for the enemy, and rest-songs for camp.*
+dirges for the enemy, and rest-songs for camp. Nobody watches the hands
+of a man who is playing.*
 
-**Proficiencies**: Performance, Persuasion, Lore
+**Proficiencies**: Performance, Persuasion, Thievery
 
 | Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
 |----|--------|--------|------|----------|-------|--------|
@@ -278,6 +286,7 @@ first, feat second.
 | Carrying voice | Bard 2 | Battle Hymn, Dirge, and Song of Rest radius +25%. Stacks with instrument bonuses. |
 | War song | Bard 2 | Allies under Battle Hymn also gain +8% shooting accuracy. |
 | Lingering lament | Bard 3 | Dirge lasts 70 seconds instead of 40. |
+| Cudgel chorus | Bard 3 | While an instrument is in hand: +35% melee damage and +20% melee hit chance. |
 | Encore | Bard 5 | Song of Rest restores the bard's own energy along with the company's. |
 
 ### Rogue feats

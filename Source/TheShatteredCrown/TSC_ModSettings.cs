@@ -29,6 +29,11 @@ namespace TheShatteredCrown
         /// without it, and some players would rather a win be its own reward.
         /// </summary>
         public float questMoodBonus;
+        /// <summary>Flat, permanent mood for every adventurer. 0 = off.</summary>
+        public float adventuringLife;
+        /// <summary>Mood per kill, and how long each one lasts. 0 = off.</summary>
+        public float killMoodBonus;
+        public float killMoodHours = 12f;
 
         public int EnemyBeatTicks => Mathf.RoundToInt(enemyBeatSeconds * 60f);
 
@@ -40,6 +45,9 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref enemyBeatSeconds, "enemyBeatSeconds", 0.5f);
             Scribe_Values.Look(ref reformIgnoresHiddenEnemies, "reformIgnoresHiddenEnemies", defaultValue: true);
             Scribe_Values.Look(ref questMoodBonus, "questMoodBonus", 0f);
+            Scribe_Values.Look(ref adventuringLife, "adventuringLife", 0f);
+            Scribe_Values.Look(ref killMoodBonus, "killMoodBonus", 0f);
+            Scribe_Values.Look(ref killMoodHours, "killMoodHours", 12f);
         }
     }
 
@@ -57,6 +65,7 @@ namespace TheShatteredCrown
             base.WriteSettings();
             // The thought def ships at 0; the setting is the source of truth.
             TSC_QuestMood.ApplySetting();
+            TSC_MoodOptions.ApplySettings();
         }
 
         public override string SettingsCategory()
@@ -98,6 +107,25 @@ namespace TheShatteredCrown
             listing.Label("Finishing one of this mod's quests lifts the whole company's mood for two days. 0 turns it off entirely (the default): the campaign is balanced without it.");
             GUI.color = Color.white;
             Settings.questMoodBonus = Mathf.Round(listing.Slider(Settings.questMoodBonus, 0f, 15f));
+            listing.Gap();
+
+            listing.Label(Settings.adventuringLife <= 0f
+                ? "Adventuring life (permanent mood): off"
+                : $"Adventuring life (permanent mood): +{Settings.adventuringLife:0.#}");
+            GUI.color = Color.gray;
+            listing.Label("A flat, permanent mood bonus for everyone in the company: these are people who chose the road. Off by default. Useful if you find party life too grim without a colony's comforts.");
+            GUI.color = Color.white;
+            Settings.adventuringLife = Mathf.Round(listing.Slider(Settings.adventuringLife, 0f, 20f));
+            listing.Gap();
+
+            listing.Label(Settings.killMoodBonus <= 0f
+                ? "Mood per kill: off"
+                : $"Mood per kill: +{Settings.killMoodBonus:0.#} for {Settings.killMoodHours:0.#} h");
+            GUI.color = Color.gray;
+            listing.Label("Every enemy the company puts down lifts the killer's mood for a while, and the effect STACKS: a hard fight leaves a whole company briefly pleased with itself. Off by default.");
+            GUI.color = Color.white;
+            Settings.killMoodBonus = Mathf.Round(listing.Slider(Settings.killMoodBonus, 0f, 5f));
+            Settings.killMoodHours = Mathf.Round(listing.Slider(Settings.killMoodHours, 1f, 24f));
 
             listing.End();
             base.DoSettingsWindowContents(inRect);

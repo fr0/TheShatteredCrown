@@ -1317,4 +1317,11 @@
     <rotateInShelves>false</rotateInShelves>
   </ThingDef>
 
+  <JobDef>
+    <defName>TSC_PartWays</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_PartWays</driverClass>
+    <reportString>going to speak with TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
 </Defs>

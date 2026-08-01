@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ==================================================================
+       What the whole crown will hand over.
+
+       Every entry is priced by the game itself: the wish window builds the
+       actual object, reads its market value (stuff and quality included)
+       and charges the wearer one day of life per 12 silver. Nothing here
+       sets a price by hand except the wishes that have no market value at
+       all, which name their own.
+
+       The list is meant to read as a temptation, so it runs from a hot
+       meal up to things no company could otherwise own. Adding to it is a
+       matter of adding a def; no code knows about any particular wish.
+       ================================================================== -->
+
+  <!-- Riches -->
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Silver</defName>
+    <label>a purse of silver</label>
+    <description>Three hundred silver, counted, in a heap on the ground. It is the smallest thing the crown finds worth answering.</description>
+    <category>Riches</category>
+    <order>10</order>
+    <thingDef>Silver</thingDef>
+    <count>300</count>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_SilverLarge</defName>
+    <label>a chest of silver</label>
+    <description>Fifteen hundred silver. Enough to buy a caravan's worth of anything, and it costs rather more than a caravan's worth of walking.</description>
+    <category>Riches</category>
+    <order>20</order>
+    <thingDef>Silver</thingDef>
+    <count>1500</count>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Gold</defName>
+    <label>gold, by the bar</label>
+    <description>Two hundred bars of gold, still warm. Kings have been buried with less, which the crown would know.</description>
+    <category>Riches</category>
+    <order>30</order>
+    <thingDef>Gold</thingDef>
+    <count>200</count>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <!-- The table -->
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_FineMeals</defName>
+    <label>a good supper for everyone</label>
+    <description>Twenty fine meals, hot, on the ground where the company can reach them. The cheapest wish there is, and still not free.</description>
+    <category>The table</category>
+    <order>10</order>
+    <thingDef>MealFine</thingDef>
+    <count>20</count>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_LavishMeals</defName>
+    <label>a lavish feast</label>
+    <description>Twelve lavish meals: the sort of table a lord sets when he wants something. Nobody has to cook and nobody has to hunt.</description>
+    <category>The table</category>
+    <order>20</order>
+    <thingDef>MealLavish</thingDef>
+    <count>12</count>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Beer</defName>
+    <label>drink for the whole company</label>
+    <description>Forty bottles of beer. The crown does not appear to think less of the wearer for asking.</description>
+    <category>The table</category>
+    <order>30</order>
+    <thingDef>Beer</thingDef>
+    <count>40</count>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Chocolate</defName>
+    <label>chocolate</label>
+    <description>Thirty bars of it, which is a strange thing to spend part of a life on, and people do.</description>
+    <category>The table</category>
+    <order>40</order>
+    <thingDef>Chocolate</thingDef>
+    <count>30</count>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <!-- Arms -->
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Sword</defName>
+    <label>a masterwork longsword</label>
+    <description>Plasteel, masterwork, balanced for the hand that asked for it. It will outlast the wearer, which after this is not saying much.</description>
+    <category>Arms</category>
+    <order>10</order>
+    <thingDef>MeleeWeapon_LongSword</thingDef>
+    <stuff>Plasteel</stuff>
+    <setQuality>true</setQuality>
+    <quality>Masterwork</quality>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Mace</defName>
+    <label>a masterwork mace</label>
+    <description>Plasteel, masterwork. For the armoured problems.</description>
+    <category>Arms</category>
+    <order>20</order>
+    <thingDef>MeleeWeapon_Mace</thingDef>
+    <stuff>Plasteel</stuff>
+    <setQuality>true</setQuality>
+    <quality>Masterwork</quality>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Bow</defName>
+    <label>a masterwork greatbow</label>
+    <description>A greatbow of the kind that takes a bowyer a season and a wearer a wish.</description>
+    <category>Arms</category>
+    <order>30</order>
+    <thingDef>Bow_Great</thingDef>
+    <setQuality>true</setQuality>
+    <quality>Masterwork</quality>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Plate</defName>
+    <label>a masterwork suit of plate</label>
+    <description>Plasteel plate, fitted while it appears. The crown has strong opinions about how a king should be dressed.</description>
+    <category>Arms</category>
+    <order>40</order>
+    <thingDef>Apparel_PlateArmor</thingDef>
+    <stuff>Plasteel</stuff>
+    <setQuality>true</setQuality>
+    <quality>Masterwork</quality>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Lute</defName>
+    <label>a legendary lute</label>
+    <description>Yew and bone and gut, and something in the grain that was not there in any tree. A bard could spend a life looking for this one. That is roughly the exchange rate.</description>
+    <category>Arms</category>
+    <order>50</order>
+    <thingDef>TSC_Instrument_Lute</thingDef>
+    <setQuality>true</setQuality>
+    <quality>Legendary</quality>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <!-- Beautiful things -->
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_SculptureSmall</defName>
+    <label>a small sculpture in gold</label>
+    <description>Excellent work, in gold, of nobody the wearer recognises. It is very beautiful and it is looking slightly away.</description>
+    <category>Beautiful things</category>
+    <order>10</order>
+    <thingDef>SculptureSmall</thingDef>
+    <stuff>Gold</stuff>
+    <setQuality>true</setQuality>
+    <quality>Excellent</quality>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_SculptureGrand</defName>
+    <label>a grand sculpture in gold</label>
+    <description>Masterwork, in gold, twice the height of a man. Whatever it depicts, everyone who looks at it agrees it is worth what it cost, and nobody wants to say the number out loud.</description>
+    <category>Beautiful things</category>
+    <order>20</order>
+    <thingDef>SculptureGrand</thingDef>
+    <stuff>Gold</stuff>
+    <setQuality>true</setQuality>
+    <quality>Masterwork</quality>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <!-- Things with no price -->
+
+  <!-- Priced by hand: happiness has no market value, so the crown sets its
+       own rate. Ten days of life for three days of unearned joy, which is
+       either a bargain or the worst trade in the game depending on who is
+       asked. -->
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Happiness</defName>
+    <label>to be happy for a while</label>
+    <description>Not a thing that can be put down or handed on. For three days the wearer will be well, and pleased, and will not be able to say why.</description>
+    <category>Things with no price</category>
+    <order>10</order>
+    <moodThought>TSC_Thought_Wished</moodThought>
+    <ageDaysFlat>10</ageDaysFlat>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Smite</defName>
+    <label>to defeat my enemies</label>
+    <description>Every hostile thing standing on this ground stops standing. No blow is struck. Nothing is thrown. The crown is told the result and produces the result, and everyone who watches it happen will remember that it was this easy.</description>
+    <category>Things with no price</category>
+    <order>20</order>
+    <workerClass>TheShatteredCrown.WishWorker_TSC_Smite</workerClass>
+    <!-- Four years. The most expensive thing on the list, because it is the
+         one that ends an encounter the party was losing, and it should feel
+         like a decision made in a bad moment rather than an opening move. -->
+    <ageDaysFlat>240</ageDaysFlat>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Beloved</defName>
+    <label>to be loved</label>
+    <description>Everyone in sight decides, privately and all at once, that they think the world of the wearer. None of them will be able to say when they started, and none of them will think to ask.</description>
+    <category>Things with no price</category>
+    <order>30</order>
+    <workerClass>TheShatteredCrown.WishWorker_TSC_Beloved</workerClass>
+    <!-- One year, and the affection fades on the usual memory clock. -->
+    <ageDaysFlat>60</ageDaysFlat>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <TheShatteredCrown.TSC_WishDef>
+    <defName>TSC_Wish_Mend</defName>
+    <label>to be healed</label>
+    <description>Every wound closed, every scar gone, every missing piece back where it belongs, in the time it takes to draw a breath.
+
+The years it charges for this are not returned with the arm.</description>
+    <category>Things with no price</category>
+    <order>40</order>
+    <workerClass>TheShatteredCrown.WishWorker_TSC_Mend</workerClass>
+    <!-- Two years, and worth it the first time somebody loses a leg. -->
+    <ageDaysFlat>120</ageDaysFlat>
+  </TheShatteredCrown.TSC_WishDef>
+
+  <!-- The wearer's name is on it, and it decays like any other memory:
+       bought affection, honestly modelled. -->
+  <ThoughtDef>
+    <defName>TSC_Thought_Beloved</defName>
+    <thoughtClass>Thought_MemorySocial</thoughtClass>
+    <durationDays>20</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>wished upon</label>
+        <baseOpinionOffset>60</baseOpinionOffset>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>TSC_Thought_Wished</defName>
+    <durationDays>3</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>wished for happiness</label>
+        <description>Everything is fine. Everything is, in fact, wonderful, and there is no reason for it, and the reason does not seem important.</description>
+        <baseMoodEffect>30</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- Worn, and visible as a condition rather than as a hat. Carries no
+       capacity changes at all: the crown's effect on the body is the aging
+       it charges, which lands as real years and real age hediffs, and
+       stacking a stat penalty on top would be charging twice. -->
+  <HediffDef>
+    <defName>TSC_Hediff_Crowned</defName>
+    <label>crowned</label>
+    <description>This person is wearing the crown of Aldruin, whole. It answers whatever they ask of it and takes the payment out of their remaining years, on the spot. It cannot be removed while they live.</description>
+    <hediffClass>TheShatteredCrown.Hediff_TSC_Crowned</hediffClass>
+    <defaultLabelColor>(1.0, 0.86, 0.45)</defaultLabelColor>
+    <isBad>false</isBad>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <maxSeverity>1</maxSeverity>
+    <stages>
+      <li>
+        <label>crowned</label>
+      </li>
+    </stages>
+  </HediffDef>
+
+</Defs>

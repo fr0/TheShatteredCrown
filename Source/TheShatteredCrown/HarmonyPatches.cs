@@ -335,9 +335,40 @@ namespace TheShatteredCrown
     {
         private static readonly Dictionary<Pawn, int> lastNotifyTick = new Dictionary<Pawn, int>();
 
-        public static bool Protects(Pawn pawn)
+        /// <summary>
+        /// The one pawn the story is currently killing on purpose.
+        ///
+        /// Plot armor cannot tell an authored death from a stray arrow, so a
+        /// scene that ENDS a protected character (Aled paying eight centuries
+        /// of arrears the moment he hands the shard over) was simply downing
+        /// them instead, alive, which reads as a bug and blocks the scene.
+        /// Narrow and scoped: set for the duration of one Kill call, cleared
+        /// in a finally, never a standing exemption.
+        /// </summary>
+        private static Pawn scriptedDeath;
+
+        /// <summary>Kills a protected character because the story says so.</summary>
+        public static void ScriptedKill(Pawn pawn, DamageInfo? dinfo = null)
         {
             if (pawn == null || pawn.Dead)
+            {
+                return;
+            }
+            Pawn previous = scriptedDeath;
+            scriptedDeath = pawn;
+            try
+            {
+                pawn.Kill(dinfo);
+            }
+            finally
+            {
+                scriptedDeath = previous;
+            }
+        }
+
+        public static bool Protects(Pawn pawn)
+        {
+            if (pawn == null || pawn.Dead || pawn == scriptedDeath)
             {
                 return false;
             }

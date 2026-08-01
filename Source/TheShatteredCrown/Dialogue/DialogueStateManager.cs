@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using RimWorld;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 
 namespace TheShatteredCrown
@@ -65,6 +66,16 @@ namespace TheShatteredCrown
             {
                 retryAtTicks[key] = Find.TickManager.TicksGame + (int)(hours * GenDate.TicksPerHour);
             }
+        }
+
+        /// <summary>Ticks left on a retry cooldown, or 0 if it is over.</summary>
+        public int CooldownLeft(string key)
+        {
+            if (key.NullOrEmpty() || !retryAtTicks.TryGetValue(key, out int at))
+            {
+                return 0;
+            }
+            return Mathf.Max(0, at - Find.TickManager.TicksGame);
         }
 
         public bool IsCoolingDown(string key)

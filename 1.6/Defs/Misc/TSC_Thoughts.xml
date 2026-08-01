@@ -52,4 +52,38 @@
     </stages>
   </ThoughtDef>
 
+  <!-- Both ship at 0 and are driven entirely from the mod settings
+       (TSC_MoodOptions.ApplySettings), for the same reason the quest
+       thought is: a value here would be a second, silent source of truth. -->
+
+  <!-- The permanent one. Situational, not a memory: it is a fact about
+       who these people are, not something that happened to them. -->
+  <ThoughtDef>
+    <defName>TSC_Thought_AdventuringLife</defName>
+    <workerClass>TheShatteredCrown.ThoughtWorker_TSC_AdventuringLife</workerClass>
+    <stages>
+      <li>
+        <label>adventuring life</label>
+        <description>No fields to weed, no roof to patch, nobody's ledger to answer to. Whatever else the road costs, it was chosen.</description>
+        <baseMoodEffect>0</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- The per-kill one. A memory, and it STACKS: a hard fight should feel
+       like a hard fight afterward. -->
+  <ThoughtDef>
+    <defName>TSC_Thought_Bloodied</defName>
+    <durationDays>0.5</durationDays>
+    <stackLimit>20</stackLimit>
+    <stackedEffectMultiplier>1</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>won a fight</label>
+        <description>Somebody came at the company and did not walk away from it. That is worth something, and it is worth more the more of them there were.</description>
+        <baseMoodEffect>0</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
 </Defs>

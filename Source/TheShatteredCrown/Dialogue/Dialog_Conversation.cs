@@ -80,6 +80,14 @@ namespace TheShatteredCrown
         /// </summary>
         protected override float Margin => 10f;
 
+        /// <summary>
+        /// NPC FIRST, then the colonist talking to them. The npc is whose
+        /// portrait and name the window shows and what {NPC} resolves to; the
+        /// interactor is {PLAYER} and the pawn checks are rolled from. Getting
+        /// these the wrong way round shows the player their own colonist as
+        /// the speaker, which is how it was caught in play. For a scene with
+        /// no other party, pass the same pawn twice.
+        /// </summary>
         public Dialog_Conversation(DialogueDef def, Pawn npc, Pawn interactor)
         {
             this.def = def;
@@ -162,6 +170,7 @@ namespace TheShatteredCrown
             Text.Font = GameFont.Small;
             float optionWidth = inRect.width - PortraitWidth - 16f;
             List<string> optionLabels = new List<string>();
+            List<string> optionTips = new List<string>();
             List<float> optionHeights = new List<float>();
             float optionsHeight = 0f;
             foreach (DialogueOption option in visibleOptions)
@@ -169,6 +178,7 @@ namespace TheShatteredCrown
                 string label = OptionLabel(option);
                 float height = Mathf.Max(OptionHeight, Text.CalcHeight(label, optionWidth - 30f) + 10f);
                 optionLabels.Add(label);
+                optionTips.Add(CheckTooltip(option));
                 optionHeights.Add(height);
                 optionsHeight += height + OptionGap;
             }
@@ -206,6 +216,12 @@ namespace TheShatteredCrown
             for (int i = 0; i < visibleOptions.Count; i++)
             {
                 Rect btnRect = new Rect(transcriptRect.x, optY, transcriptRect.width, optionHeights[i]);
+                if (!optionTips[i].NullOrEmpty())
+                {
+                    // Keyed on the option index so hovering one bracket does
+                    // not show the tip cached for another.
+                    TooltipHandler.TipRegion(btnRect, new TipSignal(optionTips[i], def.shortHash + i));
+                }
                 if (FantasyButton(btnRect, optionLabels[i]))
                 {
                     Choose(visibleOptions[i]);
@@ -239,6 +255,56 @@ namespace TheShatteredCrown
                 label = $"[{option.check.proficiency.LabelCap} {shown}] {label}";
             }
             return label;
+        }
+
+        /// <summary>
+        /// What the bracket on the option actually commits you to: who rolls,
+        /// what they bring to it, and the odds.
+        ///
+        /// The party proficiency system decides the roller for you (the best
+        /// qualified colonist in reach, not necessarily the one talking), and
+        /// that was invisible at the point of choosing - the player learned
+        /// who rolled only from the result line, after committing. Everything
+        /// here is read from the same calls Choose() makes, so the tooltip
+        /// cannot drift from the roll.
+        /// </summary>
+        private string CheckTooltip(DialogueOption option)
+        {
+            TSC_ProficiencyDef prof = option.check?.proficiency;
+            TSC_ProgressionManager progression = TSC_ProgressionManager.Current;
+            if (prof == null || progression == null)
+            {
+                return null;
+            }
+            Pawn checker = progression.BestCheckPawn(context.interactor, context.npc, prof, out int level)
+                ?? context.interactor;
+            int dc = TSC_CheckUtility.ScaledDc(checker, prof, option.check.difficulty);
+            int needed = dc - level;
+            // d10: every face from the needed number up is a success.
+            int faces = Mathf.Clamp(11 - needed, 0, 10);
+            System.Text.StringBuilder tip = new System.Text.StringBuilder();
+            tip.AppendLine($"<b>{prof.LabelCap} check, DC {dc}</b>");
+            tip.AppendLine();
+            string who = checker != null ? checker.LabelShortCap : "Nobody";
+            tip.AppendLine($"{who} rolls it, with {prof.LabelCap} {level}.");
+            if (faces <= 0)
+            {
+                tip.AppendLine($"1d10 + {level} cannot reach {dc}. This will fail.");
+            }
+            else if (faces >= 10)
+            {
+                tip.AppendLine($"1d10 + {level} beats {dc} on any roll. This cannot fail.");
+            }
+            else
+            {
+                tip.AppendLine($"1d10 + {level} needs a {needed} or better: {faces * 10}% chance.");
+            }
+            if (checker != null && checker != context.interactor)
+            {
+                tip.AppendLine();
+                tip.AppendLine($"{who} is not doing the talking, but is close enough to help and is the party's best at this.");
+            }
+            return tip.ToString().TrimEndNewlines();
         }
 
         private void PushNpcLine(DialogueNode node)

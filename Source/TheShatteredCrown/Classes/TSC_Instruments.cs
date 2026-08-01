@@ -105,6 +105,11 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            int power = TSC_Instruments.MinstrelsyPower(wielder);
+            if (power <= 0)
+            {
+                return;
+            }
             lastMorale = now;
             // Snapshot: FreeColonistsSpawned hands back a CACHED list that its
             // own getter rebuilds in place when dirty, and the caller of this
@@ -118,13 +123,83 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                listener.needs.mood.thoughts.memories.TryGainMemory(Props.moraleThought);
+                TSC_Instruments.GrantMinstrelsy(listener, Props.moraleThought, power);
             }
         }
 
         public override string CompInspectStringExtra()
         {
             return Wielder == null ? null : TSC_Instruments.BonusLine(this);
+        }
+    }
+
+    /// <summary>
+    /// The same music, on the road.
+    ///
+    /// The morale thought is refreshed by MapComponent_TSC_CarriedGear,
+    /// which only exists on MAPS - and a caravan crossing the world map has
+    /// no map at all, so nothing ticked, nothing refreshed, and the thought
+    /// simply ran out its clock mid-journey (reported from play). Which is
+    /// exactly backwards: the road is where a company most needs somebody
+    /// playing.
+    ///
+    /// No positions exist in a caravan, so there is no radius to check.
+    /// Everyone riding together hears it.
+    /// </summary>
+    public class WorldComponent_TSC_CaravanMinstrelsy : RimWorld.Planet.WorldComponent
+    {
+        private const int Interval = 2500; // hourly, same as the map-side refresh
+
+        public WorldComponent_TSC_CaravanMinstrelsy(RimWorld.Planet.World world) : base(world)
+        {
+        }
+
+        public override void WorldComponentTick()
+        {
+            base.WorldComponentTick();
+            if (Find.TickManager.TicksGame % Interval != 0 || !TSC_RpgMode.Active)
+            {
+                return;
+            }
+            foreach (RimWorld.Planet.Caravan caravan in Find.WorldObjects.Caravans)
+            {
+                if (!caravan.IsPlayerControlled)
+                {
+                    continue;
+                }
+                Pawn player = PlayedOnTheRoad(caravan);
+                ThoughtDef played = player?.equipment?.Primary?.TryGetComp<Comp_TSC_Instrument>()?.Props?.moraleThought;
+                int power = TSC_Instruments.MinstrelsyPower(player);
+                if (played == null || power <= 0)
+                {
+                    continue;
+                }
+                foreach (Pawn pawn in caravan.PawnsListForReading)
+                {
+                    if (pawn.IsFreeColonist)
+                    {
+                        TSC_Instruments.GrantMinstrelsy(pawn, played, power);
+                    }
+                }
+            }
+        }
+
+        /// <summary>Whoever in this caravan is carrying an instrument and able to play it.</summary>
+        private static Pawn PlayedOnTheRoad(RimWorld.Planet.Caravan caravan)
+        {
+            foreach (Pawn pawn in caravan.PawnsListForReading)
+            {
+                if (pawn == null || pawn.Dead || pawn.Downed || pawn.InMentalState)
+                {
+                    continue;
+                }
+                Comp_TSC_Instrument instrument = pawn.equipment?.Primary?.TryGetComp<Comp_TSC_Instrument>();
+                if (instrument?.Props?.moraleThought != null)
+                {
+                    return pawn;
+                }
+            }
+            return null;
         }
     }
 
@@ -176,6 +251,10 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
+                // Worn gear, same sweep and the same reason: comps on it never
+                // tick either. Above the weapon check on purpose - a crowned
+                // pawn with empty hands still has a crown.
+                TSC_CrownLock.EnsureLocked(pawn);
                 ThingWithComps primary = pawn.equipment?.Primary;
                 if (primary == null)
                 {
@@ -237,6 +316,50 @@ namespace TheShatteredCrown
             }
             Comp_TSC_Instrument instrument = Held(caster);
             return instrument == null ? 1f : instrument.Scaled(instrument.Props.songPower);
+        }
+
+        /// <summary>
+        /// How good the playing actually is: the player's effective
+        /// Performance proficiency, which already folds in the instrument in
+        /// their hands, their class training and their level. A tin-eared
+        /// warden with a borrowed lute lifts nobody; a bard at the top of
+        /// their craft is worth sitting up for.
+        /// </summary>
+        public static int MinstrelsyPower(Pawn pawn)
+        {
+            if (pawn == null || TSC_DefOf.TSC_Prof_Performance == null)
+            {
+                return 0;
+            }
+            return TSC_ProgressionManager.Current?.EffectiveProficiency(pawn, TSC_DefOf.TSC_Prof_Performance) ?? 0;
+        }
+
+        /// <summary>
+        /// Grants (or refreshes) the morale thought at a given strength.
+        ///
+        /// The strength rides on Thought_Memory.moodOffset, which vanilla adds
+        /// straight onto the stage value - so the ThoughtDef carries a base of
+        /// zero and this decides the number. It has to be re-stamped after the
+        /// grant because TryGainMemory does NOT keep the instance handed to it
+        /// once the stack limit is reached: it renews the memory already on the
+        /// pawn and throws the new one away, old moodOffset and all. Setting it
+        /// on whatever memory ends up on the pawn covers both paths.
+        /// </summary>
+        public static void GrantMinstrelsy(Pawn listener, ThoughtDef def, int power)
+        {
+            MemoryThoughtHandler memories = listener?.needs?.mood?.thoughts?.memories;
+            if (memories == null || def == null || power <= 0)
+            {
+                return;
+            }
+            Thought_Memory fresh = (Thought_Memory)ThoughtMaker.MakeThought(def);
+            fresh.moodOffset = power;
+            memories.TryGainMemory(fresh);
+            Thought_Memory held = memories.GetFirstMemoryOfDef(def);
+            if (held != null)
+            {
+                held.moodOffset = power;
+            }
         }
 
         public static int PerformanceBonus(Pawn pawn)

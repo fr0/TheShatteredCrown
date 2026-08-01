@@ -38,11 +38,11 @@
   <TheShatteredCrown.TSC_ClassDef>
     <defName>TSC_Class_Bard</defName>
     <label>bard</label>
-    <description>A singer of the old songs: war-hymns for battle, verses for work, dirges for the enemy, and rest-songs for camp.</description>
+    <description>A singer of the old songs: war-hymns for battle, verses for work, dirges for the enemy, and rest-songs for camp. Nobody watches the hands of a man who is playing.</description>
     <proficiencies>
       <li>TSC_Prof_Performance</li>
       <li>TSC_Prof_Persuasion</li>
-      <li>TSC_Prof_Lore</li>
+      <li>TSC_Prof_Thievery</li>
     </proficiencies>
     <unlocks>
       <li>

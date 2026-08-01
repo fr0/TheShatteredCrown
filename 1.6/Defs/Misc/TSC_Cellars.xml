@@ -217,7 +217,9 @@
           <arrivalNote>Something heavy has been rooting through the fallen shelves, and the tusks marks on the doorframe are at knee height.</arrivalNote>
         </li>
       </occupants>
-      <maxDormantPacks>2</maxDormantPacks>
+      <!-- The upper cellar is somebody's basement, not a hive. -->
+      <maxDormantPacks>0</maxDormantPacks>
+      <dens>2~2</dens>
       <spots>
         <li>TSC_BeggarsCamp</li>
         <li>TSC_SluiceWheel</li>
@@ -250,7 +252,9 @@
           <arrivalNote>Kill-drag marks along the gallery floor, all leading the same direction. A cat is working these bones.</arrivalNote>
         </li>
       </occupants>
-      <maxDormantPacks>2</maxDormantPacks>
+      <!-- One insect pack survives down here, and only one. -->
+      <maxDormantPacks>1</maxDormantPacks>
+      <dens>2~2</dens>
       <spots>
         <li>TSC_ChoirBones</li>
         <li>TSC_RottedSpan</li>
@@ -283,7 +287,9 @@
           <arrivalNote>The den smell down here is one animal, and large. It has the deep floor to itself, and it means to keep it.</arrivalNote>
         </li>
       </occupants>
-      <maxDormantPacks>1</maxDormantPacks>
+      <!-- The deep floor belongs to whatever drove the wolves upstairs. -->
+      <maxDormantPacks>0</maxDormantPacks>
+      <dens>2~2</dens>
     </genStep>
   </GenStepDef>
 

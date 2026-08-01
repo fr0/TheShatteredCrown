@@ -4,6 +4,11 @@
 
 dialogue TSC_Dialogue_Serra
 
+# Act 5: taken on the road east and pulled out of a holding camp. Checked
+# BEFORE everything else - whatever she was doing before this, she is
+# doing this now.
+entry rescued if flag(TSC_Act5_Rescued) and not flag(TSC_SerraRescueTalk)
+entry rescued_hub if flag(TSC_Act5_Rescued)
 # The city farewell: opened from code (QuestPart_TSC_CompanionsSettle) the
 # moment both Wayfarers leave the party at the bard's city. Checked FIRST.
 entry city_farewell if flag(TSC_CompanionsSettled) and not flag(TSC_FarewellDone)
@@ -345,3 +350,64 @@ She looks up.
 
 * "Understood." -> hub
     do flag(TSC_Serra_Supplies)
+
+== rescued ==
+She is on her feet before anyone offers a hand, which is the most Serra thing available in the circumstances, and she does not thank anybody until she has counted heads.
+
+"Four of you. Good." Then, flatly: "You will want to know how a Wayfarer company leader ends up roped in a shed. The answer is eleven of them and a bridge I should not have crossed at dusk. Write it down and learn from it, because I intend to never say it again."
+
+* "Are you hurt?" -> hurt
+* "Why were you on this road at all?" -> road
+* [Say nothing. She is clearly working up to something.] -> road
+
+== hurt ==
+"Nothing that matters." She rolls the shoulder that clearly does matter. "They wanted us sold, not dead. There is a market for people who know where things are buried, and Oswin talks in his sleep."
+
+* "Why were you on this road at all?" -> road
+
+== road ==
+"Because you are." She says it without accusation. "The whole east country knows something is moving. Half the roads have gone quiet and the other half are full of men in a hurry, and every one of them is headed the same direction as you."
+
+She looks at the packs. Not the faces. The packs.
+
+"I am not going to ask what you are carrying. I already know, near enough. I have spent a year hearing about a company that keeps walking out of places nobody walks out of, and there is only one thing that would explain the roads emptying like this."
+
+* "Four of five. We are going for the last one." -> told
+* "Then you know why we cannot leave you here." -> told
+
+== told ==
+"Four." She takes that the way she takes weather. "Right."
+
+A long pause, and then the only speech Serra Voss has ever given.
+
+"My company is dead, and I have spent a year deciding whether that was my fault. Turns out the answer does not matter, because the road is still there and someone still has to walk it." She picks up somebody else's spear off the ground and checks the shaft. "So I am coming. Not for the guild, not for a rate, and not because you saved me, which I will be resenting for approximately one more day."
+
+"Because you are going to need somebody who has done this before, and there is nobody left who has done this except me."
+
+* [Welcome her back.] -> end
+    do flag(TSC_SerraRescueTalk); grant_xp(50)
+
+== rescued_hub ==
+Serra has her back to a rock and her eyes on the treeline, which is where they have been since the camp.
+
+"Say it."
+
+* "How are you holding up?" -> hub_holding
+* "What do you make of the road ahead?" -> hub_road
+* [Leave her to her watch.] -> end
+
+== hub_holding ==
+"I am walking, I am armed, and I am not in a shed. Compared to last week this is a holiday."
+
+She does not look away from the trees.
+
+"Ask me again after the barrow."
+
+* [Leave her to her watch.] -> end
+
+== hub_road ==
+"Too quiet, and quiet the wrong way. Not empty-quiet. Waiting-quiet." She shifts the spear. "Whatever is at the end of this, it has had eight hundred years to get ready and we have had a fortnight. I do not love the arithmetic."
+
+"But I have taken worse contracts on worse terms, and I am still here. Mostly."
+
+* [Leave her to her watch.] -> end

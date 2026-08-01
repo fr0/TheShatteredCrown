@@ -38,11 +38,11 @@ One full turning blow: strikes every enemy within melee range (1.9 cells) for th
 [h2]Bard[/h2]
 [previewimg=46987758;sizeOriginal,floatLeft;class_bard.png][/previewimg]
 
-A singer of the old songs: war-hymns for battle, verses for work, dirges for the enemy, and rest-songs for camp.
+A singer of the old songs: war-hymns for battle, verses for work, dirges for the enemy, and rest-songs for camp. Nobody watches the hands of a man who is playing.
 
 
 [hr][/hr]
-[b]Proficiencies:[/b] Performance, Persuasion, Lore
+[b]Proficiencies:[/b] Performance, Persuasion, Thievery
 
 [h3]Battle Hymn[/h3]
 

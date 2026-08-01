@@ -106,7 +106,7 @@ namespace TheShatteredCrown
         // That is the target: level 3 by the end of Act 1.
         //
         // Raised from 200, where the same budget reached level 4-5.
-        private const int XpPerLevelStep = 600;
+        private const int XpPerLevelStep = 400;
 
         public TSC_ProgressionManager(World world) : base(world)
         {

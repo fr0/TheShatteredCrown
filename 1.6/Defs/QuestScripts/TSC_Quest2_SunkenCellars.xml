@@ -123,7 +123,7 @@
                 <text TKey="LetterTextChapter2Done">The Kingsblade is out of the dark for the first time in living memory. The guild's rider takes rubbings of the reliquary inscriptions and gallops off to their chronicler.\n\n"There were words on the reliquary," she says over her shoulder. "About a signet. We'll send for you."\n\n(The Shattered Crown arc continues in a future chapter of this mod.)</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>500</xp>
+                <xp>750</xp>
               </li>
             </nodes>
           </node>

@@ -78,7 +78,7 @@
                 <text TKey="LetterTextBardMet">The bard's verses are real, and they were learned, not written. The trail of the second shard starts where the song does.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>200</xp>
+                <xp>400</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
@@ -159,7 +159,7 @@
                 <text TKey="LetterTextKingsblade">Eight hundred years in a flooded reliquary and the edge is still true. The sword of the last crowned king of Aldruin rides with the company now, and so does the second shard of his crown.\n\nTwo of five. And the fifth verse is out of the cellar for good.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>300</xp>
+                <xp>600</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>

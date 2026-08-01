@@ -88,12 +88,11 @@ Yes, they do! You have options:
 
 1. Accept this as an interesting interaction with RimWorld’s vanilla systems, and find ways to keep your adventurers happy. Give them occasional entertainment and sunlight.
 2. Visit the tavern in friendly/neutral cities, and pay silver to increase your party’s mood.
-3. Change the setting in the mod’s options to add a mood buff every time a quest is completed.
+3. If you have a bard with Performance and a musical instrument, make camp and have her perform for the party.
+4. Change the setting in the mod’s options to add a mood buff every time a quest is completed, or an enemy is defeated.
 
-The setting is off by default, because I think that leaning into RimWorld’s systems is more interesting than bypassing them. But it’s there for players who would prefer to make it easier to manage their pawns' moods.
+The mood settings are off by default, because I think that leaning into RimWorld’s systems is more interesting than bypassing them. But they are there for players who would prefer to make it easier to manage their pawns' moods.
 
 [img]{{IMG_H_CREDITS}}[/img]
 
 Spell and ability icons by Lorc (lorcblog.blogspot.com) and gear icons by Delapouite (delapouite.com), both CC BY 3.0, via game-icons.net.
-
-Bug reports and save-breaking horror stories welcome in the comments.

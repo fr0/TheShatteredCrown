@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Perception and Nature were the two thinnest proficiencies in the
+       campaign: Perception had ONE authored check across five acts and
+       none at all in dialogue, Nature had three - while both are trained
+       by more classes than Thievery is. Players invested in them and were
+       never asked. These are the asks.
+
+       All retryable: none of them gate anything, they are the reward for
+       having somebody who looks at the ground.
+       ================================================================ -->
+
+  <ThingDef Name="TSC_WoodcraftSpotBase" ParentName="BuildingBase" Abstract="True">
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>20</pathCost>
+    <fillPercent>0.2</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <statBases>
+      <MaxHitPoints>100</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+  </ThingDef>
+
+  <!-- ============================================ Perception -->
+
+  <!-- Act 5, the holding camp: read the ground before committing. -->
+  <ThingDef ParentName="TSC_WoodcraftSpotBase">
+    <defName>TSC_Spot_CampSign</defName>
+    <label>the camp's edge</label>
+    <description>Churned ground where the track leaves the road: boots, hooves, and a drag mark somebody tried to scuff out.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BeastTracks</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(140,124,100)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Perception</proficiency>
+            <dc>8</dc>
+            <label>Read the camp before going in</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>35</successXp>
+            <successFlag>TSC_CampScouted</successFlag>
+            <successMessage>Boot prints in and out, and a count that comes out the same three times. Two sets never leave: prisoners, and still walking when they arrived. One set is deeper going in than coming out, which is a man carrying somebody. The drag mark is a heel, and it stops at the largest shelter.\n\nWhoever the company came for, they are in the big one at the back, and they were alive an hour ago.</successMessage>
+            <failMessage>A lot of feet went through here recently. Beyond that the ground gives up nothing useful.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- Act 4, the monastery yard: the belfry from below. -->
+  <ThingDef ParentName="TSC_WoodcraftSpotBase">
+    <defName>TSC_MonSpot_BellView</defName>
+    <label>under the bell tower</label>
+    <description>The tower goes up out of the cloister, and the bell is a shape in the dark at the top of it.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_WatchPost</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(160,158,150)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Perception</proficiency>
+            <dc>9</dc>
+            <label>Look up</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>30</successXp>
+            <successFlag>TSC_MonBellNoticed</successFlag>
+            <successMessage>Snow on every ledge of the tower, undisturbed, eight hundred years of it settling and melting and settling. And no rope. Not a rotted stub, not a frayed end hanging: no rope at all, and no rope on the floor down here either.\n\nRopes do not tidy themselves away. Somebody took it down and put it somewhere, and that is a decision, not an accident.</successMessage>
+            <failMessage>A tower, a bell, and a great deal of dark between the two.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- Act 5, the undercell: the door before you reach it. -->
+  <ThingDef ParentName="TSC_WoodcraftSpotBase">
+    <defName>TSC_Spot_DustLine</defName>
+    <label>the dust</label>
+    <description>Eight hundred years of settled dust on a worked floor, and something about the way it lies is wrong.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_PrisonersMarks</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(150,146,136)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Perception</proficiency>
+            <dc>9</dc>
+            <label>Read the dust</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>35</successXp>
+            <successFlag>TSC_UndercellDustRead</successFlag>
+            <successMessage>Dust settles evenly in still air. This does not. There is a faint grain to it, all pointing one way, the way dust lies when air has been moving over it very slowly for a very long time.\n\nSomething at the deep end of this floor is not sealed as well as it looks, and it has been breathing since before the kingdom fell.</successMessage>
+            <failMessage>Dust. A great deal of it, lying the way dust lies.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ Nature -->
+
+  <!-- Act 5, the mound: what grows over a grave. -->
+  <ThingDef ParentName="TSC_WoodcraftSpotBase">
+    <defName>TSC_Spot_MoundTurf</defName>
+    <label>the mound's turf</label>
+    <description>Deep green grass over the barrow, thicker than anything else for a day's ride in any direction.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_GraveMound</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(120,150,95)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Nature</proficiency>
+            <dc>9</dc>
+            <label>Read the turf</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>35</successXp>
+            <successFlag>TSC_MoundTurfRead</successFlag>
+            <successMessage>This grass has no business being here. The country around is thin scrub on dry ground, and the mound is deep meadow turf, the kind that takes rich wet soil and centuries of it.\n\nGrass grows like this over graves, and only over the good ones: everything the barrow was built out of has been feeding it since the kingdom that dug it was current. Whatever else is down there, a great many people were buried well.</successMessage>
+            <failMessage>Grass. Greener than the country deserves, and it does not care to explain itself.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- Act 4, the monastery: the physic garden. -->
+  <ThingDef ParentName="TSC_WoodcraftSpotBase">
+    <defName>TSC_MonSpot_Garden</defName>
+    <label>the physic garden</label>
+    <description>Beds inside the cloister, laid out in squares, gone wild in a very particular way.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BeastTracks</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(110,140,95)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Nature</proficiency>
+            <dc>9</dc>
+            <label>Read the beds</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>30</successXp>
+            <successFlag>TSC_MonGardenRead</successFlag>
+            <successMessage>Eight centuries of self-seeding has blurred the beds, but the squares are still legible, and so is what was in them. Bitter herbs for the gut, willow for fever, poppy for pain. A working infirmary garden.\n\nAnd one bed, the largest, given entirely to valerian and hops: the things you grow when the house cannot sleep. It was extended twice. The second extension went in over the path, which no gardener does unless the need has stopped being polite.</successMessage>
+            <failMessage>A garden that stopped being a garden a long time ago.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- Act 4, the boar den: what moved in, and why it stays out of the house. -->
+  <ThingDef ParentName="TSC_WoodcraftSpotBase">
+    <defName>TSC_MonSpot_Den</defName>
+    <label>the squatters' den</label>
+    <description>A trampled hollow against the wall, bedded down with straw dragged out of the stable.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BeastTracks</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+      <color>(130,112,88)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Nature</proficiency>
+            <dc>8</dc>
+            <label>Read the den</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>30</successXp>
+            <successFlag>TSC_MonDenRead</successFlag>
+            <successMessage>Boar, several seasons of them, and they have made a home of the yard: bedding dragged from the stable, rooting along the whole length of the cloister wall.\n\nAnd not one track goes through a doorway. Animals do not respect thresholds; they go where the food and the warmth are, and a stone house out of the wind is both. These have been walking around this building for generations, and something about it has taught them not to go in.</successMessage>
+            <failMessage>Something large sleeps here. Beyond that, the straw keeps its own counsel.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ placement -->
+
+  <GenStepDef>
+    <defName>TSC_RoadHolding_Sign</defName>
+    <linkWithSite>TSC_RoadHolding</linkWithSite>
+    <order>489</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <radius>20</radius>
+      <spots>
+        <li>
+          <def>TSC_Spot_CampSign</def>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_SilentMonastery_Woodcraft</defName>
+    <linkWithSite>TSC_SilentMonastery</linkWithSite>
+    <order>490</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <radius>22</radius>
+      <spots>
+        <li>
+          <def>TSC_MonSpot_BellView</def>
+        </li>
+        <li>
+          <def>TSC_MonSpot_Garden</def>
+        </li>
+        <li>
+          <def>TSC_MonSpot_Den</def>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_FirstKingBarrow_Turf</defName>
+    <linkWithSite>TSC_FirstKingBarrow</linkWithSite>
+    <order>490</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <radius>14</radius>
+      <spots>
+        <li>
+          <def>TSC_Spot_MoundTurf</def>
+        </li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+</Defs>

@@ -74,7 +74,7 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Athletics</proficiency>
-            <dc>12</dc>
+            <dc>15</dc>
             <label>Force the gate</label>
             <successXp>50</successXp>
             <successRemoves>true</successRemoves>

@@ -280,6 +280,40 @@
     </parts>
   </StructureLayoutDef>
 
+  <!-- A holding camp: whatever a small crew threw up in a hurry around a
+       good haul. Deliberately NOT the castle layout - a castle requires a
+       great hall, a chapel, an armory and a lord's chamber, none of which
+       fit in a camp-sized footprint ("rooms failed to place:
+       TSC_LordsChamber", seen live when Act 5's ambush borrowed it at
+       size 28). Everything here is a room a bandit would actually build,
+       and no single room is mandatory. -->
+  <StructureLayoutDef>
+    <defName>TSC_BanditCamp</defName>
+    <workerClass>LayoutWorker_AncientRuins</workerClass>
+    <canHaveMultipleLayoutsInRoom>true</canHaveMultipleLayoutsInRoom>
+    <shouldDamage>true</shouldDamage>
+    <areaPrunePercent>0.15</areaPrunePercent>
+    <minRoomWidth>6</minRoomWidth>
+    <minRoomHeight>6</minRoomHeight>
+    <wallDef>Wall</wallDef>
+    <wallStuffDef>WoodLog</wallStuffDef>
+    <doorStuffDef>WoodLog</doorStuffDef>
+    <wallLampChancePerPosition>0</wallLampChancePerPosition>
+    <ensureOneDoorUnlocked>true</ensureOneDoorUnlocked>
+    <canDisconnectRooms>false</canDisconnectRooms>
+    <roomDefs>
+      <TSC_Barracks>
+        <countRange>1~3</countRange>
+      </TSC_Barracks>
+      <TSC_Storeroom>
+        <countRange>1~2</countRange>
+      </TSC_Storeroom>
+      <TSC_GreatRoom>
+        <countRange>1~1</countRange>
+      </TSC_GreatRoom>
+    </roomDefs>
+  </StructureLayoutDef>
+
   <!-- Act 4: the Silent Monastery. Intact where the castle is ruined - the
        plague emptied it; nobody ever sacked it. Chapel, refectory,
        dormitories, stores. Deliberately undamaged and unpruned: the horror

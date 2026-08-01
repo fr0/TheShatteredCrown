@@ -22,16 +22,21 @@ namespace TheShatteredCrown
     /// difficulty is fixed when it starts, and the player can read exactly
     /// what they are facing in the enemy's health tab.
     ///
-    /// Numbers are deliberately gentle because the count scaling stacks with
-    /// this: at average level 5 a veteran takes ~12% less and deals ~12%
-    /// more; the caps land around average level 10.
+    /// The numbers are NOT gentle any more, and the count scaling was cut
+    /// to pay for it. A level-7 party walked through a camp of eleven
+    /// brigands without noticing, because the enemy KIND never changes all
+    /// campaign - the same 55-power mook in Excellent-free gear from act 1
+    /// to act 5 - and the old +20%/-20% did not close a gap that wide.
+    /// Now a veteran at party level 7 takes 40% less and deals 40% more,
+    /// and the caps (60%/90%) land around average level 10. Fewer enemies,
+    /// each of them an actual problem.
     /// </summary>
     public static class TSC_EnemyScaling
     {
-        public const float TakenReductionPerLevel = 0.04f;
-        public const float DealtBonusPerLevel = 0.04f;
-        public const float MaxTakenReduction = 0.35f;
-        public const float MaxDealtBonus = 0.45f;
+        public const float TakenReductionPerLevel = 0.08f;
+        public const float DealtBonusPerLevel = 0.08f;
+        public const float MaxTakenReduction = 0.60f;
+        public const float MaxDealtBonus = 0.90f;
 
         private static HediffDef veteran;
 
@@ -45,7 +50,15 @@ namespace TheShatteredCrown
         /// </summary>
         public static float Steps(Map context)
         {
-            return Mathf.Clamp(TSC_Threat.AverageLevelAboveGraceAt(context), 0f, 12f);
+            // Difficulty belongs here too. Count scaling and contract points
+            // have always respected threatScale; this did not, which was
+            // survivable while COUNT was the main dial - but the moment
+            // per-enemy hardening became the main dial, a player's chosen
+            // difficulty stopped reaching most of the threat. Floored at
+            // 0.4 so the gentlest storyteller still hardens enemies a
+            // little (the same "never zero" rule the count scaling uses).
+            float difficulty = Mathf.Max(0.4f, TSC_Threat.DifficultyScale);
+            return Mathf.Clamp(TSC_Threat.AverageLevelAboveGraceAt(context) * difficulty, 0f, 12f);
         }
 
         public static float TakenFactor(float severity)
@@ -110,8 +123,50 @@ namespace TheShatteredCrown
                 }
                 Hediff hediff = pawn.health.AddHediff(TSC_EnemyScaling.VeteranHediff);
                 hediff.Severity = steps;
+                UpgradeGear(pawn, steps);
             }
             buffer.Clear();
+        }
+
+        /// <summary>
+        /// A veteran carries veteran's kit. Pawn kinds bake quality at
+        /// generation and never revisit it, so a late-campaign brigand
+        /// swings the same Normal-quality axe the first one did. Raising
+        /// the quality of what they already hold is the most READABLE kind
+        /// of "stronger": the player can click the enemy and see why that
+        /// one is hard, instead of wondering why their damage looks wrong.
+        ///
+        /// Deliberately not a re-equip: they keep their own weapons, so a
+        /// brigand stays a brigand and the silhouette of the fight does not
+        /// change. Also a real loot upgrade for whoever wins.
+        /// </summary>
+        private static void UpgradeGear(Pawn pawn, float steps)
+        {
+            QualityCategory target = steps >= 8f ? QualityCategory.Masterwork
+                : steps >= 5f ? QualityCategory.Excellent
+                : steps >= 3f ? QualityCategory.Good
+                : QualityCategory.Normal;
+            if (target == QualityCategory.Normal)
+            {
+                return;
+            }
+            Bump(pawn.equipment?.Primary, target);
+            if (pawn.apparel != null)
+            {
+                foreach (Apparel worn in pawn.apparel.WornApparel)
+                {
+                    Bump(worn, target);
+                }
+            }
+        }
+
+        private static void Bump(Thing thing, QualityCategory target)
+        {
+            CompQuality quality = thing?.TryGetComp<CompQuality>();
+            if (quality != null && (int)quality.Quality < (int)target)
+            {
+                quality.SetQuality(target, ArtGenerationContext.Outsider);
+            }
         }
     }
 

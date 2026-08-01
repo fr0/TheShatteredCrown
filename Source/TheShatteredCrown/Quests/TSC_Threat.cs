@@ -27,10 +27,10 @@ namespace TheShatteredCrown
     public static class TSC_Threat
     {
         /// <summary>Added danger per party level above the grace period.</summary>
-        private const float PerLevel = 0.15f;
+        private const float PerLevel = 0.07f;
 
         /// <summary>Ceiling on the party-level term, so a late party is not swarmed.</summary>
-        private const float MaxPartyScale = 2f;
+        private const float MaxPartyScale = 1.4f;
 
         /// <summary>
         /// Levels that buy no extra enemies. Matches the proficiency DC

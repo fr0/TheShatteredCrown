@@ -64,7 +64,7 @@
                 <text TKey="LetterTextMadocMet">Madoc Emberlow, sorcerer, planning to storm the Iron Brand keep with an army of two dead men. Out of that ruin of a mind came one whole, bright fact: a drain under the keep's east wall, into the cellars. Gille found it.\n\nThe keep has a back way. The Brand does not know it is spoken for.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>150</xp>
+                <xp>400</xp>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
                 <questDef>TSC_Act3_Thornden</questDef>
@@ -142,7 +142,7 @@
                 <text TKey="LetterTextCollectorsFled">The Brand's collectors left Thornden at a walk that kept trying to be a run, and left the tribute behind them. The village breathes. The Baron will hear of it by nightfall.\n\nNobody in the square will speak first. The old man on the well kerb has not moved through any of it, and he is looking at you.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>250</xp>
+                <xp>600</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
@@ -165,7 +165,7 @@
                 <text TKey="LetterTextCollectorsDead">The Brand's collectors will not be reporting back. Thornden keeps its grain, and gains a war it did not ask for; the village is with you now because it has no other direction left.\n\nThe square empties, then fills again. The old man on the well kerb has not moved through any of it, and he is looking at you.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>250</xp>
+                <xp>600</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
@@ -265,7 +265,7 @@
                 <npc>TSC_Npc_Bry</npc>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>250</xp>
+                <xp>600</xp>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
                 <questDef>TSC_Act3_IronBrand</questDef>
@@ -340,7 +340,7 @@
                 <text TKey="LetterTextHoardShard">The Iron Brand is broken, and out of the coin and church-silver at the bottom of their hoard comes the third shard of the shattered crown.\n\nThree of five. The cold weight behind the breastbone is heavier now, and the pull toward the last two pieces is no longer subtle.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>400</xp>
+                <xp>1000</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>

@@ -46,7 +46,7 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Insight</proficiency>
-            <dc>6</dc>
+            <dc>9</dc>
             <label>Read the confessions</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>30</successXp>
@@ -75,7 +75,7 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Investigation</proficiency>
-            <dc>6</dc>
+            <dc>9</dc>
             <label>Read the log</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>30</successXp>
@@ -104,7 +104,7 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Lore</proficiency>
-            <dc>6</dc>
+            <dc>9</dc>
             <label>Read the wall</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>30</successXp>
@@ -133,7 +133,7 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Lore</proficiency>
-            <dc>7</dc>
+            <dc>10</dc>
             <label>Open the letter</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
@@ -161,7 +161,7 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Investigation</proficiency>
-            <dc>6</dc>
+            <dc>9</dc>
             <label>Read the tallies</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>30</successXp>
@@ -190,7 +190,7 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Investigation</proficiency>
-            <dc>6</dc>
+            <dc>9</dc>
             <label>Read the dates</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>30</successXp>
@@ -201,7 +201,7 @@
           </li>
           <li>
             <proficiency>TSC_Prof_Survival</proficiency>
-            <dc>6</dc>
+            <dc>9</dc>
             <label>Read the bones' order</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>30</successXp>
@@ -260,7 +260,7 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Investigation</proficiency>
-            <dc>7</dc>
+            <dc>10</dc>
             <label>Search the satchel</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
@@ -289,7 +289,7 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Survival</proficiency>
-            <dc>6</dc>
+            <dc>9</dc>
             <label>Read the graves</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>30</successXp>
@@ -318,7 +318,7 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Insight</proficiency>
-            <dc>6</dc>
+            <dc>9</dc>
             <label>Pay respects, and read the room</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
@@ -610,7 +610,7 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Survival</proficiency>
-            <dc>6</dc>
+            <dc>9</dc>
             <label>Read the graves</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>30</successXp>

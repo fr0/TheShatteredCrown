@@ -83,7 +83,7 @@ namespace TheShatteredCrown
         /// claimed against the others so queued jobs cannot collide - then
         /// queue one deploy job per roll.
         /// </summary>
-        public static void OrderDeploy(Map map, IntVec3 center)
+        public static void OrderDeploy(Map map, IntVec3 center, CellRect avoid = default)
         {
             List<Pawn> colonists = new List<Pawn>();
             foreach (Pawn pawn in map.mapPawns.FreeColonistsSpawned)
@@ -113,7 +113,7 @@ namespace TheShatteredCrown
                 foreach (Thing thing in rolls)
                 {
                     MinifiedThing roll = (MinifiedThing)thing;
-                    if (!TryClaimCell(map, center, roll.InnerThing.def, claimed, out IntVec3 cell))
+                    if (!TryClaimCell(map, center, roll.InnerThing.def, claimed, avoid, out IntVec3 cell))
                     {
                         continue;
                     }
@@ -145,7 +145,7 @@ namespace TheShatteredCrown
         }
 
         private static bool TryClaimCell(Map map, IntVec3 center, ThingDef bedDef,
-            List<CellRect> claimed, out IntVec3 cell)
+            List<CellRect> claimed, CellRect avoid, out IntVec3 cell)
         {
             foreach (IntVec3 candidate in GenRadial.RadialCellsAround(center, 12f, useCenter: true))
             {
@@ -155,6 +155,15 @@ namespace TheShatteredCrown
                     continue;
                 }
                 CellRect rect = GenAdj.OccupiedRect(candidate, Rot4.North, bedDef.size);
+                // Keep clear of whatever the camp is being pitched AROUND:
+                // the ring is centred on the fire, and a ring that includes
+                // its own centre puts a bedroll on the fire (which spawning
+                // a building over another quietly wipes - seen live, the
+                // campfire vanished under the first roll laid).
+                if (avoid.Width > 0 && avoid.Overlaps(rect))
+                {
+                    continue;
+                }
                 bool overlaps = false;
                 foreach (CellRect other in claimed)
                 {
@@ -176,6 +185,36 @@ namespace TheShatteredCrown
             return false;
         }
 
+        /// <summary>
+        /// Somewhere a bedroll can actually go. The blueprint check alone
+        /// was not enough: the drop is a DIRECT placement, which wipes
+        /// whatever building is already standing there, so the footprint is
+        /// tested for existing buildings explicitly.
+        /// </summary>
+        private static bool Placeable(Map map, ThingDef bedDef, IntVec3 cell)
+        {
+            if (!cell.InBounds(map)
+                || !GenConstruct.CanPlaceBlueprintAt(bedDef, cell, Rot4.North, map).Accepted)
+            {
+                return false;
+            }
+            foreach (IntVec3 part in GenAdj.OccupiedRect(cell, Rot4.North, bedDef.size))
+            {
+                if (!part.InBounds(map) || part.GetEdifice(map) != null)
+                {
+                    return false;
+                }
+                foreach (Thing thing in part.GetThingList(map))
+                {
+                    if (thing.def.category == ThingCategory.Building)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
         /// <summary>Job-completion placement: re-validate (the plan is minutes old by now), fall back nearby, then extract and spawn.</summary>
         public static bool PlaceRoll(Pawn worker, MinifiedThing roll, IntVec3 cell)
         {
@@ -185,13 +224,12 @@ namespace TheShatteredCrown
             {
                 return false;
             }
-            if (!GenConstruct.CanPlaceBlueprintAt(bed.def, cell, Rot4.North, map).Accepted)
+            if (!Placeable(map, bed.def, cell))
             {
                 IntVec3 fallback = IntVec3.Invalid;
                 foreach (IntVec3 candidate in GenRadial.RadialCellsAround(cell, 5f, useCenter: false))
                 {
-                    if (candidate.InBounds(map)
-                        && GenConstruct.CanPlaceBlueprintAt(bed.def, candidate, Rot4.North, map).Accepted)
+                    if (candidate.InBounds(map) && Placeable(map, bed.def, candidate))
                     {
                         fallback = candidate;
                         break;

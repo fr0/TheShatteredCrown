@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Act 5's finale: inside the Barrow of the First King.
+
+       The shape is NOT a corridor with a boss at the end. Five chambers
+       retell the five couriers' roads (one proficiency each, the payoff
+       for four acts of collected knowledge); the crown starts bargaining
+       on the descent; the Honor Guard challenges rather than charges;
+       and the sarcophagus offers a CHOICE, not a pickup.
+       ================================================================ -->
+
+  <!-- The mound's stone throat, on the surface site. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_KingsBarrowMouth</defName>
+    <label>the barrow mouth</label>
+    <description>A throat of dressed stone facing the sunrise, cut by hands that predate every kingdom on the maps. The dark inside it is not cold. The four pieces in the company's packs have stopped humming and started listening.</description>
+    <size>(6,6)</size>
+    <useHitPoints>false</useHitPoints>
+    <thingClass>TheShatteredCrown.Building_TSC_BarrowEntrance</thingClass>
+    <rotatable>false</rotatable>
+    <tickerType>Normal</tickerType>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <canOverlapZones>false</canOverlapZones>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_StoneStairs</texPath>
+      <drawSize>(6,6)</drawSize>
+      <color>(122,124,116)</color>
+    </graphicData>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <fillPercent>0</fillPercent>
+    <passability>Impassable</passability>
+    <holdsRoof>true</holdsRoof>
+    <destroyable>false</destroyable>
+    <building>
+      <isEdifice>true</isEdifice>
+      <deconstructible>false</deconstructible>
+      <isTargetable>false</isTargetable>
+      <isInert>true</isInert>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <portal>
+      <pocketMapGenerator>TSC_KingsBarrow_Interior</pocketMapGenerator>
+      <exitDef>TSC_StairsUp</exitDef>
+      <pocketMapSize>90</pocketMapSize>
+    </portal>
+    <statBases>
+      <Flammability>0</Flammability>
+    </statBases>
+    <inspectorTabs>
+      <li>ITab_ContentsMapPortal</li>
+    </inspectorTabs>
+  </ThingDef>
+
+  <!-- The mound the arrival letter describes: a long green barrow with a
+       granite kerb, and the throat set in its east end facing sunrise. -->
+  <GenStepDef>
+    <defName>TSC_FirstKingBarrow_Mound</defName>
+    <linkWithSite>TSC_FirstKingBarrow</linkWithSite>
+    <order>476</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_Mound">
+      <mouthDef>TSC_KingsBarrowMouth</mouthDef>
+      <length>34</length>
+      <width>18</width>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ the interior -->
+
+  <MapGeneratorDef ParentName="TSC_CellarLevelBase">
+    <defName>TSC_KingsBarrow_Interior</defName>
+    <label>the King's Barrow</label>
+    <genSteps>
+      <li>ElevationFertility</li>
+      <li>MutatorPostElevationFertility</li>
+      <li>Underground_RocksFromGrid</li>
+      <li>Terrain</li>
+      <li>MutatorPostTerrain</li>
+      <li>RockChunks</li>
+      <li>PlaceCaveExit</li>
+      <li>TSC_KingsBarrowLevel</li>
+      <li>TSC_KingsBarrowThrone</li>
+      <li>MutatorFinal</li>
+      <li>Fog</li>
+    </genSteps>
+  </MapGeneratorDef>
+
+  <GenStepDef>
+    <defName>TSC_KingsBarrowLevel</defName>
+    <order>551</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
+      <level>1</level>
+      <layoutDef>TSC_Catacombs</layoutDef>
+      <size>46</size>
+      <!-- Nothing squats in a king's grave. The barrow's danger is the
+           Honor Guard, and only if the company earns it. -->
+      <maxDormantPacks>0</maxDormantPacks>
+      <spots>
+        <li>TSC_Road_Grave</li>
+        <li>TSC_Road_Reliquary</li>
+        <li>TSC_Road_Hoard</li>
+        <li>TSC_Road_Quiet</li>
+        <li>TSC_Road_Last</li>
+        <li>TSC_Spot_DustLine</li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_KingsBarrowThrone</defName>
+    <order>556</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_ThroneRoom">
+      <!-- Five, exactly: five roads went out of this barrow and five men
+           were left standing at the door, and if the company sends the crown
+           out again it is these five who carry it. -->
+      <guards>5~5</guards>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ the five roads -->
+
+  <ThingDef Name="TSC_RoadStoneBase" ParentName="BuildingBase" Abstract="True">
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>30</pathCost>
+    <fillPercent>0.3</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_GravenStone</texPath>
+      <drawSize>(1.3,1.3)</drawSize>
+      <color>(150,148,140)</color>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_RoadStoneBase">
+    <defName>TSC_Road_Grave</defName>
+    <label>the first road</label>
+    <description>A carved panel in a side chamber: five riders leaving a burning hall, each on a different road. This one runs north, into hill country.</description>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>14</dc>
+            <label>Read the first road</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>40</successXp>
+            <successFlag>TSC_Road_Grave</successFlag>
+            <successMessage>The north road, cut in stone: a rider carrying a wrapped thing to a hill grave, and laid in it himself when the carrying was done. The party has already stood in that grave and taken what he was guarding. The panel was carved before he set out. Somebody knew how it would end.</successMessage>
+            <failMessage>The panel is worn past reading in this light.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_RoadStoneBase">
+    <defName>TSC_Road_Reliquary</defName>
+    <label>the second road</label>
+    <description>A carved panel showing a rider going down: stairs, then water, then stairs again.</description>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Arcana</proficiency>
+            <dc>14</dc>
+            <label>Read the second road</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>40</successXp>
+            <successFlag>TSC_Road_Reliquary</successFlag>
+            <successMessage>The road under the city: a piece carried down into the dark and left with a man told to sing until somebody came back for it. The carving shows the singer with his mouth open. It also shows how long he was meant to keep it, and the number is not a number a man can hold. They knew that too.</successMessage>
+            <failMessage>The sigils along the panel refuse to resolve.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_RoadStoneBase">
+    <defName>TSC_Road_Hoard</defName>
+    <label>the third road</label>
+    <description>A carved panel of a rider going east into hard hills, and of the hands the piece passed through afterward.</description>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Investigation</proficiency>
+            <dc>14</dc>
+            <label>Read the third road</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>40</successXp>
+            <successFlag>TSC_Road_Hoard</successFlag>
+            <successMessage>The third rider is shown handing his piece to nobody: he is robbed on the road, and the panel follows the piece instead of the man, hand to hand to hand, down to a figure sitting on a heap with a sword across his knees. The Baron is on this wall. He has been on this wall for eight hundred years, waiting for the party to catch up.</successMessage>
+            <failMessage>The lower panels are cracked through and the sequence breaks.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_RoadStoneBase">
+    <defName>TSC_Road_Quiet</defName>
+    <label>the fourth road</label>
+    <description>A carved panel of a rider arriving at a walled house in winter, and of the house afterward.</description>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>14</dc>
+            <label>Read the fourth road</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>40</successXp>
+            <successFlag>TSC_Road_Quiet</successFlag>
+            <successMessage>The fourth rider reaches a house with a bell tower and dies at its gate. What the carver put underneath is the part that stops the breath: the house, with its gate barred and its bell rope cut, and the brothers going into their niches in order. It is not a prophecy. It is an instruction, and the Quiet Brothers followed it eight centuries later without ever seeing this wall.</successMessage>
+            <failMessage>Frost damage has taken the lower half of the panel.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="TSC_RoadStoneBase">
+    <defName>TSC_Road_Last</defName>
+    <label>the fifth road</label>
+    <description>A carved panel with a rider on it and no destination: the road runs off the edge of the stone and does not arrive anywhere.</description>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Perception</proficiency>
+            <dc>14</dc>
+            <label>Read the fifth road</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>50</successXp>
+            <successFlag>TSC_Road_Last</successFlag>
+            <successMessage>The fifth rider is carved walking, not riding, and the road under him has no end because the carver left it unfinished on purpose: the chisel marks simply stop. The other four panels were cut before their riders ever left, and every one of them came true. This one is still waiting for its ending, and the man it is about is somewhere overhead, still walking.</successMessage>
+            <failMessage>The panel is the plainest of the five, and gives up nothing.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ the Honor Guard -->
+
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_HonorGuard</defName>
+    <label>oath-keeper of the first king</label>
+    <combatPower>180</combatPower>
+    <itemQuality>Excellent</itemQuality>
+    <isFighter>true</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeAdvanced</li>
+    </weaponTags>
+    <weaponMoney>600~900</weaponMoney>
+    <apparelRequired>
+      <li>Apparel_PlateArmor</li>
+    </apparelRequired>
+  </PawnKindDef>
+
+  <!-- ============================================ the last courier -->
+
+  <!-- Aled walks up the slope as the party arrives, hands over the fifth
+       piece, and sits down facing the way he came. He is a real pawn so
+       the scene has a face in it, and so the sitting down is something the
+       player can watch rather than something the text asserts. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Courier</defName>
+    <label>courier</label>
+    <combatPower>60</combatPower>
+    <isFighter>false</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_LastCourier</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <TheShatteredCrown.NamedNpcDef>
+    <defName>TSC_Npc_Courier</defName>
+    <label>Aled</label>
+    <description>Courier of the crown of Aldruin, fifth road, eight hundred and eleven years out from a gate that is not there any more.</description>
+    <firstName>Aled</firstName>
+    <lastName>Fifth-Road</lastName>
+    <kind>TSC_Courier</kind>
+    <gender>Male</gender>
+    <!-- He has walked through four companies who tried. He does not die
+         at the door of the place he spent eight centuries reaching. -->
+    <plotArmor>true</plotArmor>
+  </TheShatteredCrown.NamedNpcDef>
+
+  <!-- What the inspection shows. Applied at the handover, a moment before
+       he dies of it, so the corpse a player clicks on carries the reason
+       in its health tab instead of just being an unusually dry body. -->
+  <HediffDef>
+    <defName>TSC_Hediff_YearsCollected</defName>
+    <hediffClass>HediffWithComps</hediffClass>
+    <label>eight hundred and eleven years</label>
+    <description>The crown kept this man walking, and kept the bill. He set his piece down in somebody else's hands, and the whole account came due between one breath and the next: every year he should have aged, arriving at once.\n\nWhat is left is dry, light, and very old. It has been dead a long time. It only stopped moving recently.</description>
+    <isBad>true</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <initialSeverity>1</initialSeverity>
+    <defaultLabelColor>(0.72, 0.66, 0.5)</defaultLabelColor>
+    <stages>
+      <li>
+        <lifeThreatening>true</lifeThreatening>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ============================================ the tomb and the crown -->
+
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_KingsSarcophagus</defName>
+    <label>the first king's sarcophagus</label>
+    <description>A single block of pale stone, lidded, unornamented except for a band cut around the head end: five points, one of them broken. The crown is older than the man inside. He only wore it first. Everything the shards have done for eight hundred years was aimed at getting somebody to stand exactly here.</description>
+    <thingClass>TheShatteredCrown.Building_TSC_KingsTomb</thingClass>
+    <size>(3,2)</size>
+    <passability>PassThroughOnly</passability>
+    <pathCost>60</pathCost>
+    <fillPercent>0.6</fillPercent>
+    <useHitPoints>false</useHitPoints>
+    <rotatable>false</rotatable>
+    <selectable>true</selectable>
+    <altitudeLayer>Building</altitudeLayer>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_GraveMound</texPath>
+      <drawSize>(3,2)</drawSize>
+      <color>(198,194,184)</color>
+    </graphicData>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+  </ThingDef>
+
+  <JobDef>
+    <defName>TSC_OpenKingsTomb</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_OpenKingsTomb</driverClass>
+    <reportString>opening the sarcophagus.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
+  <!-- The fifth shard: carried in by the last courier, not dug out of a
+       wall. He hands it over, or he does not. -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_CrownShard_Road</defName>
+    <label>crown shard of the road</label>
+    <description>A broken fifth of a king's crown: a curve of band and two points, worn smooth in places by eight hundred years of one man's hands. It is warm. One of five.\n\nIts gift has not yet spoken.</description>
+    <graphicData>
+      <texPath>Things/Item/TSC_CrownShard</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.9</drawSize>
+    </graphicData>
+    <techLevel>Medieval</techLevel>
+    <stackLimit>1</stackLimit>
+    <useHitPoints>false</useHitPoints>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <tradeability>None</tradeability>
+    <smeltable>false</smeltable>
+    <burnableByRecipe>false</burnableByRecipe>
+    <destroyOnDrop>false</destroyOnDrop>
+    <statBases>
+      <Mass>1.5</Mass>
+      <MarketValue>2500</MarketValue>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_ShardAbilityExtension" />
+    </modExtensions>
+  </ThingDef>
+
+  <!-- Whole. The campaign's last object, and only two endings produce it.
+
+       APPAREL, not a resource: the crown answers to a wearer, and the game
+       needs to know which head that is - the wishes are charged to whoever
+       has it on. Take it off and the offer stops; hand it to somebody else
+       and the next wish is spent out of their life instead. -->
+  <ThingDef ParentName="ApparelBase">
+    <defName>TSC_ShatteredCrown</defName>
+    <label>the Shattered Crown</label>
+    <description>Five pieces of a king's crown, together, and the seams are gone. It is warm, it is heavier than gold should be, and it is patient in the way of a thing that has just been proven right about everything.\n\nIt will give the wearer anything they ask for, as often as they ask, and it charges in years off their life in proportion to what they wanted. It does not come off a living head.\n\nIt is not shattered any more. Nobody has thought of a better name for it.</description>
+    <graphicData>
+      <texPath>Things/Item/TSC_CrownShard</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>1.1</drawSize>
+      <color>(255,220,130)</color>
+    </graphicData>
+    <techLevel>Medieval</techLevel>
+    <stackLimit>1</stackLimit>
+    <useHitPoints>false</useHitPoints>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <tradeability>None</tradeability>
+    <smeltable>false</smeltable>
+    <burnableByRecipe>false</burnableByRecipe>
+    <destroyOnDrop>false</destroyOnDrop>
+    <apparel>
+      <countsAsClothingForNudity>false</countsAsClothingForNudity>
+      <careIfWornByCorpse>false</careIfWornByCorpse>
+      <careIfDamaged>false</careIfDamaged>
+      <bodyPartGroups>
+        <li>UpperHead</li>
+      </bodyPartGroups>
+      <layers>
+        <li>Overhead</li>
+      </layers>
+      <!-- Borrowed geometry: a banded circlet with points, which is what a
+           headdress silhouette reads as once it is gold. -->
+      <wornGraphicPath>Things/Pawn/Humanlike/Apparel/TribalHeaddress/TribalHeaddress</wornGraphicPath>
+      <tags>
+        <li>TSC_Crown</li>
+      </tags>
+    </apparel>
+    <colorGenerator Class="ColorGenerator_Single">
+      <color>(255,214,120)</color>
+    </colorGenerator>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Wish" />
+    </comps>
+    <statBases>
+      <Mass>2</Mass>
+      <MarketValue>15000</MarketValue>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>ApparelMisc</li>
+    </thingCategories>
+  </ThingDef>
+
+</Defs>

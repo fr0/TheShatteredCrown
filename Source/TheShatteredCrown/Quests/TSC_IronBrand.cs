@@ -262,7 +262,7 @@ namespace TheShatteredCrown
             CameraJumper.TryJump(baron);
             Find.Selector.ClearSelection();
             Find.Selector.Select(baron);
-            Find.WindowStack.Add(new Dialog_Conversation(def, near, baron));
+            Find.WindowStack.Add(new Dialog_Conversation(def, baron, near));
         }
 
         private void NoteFallenBaron()

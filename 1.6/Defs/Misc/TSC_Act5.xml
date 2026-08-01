@@ -40,8 +40,8 @@
     <linkWithSite>TSC_RoadHolding</linkWithSite>
     <order>470</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_Layout">
-      <layoutDef>TSC_Castle</layoutDef>
-      <size>28</size>
+      <layoutDef>TSC_BanditCamp</layoutDef>
+      <size>30</size>
     </genStep>
   </GenStepDef>
 
@@ -83,7 +83,7 @@
   <SitePartDef>
     <defName>TSC_FirstKingBarrow</defName>
     <label>the Barrow of the First King</label>
-    <description>A long green mound on high ground, older than the kingdom that ended, with a stone throat facing the dawn. The crown was made for the man buried here. Every road the shards have drawn ends at this door.</description>
+    <description>A long green mound on high ground, older than the kingdom that ended, with a stone throat facing the dawn. The crown was made in this hill, a very long time before the man buried here dug it out. Every road the shards have drawn ends at this door.</description>
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</expandingIconTexture>
     <approachOrderString>Travel to {0}</approachOrderString>

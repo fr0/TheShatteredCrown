@@ -1,0 +1,66 @@
+# The crown stops showing and starts bargaining. Fired once by
+# MapComponent_TSC_Barrow, a little way into the barrow, at whichever
+# companion is carrying shards. {PLAYER} is that carrier.
+#
+# Nothing mechanical is granted or lost here. The scene exists so that
+# the ending choice is made by somebody who has already been offered the
+# other thing and knows what refusing felt like.
+
+dialogue TSC_Dialogue_CrownOffer
+
+== start ==
+The pieces have gone quiet. Not silent: attentive, the way a room goes quiet when somebody important starts speaking.
+
+And then it does speak, and it is not visions any more. It is words, in {PLAYER}'s own voice, using {PLAYER}'s own mannerisms, which is the most frightening thing that has happened on this journey.
+
+It says: you are carrying more of me than anyone has held since the day I was split. Ask.
+
+* "Ask for what?" -> what
+* [Say nothing and keep walking.] -> walking
+
+== walking ==
+{PLAYER} keeps walking. The offer keeps pace, unhurried, the way water keeps pace with a boat.
+
+It is patient. It has been doing this a long time, and it has noticed that walking away is not the same as saying no.
+
+* "Fine. Ask for what?" -> what
+
+== what ==
+Everything the carrier has actually wanted, laid out in order, and none of it is unreasonable.
+
+Not thrones. Not armies. The small true things: the ones who did not make it out of the cellars. The company kept whole and paid. A road that stops being this hard. It knows them all, in detail, because it has been riding in a pack next to a beating heart for a long time and it has been listening.
+
+Wear me, it says, and none of that is a wish any more.
+
+* "You said that to the first king too." -> king
+* "And what do you get?" -> price
+* "No." -> refuse
+
+== king ==
+Yes, it agrees, without a flicker of shame. And he got all of it. So did the eleven who came after him, eleven of them inside a hundred years, every one of them brilliant and every one of them spent early.
+
+None of them were lied to. Each was given exactly what they asked for.
+
+They simply did not last very long, and it has never considered that the important part.
+
+* "And what do you get?" -> price
+* "No." -> refuse
+
+== price ==
+To be worn, it says.
+
+That is the entire price and it is offered without any attempt to hide it, which is somehow worse than a trick. It does not want power or worship or blood. It wants a head to sit on and hands to move, and it has been eight hundred years without either, and it is so tired of being carried in a bag.
+
+* "No." -> refuse
+
+== refuse ==
+The offer withdraws. It does not sulk and it does not threaten; it simply files the answer away, the way a creditor files a date.
+
+Then, mildly, as a last remark rather than a bargain:
+
+You will be standing over an open coffin in a little while, holding all five of me, with your friends watching and no one left to stop you. We can talk again then.
+
+The pieces go back to being cold weight in a pack, and the passage ahead goes back to being a passage.
+
+* [Walk on.] -> end
+    do grant_xp(50)

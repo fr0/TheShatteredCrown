@@ -61,7 +61,7 @@ class Check:
     success_effects: list = field(default_factory=list)
     fail_effects: list = field(default_factory=list)
     retryable: bool = False
-    retry_hours: float = 8.0
+    retry_hours: float = 4.0
 
 
 @dataclass
@@ -249,6 +249,16 @@ def parse_effects(expr: str, path, lineno) -> list:
         elif name == "descend":
             # The keep's drain grate: the company drops into the undercellar.
             effects.append(Effect("DialogueEffect_TSC_Descend", {}))
+        elif name == "courier_ends":
+            effects.append(Effect("DialogueEffect_TSC_CourierEnds", {}))
+        elif name == "part_ways":
+            effects.append(Effect("DialogueEffect_TSC_PartWays", {}))
+        elif name == "guard_fight":
+            effects.append(Effect("DialogueEffect_TSC_GuardFight", {}))
+        elif name == "guard_yield":
+            effects.append(Effect("DialogueEffect_TSC_GuardYield", {}))
+        elif name == "crown_ending":
+            effects.append(Effect("DialogueEffect_TSC_CrownEnding", {"kind": arg}))
         elif name == "demoralize":
             # Every hostile humanlike on the map takes Shaken (the Baron
             # parley's Persuasion payoff).
@@ -350,7 +360,7 @@ def parse_effects(expr: str, path, lineno) -> list:
             effects.append(Effect("DialogueEffect_Affinity", fields))
         else:
             raise ParseError(path, lineno,
-                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, trade, grant_xp, learn_class, teach_class, grant_prof, affinity, parley_hostile, parley_flee, temple_heal, descend, lure, demoralize)")
+                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, trade, grant_xp, learn_class, teach_class, grant_prof, affinity, parley_hostile, parley_flee, temple_heal, descend, lure, demoralize, guard_fight, guard_yield, crown_ending, part_ways, courier_ends)")
     return effects
 
 
@@ -432,7 +442,7 @@ def parse_file(path: Path) -> Dialogue:
                                      f"checks use proficiencies only; '{name}' is not one of: {', '.join(sorted(PROFICIENCIES))}")
                 fail_part = m.group(4).strip()
                 retryable = False
-                retry_hours = 8.0
+                retry_hours = 4.0
                 rm = re.search(r"retryable(?:\(\s*(\d+(?:\.\d+)?)\s*\))?$", fail_part)
                 if rm:
                     retryable = True

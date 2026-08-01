@@ -63,7 +63,7 @@
                 <text TKey="LetterTextMonasteryArrived">The gate is exactly as the vision had it: barred from the inside, snow banked against timber nobody has opened in a lifetime. No smoke, no bell, no voices. The house stands whole on its shoulder of rock and does not acknowledge the company at all.\n\nThe brothers wrote everything down. Somewhere inside is what they knew, and behind a closed door at the bottom of a stair, what the shard wants.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>150</xp>
+                <xp>450</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
@@ -102,7 +102,7 @@
                 <text TKey="LetterTextWritingsRead">A dying courier carried something in that could not be refused. It began to work on the brothers, and their own rule forbade the one thing that might have saved them: saying so. Each of them faced it alone, in silence, and wrote what he could not speak. And at the end, the ones still standing understood what they were keeping, and chose: bar the gate, cut the bell, let the house die around it so completely that nobody would ever come looking.\n\nIt should be said where the house can hear it. The chapel is where words were owed.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>200</xp>
+                <xp>600</xp>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
                 <questDef>TSC_Act4_SayItAloud</questDef>
@@ -143,7 +143,7 @@
                 <text TKey="LetterTextVowBroken">Far above, once, with no rope and no hand on it, the bell rings.\n\nThe door in the undercell stands open by a finger's width.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>250</xp>
+                <xp>750</xp>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
                 <questDef>TSC_Act4_Undercell</questDef>
@@ -185,7 +185,7 @@
                 <text TKey="LetterTextQuietShard">The fourth shard comes up off the chamber floor from between the two dead men who kept it.\n\nFour of five. The courier's strip said EAST, past the mountains, where the fifth road ends. The crown knows the way to the last of itself, and it is no longer pretending to be patient.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>400</xp>
+                <xp>1200</xp>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>

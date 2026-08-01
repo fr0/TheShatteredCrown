@@ -164,18 +164,25 @@
     </comps>
   </ThingDef>
 
-  <!-- Renewed every game hour while the carrier is at ease, and lasting a
-       quarter day, so it lapses on a long march or a long fight rather than
-       becoming a permanent free mood floor. -->
+  <!-- Renewed every game hour while the carrier is at ease - in camp by
+       MapComponent_TSC_CarriedGear, and on the world map by
+       WorldComponent_TSC_CaravanMinstrelsy, because a travelling caravan
+       has no map for a MapComponent to tick on. It lasts half a day, so it
+       lapses during a long fight or after the player puts the lute away,
+       rather than becoming a permanent free mood floor. -->
   <ThoughtDef>
     <defName>TSC_Thought_Minstrelsy</defName>
-    <durationDays>0.25</durationDays>
+    <durationDays>0.5</durationDays>
     <stackLimit>1</stackLimit>
     <stages>
       <li>
         <label>music on the road</label>
         <description>Somebody has been playing. It is a small thing and it is not nothing: the camp sounds like a place people live in rather than a place people are waiting in.</description>
-        <baseMoodEffect>3</baseMoodEffect>
+        <!-- Deliberately zero. The mood is the player's effective Performance
+             proficiency, stamped onto the memory's moodOffset by
+             TSC_Instruments.GrantMinstrelsy: a competent bard is worth more to
+             a tired company than someone merely holding a lute. -->
+        <baseMoodEffect>0</baseMoodEffect>
       </li>
     </stages>
   </ThoughtDef>

@@ -568,12 +568,48 @@ namespace TheShatteredCrown
             return HostileEngaged(map, p);
         }
 
+        /// <summary>
+        /// Running away, by any of the routes vanilla offers: a flee job, a
+        /// panic mental state, or a raider who has decided to leave the map.
+        ///
+        /// A fleeing enemy is not a combatant. Giving them a turn made the
+        /// player wait, one enemy at a time, while somebody who had already
+        /// quit the fight jogged toward the edge - and the turn order board
+        /// filled up with people who were not fighting. They move in the
+        /// world phase instead, which is where everything that is not
+        /// fighting the party belongs.
+        /// </summary>
+        public static bool IsFleeing(Pawn p)
+        {
+            if (p?.mindState == null)
+            {
+                return false;
+            }
+            if (p.CurJobDef == JobDefOf.Flee || p.CurJobDef == JobDefOf.FleeAndCower)
+            {
+                return true;
+            }
+            if (p.InMentalState && p.MentalStateDef == MentalStateDefOf.PanicFlee)
+            {
+                return true;
+            }
+            // Raiders who called it: exitMapAfterTick is set the moment the
+            // lord decides to withdraw, well before the walking starts.
+            return p.mindState.exitMapAfterTick >= 0
+                && Find.TickManager.TicksGame >= p.mindState.exitMapAfterTick;
+        }
+
         private static bool HostileEngaged(Map m, Pawn p)
         {
             // Not awake, not fighting. A dormant cluster two rooms away is not
             // an engagement, and treating it as one started turn-based combat
             // before the party had seen anything.
             if (IsAsleepOrDormant(p))
+            {
+                return false;
+            }
+            // Already quit: they belong to the world phase now.
+            if (IsFleeing(p))
             {
                 return false;
             }
@@ -1011,7 +1047,8 @@ namespace TheShatteredCrown
             for (int i = firstIndex; i <= lastIndex; i++)
             {
                 Pawn p = initiative[i];
-                if (p == null || p.Dead || p.Downed || !p.Spawned || p.Map != map)
+                if (p == null || p.Dead || p.Downed || !p.Spawned || p.Map != map
+                    || (p.Faction != Faction.OfPlayer && IsFleeing(p)))
                 {
                     continue;
                 }
@@ -1059,7 +1096,8 @@ namespace TheShatteredCrown
             bool anyMoving = false;
             foreach (Pawn p in tmpGroupMembers)
             {
-                if (p == null || p.Dead || p.Downed || !p.Spawned || p.Map != map)
+                if (p == null || p.Dead || p.Downed || !p.Spawned || p.Map != map
+                    || (p.Faction != Faction.OfPlayer && IsFleeing(p)))
                 {
                     activeGroup.Remove(p);
                     continue;

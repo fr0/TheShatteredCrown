@@ -1,0 +1,152 @@
+# The last courier, at the barrow mouth. Fired once by
+# MapComponent_TSC_Courier when the party reaches the mound: he arrives
+# at the same time they do, because he has been walking toward this door
+# for eight hundred years and could never quite reach it.
+#
+# He is not a boss. He is the party's future, exhausted. The fifth shard
+# changes hands by CHOICE here - his or theirs.
+#
+# {PLAYER} is whoever is standing nearest the mouth.
+
+dialogue TSC_Dialogue_LastCourier
+
+== start ==
+He comes up the last of the slope while the company is still looking at the stone throat, and he does not hurry, because hurrying stopped meaning anything to him a very long time ago.
+
+A courier's satchel, worn through and mended and worn through again. A road warrant from a chancery that has not existed in eight centuries. Boots that have been resoled by people whose grandchildren are dust.
+
+He stops when he sees the mound. Actually stops, mid-step, like a man walking into a wall of water.
+
+"Oh," he says. "It IS here. I did wonder."
+
+* "Who are you?" -> who
+* "You are the fifth rider." -> who
+* [Look at him properly before anyone speaks.] -> look
+    check Perception 9 -> looked | who
+* [Put a hand near a weapon and wait.] -> wary
+
+== look ==
+{PLAYER} takes the extra breath, and looks.
+
+* [Continue.] -> looked
+
+== looked ==
+The satchel is eight hundred years old and mended a hundred times. The boots are new, and cheap, and the wrong size. The warrant in his hand has a chancery seal on it that no living clerk could forge because no living clerk has seen one.
+
+And his hands are wrong. Not old: *worn*. The calluses of a man who has gripped the same strap for longer than calluses last, laid over each other so many times the skin has become leather.
+
+Whatever he is, he did not get that way in a lifetime, and he is not pretending.
+
+* "Who are you?" -> who
+* "You are the fifth rider." -> who
+
+== wary ==
+He notices, and the noticing makes him laugh: one dry sound with no cruelty in it.
+
+"Yes. Sensible." He spreads his hands, which are empty, and the satchel swings. "I have met four companies like yours. Two of them tried. I did not want them to and it happened anyway, and afterward I walked on, because that is the one thing I reliably do."
+
+* "Who are you?" -> who
+
+== who ==
+"Aled. Courier of the crown of Aldruin, fifth road, eight hundred and eleven years out from a gate that is not there any more." He says the whole title without any pride at all, the way a man recites an address he has said too many times at too many doors.
+
+"They gave five of us a piece each and five directions. The other four had the good luck to arrive."
+
+* "And you didn't." -> never
+* "Good luck?" -> never
+
+== never ==
+"I have been half a day from this hill on four hundred separate occasions." He looks at the barrow mouth with something that is not quite hatred, because hatred takes energy. "And every time, a bridge is out. Or the fever takes me and I wake on the wrong side of a river. Or I sit down to rest one honest hour and stand up in a different season."
+
+"It does not want to be put back. Not by me. Not into *him*." A nod at the mound. "It wants to be worn by somebody living, and a dead king in a box is the one place it cannot get what it wants. So the road went on, and I went on it, and I stopped aging somewhere around the fourth century and started keeping count of the boots instead."
+
+* "Why now, then? Why did it let you arrive today?" -> today
+* "You could have thrown it in a river." -> river
+
+== river ==
+"I have. Twice." He says it without heat. "The second time I walked into the sea up to my chin. It was in my satchel when I came out, and the satchel was dry."
+
+"You are carrying four of them. You already know they do not get lost. They get *carried*, and if the carrier stops, the piece finds another set of hands, and mine were simply the most convenient pair for a very long time."
+
+* "Why now, then? Why did it let you arrive today?" -> today
+
+== today ==
+"Because of you," he says simply.
+
+"Four pieces walking east, and me walking east, and it stopped putting rivers in my way about a month ago. I have been let off the leash to bring you the fifth. It wants to be whole and it has finally found a set of people stupid enough and capable enough to be standing in the right place."
+
+He unslings the satchel and holds it, not offering it yet.
+
+"So. Before I put this in your hands and it becomes your problem: what do you mean to do with it?"
+
+* "Put it beyond reach. Whatever that costs." -> beyond
+* "We do not know yet. That is the honest answer." -> honest
+* "Wear it, if it comes to that." -> wear
+
+== beyond ==
+Something goes out of him that has been holding him up.
+
+"Then take it," he says, "and please, do it before I have to hear myself explain the alternative."
+
+* [Take the satchel.] -> hand
+
+== honest ==
+He nods slowly. "I believe you. But you should know that once you have the crown in your hands, *you* will not be the one making the decision."
+
+"Take it anyway. You will decide down there, in front of him, with it in your hands."
+
+* [Take the satchel.] -> hand
+
+== wear ==
+He is quiet for a moment.
+
+"At least you said it out loud up here in the daylight." He weighs the satchel.
+
+"Take it. I am not the one who gets to judge; I am the one who could not put it down."
+
+* [Take the satchel.] -> hand
+
+== hand ==
+The satchel changes hands, and the fifth piece with it.
+
+Aled stands there afterward with his arms empty and a look on his face like a man who has just set down a pack he forgot he was wearing.
+
+"Ah," he says.
+
+And then the years arrive.
+
+* [Catch him.] -> years
+* [Stand very still.] -> years
+
+== years ==
+It is not a collapse. It is more orderly than that, and much worse to watch.
+
+The colour goes first, out of his face and then out of the rest of him, the way dye leaves cloth left in a window. His hands, still half-raised from the handover, thin as the flesh under the skin gives up eight centuries of arrears in the space of three breaths. The satchel strap has worn a groove in his shoulder and the groove stays, because there is no longer enough of him for it to spring back out of.
+
+He does not seem frightened. He seems to be reading a bill he has been expecting for a very long time.
+
+"Oh," he manages, with a voice that is running out of the equipment to make it. "It was the carrying."
+
+* "It was keeping you alive." -> understood
+* [Hold on to him.] -> understood
+
+== understood ==
+"Not alive," he corrects, and there is something in the ruin of his face that is almost pleased at being asked. "Walking. Nobody ever said alive."
+
+His knees fold. There is very little sound.
+
+"Eight hundred and eleven years of not arriving. And I put it in your hands, and it let go of me, and now the road is simply..."
+
+He does not finish it. The last thing he does with his eyes is look east, the way he came, as if it is the first time in eight centuries he has faced that direction on purpose.
+
+* [Lay him down on the grass.] -> laid
+
+== laid ==
+By the time anyone kneels, there is nothing left to kneel for. What is on the turf is dry and light and old, and it stopped being Aled somewhere around the third breath.
+
+The satchel outlasted him. It has been mended a hundred times and it will be good for years yet.
+
+Somebody should probably say something. Nobody can think what.
+
+* [Go down.] -> end
+    do flag(TSC_MetCourier); courier_ends(); grant_xp(150)

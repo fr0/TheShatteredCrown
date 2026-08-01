@@ -76,7 +76,7 @@
                 <text TKey="LetterTextHarrowfield">Harrowfield, at last. Cookfire smoke over every chimney, and the steady ring of Haldor's hammer to welcome you in.\n\nThe villagers will talk, if you take the time. (Select a colonist and right-click a villager to speak with them.)</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>150</xp>
+                <xp>200</xp>
               </li>
             </nodes>
           </node>

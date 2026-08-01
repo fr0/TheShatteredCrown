@@ -8,6 +8,9 @@ dialogue TSC_Dialogue_Oswin
 # quest sets TSC_EttersnapCaught on acquisition, kind_on_map requires the
 # creature on Oswin's map, and finishing the scene sets TSC_RitesDone
 # (which also completes the TSC_Act1_Ettersnap quest via signal).
+# Act 5: pulled out of the same holding camp as Serra. First check.
+entry rescued if flag(TSC_Act5_Rescued) and not flag(TSC_OswinRescueTalk)
+entry rescued_hub if flag(TSC_Act5_Rescued)
 entry rites_ready if flag(TSC_EttersnapCaught) and not flag(TSC_RitesDone) and kind_on_map(TSC_Ettersnap)
 # At Harrowfield (second village visit onward, post-rites): the crate-desk
 # has moved to the camp north of the square. Arrival scene once, then the
@@ -144,7 +147,7 @@ Oswin dips his quill and looks up, which from Oswin is full attention.
 == moss_remark ==
 Oswin stops writing. He looks at you over an imaginary pair of spectacles in a way that is somehow worse than a real pair.
 
-"You lost. A barrow. A stone hill full of dead people that has not moved in eight centuries." He redraws the mark with two precise strokes. "There. Do try to keep track of the stationary things, courier; the moving ones are difficult enough."
+"You lost. A barrow. A stone hill full of dead people that has not moved in nine centuries." He redraws the mark with two precise strokes. "There. Do try to keep track of the stationary things, courier; the moving ones are difficult enough."
 
 * "Duly noted, scholar." -> hub
     do give_quest(TSC_Side_Moss)
@@ -343,3 +346,73 @@ Then, just as quickly as it came, the vision is gone.
 
 * "On my way." -> end
     do flag(TSC_RitesDone); signal(TSC_Act1_Ettersnap, TSC_RitesPerformed); grant_xp(250); affinity(+5)
+
+== rescued ==
+Oswin accepts a hand up, gets halfway vertical, and immediately starts patting himself down for something that is not there.
+
+"They took my notebook," he says, with considerably more distress than he showed about being tied up. "Four years of margin notes. Some of that was about YOU."
+
+He gives up, and looks properly at the company for the first time.
+
+"Ah. You have all four."
+
+* "How can you tell?" -> tell
+* "You have been keeping notes on us?" -> notes
+* "Four. We are going for the fifth." -> fifth
+
+== notes ==
+"Everyone keeps notes on you. You are the most interesting thing to happen to this country since the kingdom fell over." He brushes at his sleeve, achieving nothing. "Mine were kinder than most. I had a whole page on why you were not going to end badly."
+
+A beat.
+
+"I may revise it."
+
+* "How can you tell we have all four?" -> tell
+
+== tell ==
+"Because I can feel my teeth." He says it lightly, and then does not smile. "Standing this close. It is the same note the shard had in the crypt, four times over and in tune with itself."
+
+"That is the part nobody writes down, you know. Not what it does. What it is like to be NEAR."
+
+* "Four. We are going for the fifth." -> fifth
+
+== fifth ==
+He is quiet for a moment, and when he speaks again the scholar has stepped aside for whatever is underneath it.
+
+"Then I should tell you the thing I worked out in that shed, since I had nothing else to do. Every account of the crown ends the same way: the carrier is described, and then the carrier stops being described, and the thing carries on. Not one chronicle in eleven says what happened to the person. They just stop appearing in their own story."
+
+"I used to think that was bad record-keeping."
+
+* "And now?" -> now
+* "You are coming with us anyway." -> now
+
+== now ==
+"Now I think it is the most accurate thing ever written about it." He straightens his collar, which does not need it. "And I am coming, because the alternative is reading about how this ended, and I have developed a strong objection to being a footnote."
+
+"Also somebody in this company should be able to recognize what is written on a wall before you touch it."
+
+* [Take him along.] -> end
+    do flag(TSC_OswinRescueTalk); grant_xp(50)
+
+== rescued_hub ==
+Oswin has found a stick and is drawing something in the dirt: five lines radiating from a point, four of them crossed through.
+
+"Interrupt freely, I am only theorizing."
+
+* "What are you working on?" -> hub_work
+* "How are you doing, really?" -> hub_really
+* [Leave him to it.] -> end
+
+== hub_work ==
+"The roads. I keep drawing them and they keep coming out the same shape." He taps the uncrossed line. "Four ended where the riders died. This one has no end, which means either the fifth man is still walking, or somebody wiped the ending off on purpose."
+
+"I dislike both explanations, which is usually how you know you are close."
+
+* [Leave him to it.] -> end
+
+== hub_really ==
+"Honestly? Frightened, well fed, and taking notes again." He shows the fresh scrap of vellum with a small flourish. "Two out of three is a good week."
+
+Then, more quietly: "I was in that shed a while. It gives you time to decide what you would spend the rest on, if the rest turned out to be short. This was the answer I kept arriving at, which is either courage or a failure of imagination."
+
+* [Leave him to it.] -> end

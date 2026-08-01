@@ -32,11 +32,17 @@ namespace TheShatteredCrown
                     members.Add(pawn);
                 }
             }
+            // Hives go, every time, whatever the budget allows. A hive is not
+            // an encounter, it is a tap: left standing it keeps making
+            // megascarabs for as long as the map exists, which is why a floor
+            // budgeted for two insect packs was reading as an infestation by
+            // the time the party walked back through it. A dungeon is a fixed
+            // thing to be dealt with, not a spawner to be outrun.
             foreach (Thing thing in new List<Thing>(map.listerThings.AllThings))
             {
-                if (thing.def.defName == "Hive")
+                if (thing.def.defName == "Hive" && !thing.Destroyed)
                 {
-                    members.Add(thing);
+                    thing.Destroy(DestroyMode.Vanish);
                 }
             }
             if (members.Count == 0)
