@@ -1,0 +1,44 @@
+# The house songbook, in the monastery. Fired as the successDialogue of the
+# TSC_MonWriting_Songbook check spot, so the party has already passed the
+# roll and is reading the thing.
+#
+# This is the evidence, not the resolution: what the brothers wrote down and
+# what they wrote in the margin. Wren draws the conclusion later, at a fire,
+# in wren_verse2.
+#
+# {PLAYER} is whoever read it.
+
+dialogue TSC_Dialogue_WrenSongbook
+
+== start ==
+The last twenty pages are in a different hand from the rest, and in a hurry.
+
+A note at the head of them, dated to the winter the house shut its gate: *Set down from the rider at the gate, who sang it through twice while we worked, and was dead before prayer hour. He asked that it be written exactly. It has been.*
+
+* [Read the verses.] -> verses
+
+== verses ==
+Five verses, ruled out in full. Four of them end.
+
+The first road ends in a hill grave. The second under a city, on a held note that the copyist has marked *to be sustained, God knows how*. The third ends in a hand that was not the rider's, and then another, and then another. The fourth ends at this gate, in this house, on the night the writing was done.
+
+The fifth verse runs for eleven bars and stops in the middle of a phrase.
+
+* [Look at what comes after the eleventh bar.] -> blank
+
+== blank ==
+Nothing comes after it. Not a rest, not a repeat mark, not a closing bar: ruled staves, empty, for a page and a half. Somebody prepared the room for an ending and the ending never came.
+
+In the margin beside the empty staves, in the same hurried hand:
+
+*He would not give us the last of it. He said it was not his to give and not finished to be given. He said: when the fifth road ends, whoever is there will know how it goes, and they may sing it then, and not before.*
+
+*We asked what would happen if it were sung before. He was a long time answering. He said: nothing. He said the tune would simply be wrong.*
+
+* [Copy it out.] -> copy
+
+== copy ==
+The blank pages get copied along with the notated ones, because the blank pages are the point.
+
+* [Take it to Wren.] -> end
+    do flag(TSC_WrenSongbook); grant_xp(60); signal(TSC_Wren_FifthVerse, TSC_WrenFoundBook)

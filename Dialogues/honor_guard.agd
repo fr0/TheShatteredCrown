@@ -23,7 +23,7 @@ The nearest one speaks, and his voice is the sound of a man who has had this sen
 * [Answer with the chronicle: name the five roads and the five riders.] -> chronicle
     check Lore 15 -> chronicle_ok | chronicle_bad
 * [Sing them the five roads, as a lay, the way it was meant to be carried.] -> sung
-    check Performance 15 -> sung_ok | sung_bad
+    check Performance 12 -> sung_ok | sung_bad
 
 == claim ==
 The spears do not move, but something behind the visor does.
@@ -56,7 +56,7 @@ The spear comes up a hand's width.
 * [Answer with the chronicle: name the five roads and the five riders.] -> chronicle
     check Lore 15 -> chronicle_ok | chronicle_bad
 * [Sing them the five roads, as a lay, the way it was meant to be carried.] -> sung
-    check Performance 15 -> sung_ok | sung_bad
+    check Performance 12 -> sung_ok | sung_bad
 * "We were not sent, and we are not owed. Let us past anyway." -> plead
     check Persuasion 15 -> plead_ok | plead_bad
 * [Enough talking.] -> refuse
@@ -135,8 +135,47 @@ He steps out of the doorway and grounds his spear, and the rest of the line foll
 
 "Go in, singer. Whatever you decide down there: that was well sung, and we are in your debt for it."
 
+* [Wren has not finished.] -> sung_fifth
+    if flag(TSC_WrenLay) and flag(TSC_MetCourier) and in_party(TSC_Npc_Bard)
 * [Approach the sarcophagus.] -> end
     do guard_yield(); grant_xp(250); flag(TSC_HonorGuardSung)
+
+# The payoff of Wren's companion quest (wren_verse / wren_songbook /
+# wren_verse2). Only reachable if she went and found the brothers' copy AND
+# the fifth road has actually ended, which happened an hour ago on the grass
+# outside: Aled arrived. The last four bars exist now. They did not this
+# morning.
+== sung_fifth ==
+She has stopped where she has always stopped, four bars from the end, on the phrase that does not resolve.
+
+Then she stands there, in a room full of armed men, working something out.
+
+"Sorry," she says, to nobody. "Give me a moment. I have been carrying this for two winters without knowing what it was for, and I would like to get it right."
+
+* [Wait.] -> sung_fifth2
+
+== sung_fifth2 ==
+The last four bars have never been sung by anyone, because until this morning they had not happened.
+
+They are about a man coming up a slope with a satchel that has been mended a hundred times. They are about eight hundred and eleven years of not arriving, and a road that ends the way the other four did not: not at a wall, not in a grave, not in a stranger's hands, but in the hands it was meant for, given rather than taken. They are about somebody putting a thing down.
+
+The tune resolves. It has been leaning forward for eight hundred years and it finally lands, and every stone in the chamber takes it.
+
+Nobody moves for a while.
+
+"He arrived," the nearest oath-keeper says. It is not a question. "The fifth one. He arrived."
+
+* "This morning. Outside. He gave it to us himself." -> sung_fifth3
+
+== sung_fifth3 ==
+"Then we are done," the oath-keeper says. "Nine hundred years at this door, and the errand is finished, and it was finished by a girl with a lute telling us so."
+
+He steps out of the doorway.
+
+"Go in. And whatever you decide about the thing in your pack: that song is yours now. It was never ours. We only ever held the door."
+
+* [Approach the sarcophagus.] -> end
+    do guard_yield(); grant_xp(350); flag(TSC_HonorGuardSung); flag(TSC_WrenSangFifth); affinity(TSC_Npc_Bard, +15)
 
 == sung_bad ==
 The measure slips. The verses come out in the wrong order, the fourth road takes the third road's ending, and the tune that should resolve on the fifth simply stops.
@@ -150,7 +189,7 @@ The oath-keeper waits it out with the patience of stone, and something in the pl
 * [Enough talking.] -> refuse
 
 == refuse ==
-Nobody in that plate is surprised.
+Nobody in that room is surprised.
 
 "We are the Honor Guard of the first king," he says, "and this is the post. It was never really a question of whether you would be allowed. It was a question of what you would say first."
 

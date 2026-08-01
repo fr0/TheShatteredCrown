@@ -1,0 +1,65 @@
+# Wren's quest, part two: what the songbook actually said. Fires as an
+# initiation once TSC_WrenSongbook is set and she is in the party.
+#
+# The resolution is deliberately NOT "the curse is broken". The verse was
+# never hunting anybody: it is a delivery note set to music, and the reason
+# it has no ending is that the fifth road has not ended. It got handed from
+# Aldis to a beggar to Wren for the same reason any unfinished thing gets
+# handed along. Which leaves her waiting for a man to arrive, exactly like
+# the oath-keepers under the hill.
+#
+# Sets TSC_WrenLay, which the Honor Guard scene in Act 5 reads.
+
+dialogue TSC_Dialogue_WrenVerse2
+
+== start ==
+Wren has had the copied pages for a day and a half. She has not sung anything.
+
+"It has words," she says, without preamble. "Under the staves. In a hand that has been dead nine hundred years, in a language I can actually read, and they are not sinister at all. They are *directions*."
+
+* "Directions." -> directions
+* "How do you feel about that?" -> feel
+
+== directions ==
+"Which road, which rider, where the piece goes. That is the crux of it. It is a delivery note somebody set to music so that a man who could not write could carry it in his head." She laughs, and it comes out wrong the first time, so she does it again properly. "Two winters. Two winters of not looking at a song because I had decided it was looking back."
+
+* "How do you feel about that?" -> feel
+
+== feel ==
+"Furious," she says, cheerfully. "And then very tired. And then furious in a smaller way at myself, which is the one that will last."
+
+She flattens the copied page on her knee: eleven bars and then a page and a half of empty staves.
+
+"But look at what the rider actually told them. They asked what happens if somebody sings an ending onto the fifth early, and he said *nothing*. The tune is simply wrong, and people do not die of that."
+
+"And he did not say never sing it. He said: when the fifth road ends, whoever is there will know how it goes."
+
+* "The fifth road has not ended." -> waiting
+* "So somebody has to be there." -> waiting
+
+== waiting ==
+"He is still walking. Whoever he was, he is still out there with the last piece of it, eight hundred years into an errand, and until he stops there is no last four bars to sing, because the thing they describe has not happened."
+
+She says it lightly. It is not a light thing and everyone at the fire knows it.
+
+"So it was not picking me. It was not finished. Aldis held it because he was told to and could not stop; the beggar carried it down because he was the only one in the room; I got it because I was the next person to open my mouth in that city. A thing with no ending goes on being handed along, and that is not a curse, it is just what unfinished things do."
+
+"Which is a completely different weight, and I would like a moment to be annoyed about the difference."
+
+* "Take the moment." -> ready
+* "You could still never sing it." -> never
+
+== never ==
+"I could." She turns the page over, and over again. "But somebody wrote out empty staves nine hundred years ago on the chance that a person would one day be standing in the right place with the right information, and I would quite like to be that person, out of professional interest."
+
+* "Then be ready." -> ready
+
+== ready ==
+"I will know it when I see it. That is not bravery, it is just how songs work: you get to the place the ending is about and the ending is simply *there*, waiting. It is discovered, not created."
+
+She puts the pages away carefully, in the lute case, next to the strings.
+
+"When we find the end of the fifth road, do not talk to me for a minute. I will be busy."
+
+* [Leave her to it.] -> end
+    do flag(TSC_WrenLay); affinity(+10); grant_xp(100); signal(TSC_Wren_FifthVerse, TSC_WrenReady)

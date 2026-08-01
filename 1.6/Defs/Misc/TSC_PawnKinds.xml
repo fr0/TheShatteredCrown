@@ -196,6 +196,35 @@
     <modExtensions>
       <li Class="TheShatteredCrown.DialogueExtension">
         <dialogue>TSC_Dialogue_Bard</dialogue>
+        <initiations>
+          <!-- Her companion quest. She raises it herself once Act 4 has
+               opened, because the answer is written down in the house the
+               party is on its way to, and she is not going to mention six
+               years of dread to people she has just met. -->
+          <li>
+            <dialogue>TSC_Dialogue_WrenVerse</dialogue>
+            <mtbDays>1</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
+                <flag>TSC_Act4CardShown</flag>
+              </li>
+            </conditions>
+          </li>
+          <!-- And she comes back to it once the songbook has been read. -->
+          <li>
+            <dialogue>TSC_Dialogue_WrenVerse2</dialogue>
+            <mtbDays>0.5</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
+                <flag>TSC_WrenSongbook</flag>
+              </li>
+            </conditions>
+          </li>
+        </initiations>
       </li>
     </modExtensions>
   </PawnKindDef>

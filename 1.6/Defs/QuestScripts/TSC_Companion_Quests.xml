@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Companion quests: the personal errands the party picks up along
+       the way, granted from the companion's own conversation rather
+       than by the world.
+
+       NOT main-chain: these are dismissable, they can be ignored for
+       the rest of a campaign, and nothing downstream requires them. The
+       payoff is that the companion is different afterward, and in
+       Wren's case that the barrow door has an answer it did not have
+       before.
+       ================================================================ -->
+
+  <QuestScriptDef Name="TSC_CompanionQuestBase" Abstract="True">
+    <isRootSpecial>true</isRootSpecial>
+    <randomlySelectable>false</randomlySelectable>
+    <rootMinPoints>0</rootMinPoints>
+    <autoAccept>true</autoAccept>
+  </QuestScriptDef>
+
+  <!-- ============ Wren: The Fifth Verse ============ -->
+
+  <QuestScriptDef ParentName="TSC_CompanionQuestBase">
+    <defName>TSC_Wren_FifthVerse</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The Fifth Verse</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Nobody taught Wren the lay of the roads. It arrived: a month after a beggar went down the cistern stairs and did not come up, she opened her mouth in a common room and the crown verses came out of it. She sings the fifth with her eyes closed, cannot translate a line of it, and it stops in the same place every time.
+
+A chorister held that verse in a cellar for eight centuries. A beggar carried it down a flooded stair and died there. Wren would like to know whether she is a bard with a good ear or the next person it picked up.
+
+The brothers of the Silent Monastery took in the fourth rider at their gate and wrote down what he sang while he was dying, words and all. Find their songbook and read the staves.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+
+        <!-- Read the songbook: the evidence. The quest stays open until
+             Wren has had a night to think about it, because the finding
+             is not the point of it. -->
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_WrenFoundBook</inSignal>
+          <node Class="QuestNode_Letter">
+            <letterDef>NeutralEvent</letterDef>
+            <label TKey="LetterLabelWrenBook">The staves run out</label>
+            <text TKey="LetterTextWrenBook">The house songbook holds the lay of the five roads, set down from a dying rider at the gate, exactly as he sang it. Four verses end. The fifth stops in the middle of a phrase, and after it there is a page and a half of ruled staves with nothing written on them at all.\n\nSomebody prepared the room for an ending nine hundred years ago. Wren should see this.</text>
+          </node>
+        </li>
+
+        <!-- She works it out, and the quest closes on her, not on the book. -->
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_WrenReady</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelWrenReady">Not a curse. An unfinished song.</label>
+                <text TKey="LetterTextWrenReady">The rider told the brothers outright: singing an ending onto the fifth verse early does nothing at all, except make the tune wrong. Wren's teacher died of being sixty-one.\n\nWhat the rider would not give them was the last four bars, on the grounds that they had not happened yet. When the fifth road ends, he said, whoever is standing there will know how it goes.\n\nWren has the copied pages in her lute case. She is waiting for the end of a road.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                <xp>100</xp>
+              </li>
+              <li Class="QuestNode_End">
+                <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- The singer can die. The errand dies with her; nothing else in
+             the campaign is waiting on it. -->
+        <li Class="QuestNode_Signal">
+          <inSignal>TSC_WrenLost</inSignal>
+          <node Class="QuestNode_End">
+            <outcome>Fail</outcome>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

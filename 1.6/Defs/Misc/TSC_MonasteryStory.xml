@@ -29,6 +29,55 @@
     </building>
   </ThingDef>
 
+  <!-- ============================================ Wren's quest
+
+       The brothers wrote down the lay from a dying rider at their gate.
+       Their copy is the only complete one anybody has ever made, and it is
+       complete in the way that matters: it shows exactly where the fifth
+       verse stops, and why.
+
+       Only shows up once Wren has asked about it - a songbook the party
+       has no reason to care about is a prop, and this one is a quest. -->
+  <ThingDef ParentName="TSC_MonSpotBase">
+    <defName>TSC_MonWriting_Songbook</defName>
+    <label>the house songbook</label>
+    <description>A wide, flat book on the lectern, ruled in staves rather than lines. Most of it is plainsong for the hours. The last twenty pages are not.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BanditLedger</texPath>
+      <drawSize>(1.15,1.15)</drawSize>
+      <color>(205,190,215)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Performance</proficiency>
+            <dc>9</dc>
+            <label>Read the staves</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>40</successXp>
+            <successFlag>TSC_WrenSongbook</successFlag>
+            <successDialogue>TSC_Dialogue_WrenSongbook</successDialogue>
+            <successMessage>The last twenty pages are the lay of the five roads, written down from a man who was dying at their gate.</successMessage>
+            <failMessage>Staves, notation, an old hand. It is music, and it is beyond reading at a glance by anyone who cannot hear it in their head.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>11</dc>
+            <label>Read the staves (by the words alone)</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>40</successXp>
+            <successFlag>TSC_WrenSongbook</successFlag>
+            <successDialogue>TSC_Dialogue_WrenSongbook</successDialogue>
+            <successMessage>The notation is beyond you, but the words under the staves are not, and they are the lay of the five roads.</successMessage>
+            <failMessage>Music, in a hand nine hundred years old, and no way in without knowing the tune.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
   <!-- ============================================ the six writings -->
 
   <ThingDef ParentName="TSC_MonSpotBase">
@@ -539,6 +588,16 @@
     <order>488</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceAtFurniture">
       <spots>
+        <li>
+          <def>TSC_MonWriting_Songbook</def>
+          <anchors>
+            <li>Lectern</li>
+            <li>Bookcase</li>
+            <li>Shelf</li>
+            <li>Table1x2c</li>
+            <li>Table2x2c</li>
+          </anchors>
+        </li>
         <li>
           <def>TSC_MonWriting_Confessions</def>
           <anchors>

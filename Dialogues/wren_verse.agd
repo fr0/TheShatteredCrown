@@ -1,0 +1,95 @@
+# Wren Ashdown, companion quest, part one.
+#
+# CANON THIS MUST NOT BREAK (wren.agd, cantor.agd): nobody taught her the
+# song. A beggar sat with Aldis in the reliquary for eleven days, learned
+# the fifth verse, died on the cistern stairs, and a month later Wren caught
+# herself singing verses she never wrote in a meter she never studied. It
+# has been TWO WINTERS. She sings the fifth with her eyes closed and cannot
+# translate it.
+#
+# So her fear is not a curse on a tune. It is that the verse is a thing that
+# gets CARRIED, the way the shards are: it held a chorister in a cellar for
+# eight centuries, took a beggar down a flooded stair, and then came up and
+# picked her, and she has never chosen one note of it.
+#
+# Fires as an initiation once she is in the party and Act 4 has opened.
+# {PLAYER} is the colonist she has cornered.
+
+dialogue TSC_Dialogue_WrenVerse
+
+== start ==
+Wren has been tuning the same string for a while now. It has been in tune for most of that.
+
+"Can I ask you something and have you not be kind about it?"
+
+* "Ask." -> ask
+* "I make no promises." -> ask
+
+== ask ==
+"The fifth verse. The one I sing with my eyes shut."
+
+She puts the lute down, which is not a thing she does.
+
+"I have never told anybody this, because in a tavern it is a good story and out here it is not. I do not know what it says."
+
+* "You sing it every night." -> sings
+* "You do not know the words?" -> sings
+
+== sings ==
+"I sing it perfectly. Every syllable, every time, in a meter nobody has used since before the roads were paved." She holds a hand out flat and it is steady, which she seems annoyed about. "I could sing it in my sleep. I probably have. And I could not tell you what a single line of it *means*, and I have never once decided to start."
+
+* "Then who taught it to you?" -> nobody
+* "Where did it come from?" -> nobody
+
+== nobody ==
+"That is the question, isn't it."
+
+"Nobody taught me. It arrived. A month after a beggar went down the cellar stairs and did not come up, I opened my mouth in a common room and that came out of it, and I have been paying rent with it ever since."
+
+She is not smiling now, which on her is alarming.
+
+"And then we went down those same stairs, and I met the man it came from, and he had been singing it in a white room for eight hundred years without stopping."
+
+* "Aldis." -> aldis
+* "You think it moved from him to you." -> aldis
+
+== aldis ==
+"It moved from him to a beggar who could not read and could not hold a tune, and it stayed in that man long enough to walk him down a flooded stair in the dark, and he *died* there, and then it moved again."
+
+"Count them. A chorister who could not leave. A beggar who could not stop going down. Me, who never chose a note of it. Does that sound like a song to you, or does that sound like the other thing we have been carrying in a bag all year?"
+
+* "You think the verse is like the shards." -> like
+* "It is a song, Wren." -> like
+
+== like ==
+"I think it wants carrying, and I think it picks people, and I think I have been very cheerful about it for two winters because the alternative was thinking about it."
+
+She turns the lute over on her knees.
+
+"And I think the reason I cannot translate the fifth is that it is not finished. The other four resolve. That one leans forward and stops, every time, in the same place, and it has been leaning for nine hundred years, and I am the one holding it up."
+
+* "What would settle it?" -> settle
+* "Could you put it down?" -> down
+
+== down ==
+"I do not know. That is the honest answer and it keeps me up." A short breath. "Aldis could not. He was *ordered* to hold it, and he held it until somebody walked in and told him the truth in the right order. I was never ordered anything. I was only picked."
+
+* "What would settle it?" -> settle
+
+== settle ==
+"Somebody wrote it down. Not sang it: *wrote* it, with the words under the staves, from a man who was there when the roads were made."
+
+"There was a house that took one of the riders in at its gate while he was dying. Brothers who kept records the way other people breathe. If anyone ever set the fifth verse down as it was given, with a note in the margin about what the man meant by it, it will be in their books."
+
+* "The Silent Monastery." -> yes
+* "We are going that way." -> yes
+
+== yes ==
+"You are going that way." She says it carefully, like somebody setting something breakable down. "I would like to read their books while you are doing whatever it is you are doing up there."
+
+"I would like to find out whether I am a bard with a good ear or a fourth carrier who has not noticed yet."
+
+* "We will find it." -> end
+    do flag(TSC_WrenVerseAsked); give_quest(TSC_Wren_FifthVerse); affinity(+5)
+* "Then read." -> end
+    do flag(TSC_WrenVerseAsked); give_quest(TSC_Wren_FifthVerse); affinity(+5)
