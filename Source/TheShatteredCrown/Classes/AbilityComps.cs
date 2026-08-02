@@ -756,8 +756,33 @@ namespace TheShatteredCrown
 
     public class CompProperties_TSC_WeaponStrike : CompProperties_AbilityEffect
     {
-        /// <summary>Damage as a multiple of the caster's average weapon damage (3 = Ambush's 300%).</summary>
+        /// <summary>Damage as a multiple of the caster's average weapon damage (1.5 = Ambush's 150%).</summary>
         public float multiplier = 1f;
+
+        /// <summary>
+        /// Replaces multiplier when the caster is holding a short blade.
+        /// 0 disables the whole idea, which is what every ability except
+        /// Ambush wants.
+        /// </summary>
+        public float shortBladeMultiplier;
+
+        /// <summary>
+        /// What counts as a short blade, by name. Kept in XML because the
+        /// answer depends on the load order: Medieval Overhaul and Combat
+        /// Extended both ship daggers this mod has never heard of, and a
+        /// hardcoded list would go stale the day either updates.
+        /// </summary>
+        public List<string> shortBladeKeywords = new List<string>
+        {
+            "knife", "dagger", "dirk", "stiletto", "shiv", "poniard",
+        };
+
+        /// <summary>
+        /// Fallback for a blade whose name says nothing: light enough to be
+        /// held reversed, and pointed. A gladius is 1.4kg and does not
+        /// qualify; a vanilla knife is well under this.
+        /// </summary>
+        public float shortBladeMaxMass = 1.1f;
         /// <summary>0 = the targeted thing; otherwise every ENEMY pawn within radius of the CASTER (Whirlwind).</summary>
         public float radius;
         public float armorPenetration = 0.25f;
@@ -787,7 +812,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            float damage = AverageWeaponDamage(caster) * Props.multiplier
+            float damage = AverageWeaponDamage(caster) * MultiplierFor(caster)
                 * TSC_SpellScaling.Factor(caster, parent.def);
             DamageDef damageDef = Props.damageDef ?? DamageDefOf.Stab;
             float strikeRadius = Props.radius * TSC_FeatMods.RadiusFactor(caster, parent.def);
@@ -823,6 +848,53 @@ namespace TheShatteredCrown
                 return false;
             }
             return base.Valid(target, throwMessages);
+        }
+
+        /// <summary>
+        /// The strike's multiplier, which for Ambush depends on what is in
+        /// the hand: a knife in close is the whole point of the ability, and
+        /// a greatsword swung as an "ambush" is just a hit.
+        /// </summary>
+        private float MultiplierFor(Pawn caster)
+        {
+            if (Props.shortBladeMultiplier <= 0f)
+            {
+                return Props.multiplier;
+            }
+            return IsShortBlade(caster?.equipment?.Primary?.def)
+                ? Props.shortBladeMultiplier
+                : Props.multiplier;
+        }
+
+        private bool IsShortBlade(ThingDef weapon)
+        {
+            if (weapon == null || weapon.IsRangedWeapon)
+            {
+                return false; // bare hands are not a dagger either
+            }
+            string name = (weapon.defName + " " + weapon.label).ToLowerInvariant();
+            foreach (string keyword in Props.shortBladeKeywords)
+            {
+                if (name.Contains(keyword))
+                {
+                    return true;
+                }
+            }
+            // Nothing in the name: judge it by what it is. Light, and it
+            // stabs.
+            if (weapon.BaseMass > Props.shortBladeMaxMass || weapon.tools.NullOrEmpty())
+            {
+                return false;
+            }
+            foreach (Tool tool in weapon.tools)
+            {
+                if (tool.capacities != null && tool.capacities.Contains(DefDatabase<ToolCapacityDef>
+                        .GetNamedSilentFail("Stab")))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static float AverageWeaponDamage(Pawn pawn)

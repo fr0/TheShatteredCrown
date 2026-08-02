@@ -1136,6 +1136,26 @@ namespace TheShatteredCrown
         private void StartEnvironmentPhase()
         {
             AddLog("--- the world moves ---", LogWorldColor);
+            // Say so, or a held order looks like a bug. Pawns under player
+            // orders stand still through this phase (see ShouldTickPawn);
+            // without a line in the log the player just sees somebody
+            // ignoring a click.
+            int held = 0;
+            IReadOnlyList<Pawn> onMap = map?.mapPawns?.AllPawnsSpawned;
+            for (int i = 0; onMap != null && i < onMap.Count; i++)
+            {
+                if (PlayerOrdered(onMap[i]))
+                {
+                    held++;
+                }
+            }
+            if (held > 0)
+            {
+                AddLog(held == 1
+                    ? "One of the company holds their orders until their turn."
+                    : $"{held} of the company hold their orders until their turns.",
+                    LogWorldColor);
+            }
             phase = EncounterPhase.Environment;
             activePawn = null;
             // Non-combatants get what combatants actually got this cycle: the
@@ -2281,7 +2301,62 @@ namespace TheShatteredCrown
                 }
                 return p == activePawn || activeGroup.Contains(p);
             }
-            return !(combatants.Contains(p) && !p.Dead && !p.Downed);
+            if (combatants.Contains(p) && !p.Dead && !p.Downed)
+            {
+                return false;
+            }
+            // The environment phase exists so the WORLD gets its seconds
+            // back: fires spread, the cook cooks, a caravan animal wanders.
+            // It is not a free move for the player, and it used to be one.
+            //
+            // Anything outside the combatant list ticked here, and the list
+            // is drafted colonists plus engaged hostiles, built once per
+            // cycle. So: queue three move orders on anybody, and they walked
+            // them while "the world moves". Draft a pawn after the cycle
+            // started and they were not on the list at all - a whole free
+            // repositioning every round. Undraft mid-fight and the same.
+            //
+            // Player ORDERS wait for the player's turn. Unordered work does
+            // not, which is the distinction the phase was built on.
+            return !PlayerOrdered(p);
+        }
+
+        /// <summary>
+        /// Is this pawn doing something the player told it to do? Drafted
+        /// counts by itself: a drafted pawn is under orders even when
+        /// standing still, and the queue is checked because that is exactly
+        /// where the exploit lived.
+        /// </summary>
+        private static bool PlayerOrdered(Pawn p)
+        {
+            if (p?.Faction == null || !p.Faction.IsPlayer || p.Dead || p.Downed)
+            {
+                return false;
+            }
+            if (p.Drafted)
+            {
+                return true;
+            }
+            Pawn_JobTracker jobs = p.jobs;
+            if (jobs == null)
+            {
+                return false;
+            }
+            if (jobs.curJob != null && jobs.curJob.playerForced)
+            {
+                return true;
+            }
+            if (jobs.jobQueue != null)
+            {
+                foreach (QueuedJob queued in jobs.jobQueue)
+                {
+                    if (queued?.job != null && queued.job.playerForced)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         /// <summary>

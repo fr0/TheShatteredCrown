@@ -118,7 +118,7 @@ invited and leave with what isn't theirs.*
 
 | Lvl | Spell | Energy | Cast | Cooldown | Range | Effect |
 |----|--------|--------|------|----------|-------|--------|
-| 1 | Ambush | 15 | 0.5s | 30 min | touch | One perfect strike: 300% of normal weapon damage to an adjacent target |
+| 1 | Ambush | 15 | 0.5s | 30 min | touch | One perfect strike: 150% of normal weapon damage to an adjacent target, 300% with a knife or dagger |
 | 2 | Shadowstep | 10 | 0.5s | 15 min | 20 | Teleports the caster to a visible cell |
 | 3 | Marked for death | 10 | 0.5s | 15 min | 24 | Target takes +30% damage from all sources for 60s |
 | 5 | Vanish | 15 | 0.5s | 1 h | self | Caster becomes invisible for 15 seconds |
@@ -373,7 +373,7 @@ first, feat second.
   different radii/ranges. Challenge is no longer one of them: as the
   Warden capstone it applies its own stronger debuff (-15%/-15% plus
   attack falter).
-- **Weapon-scaled strikes** (Ambush 300%, Whirlwind 100% AoE) price off
+- **Weapon-scaled strikes** (Ambush 150%, or 300% with a short blade; Whirlwind 100% AoE) price off
   the caster's average weapon damage - better weapon, better spell.
 - **Healer ladder** by throughput: Second Wind 15 self (12 h) →
   Nature's Balm 20 (6 h) → Healing Touch 25 (6 h) → Lay on Hands 35
