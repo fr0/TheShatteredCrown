@@ -165,10 +165,54 @@ namespace TheShatteredCrown
         /// world - not deleted, so a later act can still refer to them, and
         /// so a story that wants them back has somebody to bring back.
         /// </summary>
-        public static void Depart(Pawn companion)
+        /// <summary>Flag prefix for a companion who has announced they are going but cannot go yet.</summary>
+        public static string PendingKey(NamedNpcDef def) => "TSC_PartWaysPending_" + def.defName;
+
+        /// <summary>
+        /// Called every sweep from MapComponent_TSC_CarriedGear: finishes a
+        /// departure that was announced somewhere it could not happen.
+        ///
+        /// The player-initiated dismissal is gated on CanPartHere before the
+        /// float menu even offers it, but a companion who asks to leave of
+        /// their own accord can do it anywhere - including three floors
+        /// underground with a fight upstairs. They say their piece, and then
+        /// they wait for ground they can actually walk off.
+        /// </summary>
+        public static void CheckPending(Pawn companion)
+        {
+            NamedNpcDef def = CompanionDefOf(companion);
+            if (def == null || companion.Faction != Faction.OfPlayer)
+            {
+                return;
+            }
+            if (!DialogueStateManager.Current.IsSet(PendingKey(def)))
+            {
+                return;
+            }
+            if (!CanPartHere(companion, out string _))
+            {
+                return;
+            }
+            DialogueStateManager.Current.Clear(PendingKey(def));
+            Depart(companion, deferrable: false);
+        }
+
+        public static void Depart(Pawn companion, bool deferrable = true)
         {
             if (companion == null)
             {
+                return;
+            }
+            if (deferrable && !CanPartHere(companion, out string blocked))
+            {
+                NamedNpcDef waiting = CompanionDefOf(companion);
+                if (waiting != null)
+                {
+                    DialogueStateManager.Current.Set(PendingKey(waiting));
+                }
+                Messages.Message(
+                    $"{companion.LabelShortCap} means to go, and will, as soon as the company is somewhere they can ({blocked}).",
+                    companion, MessageTypeDefOf.NeutralEvent, historical: false);
                 return;
             }
             NamedNpcDef def = CompanionDefOf(companion);

@@ -16,8 +16,36 @@ dialogue TSC_Dialogue_PartWays
 
 "Ah," they say. "That kind of talk."
 
+* "This is where we part ways." -> devoted
+    if affinity(>=25)
 * "This is where we part ways." -> why
+    if affinity(<25)
 * [Actually, never mind.] -> end
+
+# Devoted companions do not simply take it. They are not refusing - they
+# will go if the player says it twice - but somebody who has followed this
+# company through everything gets to make them say it twice.
+== devoted ==
+Whatever they were braced for, it was not that.
+
+"No," they say. Not angry. Just factual, the way you correct a date. "No, I do not think it is."
+
+They do not move.
+
+"I have been at your shoulder for every bad hour of this. I have buried people for you. If you are sending me off now, you can do me the courtesy of meaning it out loud, twice, while I am looking at you."
+
+* "I mean it. This is where we part ways." -> why
+* [Let it go. They stay.] -> stayed
+
+== stayed ==
+Something in them unclenches, and they have the grace not to say anything about it.
+
+"Right," they say. "Then I will get the fire going."
+
+The camp does not discuss it. The camp does, however, notice.
+
+* [Get on with the evening.] -> end
+    do affinity(+5)
 
 == why ==
 They do not argue. That is somehow worse than arguing.

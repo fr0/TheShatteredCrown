@@ -255,6 +255,9 @@ namespace TheShatteredCrown
                 // tick either. Above the weapon check on purpose - a crowned
                 // pawn with empty hands still has a crown.
                 TSC_CrownLock.EnsureLocked(pawn);
+                // A companion who announced they were leaving somewhere they
+                // could not leave from.
+                TSC_PartWays.CheckPending(pawn);
                 ThingWithComps primary = pawn.equipment?.Primary;
                 if (primary == null)
                 {

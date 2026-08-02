@@ -256,6 +256,20 @@
       <li Class="TheShatteredCrown.DialogueExtension">
         <dialogue>TSC_Dialogue_Madoc</dialogue>
         <initiations>
+          <li>
+            <!-- The door swings both ways: a companion who has gone cold on
+                 this company asks to be let go. Persuasion can buy one stay
+                 (Dialogues/part_ways_ask.agd). -->
+            <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
+            <mtbDays>4</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_Affinity">
+                <max>-1</max>
+              </li>
+            </conditions>
+          </li>
           <!-- His companion quest. Gated on the camp talk, where he first
                admits out loud that what he hears in the fire is the shape
                they left in him rather than the men: he does not open this

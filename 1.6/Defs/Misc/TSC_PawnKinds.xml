@@ -15,6 +15,22 @@
     <modExtensions>
       <li Class="TheShatteredCrown.DialogueExtension">
         <dialogue>TSC_Dialogue_Serra</dialogue>
+      <initiations>
+          <li>
+            <!-- The door swings both ways: a companion who has gone cold on
+                 this company asks to be let go. Persuasion can buy one stay
+                 (Dialogues/part_ways_ask.agd). -->
+            <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
+            <mtbDays>4</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_Affinity">
+                <max>-1</max>
+              </li>
+            </conditions>
+          </li>
+        </initiations>
       </li>
     </modExtensions>
   </PawnKindDef>
@@ -30,6 +46,22 @@
     <modExtensions>
       <li Class="TheShatteredCrown.DialogueExtension">
         <dialogue>TSC_Dialogue_Oswin</dialogue>
+      <initiations>
+          <li>
+            <!-- The door swings both ways: a companion who has gone cold on
+                 this company asks to be let go. Persuasion can buy one stay
+                 (Dialogues/part_ways_ask.agd). -->
+            <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
+            <mtbDays>4</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_Affinity">
+                <max>-1</max>
+              </li>
+            </conditions>
+          </li>
+        </initiations>
       </li>
     </modExtensions>
   </PawnKindDef>
@@ -47,6 +79,20 @@
       <li Class="TheShatteredCrown.DialogueExtension">
         <dialogue>TSC_Dialogue_Maewyn</dialogue>
         <initiations>
+          <li>
+            <!-- The door swings both ways: a companion who has gone cold on
+                 this company asks to be let go. Persuasion can buy one stay
+                 (Dialogues/part_ways_ask.agd). -->
+            <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
+            <mtbDays>4</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_Affinity">
+                <max>-1</max>
+              </li>
+            </conditions>
+          </li>
           <!-- Maewyn seeks the player out on the road and offers the Druid's teaching -->
           <li>
             <!-- Her companion quest. Late, and gated on affinity: the state
@@ -91,6 +137,20 @@
       <li Class="TheShatteredCrown.DialogueExtension">
         <dialogue>TSC_Dialogue_Bran</dialogue>
         <initiations>
+          <li>
+            <!-- The door swings both ways: a companion who has gone cold on
+                 this company asks to be let go. Persuasion can buy one stay
+                 (Dialogues/part_ways_ask.agd). -->
+            <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
+            <mtbDays>4</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_Affinity">
+                <max>-1</max>
+              </li>
+            </conditions>
+          </li>
           <!-- Bram seeks the player out about a day after joining -->
           <li>
             <!-- And the telling, once he has decided to do it. He picks the
@@ -238,6 +298,20 @@
       <li Class="TheShatteredCrown.DialogueExtension">
         <dialogue>TSC_Dialogue_Bard</dialogue>
         <initiations>
+          <li>
+            <!-- The door swings both ways: a companion who has gone cold on
+                 this company asks to be let go. Persuasion can buy one stay
+                 (Dialogues/part_ways_ask.agd). -->
+            <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
+            <mtbDays>4</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_Affinity">
+                <max>-1</max>
+              </li>
+            </conditions>
+          </li>
           <!-- Her companion quest. She raises it herself once Act 4 has
                opened, because the answer is written down in the house the
                party is on its way to, and she is not going to mention six

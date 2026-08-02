@@ -1,0 +1,93 @@
+# The door swinging the other way: a companion who has had enough of this
+# company asks to be let go.
+#
+# ONE shared scene for all of them, like part_ways, with {NPC} carrying
+# whichever name it is. Fires as an initiation when affinity has gone cold,
+# so it is always earned: nobody walks out on a company that has treated
+# them decently.
+#
+# The player is not helpless and is not entitled either. Persuasion can buy
+# a stay, ONCE, and the DC is high because talking somebody out of leaving
+# is not the same as giving them a reason to stay. Refuse to engage and
+# they go.
+#
+# Whatever happens here, the affinity that caused it is still there
+# afterward. A stay bought with words and nothing else will be asked for
+# again.
+#
+# {PLAYER} is whoever they decided to say it to.
+
+dialogue TSC_Dialogue_PartWaysAsk
+
+== start ==
+{NPC} is waiting where {PLAYER} was going to be, which takes planning, and does not look comfortable about it.
+
+"A word. It will not take long and you will not enjoy it."
+
+* "Say it." -> say
+* "Whatever it is, say it plainly." -> say
+
+== say ==
+"I want out."
+
+They let that stand on its own for a moment.
+
+"Not this minute, not in the middle of a road, and not without giving you the chance to talk me out of it. But I have been counting up what this company has been to me lately, and the number is not one I would sign for again."
+
+* "What would it take?" -> what
+* "Then go. I will not hold anybody." -> release
+* "You are needed." -> needed
+
+== needed ==
+"I know. That is not the same as being wanted, and I have had a long time on this road to learn the difference."
+
+* "What would it take?" -> what
+* "Then go." -> release
+
+== what ==
+They think about that properly, which is the first hopeful thing in this conversation.
+
+"I do not know. That is the honest answer. If you have something, say it now, because I have already packed once in my head and the second time is easier."
+
+* [Say the thing that keeps them.] -> plead
+    check Persuasion 13 -> stay | plead_bad
+* "I do not have anything. You have the right to do as you please." -> release
+* [Say nothing, and let them decide.] -> release
+
+== plead ==
+{PLAYER} does not argue the case. Arguing would lose it.
+
+* [Continue.] -> stay
+
+== stay ==
+Whatever gets said, it is not a promise and it is not flattery, and it lands.
+
+{NPC} looks at the ground for a while.
+
+"...Right," they say at last. "Right. I will hold to that, and I will hold you to it, and I would rather not have this conversation twice."
+
+They pick their pack back up.
+
+"Do not make me have it twice."
+
+* [Leave them be.] -> end
+    do flag(TSC_PartWaysTalkedRound); affinity(+10); grant_xp(50)
+
+== plead_bad ==
+It is the wrong thing, said in the wrong order, and everyone standing there hears it land badly.
+
+{NPC} nods, slowly, the way people do when a decision stops being difficult.
+
+"That is about what I expected. No hard feelings. Genuinely."
+
+* [Let them go.] -> release
+
+== release ==
+No speech. They were ready before this started; that was the whole point of asking.
+
+They square the pack, check the straps twice out of habit, and look around the camp once at the people rather than the ground.
+
+"I will hear how it ends," they say. "Everybody will."
+
+* [Watch them go.] -> end
+    do part_ways()
