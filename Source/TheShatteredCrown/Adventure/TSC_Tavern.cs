@@ -24,7 +24,9 @@ namespace TheShatteredCrown
 
         public static int PriceFor(Map map)
         {
-            return Heads(map).Count * SilverPerHead;
+            // The house rate, adjusted for how the village feels about the
+            // company drinking in it (TSC_VillageStanding).
+            return TSC_VillageStanding.Apply(Heads(map).Count * SilverPerHead, map);
         }
 
         public static List<Pawn> Heads(Map map)
@@ -140,6 +142,7 @@ namespace TheShatteredCrown
             Widgets.Label(new Rect(inRect.width - 200f, 4f, 200f, 26f), $"Silver: {silver}");
             GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
+            TSC_StandingNote.Draw(new Rect(0f, 34f, inRect.width, 22f), map);
 
             Text.Font = GameFont.Tiny;
             GUI.color = new Color(0.75f, 0.7f, 0.6f);

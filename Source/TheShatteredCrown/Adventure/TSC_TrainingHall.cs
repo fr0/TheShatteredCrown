@@ -45,7 +45,10 @@ namespace TheShatteredCrown
                     price *= 0.65f;
                     break;
             }
-            return Mathf.RoundToInt(price / 5f) * 5;
+            // The hall charges what the settlement thinks the company is
+            // worth teaching (TSC_VillageStanding), then rounds to five.
+            price *= TSC_VillageStanding.PriceFactorOn(pawn?.MapHeld);
+            return Mathf.Max(5, Mathf.RoundToInt(price / 5f) * 5);
         }
 
         public static bool CanTrain(Pawn pawn, SkillDef skill, out string reason)
@@ -138,6 +141,7 @@ namespace TheShatteredCrown
             Widgets.Label(new Rect(inRect.width - 200f, 4f, 200f, 26f), $"Silver: {silver}");
             GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
+            TSC_StandingNote.Draw(new Rect(0f, 34f, inRect.width, 22f), map);
 
             Text.Font = GameFont.Tiny;
             GUI.color = new Color(0.75f, 0.7f, 0.6f);

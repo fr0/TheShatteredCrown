@@ -71,7 +71,10 @@ namespace TheShatteredCrown
             {
                 severity += hediff.Severity;
             }
-            return BaseOffering + Mathf.RoundToInt(severity * SilverPerSeverity);
+            int offering = BaseOffering + Mathf.RoundToInt(severity * SilverPerSeverity);
+            // An offering is not a price, and it is still lower for people the
+            // parish has reason to be grateful to.
+            return TSC_VillageStanding.Apply(offering, pawn?.MapHeld);
         }
 
         public static void Heal(Pawn pawn)
@@ -212,6 +215,7 @@ namespace TheShatteredCrown
             Widgets.Label(new Rect(inRect.width - 200f, 4f, 200f, 26f), $"Silver: {silver}");
             GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
+            TSC_StandingNote.Draw(new Rect(0f, 34f, inRect.width, 22f), map);
 
             Text.Font = GameFont.Tiny;
             GUI.color = new Color(0.75f, 0.7f, 0.6f);

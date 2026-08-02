@@ -498,6 +498,15 @@ namespace TheShatteredCrown
                     negotiator, MessageTypeDefOf.RejectInput, historical: false);
                 return;
             }
+            // Say the quiet part before the window opens. A player who has
+            // spent an act being decent to a village should be told that the
+            // prices in front of them are the result, and one who has not
+            // should be told that too.
+            string standing = TSC_VillageStanding.Line(trader.MapHeld);
+            if (!standing.NullOrEmpty())
+            {
+                Messages.Message(standing, trader, MessageTypeDefOf.NeutralEvent, historical: false);
+            }
             Find.WindowStack.Add(new Dialog_Trade(negotiator, new TSC_ShopTrader(trader)));
         }
     }

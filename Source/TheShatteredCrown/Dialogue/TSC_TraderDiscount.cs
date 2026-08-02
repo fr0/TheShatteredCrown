@@ -32,6 +32,11 @@ namespace TheShatteredCrown
             {
                 __result *= DiscountFactor;
             }
+            // And what the rest of the village thinks of you, which until now
+            // was worth precisely nothing at the counter. Multiplies with the
+            // haggle rather than replacing it: a man who likes you AND owes
+            // you a favour charges least of all.
+            __result *= TSC_VillageStanding.PriceFactorOn(pawn.MapHeld);
         }
     }
 }
