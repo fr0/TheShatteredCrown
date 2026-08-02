@@ -893,37 +893,30 @@
 
   <ThingSetMakerDef>
     <defName>TSC_Loot_Armory</defName>
+    <!-- A garrison rack: several weapons and a piece or two of armour, all
+         of it maintained rather than looted, drawn from the whole medieval
+         catalogue (TSC_MedievalGear) so a load order with Medieval Overhaul
+         or Combat Extended arms the old kingdom with its own gear. -->
     <root Class="ThingSetMaker_Sum">
       <options>
-        <!-- Always: garrison steel -->
         <li>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>MeleeWeapon_LongSword</li>
-                  <li>MeleeWeapon_Mace</li>
-                  <li>MeleeWeapon_Gladius</li>
-                  <li>Bow_Recurve</li>
-                </thingDefs>
-              </filter>
-              <countRange>2~3</countRange>
-            </fixedParams>
+          <thingSetMaker Class="TheShatteredCrown.ThingSetMaker_TSC_Salvage">
+            <count>2~3</count>
+            <value>40~500</value>
+            <armorChance>0</armorChance>
+            <minQuality>Normal</minQuality>
+            <maxQuality>Good</maxQuality>
+            <hitPoints>0.75~1</hitPoints>
           </thingSetMaker>
         </li>
-        <!-- Sometimes: something to wear under it -->
         <li>
-          <chance>0.5</chance>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>Apparel_PlateArmor</li>
-                  <li>TSC_Apparel_Gambeson</li>
-                </thingDefs>
-              </filter>
-              <countRange>1</countRange>
-            </fixedParams>
+          <thingSetMaker Class="TheShatteredCrown.ThingSetMaker_TSC_Salvage">
+            <count>1~2</count>
+            <value>60~600</value>
+            <armorChance>1</armorChance>
+            <minQuality>Normal</minQuality>
+            <maxQuality>Good</maxQuality>
+            <hitPoints>0.75~1</hitPoints>
           </thingSetMaker>
         </li>
       </options>

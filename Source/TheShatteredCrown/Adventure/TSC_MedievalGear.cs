@@ -58,6 +58,63 @@ namespace TheShatteredCrown
                 + $"{Armor.Count} pieces of armour available to shops.");
         }
 
+        /// <summary>
+        /// The catalogue, re-filtered for a loot table's own value band.
+        ///
+        /// Shops cap at MaxShopValue because an artifact you can buy over a
+        /// counter is not an artifact. A grave under nine hundred years of
+        /// rock is exactly where that ceiling should not apply, so salvage
+        /// asks for its own band and a deep site can hand over the sort of
+        /// thing Medieval Overhaul names.
+        /// </summary>
+        public static List<ThingDef> Salvage(float minValue, float maxValue, bool armor, bool allowRanged)
+        {
+            List<ThingDef> pool = new List<ThingDef>();
+            foreach (ThingDef def in armor ? Armor : Weapons)
+            {
+                float value = def.BaseMarketValue;
+                if (value < minValue || value > maxValue)
+                {
+                    continue;
+                }
+                if (!armor && !allowRanged && def.IsRangedWeapon)
+                {
+                    continue;
+                }
+                pool.Add(def);
+            }
+            if (maxValue <= MaxShopValue)
+            {
+                return pool;
+            }
+            // Above the shop ceiling the standing lists have nothing, because
+            // they were built to stop at it. Scan for the heavy end directly.
+            foreach (ThingDef def in DefDatabase<ThingDef>.AllDefsListForReading)
+            {
+                float value = def.BaseMarketValue;
+                if (value <= MaxShopValue || value > maxValue || value < minValue)
+                {
+                    continue;
+                }
+                if (def.destroyOnDrop || (int)def.techLevel > (int)TechLevel.Medieval)
+                {
+                    continue;
+                }
+                if (armor)
+                {
+                    if (def.IsApparel && Protective(def))
+                    {
+                        pool.Add(def);
+                    }
+                }
+                else if (def.IsWeapon && !def.IsApparel && (allowRanged || !def.IsRangedWeapon))
+                {
+                    pool.Add(def);
+                }
+            }
+            return pool;
+        }
+
         private static bool Sellable(ThingDef def)
         {
             if (def == null || def.destroyOnDrop || (int)def.techLevel > (int)TechLevel.Medieval)
@@ -106,7 +163,36 @@ namespace TheShatteredCrown
             // so the clause above carried it. On a vanilla or Medieval
             // Overhaul load order the shops would have had no armour at all.
             StatDef stuffArmor = DefDatabase<StatDef>.GetNamedSilentFail("StuffEffectMultiplierArmor");
-            return stuffArmor != null && def.GetStatValueAbstract(stuffArmor) >= 0.5f;
+            if (stuffArmor == null)
+            {
+                return false;
+            }
+            // 0.5 is the right line for a torso or a head and the WRONG line
+            // for extremities, which are real armour built lighter: this
+            // mod's own chausses (0.42), gauntlets and sabatons (0.40) all
+            // sat under it, so legs, hands and feet were missing from every
+            // shop shelf and every chest in the game. Bracers and greaves
+            // are armour. A duster is not, and at 0.3 it still is not.
+            return def.GetStatValueAbstract(stuffArmor) >= (Extremity(def) ? 0.35f : 0.5f);
+        }
+
+        /// <summary>Covers hands, feet or legs and nothing more central.</summary>
+        private static bool Extremity(ThingDef def)
+        {
+            List<BodyPartGroupDef> groups = def.apparel?.bodyPartGroups;
+            if (groups == null || groups.Count == 0)
+            {
+                return false;
+            }
+            foreach (BodyPartGroupDef group in groups)
+            {
+                if (group == BodyPartGroupDefOf.Torso || group == BodyPartGroupDefOf.FullHead
+                    || group == BodyPartGroupDefOf.UpperHead || group == BodyPartGroupDefOf.Eyes)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>

@@ -32,39 +32,16 @@
             </fixedParams>
           </thingSetMaker>
         </li>
-        <!-- Always: something martial from the old garrison -->
+        <!-- Always: something martial from the old garrison, drawn from the
+             whole medieval catalogue rather than three hand-listed defs -->
         <li>
-          <thingSetMaker Class="ThingSetMaker_RandomOption">
-            <options>
-              <li>
-                <weight>1</weight>
-                <thingSetMaker Class="ThingSetMaker_StackCount">
-                  <fixedParams>
-                    <filter>
-                      <thingDefs>
-                        <li>MeleeWeapon_LongSword</li>
-                        <li>MeleeWeapon_Mace</li>
-                        <li>Bow_Recurve</li>
-                      </thingDefs>
-                    </filter>
-                    <countRange>1</countRange>
-                  </fixedParams>
-                </thingSetMaker>
-              </li>
-              <li>
-                <weight>0.5</weight>
-                <thingSetMaker Class="ThingSetMaker_StackCount">
-                  <fixedParams>
-                    <filter>
-                      <thingDefs>
-                        <li>Apparel_PlateArmor</li>
-                      </thingDefs>
-                    </filter>
-                    <countRange>1</countRange>
-                  </fixedParams>
-                </thingSetMaker>
-              </li>
-            </options>
+          <thingSetMaker Class="TheShatteredCrown.ThingSetMaker_TSC_Salvage">
+            <count>1~2</count>
+            <value>60~700</value>
+            <armorChance>0.45</armorChance>
+            <minQuality>Normal</minQuality>
+            <maxQuality>Excellent</maxQuality>
+            <hitPoints>0.7~1</hitPoints>
           </thingSetMaker>
         </li>
         <!-- Always: one training manual from the old garrison's shelf (random class) -->
@@ -171,31 +148,37 @@
   <!-- Grave goods: what TSC_Loot_Kingsblade is without the blade. -->
   <ThingSetMakerDef>
     <defName>TSC_Loot_GraveGoods</defName>
+    <!-- Buried with somebody, nine hundred years ago: good work, undamaged,
+         and no crossbows. The value band runs past the shop ceiling on
+         purpose, so a grave can hold the sort of piece a village smith would
+         never have on a shelf. -->
     <root Class="ThingSetMaker_Sum">
       <options>
         <li>
           <thingSetMaker Class="ThingSetMaker_StackCount">
             <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>Gold</li>
-                </thingDefs>
-              </filter>
+              <filter><thingDefs><li>Gold</li></thingDefs></filter>
               <countRange>25~60</countRange>
             </fixedParams>
           </thingSetMaker>
         </li>
         <li>
-          <chance>0.5</chance>
           <thingSetMaker Class="ThingSetMaker_StackCount">
             <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>Silver</li>
-                </thingDefs>
-              </filter>
+              <filter><thingDefs><li>Silver</li></thingDefs></filter>
               <countRange>120~300</countRange>
             </fixedParams>
+          </thingSetMaker>
+        </li>
+        <li>
+          <thingSetMaker Class="TheShatteredCrown.ThingSetMaker_TSC_Salvage">
+            <count>1~2</count>
+            <value>150~1200</value>
+            <armorChance>0.5</armorChance>
+            <minQuality>Good</minQuality>
+            <maxQuality>Excellent</maxQuality>
+            <hitPoints>0.85~1</hitPoints>
+            <allowRanged>false</allowRanged>
           </thingSetMaker>
         </li>
       </options>
@@ -205,58 +188,113 @@
   <!-- Small caches found in storerooms along the way -->
   <ThingSetMakerDef>
     <defName>TSC_Loot_CommonCache</defName>
-    <root Class="ThingSetMaker_RandomOption">
+    <!-- The table that fires most often, and until now the dullest thing in
+         the game: silver OR pemmican OR herbal medicine. Supplies still come
+         first, but a cellar or a delve floor can now cough up one piece of
+         somebody's used kit, drawn from the whole medieval catalogue - which
+         means the mod's own helm, gauntlets, chausses and sabatons, and
+         anything Medieval Overhaul or Combat Extended contributed. -->
+    <root Class="ThingSetMaker_Sum">
       <options>
         <li>
-          <weight>1</weight>
+          <thingSetMaker Class="ThingSetMaker_RandomOption">
+            <options>
+              <li>
+                <weight>1</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter><thingDefs><li>Silver</li></thingDefs></filter>
+                    <countRange>40~120</countRange>
+                  </fixedParams>
+                </thingSetMaker>
+              </li>
+              <li>
+                <weight>1</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter><thingDefs><li>Pemmican</li></thingDefs></filter>
+                    <countRange>30~80</countRange>
+                  </fixedParams>
+                </thingSetMaker>
+              </li>
+              <li>
+                <weight>1</weight>
+                <thingSetMaker Class="ThingSetMaker_StackCount">
+                  <fixedParams>
+                    <filter><thingDefs><li>MedicineHerbal</li></thingDefs></filter>
+                    <countRange>4~10</countRange>
+                  </fixedParams>
+                </thingSetMaker>
+              </li>
+            </options>
+          </thingSetMaker>
+        </li>
+        <li>
+          <thingSetMaker Class="TheShatteredCrown.ThingSetMaker_TSC_Salvage">
+            <chance>0.55</chance>
+            <count>1</count>
+            <value>20~250</value>
+            <armorChance>0.45</armorChance>
+            <minQuality>Awful</minQuality>
+            <maxQuality>Normal</maxQuality>
+            <hitPoints>0.4~0.85</hitPoints>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+
+  <!-- Taken off travellers and worn since: the spoils of a bandit camp or a
+       contract site. Poor condition, poor quality, and a lot of it. -->
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_BanditSpoils</defName>
+    <root Class="ThingSetMaker_Sum">
+      <options>
+        <li>
           <thingSetMaker Class="ThingSetMaker_StackCount">
             <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>Silver</li>
-                </thingDefs>
-              </filter>
-              <countRange>40~120</countRange>
+              <filter><thingDefs><li>Silver</li></thingDefs></filter>
+              <countRange>60~200</countRange>
             </fixedParams>
           </thingSetMaker>
         </li>
         <li>
-          <weight>1</weight>
+          <thingSetMaker Class="TheShatteredCrown.ThingSetMaker_TSC_Salvage">
+            <count>1~3</count>
+            <value>20~400</value>
+            <armorChance>0.4</armorChance>
+            <minQuality>Awful</minQuality>
+            <maxQuality>Good</maxQuality>
+            <hitPoints>0.35~0.8</hitPoints>
+          </thingSetMaker>
+        </li>
+      </options>
+    </root>
+  </ThingSetMakerDef>
+
+  <!-- The deep places: an undercell, a reliquary, the bottom of a barrow.
+       One piece, and it should be the reason the party came down. -->
+  <ThingSetMakerDef>
+    <defName>TSC_Loot_DeepReliquary</defName>
+    <root Class="ThingSetMaker_Sum">
+      <options>
+        <li>
           <thingSetMaker Class="ThingSetMaker_StackCount">
             <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>Pemmican</li>
-                </thingDefs>
-              </filter>
-              <countRange>30~80</countRange>
+              <filter><thingDefs><li>Gold</li></thingDefs></filter>
+              <countRange>40~110</countRange>
             </fixedParams>
           </thingSetMaker>
         </li>
         <li>
-          <weight>1</weight>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>MedicineHerbal</li>
-                </thingDefs>
-              </filter>
-              <countRange>4~10</countRange>
-            </fixedParams>
-          </thingSetMaker>
-        </li>
-        <li>
-          <weight>0.7</weight>
-          <thingSetMaker Class="ThingSetMaker_StackCount">
-            <fixedParams>
-              <filter>
-                <thingDefs>
-                  <li>Cloth</li>
-                </thingDefs>
-              </filter>
-              <countRange>30~60</countRange>
-            </fixedParams>
+          <thingSetMaker Class="TheShatteredCrown.ThingSetMaker_TSC_Salvage">
+            <count>1</count>
+            <value>400~2500</value>
+            <armorChance>0.5</armorChance>
+            <minQuality>Excellent</minQuality>
+            <maxQuality>Legendary</maxQuality>
+            <hitPoints>0.9~1</hitPoints>
           </thingSetMaker>
         </li>
       </options>

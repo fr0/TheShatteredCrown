@@ -110,7 +110,7 @@ namespace TheShatteredCrown
                 return;
             }
             // TSC_LootChest is an empty shell; the placer stocks it.
-            ThingSetMakerDef lootTable = DefDatabase<ThingSetMakerDef>.GetNamedSilentFail("TSC_Loot_CommonCache");
+            ThingSetMakerDef lootTable = DefDatabase<ThingSetMakerDef>.GetNamedSilentFail("TSC_Loot_BanditSpoils");
             if (lootTable != null && casket.GetDirectlyHeldThings().Count == 0)
             {
                 foreach (Thing item in lootTable.root.Generate())
