@@ -1052,4 +1052,34 @@
     </stages>
   </HediffDef>
 
+  <!-- Rogue: what Shadowstep leaves behind. Short on purpose - 300 ticks is
+       one turn-based round, so it is a window to strike through and not a
+       buff to walk around wearing. -->
+  <HediffDef ParentName="TSC_TimedBuffBase">
+    <defName>TSC_Hediff_OutOfTheDark</defName>
+    <label>out of the dark</label>
+    <description>Arrived where nobody was looking. The next few seconds are worth more than the ones before them.</description>
+    <defaultLabelColor>(0.65, 0.6, 0.85)</defaultLabelColor>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>300</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_AttachedOverlay">
+        <mote>TSC_Mote_SneakHood</mote>
+        <offset>(0.42, 0, 0.52)</offset>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <statOffsets>
+          <MeleeHitChance>0.10</MeleeHitChance>
+        </statOffsets>
+        <statFactors>
+          <MeleeDamageFactor>1.40</MeleeDamageFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
 </Defs>

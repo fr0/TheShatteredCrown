@@ -24,6 +24,24 @@ namespace TheShatteredCrown
     /// ends via the toggle (or map loss). Deliberately NOT scenario-gated:
     /// this is a general feature, available in any save with the mod loaded.
     /// </summary>
+    /// <summary>
+    /// An ability that sets its own turn cost.
+    ///
+    /// Two ways to say it. `ap` is a flat number. `asWeaponStrikes` prices
+    /// the cast in the caster's OWN swings - 1 means "this takes exactly as
+    /// long as hitting them normally would", so a rogue with a knife pays
+    /// a knife's price and a rogue with a longsword pays a longsword's. That
+    /// is the honest way to price an ability that is a strike rather than a
+    /// spell: the ability's limiter is its energy cost and its cooldown, not
+    /// the turn it eats.
+    /// </summary>
+    public class TSC_AbilityApExtension : DefModExtension
+    {
+        public float ap = -1f;
+
+        public float asWeaponStrikes = -1f;
+    }
+
     public class TSC_EncounterController : WorldComponent
     {
         public enum EncounterPhase { Turn, Environment }
@@ -319,8 +337,34 @@ namespace TheShatteredCrown
             return hasBuff;
         }
 
-        public static float AbilityApCost(AbilityDef def)
+        /// <summary>
+        /// What a cast costs the turn.
+        ///
+        /// A spell is most of a turn (6 of 8), a self-buff half of one, and
+        /// that is right for things that come out of nowhere and change the
+        /// fight. It is wrong for an ability that is simply a SWING - one
+        /// weapon strike, done better. Ambush was priced as a spell and paid
+        /// like one: 6 AP bought three knives' worth of damage, which is what
+        /// 6 AP of ordinary knifework buys anyway, and left too little behind
+        /// to swing again. An ability whose def carries
+        /// TSC_AbilityApExtension can name its own price instead, in AP or
+        /// in strikes, and then the caster's own weapon sets the number.
+        /// </summary>
+        public static float AbilityApCost(AbilityDef def, Pawn caster = null)
         {
+            TSC_AbilityApExtension priced = def?.GetModExtension<TSC_AbilityApExtension>();
+            if (priced != null)
+            {
+                if (priced.asWeaponStrikes > 0f && caster != null)
+                {
+                    return Mathf.Clamp(MeleeApCostFor(caster) * priced.asWeaponStrikes,
+                        MinActionAp, MaxActionAp);
+                }
+                if (priced.ap > 0f)
+                {
+                    return Mathf.Clamp(priced.ap, MinActionAp, MaxActionAp);
+                }
+            }
             return IsSelfBuff(def) ? SelfBuffApCost : ActionApCost;
         }
 
@@ -328,7 +372,7 @@ namespace TheShatteredCrown
         {
             if (verb is Verb_CastAbility castVerb)
             {
-                return AbilityApCost(castVerb.ability?.def);
+                return AbilityApCost(castVerb.ability?.def, castVerb.ability?.pawn);
             }
             if (verb == null)
             {
@@ -2546,7 +2590,7 @@ namespace TheShatteredCrown
                         from = dest;
                     }
                     cost += job.def == JobDefOf.CastAbilityOnThing || job.def == JobDefOf.CastAbilityOnWorldTile
-                        ? TSC_EncounterController.AbilityApCost(job.ability?.def)
+                        ? TSC_EncounterController.AbilityApCost(job.ability?.def, p)
                         : TSC_EncounterController.AttackApCostFor(p);
                 }
             }
@@ -4031,7 +4075,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            string ap = $"{TSC_EncounterController.AbilityApCost(abilityCommand.Ability?.def):0.#} AP";
+            string ap = $"{TSC_EncounterController.AbilityApCost(abilityCommand.Ability?.def, pawn):0.#} AP";
             __result = __result.NullOrEmpty() ? ap : $"{__result}\n{ap}";
         }
     }
@@ -4159,7 +4203,7 @@ namespace TheShatteredCrown
             if (__instance is Command_Ability abilityCommand)
             {
                 pawn = abilityCommand.Ability?.pawn;
-                cost = TSC_EncounterController.AbilityApCost(abilityCommand.Ability?.def);
+                cost = TSC_EncounterController.AbilityApCost(abilityCommand.Ability?.def, pawn);
             }
             else if (__instance is Command_VerbTarget verbCommand)
             {

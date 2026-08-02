@@ -443,9 +443,20 @@ In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_Ambush</defName>
     <label>ambush</label>
-    <description>A single perfect strike from close quarters: deals 150% of the caster's normal weapon damage to an adjacent target, or 300% with a knife or dagger in hand.</description>
+    <description>A single perfect strike from close quarters: deals 150% of the caster's normal weapon damage to an adjacent target, or 300% with a knife or dagger in hand.
+
+Costs exactly what one ordinary swing of the same weapon costs. Its limits are the energy and the cooldown, not the turn.</description>
     <iconPath>UI/TSC_Abilities/TSC_Ambush</iconPath>
     <cooldownTicksRange>1200</cooldownTicksRange>
+    <modExtensions>
+      <!-- One strike's worth of the turn. Priced as a spell (6 of 8 AP) it
+           bought three knives' damage for three knives' time and left too
+           little behind to swing again, so a rogue was strictly better off
+           never pressing it. -->
+      <li Class="TheShatteredCrown.TSC_AbilityApExtension">
+        <asWeaponStrikes>1</asWeaponStrikes>
+      </li>
+    </modExtensions>
     <hostile>true</hostile>
     <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
     <verbProperties>
@@ -477,9 +488,19 @@ In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_Shadowstep</defName>
     <label>shadowstep</label>
-    <description>Teleports the caster to a visible cell within 19.9 cells.</description>
+    <description>Steps out of one shadow and into another: teleports the caster to a visible cell within 19.9 cells, and leaves them briefly where nobody was looking - +40% melee damage and better aim for five seconds.
+
+Costs what one ordinary swing of the same weapon costs, so there is turn enough left to use the window.</description>
     <iconPath>UI/TSC_Abilities/TSC_Shadowstep</iconPath>
     <cooldownTicksRange>600</cooldownTicksRange>
+    <modExtensions>
+      <!-- One strike's worth of the turn. At a spell's 6 of 8 AP the rogue
+           arrived somewhere useful and then stood there, which is what made
+           the whole ability feel like a wasted turn. -->
+      <li Class="TheShatteredCrown.TSC_AbilityApExtension">
+        <asWeaponStrikes>1</asWeaponStrikes>
+      </li>
+    </modExtensions>
     <verbProperties>
       <warmupTime>0.5</warmupTime>
       <range>19.9</range>
@@ -499,6 +520,13 @@ In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost
         <smoke>true</smoke>
       </li>
       <li Class="TheShatteredCrown.CompProperties_TSC_SelfTeleport" />
+      <li Class="CompProperties_AbilityGiveHediff">
+        <compClass>TheShatteredCrown.CompAbilityEffect_TSC_GiveHediffLeveled</compClass>
+        <hediffDef>TSC_Hediff_OutOfTheDark</hediffDef>
+        <onlyApplyToSelf>true</onlyApplyToSelf>
+        <psychic>false</psychic>
+        <applicableToMechs>false</applicableToMechs>
+      </li>
     </comps>
   </AbilityDef>
 
@@ -978,9 +1006,21 @@ In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_Whirlwind</defName>
     <label>whirlwind</label>
-    <description>One full turning blow: strikes every enemy within melee range (1.9 cells) for the caster's normal weapon damage.</description>
+    <description>One full turning blow: strikes every enemy within melee range (1.9 cells) for the caster's normal weapon damage.
+
+Costs what two ordinary swings of the same weapon cost, so it pays from the second enemy on.</description>
     <iconPath>UI/TSC_Abilities/TSC_Whirlwind</iconPath>
     <cooldownTicksRange>1200</cooldownTicksRange>
+    <modExtensions>
+      <!-- Two strikes' worth of the turn. As a spell at 6 of 8 AP it only
+           beat plain swinging with three or more enemies in reach, which is
+           not the turn most fights offer; at two swings it pays from the
+           second, and the cooldown still keeps it from being the whole
+           fight. -->
+      <li Class="TheShatteredCrown.TSC_AbilityApExtension">
+        <asWeaponStrikes>2</asWeaponStrikes>
+      </li>
+    </modExtensions>
     <targetRequired>False</targetRequired>
     <casterMustBeCapableOfViolence>true</casterMustBeCapableOfViolence>
     <verbProperties>
