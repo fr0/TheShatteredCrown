@@ -22,6 +22,7 @@ namespace TheShatteredCrown
         private bool checkedMap;
         private bool isGrove;
         private bool opened;
+        private bool hintedWitness;
 
         public MapComponent_TSC_MaewynGrove(Map map) : base(map)
         {
@@ -54,6 +55,10 @@ namespace TheShatteredCrown
                 return;
             }
             DialogueStateManager state = DialogueStateManager.Current;
+            if (state == null)
+            {
+                return;
+            }
             if (!state.IsSet("TSC_MaewynGroveAsked")
                 || state.IsSet("TSC_MaewynKeeper") || state.IsSet("TSC_MaewynHills"))
             {
@@ -78,7 +83,21 @@ namespace TheShatteredCrown
                 }
             }
             DialogueDef def = DefDatabase<DialogueDef>.GetNamedSilentFail("TSC_Dialogue_MaewynGrove");
-            if (witness == null || def == null)
+            if (witness == null)
+            {
+                // The scene needs somebody there to hear it. A party that
+                // brought only Maewyn would otherwise stand in the grove
+                // forever with no idea why nothing happens - say so, once.
+                if (!hintedWitness)
+                {
+                    hintedWitness = true;
+                    Messages.Message(
+                        $"{maewyn.LabelShortCap} walks the hollow without a word. Whatever she means to do here, she does not mean to do it alone - someone should be with her.",
+                        maewyn, MessageTypeDefOf.NeutralEvent, historical: false);
+                }
+                return;
+            }
+            if (def == null)
             {
                 return;
             }
@@ -101,6 +120,7 @@ namespace TheShatteredCrown
         {
             base.ExposeData();
             Scribe_Values.Look(ref opened, "maewynGroveOpened");
+            Scribe_Values.Look(ref hintedWitness, "maewynGroveHintedWitness");
         }
     }
 }

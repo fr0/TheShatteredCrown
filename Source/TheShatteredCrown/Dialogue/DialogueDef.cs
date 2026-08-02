@@ -146,7 +146,9 @@ namespace TheShatteredCrown
         {
             // A once-per-save check that has already been rolled stays hidden,
             // pass or fail: no re-rolling until it lands, no reward farming.
-            if (check != null && !check.onceKey.NullOrEmpty() && DialogueStateManager.Current.IsSet(check.onceKey))
+            // (Per-NPC checks scope that to the character being talked to.)
+            string onceKey = check?.OnceKeyFor(context.npc);
+            if (!onceKey.NullOrEmpty() && DialogueStateManager.Current.IsSet(onceKey))
             {
                 return false;
             }
@@ -188,6 +190,27 @@ namespace TheShatteredCrown
         /// </summary>
         [NoTranslate]
         public string onceKey;
+
+        /// <summary>
+        /// Scope the once key to the NAMED CHARACTER being talked to instead
+        /// of the whole save. For shared scenes ({NPC} carries the name, one
+        /// DialogueDef for many companions - part_ways_ask), a save-global key
+        /// means the first companion's roll consumes everyone else's: Oswin
+        /// gets talked into staying and Serra's first ask offers no chance at
+        /// all. DSL keyword 'per_npc'.
+        /// </summary>
+        public bool oncePerNpc;
+
+        /// <summary>The once key as it applies to THIS conversation partner.</summary>
+        public string OnceKeyFor(Verse.Pawn npc)
+        {
+            if (onceKey.NullOrEmpty() || !oncePerNpc)
+            {
+                return onceKey;
+            }
+            NamedNpcDef def = DialogueStateManager.Current?.NpcDefFor(npc);
+            return def == null ? onceKey : onceKey + "_" + def.defName;
+        }
 
         /// <summary>
         /// Retryable checks: a FAILED roll hides the option for retryHours of

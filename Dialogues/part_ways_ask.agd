@@ -7,13 +7,15 @@
 # them decently.
 #
 # The player is not helpless and is not entitled either. Persuasion can buy
-# a stay, ONCE, and the DC is high because talking somebody out of leaving
-# is not the same as giving them a reason to stay. Refuse to engage and
-# they go.
+# a stay, ONCE PER COMPANION (per_npc scopes the roll to whoever is asking),
+# and the DC is high because talking somebody out of leaving is not the same
+# as giving them a reason to stay. Refuse to engage and they go.
 #
 # Whatever happens here, the affinity that caused it is still there
-# afterward. A stay bought with words and nothing else will be asked for
-# again.
+# afterward. The ask RECURS (the initiations are once=false): a stay bought
+# with words and nothing else gets asked for again, and the second time the
+# roll is spent and every road leads out. The +10 from a landed stay is the
+# grace period - use it.
 #
 # {PLAYER} is whoever they decided to say it to.
 
@@ -50,7 +52,7 @@ They think about that properly, which is the first hopeful thing in this convers
 "I do not know. That is the honest answer. If you have something, say it now, because I have already packed once in my head and the second time is easier."
 
 * [Say the thing that keeps them.] -> plead
-    check Persuasion 13 -> stay | plead_bad
+    check Persuasion 13 -> stay | plead_bad per_npc
 * "I do not have anything. You have the right to do as you please." -> release
 * [Say nothing, and let them decide.] -> release
 

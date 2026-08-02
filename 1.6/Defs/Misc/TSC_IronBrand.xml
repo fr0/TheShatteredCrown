@@ -258,16 +258,21 @@
         <initiations>
           <li>
             <!-- The door swings both ways: a companion who has gone cold on
-                 this company asks to be let go. Persuasion can buy one stay
-                 (Dialogues/part_ways_ask.agd). -->
+                 this company asks to be let go. RECURRING (once=false): a
+                 stay bought with persuasion while the affinity underneath is
+                 still cold gets asked for again - and the roll is per_npc
+                 once per companion, so the second ask has no talking left in
+                 it. Suppressed while a departure is already announced and
+                 waiting for walkable ground (Dialogues/part_ways_ask.agd). -->
             <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
             <mtbDays>4</mtbDays>
-            <once>true</once>
+            <once>false</once>
             <conditions>
               <li Class="TheShatteredCrown.DialogueCondition_InParty" />
               <li Class="TheShatteredCrown.DialogueCondition_Affinity">
                 <max>-1</max>
               </li>
+              <li Class="TheShatteredCrown.DialogueCondition_NotPendingDeparture" />
             </conditions>
           </li>
           <!-- His companion quest. Gated on the camp talk, where he first

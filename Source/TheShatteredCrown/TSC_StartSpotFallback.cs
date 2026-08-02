@@ -8,13 +8,15 @@ namespace TheShatteredCrown
     ///
     /// MapGenerator.playerStartSpotInt resets to Invalid at the start of
     /// each generation and only becomes valid if some genstep sets it.
-    /// Standard maps have such a genstep; pocket maps made through
-    /// MapPortal.GeneratePocketMap (the keep cellar) do not - so the static
-    /// stays Invalid, and the first thing to read PlayerStartSpot after
-    /// generation logs "Accessing player start spot before setting it."
-    /// In this load order that reader is Real Fog of War's seen-fog
-    /// component, which inits lazily on the map's first tick and anchors
-    /// its initial reveal on the spot.
+    /// Standard maps have such a genstep. The mod's pocket-map generators
+    /// set the spot themselves these days (GenStep_TSC_CellarLevel's
+    /// EnsureWayUp, and the well caves / barrow / crypt / cellar content
+    /// gensteps), all before vanilla GenStep_Fog reads it at order 1230 -
+    /// so this fallback is belt-and-braces for the degenerate rolls where
+    /// even those fail (EnsureWayUp finding no way up twice). An unset spot
+    /// makes the first reader log "Accessing player start spot before
+    /// setting it": vanilla's Fog genstep during generation, or Real Fog of
+    /// War's seen-fog component on the map's first tick.
     ///
     /// The fallback is only an anchor for readers like that - by the time
     /// it matters, arrival positioning has already been decided by the

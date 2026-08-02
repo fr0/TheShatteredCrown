@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -22,7 +23,13 @@ namespace TheShatteredCrown
         /// <summary>How recently the map must have been generated to count as an arrival.</summary>
         private const int FreshTicks = 1250;
 
-        private static readonly bool FogModActive = ModsConfig.IsActive("mlie.nwnrealfogofwar");
+        // Type probe, not package id: every other RFoW integration in this
+        // mod (TSC_Compat_RealFoW, the dialogue indicator) detects by type,
+        // and a fork or renamed local copy would arm those shims while an
+        // id check here left the fade off - producing exactly the layout
+        // flash the fade exists to cover. One detection method, everywhere.
+        private static readonly bool FogModActive =
+            AccessTools.TypeByName("RimWorldRealFoW.MapComponentSeenFog") != null;
 
         private float shownAt = -1f;
         private bool done;

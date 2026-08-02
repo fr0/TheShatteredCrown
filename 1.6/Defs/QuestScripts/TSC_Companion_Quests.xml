@@ -44,6 +44,26 @@ The brothers of the Silent Monastery took in the fourth rider at their gate and 
           <canBeSpace>false</canBeSpace>
         </li>
 
+        <!-- Catch-up at initiation. The songbook is placed at the monastery
+             unconditionally, so the party can have read it - or heard Wren's
+             whole answer - BEFORE this quest exists; the dialogue's signals
+             then landed on nothing (QuestSignal only reaches ongoing
+             quests). Re-fire whichever the record says already happened, so
+             a late-granted quest completes instead of hanging forever. -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_IfFlag">
+          <flag>TSC_WrenLay</flag>
+          <inSignal>Initiate</inSignal>
+          <node Class="TheShatteredCrown.QuestNode_TSC_SendSignal">
+            <outSignal>TSC_WrenReady</outSignal>
+          </node>
+          <elseNode Class="TheShatteredCrown.QuestNode_TSC_IfFlag">
+            <flag>TSC_WrenSongbook</flag>
+            <node Class="TheShatteredCrown.QuestNode_TSC_SendSignal">
+              <outSignal>TSC_WrenFoundBook</outSignal>
+            </node>
+          </elseNode>
+        </li>
+
         <!-- Read the songbook: the evidence. The quest stays open until
              Wren has had a night to think about it, because the finding
              is not the point of it. -->
@@ -66,9 +86,9 @@ The brothers of the Silent Monastery took in the fourth rider at their gate and 
                 <label TKey="LetterLabelWrenReady">Not a curse. An unfinished song.</label>
                 <text TKey="LetterTextWrenReady">The rider told the brothers outright: singing an ending onto the fifth verse early does nothing at all, except make the tune wrong. Wren's teacher died of being sixty-one.\n\nWhat the rider would not give them was the last four bars, on the grounds that they had not happened yet. When the fifth road ends, he said, whoever is standing there will know how it goes.\n\nWren has the copied pages in her lute case. She is waiting for the end of a road.</text>
               </li>
-              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>100</xp>
-              </li>
+              <!-- No GrantXp here: the XP is paid by the dialogue that sends
+                   the signal (wren_verse2), same as Madoc's quest. A node
+                   here would pay the same moment twice. -->
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
               </li>
@@ -76,8 +96,9 @@ The brothers of the Silent Monastery took in the fourth rider at their gate and 
           </node>
         </li>
 
-        <!-- The singer can die. The errand dies with her; nothing else in
-             the campaign is waiting on it. -->
+        <!-- The singer can be lost - she parts ways, or something gets past
+             the plot armor (TSC_CompanionLoss sends this). The errand dies
+             with her; nothing else in the campaign is waiting on it. -->
         <li Class="QuestNode_Signal">
           <inSignal>TSC_WrenLost</inSignal>
           <node Class="QuestNode_End">
@@ -212,9 +233,7 @@ Everything he does with a flame from here is done by a man doing something else 
                 <label TKey="LetterLabelBranHesk">Six days</label>
                 <text TKey="LetterTextBranHesk">The north end of the ruin came down before Bran ever got there, and the cellar door was under the heap of it. The party spent a morning taking slate off the pile. Under the slate: the door, and a roof beam off the north gable lying across it, which one lath and one shoulder were enough to move. There is no way to put it there from below and no way to shift it from down there, and Hesk was alone in that cellar for six days with a bow he could not string and a water skin he finished.\n\nBran was at the south end of that ruin for twelve days and never walked over to the pile. He could not have known what was under it, which is not the same as not being able to find out. He says he will know that for about an hour a day for the rest of his life.\n\nThe bowman goes home to Thornden, under his own name.</text>
               </li>
-              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>150</xp>
-              </li>
+              <!-- XP paid by bran_cellar.agd, which sends this signal. -->
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
               </li>
@@ -261,9 +280,7 @@ Everything he does with a flame from here is done by a man doing something else 
                 <label TKey="LetterLabelMaewynKeeper">A list on the inside of a door</label>
                 <text TKey="LetterTextMaewynKeeper">The grove goes to a girl from the valley farm who has been walking up the hill since she was nine to look at the bees, and who asked four times what the black bed was for.\n\nMaewyn spent two days handing a hollow over: stakes in the ground, the swarming hive split, and a list scratched on the inside of the door in a hand that expects to be read by somebody who is not clever yet but is paying attention. She will be teaching by raven for two years, and the girl will do half of it wrong.\n\nThe half she gets right is nine kinds of physic that would otherwise stop existing in this valley.</text>
               </li>
-              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>150</xp>
-              </li>
+              <!-- XP paid by maewyn_grove.agd, which sends this signal. -->
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
               </li>
@@ -280,9 +297,7 @@ Everything he does with a flame from here is done by a man doing something else 
                 <label TKey="LetterLabelMaewynHills">Gorse in four years</label>
                 <text TKey="LetterTextMaewynHills">Maewyn opened the hives and walked away from them, lifted what she wanted out of the black bed into a box the size of a loaf, and cut nothing else.\n\nThe last thing she did was take the door off its hinges and lay it flat in the grass, so that nothing would have to break it to get in. Gorse in four years, she says. Birch after that. Nothing to show anybody was ever there.\n\n"It was not mine. It was on loan and I have handed it back, and that is the correct end of the arrangement."</text>
               </li>
-              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
-                <xp>150</xp>
-              </li>
+              <!-- XP paid by maewyn_grove.agd, which sends this signal. -->
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
               </li>

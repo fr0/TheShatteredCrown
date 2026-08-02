@@ -18,16 +18,21 @@
       <initiations>
           <li>
             <!-- The door swings both ways: a companion who has gone cold on
-                 this company asks to be let go. Persuasion can buy one stay
-                 (Dialogues/part_ways_ask.agd). -->
+                 this company asks to be let go. RECURRING (once=false): a
+                 stay bought with persuasion while the affinity underneath is
+                 still cold gets asked for again - and the roll is per_npc
+                 once per companion, so the second ask has no talking left in
+                 it. Suppressed while a departure is already announced and
+                 waiting for walkable ground (Dialogues/part_ways_ask.agd). -->
             <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
             <mtbDays>4</mtbDays>
-            <once>true</once>
+            <once>false</once>
             <conditions>
               <li Class="TheShatteredCrown.DialogueCondition_InParty" />
               <li Class="TheShatteredCrown.DialogueCondition_Affinity">
                 <max>-1</max>
               </li>
+              <li Class="TheShatteredCrown.DialogueCondition_NotPendingDeparture" />
             </conditions>
           </li>
         </initiations>
@@ -49,16 +54,21 @@
       <initiations>
           <li>
             <!-- The door swings both ways: a companion who has gone cold on
-                 this company asks to be let go. Persuasion can buy one stay
-                 (Dialogues/part_ways_ask.agd). -->
+                 this company asks to be let go. RECURRING (once=false): a
+                 stay bought with persuasion while the affinity underneath is
+                 still cold gets asked for again - and the roll is per_npc
+                 once per companion, so the second ask has no talking left in
+                 it. Suppressed while a departure is already announced and
+                 waiting for walkable ground (Dialogues/part_ways_ask.agd). -->
             <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
             <mtbDays>4</mtbDays>
-            <once>true</once>
+            <once>false</once>
             <conditions>
               <li Class="TheShatteredCrown.DialogueCondition_InParty" />
               <li Class="TheShatteredCrown.DialogueCondition_Affinity">
                 <max>-1</max>
               </li>
+              <li Class="TheShatteredCrown.DialogueCondition_NotPendingDeparture" />
             </conditions>
           </li>
         </initiations>
@@ -81,16 +91,21 @@
         <initiations>
           <li>
             <!-- The door swings both ways: a companion who has gone cold on
-                 this company asks to be let go. Persuasion can buy one stay
-                 (Dialogues/part_ways_ask.agd). -->
+                 this company asks to be let go. RECURRING (once=false): a
+                 stay bought with persuasion while the affinity underneath is
+                 still cold gets asked for again - and the roll is per_npc
+                 once per companion, so the second ask has no talking left in
+                 it. Suppressed while a departure is already announced and
+                 waiting for walkable ground (Dialogues/part_ways_ask.agd). -->
             <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
             <mtbDays>4</mtbDays>
-            <once>true</once>
+            <once>false</once>
             <conditions>
               <li Class="TheShatteredCrown.DialogueCondition_InParty" />
               <li Class="TheShatteredCrown.DialogueCondition_Affinity">
                 <max>-1</max>
               </li>
+              <li Class="TheShatteredCrown.DialogueCondition_NotPendingDeparture" />
             </conditions>
           </li>
           <!-- Maewyn seeks the player out on the road and offers the Druid's teaching -->
@@ -139,27 +154,38 @@
         <initiations>
           <li>
             <!-- The door swings both ways: a companion who has gone cold on
-                 this company asks to be let go. Persuasion can buy one stay
-                 (Dialogues/part_ways_ask.agd). -->
+                 this company asks to be let go. RECURRING (once=false): a
+                 stay bought with persuasion while the affinity underneath is
+                 still cold gets asked for again - and the roll is per_npc
+                 once per companion, so the second ask has no talking left in
+                 it. Suppressed while a departure is already announced and
+                 waiting for walkable ground (Dialogues/part_ways_ask.agd). -->
             <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
             <mtbDays>4</mtbDays>
-            <once>true</once>
+            <once>false</once>
             <conditions>
               <li Class="TheShatteredCrown.DialogueCondition_InParty" />
               <li Class="TheShatteredCrown.DialogueCondition_Affinity">
                 <max>-1</max>
               </li>
+              <li Class="TheShatteredCrown.DialogueCondition_NotPendingDeparture" />
             </conditions>
           </li>
           <!-- Bram seeks the player out about a day after joining -->
           <li>
             <!-- And the telling, once he has decided to do it. He picks the
-                 moment himself: late, fire low, three of them awake. -->
+                 moment himself: late, fire low, three of them awake. Serra
+                 has to still be with the company: the flag can be set and
+                 then she dies or leaves before the mtb fires, and this is
+                 not a scene that works played to her empty bedroll. -->
             <dialogue>TSC_Dialogue_BranSerra</dialogue>
             <mtbDays>0.5</mtbDays>
             <once>true</once>
             <conditions>
               <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_InParty">
+                <npc>TSC_Npc_Serra</npc>
+              </li>
               <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
                 <flag>TSC_BranSerraPending</flag>
               </li>
@@ -300,16 +326,21 @@
         <initiations>
           <li>
             <!-- The door swings both ways: a companion who has gone cold on
-                 this company asks to be let go. Persuasion can buy one stay
-                 (Dialogues/part_ways_ask.agd). -->
+                 this company asks to be let go. RECURRING (once=false): a
+                 stay bought with persuasion while the affinity underneath is
+                 still cold gets asked for again - and the roll is per_npc
+                 once per companion, so the second ask has no talking left in
+                 it. Suppressed while a departure is already announced and
+                 waiting for walkable ground (Dialogues/part_ways_ask.agd). -->
             <dialogue>TSC_Dialogue_PartWaysAsk</dialogue>
             <mtbDays>4</mtbDays>
-            <once>true</once>
+            <once>false</once>
             <conditions>
               <li Class="TheShatteredCrown.DialogueCondition_InParty" />
               <li Class="TheShatteredCrown.DialogueCondition_Affinity">
                 <max>-1</max>
               </li>
+              <li Class="TheShatteredCrown.DialogueCondition_NotPendingDeparture" />
             </conditions>
           </li>
           <!-- Her companion quest. She raises it herself once Act 4 has
@@ -333,13 +364,20 @@
               </li>
             </conditions>
           </li>
-          <!-- And she comes back to it once the songbook has been read. -->
+          <!-- And she comes back to it once the songbook has been read.
+               ALSO gated on her having asked (TSC_WrenVerseAsked): the
+               songbook spawns at the monastery unconditionally, so without
+               this the party could hand her the answer to a question she
+               has not asked yet and the scenes would play in reverse. -->
           <li>
             <dialogue>TSC_Dialogue_WrenVerse2</dialogue>
             <mtbDays>0.5</mtbDays>
             <once>true</once>
             <conditions>
               <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
+                <flag>TSC_WrenVerseAsked</flag>
+              </li>
               <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
                 <flag>TSC_WrenSongbook</flag>
               </li>

@@ -62,6 +62,10 @@ class Check:
     fail_effects: list = field(default_factory=list)
     retryable: bool = False
     retry_hours: float = 4.0
+    # Once key scoped to the named character being talked to instead of the
+    # whole save - for shared scenes where each companion deserves their own
+    # single attempt (DSL keyword 'per_npc').
+    once_per_npc: bool = False
 
 
 @dataclass
@@ -445,6 +449,11 @@ def parse_file(path: Path) -> Dialogue:
                     raise ParseError(path, lineno,
                                      f"checks use proficiencies only; '{name}' is not one of: {', '.join(sorted(PROFICIENCIES))}")
                 fail_part = m.group(4).strip()
+                once_per_npc = False
+                pm = re.search(r"per_npc$", fail_part)
+                if pm:
+                    once_per_npc = True
+                    fail_part = fail_part[: pm.start()].strip()
                 retryable = False
                 retry_hours = 4.0
                 rm = re.search(r"retryable(?:\(\s*(\d+(?:\.\d+)?)\s*\))?$", fail_part)
@@ -453,6 +462,9 @@ def parse_file(path: Path) -> Dialogue:
                     if rm.group(1):
                         retry_hours = float(rm.group(1))
                     fail_part = fail_part[: rm.start()].strip()
+                if once_per_npc and retryable:
+                    raise ParseError(path, lineno,
+                                     "'per_npc' scopes the once-per-save key; it does not combine with 'retryable' (which has no once key)")
                 option.check = Check(
                     proficiency=PROFICIENCIES[name],
                     difficulty=int(m.group(2)),
@@ -460,6 +472,7 @@ def parse_file(path: Path) -> Dialogue:
                     fail_link=resolve_link(fail_part),
                     retryable=retryable,
                     retry_hours=retry_hours,
+                    once_per_npc=once_per_npc,
                 )
                 continue
             if stripped.startswith("on success do "):
@@ -639,6 +652,10 @@ def emit(dlg: Dialogue) -> str:
                     # branches shares one attempt, so a failure elsewhere in
                     # the tree cannot be retried from another node.
                     out.append(f"              <onceKey>TSC_Rolled_{dlg.def_name}_{opt.check.proficiency}_{opt.check.difficulty}</onceKey>")
+                    if opt.check.once_per_npc:
+                        # Runtime appends the NPC's def name to the key, so a
+                        # shared scene gives each companion their own attempt.
+                        out.append("              <oncePerNpc>true</oncePerNpc>")
                 else:
                     # Retryable: a FAILED roll hides the check for retryHours of
                     # in-game time (no click-spam re-rolls). Same what-not-where

@@ -111,25 +111,7 @@ namespace TheShatteredCrown
 
         public override void Apply(DialogueContext context)
         {
-            if (quest == null || signal.NullOrEmpty())
-            {
-                return;
-            }
-            // SNAPSHOT FIRST. The signal can finish the quest it is aimed at,
-            // and a finished quest hands out the next one - which mutates the
-            // very list being walked ("Collection was modified", seen when
-            // Madoc's recruit line completed the Road Fire contract).
-            foreach (Quest q in new System.Collections.Generic.List<Quest>(Find.QuestManager.QuestsListForReading))
-            {
-                if (q.root != quest || q.State != QuestState.Ongoing)
-                {
-                    continue;
-                }
-                string initiate = q.InitiateSignal;
-                int dot = initiate.LastIndexOf('.');
-                string prefix = dot >= 0 ? initiate.Substring(0, dot) : initiate;
-                QuestUtility.SendQuestTargetSignals(new System.Collections.Generic.List<string> { prefix }, signal);
-            }
+            TSC_QuestSignals.Send(quest?.defName, signal);
         }
     }
 
@@ -641,6 +623,10 @@ namespace TheShatteredCrown
     {
         public static void Send(string questDefName, string signal)
         {
+            if (questDefName.NullOrEmpty())
+            {
+                return;
+            }
             QuestScriptDef script = DefDatabase<QuestScriptDef>.GetNamedSilentFail(questDefName);
             if (script == null || signal.NullOrEmpty())
             {

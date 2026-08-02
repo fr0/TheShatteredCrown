@@ -1,5 +1,6 @@
 using RimWorld;
 using Verse;
+using Verse.AI;
 
 namespace TheShatteredCrown
 {
@@ -69,7 +70,16 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                float score = cell.z + (roofedOnly ? 0f : -1000f);
+                // The whole scene is a proximity dialogue: a pile the party
+                // cannot walk up to is a quest that never fires. Ruin doors
+                // count as passable for the check; a sealed-solid room does
+                // not.
+                if (!map.reachability.CanReachMapEdge(cell,
+                        TraverseParms.For(TraverseMode.PassDoors, Danger.Deadly)))
+                {
+                    continue;
+                }
+                float score = cell.z;
                 if (score > bestScore)
                 {
                     bestScore = score;

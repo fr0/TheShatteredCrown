@@ -34,7 +34,18 @@ namespace TheShatteredCrown
         /// <summary>
         /// The average affinity of every named local spawned here. Returns 0
         /// for maps with nobody named on them, which is most of them.
+        ///
+        /// Cached per map for a second of game time: this runs inside a
+        /// Tradeable.GetPriceFor postfix, which the trade window calls per
+        /// row per FRAME, and walking every spawned pawn against the named
+        /// roster at that rate is money for nothing. While the game is
+        /// paused (trade windows pause), the tick does not move and the
+        /// cache holds for the whole window.
         /// </summary>
+        private const int CacheTicks = 60;
+        private static readonly Dictionary<int, KeyValuePair<int, float>> standingCache =
+            new Dictionary<int, KeyValuePair<int, float>>();
+
         public static float StandingOn(Map map)
         {
             if (map == null || Verse.Current.Game == null)
@@ -45,6 +56,12 @@ namespace TheShatteredCrown
             if (state == null)
             {
                 return 0f;
+            }
+            int now = Find.TickManager.TicksGame;
+            if (standingCache.TryGetValue(map.uniqueID, out KeyValuePair<int, float> cached)
+                && now - cached.Key < CacheTicks && now >= cached.Key)
+            {
+                return cached.Value;
             }
             int total = 0;
             int counted = 0;
@@ -62,7 +79,9 @@ namespace TheShatteredCrown
                 total += state.AffinityOf(def);
                 counted++;
             }
-            return counted == 0 ? 0f : (float)total / counted;
+            float standing = counted == 0 ? 0f : (float)total / counted;
+            standingCache[map.uniqueID] = new KeyValuePair<int, float>(now, standing);
+            return standing;
         }
 
         /// <summary>
@@ -113,20 +132,31 @@ namespace TheShatteredCrown
         public static List<string> Ledger(Map map)
         {
             List<string> lines = new List<string>();
-            if (map == null)
+            DialogueStateManager state = DialogueStateManager.Current;
+            if (map == null || state == null)
             {
                 return lines;
             }
-            DialogueStateManager state = DialogueStateManager.Current;
+            List<KeyValuePair<int, string>> entries = new List<KeyValuePair<int, string>>();
             foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
             {
                 NamedNpcDef def = pawn == null || pawn.Dead ? null : state.NpcDefFor(pawn);
                 if (def != null)
                 {
-                    lines.Add($"{pawn.LabelShortCap}: {DialogueStateManager.AffinityTier(state.AffinityOf(def))}");
+                    int affinity = state.AffinityOf(def);
+                    entries.Add(new KeyValuePair<int, string>(affinity,
+                        $"{pawn.LabelShortCap}: {DialogueStateManager.AffinityTier(affinity)}"));
                 }
             }
-            lines.Sort();
+            // Warmest first, names breaking ties - the promise in the summary
+            // line above, kept by the sort rather than by accident.
+            entries.Sort((a, b) => a.Key != b.Key
+                ? b.Key.CompareTo(a.Key)
+                : string.Compare(a.Value, b.Value, System.StringComparison.Ordinal));
+            foreach (KeyValuePair<int, string> entry in entries)
+            {
+                lines.Add(entry.Value);
+            }
             return lines;
         }
     }

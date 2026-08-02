@@ -88,7 +88,13 @@ display text. Indented lines under an option add behavior:
   retryable roll hides the option for 8 in-game hours before it can be
   attempted again (no click-spam re-rolling; write the fail node so "come
   back later" makes sense). `retryable(N)` sets a custom cooldown of N
-  hours: `check Performance 7 -> landed | flat retryable(24)`. Proficiencies only (vanilla skills contribute via synergy):
+  hours: `check Performance 7 -> landed | flat retryable(24)`. Append `per_npc`
+  instead to scope the once-per-save key to the NAMED character being talked
+  to: `check Persuasion 13 -> stay | plead_bad per_npc`. For shared scenes
+  (one DialogueDef, `{NPC}` carries the name - part_ways_ask) a save-global
+  key would let the first companion's roll consume everyone else's attempt;
+  `per_npc` gives each companion their own. Does not combine with
+  `retryable`. Proficiencies only (vanilla skills contribute via synergy):
   **Lore, Thievery, Nature, Athletics, Persuasion, Arcana, Investigation,
   Insight, Perception, Survival, Performance**. Effective value = trained points
   + class training + related vanilla skill / 5. e.g. `check Lore 7 -> deep | shallow`.

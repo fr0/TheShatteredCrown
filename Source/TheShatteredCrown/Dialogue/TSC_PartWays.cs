@@ -203,22 +203,24 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            if (deferrable && !CanPartHere(companion, out string blocked))
+            NamedNpcDef def = CompanionDefOf(companion);
+            // Only a named companion can defer: the pending flag is keyed by
+            // their def, and a promise nothing can record is a promise the
+            // sweep would never keep. Anyone else just leaves now.
+            if (deferrable && def != null && !CanPartHere(companion, out string blocked))
             {
-                NamedNpcDef waiting = CompanionDefOf(companion);
-                if (waiting != null)
-                {
-                    DialogueStateManager.Current.Set(PendingKey(waiting));
-                }
+                DialogueStateManager.Current.Set(PendingKey(def));
                 Messages.Message(
                     $"{companion.LabelShortCap} means to go, and will, as soon as the company is somewhere they can ({blocked}).",
                     companion, MessageTypeDefOf.NeutralEvent, historical: false);
                 return;
             }
-            NamedNpcDef def = CompanionDefOf(companion);
             if (def != null)
             {
                 DialogueStateManager.Current.Set("TSC_Parted_" + def.defName);
+                // A companion who walks is a companion whose personal errand
+                // walks with them (TSC_WrenLost and kin).
+                TSC_CompanionLoss.Notify_CompanionGone(def);
             }
             Faction villagers = GenStep_TSC_Village.VillagerFaction();
             companion.GetLord()?.Notify_PawnLost(companion, PawnLostCondition.ExitedMap);
@@ -253,6 +255,26 @@ namespace TheShatteredCrown
         public override void Apply(DialogueContext context)
         {
             TSC_PartWays.Depart(context.npc);
+        }
+    }
+
+    /// <summary>
+    /// True while the companion being talked to has NOT already announced a
+    /// departure that is waiting for walkable ground (TSC_PartWays.PendingKey).
+    ///
+    /// The ask-to-leave initiation is recurring, and without this it would
+    /// re-fire on a companion who already said their goodbye and is just
+    /// waiting for the pocket map to end - asking to leave twice while
+    /// already leaving.
+    /// </summary>
+    public class DialogueCondition_NotPendingDeparture : DialogueCondition
+    {
+        public override bool Met(DialogueContext context)
+        {
+            NamedNpcDef def = TSC_PartWays.CompanionDefOf(context.npc);
+            return def == null
+                || DialogueStateManager.Current == null
+                || !DialogueStateManager.Current.IsSet(TSC_PartWays.PendingKey(def));
         }
     }
 }

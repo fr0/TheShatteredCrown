@@ -67,8 +67,14 @@ namespace TheShatteredCrown
         /// </summary>
         public static float Factor(Pawn pawn, AbilityDef ability)
         {
+            return SteadyFactor(pawn, ability) * GriefFactor(pawn);
+        }
+
+        /// <summary>Everything in Factor except the kindled roll: what the tooltip can honestly print.</summary>
+        public static float SteadyFactor(Pawn pawn, AbilityDef ability)
+        {
             float level = 1f + PerLevel * (CasterLevel(pawn, ability) - 1);
-            return level * TSC_Instruments.SongPower(pawn, ability) * GriefFactor(pawn);
+            return level * TSC_Instruments.SongPower(pawn, ability);
         }
 
         /// <summary>
@@ -78,7 +84,9 @@ namespace TheShatteredCrown
         /// KINDLED - he kept the treaty open. The fires stay fond of him and
         /// they are not reliable: every cast rolls somewhere between a damp
         /// squib and something the company talks about for a week. Slightly
-        /// better on average than plain casting, and never the same twice.
+        /// better on average than plain casting, and never the same twice -
+        /// but the AVERAGE sits below Lucid's steady 1.3, because reliability
+        /// is what he declined to buy.
         ///
         /// LUCID - he released it, and said the true thing out loud to a
         /// thing that cannot be lied to. Steadier and stronger, every time,
@@ -86,7 +94,22 @@ namespace TheShatteredCrown
         ///
         /// Neither hediff exists on anybody else, so every other caster in
         /// the game multiplies by 1.
+        ///
+        /// The kindled roll is SEEDED by pawn and tick rather than drawn from
+        /// the live stream: Factor is called several times inside one cast
+        /// (magnitude comp, damage comp) and from the gizmo tooltip every
+        /// frame, and a roll that changes between those calls shows the
+        /// player one number and applies another. Same tick, same roll.
         /// </summary>
+        public const float KindledMin = 0.5f;
+        public const float KindledMax = 2.0f;
+
+        public static bool IsKindled(Pawn pawn)
+        {
+            return TSC_DefOf.TSC_Hediff_MadocKindled != null
+                && (pawn?.health?.hediffSet?.HasHediff(TSC_DefOf.TSC_Hediff_MadocKindled) ?? false);
+        }
+
         public static float GriefFactor(Pawn pawn)
         {
             HediffSet health = pawn?.health?.hediffSet;
@@ -99,10 +122,12 @@ namespace TheShatteredCrown
             {
                 return 1.3f;
             }
-            if (TSC_DefOf.TSC_Hediff_MadocKindled != null
-                && health.HasHediff(TSC_DefOf.TSC_Hediff_MadocKindled))
+            if (IsKindled(pawn))
             {
-                return Rand.Range(0.55f, 2.1f);
+                Rand.PushState(Gen.HashCombineInt(pawn.thingIDNumber, Find.TickManager.TicksGame));
+                float roll = Rand.Range(KindledMin, KindledMax);
+                Rand.PopState();
+                return roll;
             }
             // Maewyn, after the grove (Dialogues/maewyn_grove.agd). Handing
             // it to a keeper leaves her a source and a correspondence to
@@ -267,6 +292,15 @@ namespace TheShatteredCrown
                         return;
                     }
                 }
+            }
+            // Madoc kindled: the factor is a per-cast roll, so a single
+            // number here would be a lie that changed every frame. Show the
+            // spread instead.
+            if (TSC_SpellScaling.IsKindled(caster))
+            {
+                float steady = TSC_SpellScaling.SteadyFactor(caster, ability.def);
+                __result += $"\n\n{grantingClass.LabelCap} {level}: listed effects x{steady * TSC_SpellScaling.KindledMin:0.00} to x{steady * TSC_SpellScaling.KindledMax:0.00} for this caster - the fires are fond of him, and not reliable.";
+                return;
             }
             float factor = TSC_SpellScaling.Factor(caster, ability.def);
             __result += factor > 1.001f

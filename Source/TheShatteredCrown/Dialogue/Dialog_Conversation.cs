@@ -325,9 +325,10 @@ namespace TheShatteredCrown
             string next = option.linkTo;
             if (option.check?.proficiency != null)
             {
-                if (!option.check.onceKey.NullOrEmpty())
+                string onceKey = option.check.OnceKeyFor(context.npc);
+                if (!onceKey.NullOrEmpty())
                 {
-                    DialogueStateManager.Current.Set(option.check.onceKey);
+                    DialogueStateManager.Current.Set(onceKey);
                 }
                 int roll = Rand.RangeInclusive(1, 10);
                 Pawn checker = TSC_ProgressionManager.Current.BestCheckPawn(context.interactor, context.npc, option.check.proficiency, out int level);

@@ -36,8 +36,11 @@
        complete in the way that matters: it shows exactly where the fifth
        verse stops, and why.
 
-       Only shows up once Wren has asked about it - a songbook the party
-       has no reason to care about is a prop, and this one is a quest. -->
+       Placed UNCONDITIONALLY at map generation (the site may well be
+       reached before Wren asks). The ordering is handled downstream
+       instead: her verse2 talk requires TSC_WrenVerseAsked, and the quest
+       script re-fires TSC_WrenFoundBook at initiation if the book was
+       read early (catch-up node in TSC_Companion_Quests.xml). -->
   <ThingDef ParentName="TSC_MonSpotBase">
     <defName>TSC_MonWriting_Songbook</defName>
     <label>the house songbook</label>
