@@ -48,4 +48,58 @@
     <flavor>The armor is never the thing that is late.</flavor>
   </TheShatteredCrown.TSC_EnchantDef>
 
+  <!-- ================================================================
+       Weapon workings: rolled onto blades and bows, and they act when a
+       hit lands instead of sitting in a stat sheet. One proc roll per
+       landed hit; a deflected blow procs nothing.
+       ================================================================ -->
+
+  <!-- Shock: Burn's pattern exactly - Flame's family, so heat armor
+       resists it, but the AddInjury worker means it never ignites. -->
+  <DamageDef ParentName="Flame">
+    <defName>TSC_Shock</defName>
+    <label>shock</label>
+    <workerClass>DamageWorker_AddInjury</workerClass>
+  </DamageDef>
+
+  <TheShatteredCrown.TSC_EnchantDef>
+    <defName>TSC_Enchant_Shocking</defName>
+    <label>shocking</label>
+    <description>Old storm-words live in the metal. Every blow that lands carries a bite of lightning with it.</description>
+    <forWeapons>true</forWeapons>
+    <onHitDamage>4</onHitDamage>
+    <onHitDamageDef>TSC_Shock</onHitDamageDef>
+    <flavor>The thunder arrives a heartbeat after the edge.</flavor>
+  </TheShatteredCrown.TSC_EnchantDef>
+
+  <TheShatteredCrown.TSC_EnchantDef>
+    <defName>TSC_Enchant_Stunning</defName>
+    <label>stunning</label>
+    <description>The weight of the blow arrives somewhere behind the eyes. Now and then, the target simply stops.</description>
+    <forWeapons>true</forWeapons>
+    <onHitChance>0.25</onHitChance>
+    <stunTicks>120</stunTicks>
+    <flavor>Between one thought and the next, a door closes.</flavor>
+  </TheShatteredCrown.TSC_EnchantDef>
+
+  <TheShatteredCrown.TSC_EnchantDef>
+    <defName>TSC_Enchant_Venomed</defName>
+    <label>venomed</label>
+    <description>The metal weeps something old and patient. Wounds it makes go bad from the first moment.</description>
+    <forWeapons>true</forWeapons>
+    <onHitHediff>ToxicBuildup</onHitHediff>
+    <onHitSeverity>0.05</onHitSeverity>
+    <flavor>The cut is the argument; the venom is the last word.</flavor>
+  </TheShatteredCrown.TSC_EnchantDef>
+
+  <TheShatteredCrown.TSC_EnchantDef>
+    <defName>TSC_Enchant_Chilling</defName>
+    <label>chilling</label>
+    <description>A midwinter kept in the steel. What it touches slows, as if wading into deep snow.</description>
+    <forWeapons>true</forWeapons>
+    <onHitChance>0.35</onHitChance>
+    <onHitHediff>TSC_Hediff_Chilled</onHitHediff>
+    <flavor>Cold that remembers being a season.</flavor>
+  </TheShatteredCrown.TSC_EnchantDef>
+
 </Defs>

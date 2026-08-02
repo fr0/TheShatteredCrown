@@ -67,7 +67,7 @@ namespace TheShatteredCrown
         /// <summary>
         /// Name the DEF, then its pack. Reporting only the pack is actively
         /// misleading when one mod patches another's content: Combat Extended
-        /// adds Hands and Feet to vanilla plate armour, and the old message
+        /// adds Hands and Feet to vanilla plate armor, and the old message
         /// read "detected from Core", which points the reader at the wrong mod
         /// and hides the fact that the two pieces now collide on the same
         /// layer.

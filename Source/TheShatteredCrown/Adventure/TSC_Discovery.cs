@@ -931,6 +931,48 @@ namespace TheShatteredCrown
         }
     }
 
+    /// <summary>
+    /// One possible set of occupants: who they answer to, what they are, and
+    /// whether they are already angry. Pawn kinds are named as strings so a
+    /// crew built on another mod's creature simply drops out of the roll in
+    /// a load order without it, rather than erroring at startup.
+    /// </summary>
+    public class TSC_GuardCrew
+    {
+        /// <summary>"bandits", "insects", or "wild". Null keeps the genstep's own.</summary>
+        public string faction;
+
+        public List<string> kinds = new List<string>();
+
+        /// <summary>Wild crews only: spawn them already hunting.</summary>
+        public bool manhunter;
+
+        /// <summary>Roll one kind for the whole crew: a wolf pack, not a menagerie.</summary>
+        public bool pickOneKind = true;
+
+        public float weight = 1f;
+
+        private List<PawnKindDef> resolved;
+
+        public List<PawnKindDef> Kinds()
+        {
+            if (resolved != null)
+            {
+                return resolved;
+            }
+            resolved = new List<PawnKindDef>();
+            foreach (string name in kinds)
+            {
+                PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail(name);
+                if (kind != null)
+                {
+                    resolved.Add(kind);
+                }
+            }
+            return resolved;
+        }
+    }
+
     public class GenStep_TSC_BanditGuards : GenStep
     {
         public IntRange count = new IntRange(3, 4);
@@ -988,7 +1030,58 @@ namespace TheShatteredCrown
         /// </summary>
         public bool pickOneKind;
 
+        /// <summary>
+        /// A menu of whole CREWS, one rolled per map: faction, roster and
+        /// temper together.
+        ///
+        /// `kinds` alone can vary the animals in a den but cannot change who
+        /// the occupants ARE, which is what the warren needed - its second
+        /// set of tenants was insects every single time, so the contract had
+        /// one surprise in it and never again. Set this and the crew is
+        /// rolled here; faction, kinds, manhunter and pickOneKind on the
+        /// genstep itself become the defaults a crew may override.
+        /// </summary>
+        public List<TSC_GuardCrew> crews;
+
         public override int SeedPart => 771604318;
+
+        /// <summary>
+        /// Weighted pick, skipping any crew whose pawn kinds a given load
+        /// order does not actually have. A crew that resolves to nothing is
+        /// not a crew.
+        /// </summary>
+        private TSC_GuardCrew RollCrew()
+        {
+            if (crews.NullOrEmpty())
+            {
+                return null;
+            }
+            List<TSC_GuardCrew> usable = new List<TSC_GuardCrew>();
+            float total = 0f;
+            foreach (TSC_GuardCrew candidate in crews)
+            {
+                if (candidate.Kinds().Count == 0)
+                {
+                    continue;
+                }
+                usable.Add(candidate);
+                total += Mathf.Max(0.01f, candidate.weight);
+            }
+            if (usable.Count == 0)
+            {
+                return null;
+            }
+            float roll = Rand.Range(0f, total);
+            foreach (TSC_GuardCrew candidate in usable)
+            {
+                roll -= Mathf.Max(0.01f, candidate.weight);
+                if (roll <= 0f)
+                {
+                    return candidate;
+                }
+            }
+            return usable[usable.Count - 1];
+        }
 
         private Faction ResolveFaction()
         {
@@ -1029,6 +1122,17 @@ namespace TheShatteredCrown
 
         public override void Generate(Map map, GenStepParams parms)
         {
+            // One crew off the menu, if this genstep carries a menu. Rolled
+            // before anything else reads faction or kinds, so the whole step
+            // runs as though the crew had been written in by hand.
+            TSC_GuardCrew crew = RollCrew();
+            if (crew != null)
+            {
+                faction = crew.faction ?? faction;
+                kinds = crew.Kinds();
+                manhunter = crew.manhunter;
+                pickOneKind = crew.pickOneKind;
+            }
             Faction holders = ResolveFaction();
             List<PawnKindDef> roster = kinds != null && kinds.Count > 0 ? kinds : null;
             if (roster != null && pickOneKind)
@@ -1425,10 +1529,11 @@ namespace TheShatteredCrown
         private void FreeOne(Pawn pawn)
         {
             pawn.SetFaction(Faction.OfPlayer);
+            TSC_Homeward.Mark(pawn);
             Find.LetterStack.ReceiveLetter(
                 pawn.LabelShortCap + " freed",
-                pawn.LabelShortCap + " was not going to walk out of this place alone, and knows it. "
-                + "They throw in with the company.",
+                pawn.LabelShortCap + " is in no shape to argue with rescue. "
+                + "They fall in with the company, as far as the next friendly gates.",
                 LetterDefOf.PositiveEvent, pawn);
         }
 
@@ -1490,14 +1595,41 @@ namespace TheShatteredCrown
             }
         }
 
+        /// <summary>
+        /// The reform hole: scoop the captive while the caravan is packing
+        /// and the map can close before the next 60-tick poll, so the join
+        /// never fired and the rescue rode out as a downed NEUTRAL
+        /// passenger (Esema, age 13, in playtest). When the map goes away,
+        /// anyone who left inside a player caravan joins on the way out.
+        /// </summary>
+        public override void MapRemoved()
+        {
+            base.MapRemoved();
+            if (!joined && captive != null && !captive.Dead
+                && captive.GetCaravan()?.IsPlayerControlled == true)
+            {
+                JoinParty();
+            }
+            foreach (Pawn other in others)
+            {
+                if (other != null && !other.Dead && other.Faction != Faction.OfPlayer
+                    && other.GetCaravan()?.IsPlayerControlled == true)
+                {
+                    FreeOne(other);
+                }
+            }
+        }
+
         private void JoinParty()
         {
             joined = true;
             captive.SetFaction(Faction.OfPlayer);
+            TSC_Homeward.Mark(captive);
             Find.LetterStack.ReceiveLetter(
                 $"{captive.LabelShortCap} freed",
                 $"{captive.LabelShortCap} was not going to walk out of this place alone, and knows it. "
-                + "They throw in with the party: no rate, no charter, just owed.",
+                + "They throw in with the party: no rate, no charter, just owed - and only as far "
+                + "as the next friendly gates.",
                 LetterDefOf.PositiveEvent, captive);
         }
 

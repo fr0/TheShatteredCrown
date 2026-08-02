@@ -13,12 +13,12 @@ namespace TheShatteredCrown
     ///
     /// The smith's stock and the guild shelf were hand-listed vanilla
     /// defNames, which meant a player running Medieval Overhaul had a
-    /// catalogue of arms and armour the mod's own shops would never sell -
+    /// catalogue of arms and armor the mod's own shops would never sell -
     /// the shops were the least medieval thing in a medieval game.
     ///
     /// Selection is by CONTENT, exactly like TSC_ApparelCompat: tech level,
     /// tradeability, market value. Naming packageIds would mean shipping a
-    /// patch per armour mod and going stale the day the next one releases;
+    /// patch per armor mod and going stale the day the next one releases;
     /// this way Medieval Overhaul, Vanilla Expanded and anything else all
     /// arrive on the shelf for free, and a load order with none of them
     /// still gets the vanilla list it always had.
@@ -75,7 +75,7 @@ namespace TheShatteredCrown
                 }
             }
             Log.Message($"[The Shattered Crown] Medieval catalogue: {Weapons.Count} weapons, "
-                + $"{Armor.Count} pieces of armour available to shops. "
+                + $"{Armor.Count} pieces of armor available to shops. "
                 + $"Rejected {firearms} bullet-firing weapon(s) claiming medieval tech and "
                 + $"{undated} weapon(s) with no tech level declared.");
         }
@@ -205,10 +205,10 @@ namespace TheShatteredCrown
         }
 
         /// <summary>
-        /// Armour, not clothing: it has to actually stop something.
+        /// armor, not clothing: it has to actually stop something.
         ///
         /// Reading ArmorRating off the DEF is not enough, and getting that
-        /// wrong found zero armour in a full load order. Most real armour is
+        /// wrong found zero armor in a full load order. Most real armor is
         /// stuff-based: its protection comes from the material at spawn time
         /// via StuffEffectMultiplierArmor, so the def's own abstract rating is
         /// nearly zero. A piece qualifies if it either states a rating itself
@@ -225,7 +225,7 @@ namespace TheShatteredCrown
             {
                 return true;
             }
-            // 0.5 is where vanilla's own numbers separate armour from
+            // 0.5 is where vanilla's own numbers separate armor from
             // clothing, with nothing sitting on the line: plate 0.9, advanced
             // helmet 0.7, simple helmet 0.5 - then a gap down to war mask,
             // jacket, duster and cape at 0.3 and robes and tribalwear at 0.2.
@@ -234,18 +234,18 @@ namespace TheShatteredCrown
             // reaches. That went unnoticed because the test load had Combat
             // Extended, and CE writes explicit ArmorRating values onto defs,
             // so the clause above carried it. On a vanilla or Medieval
-            // Overhaul load order the shops would have had no armour at all.
+            // Overhaul load order the shops would have had no armor at all.
             StatDef stuffArmor = DefDatabase<StatDef>.GetNamedSilentFail("StuffEffectMultiplierArmor");
             if (stuffArmor == null)
             {
                 return false;
             }
             // 0.5 is the right line for a torso or a head and the WRONG line
-            // for extremities, which are real armour built lighter: this
+            // for extremities, which are real armor built lighter: this
             // mod's own chausses (0.42), gauntlets and sabatons (0.40) all
             // sat under it, so legs, hands and feet were missing from every
             // shop shelf and every chest in the game. Bracers and greaves
-            // are armour. A duster is not, and at 0.3 it still is not.
+            // are armor. A duster is not, and at 0.3 it still is not.
             return def.GetStatValueAbstract(stuffArmor) >= (Extremity(def) ? 0.35f : 0.5f);
         }
 

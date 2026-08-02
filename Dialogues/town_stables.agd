@@ -1,0 +1,26 @@
+# The town stabler: one per friendly settlement, standing in the yard
+# (MapComponent_TSC_GuildFactor stamps the stable). Sells pack animals for
+# silver. Brief by design - he is a service, and the named characters carry
+# the writing - but he is the only merchant in town who sells something with
+# opinions.
+
+dialogue TSC_Dialogue_TownStabler
+
+== start ==
+The yard smells of straw and warm animal. A stabler comes out of the back range wiping their hands, takes one look at the packs on your shoulders, and reaches for a halter.
+
+"You're carrying it all yourselves. I can fix that. Silver, and it walks out with you."
+
+* "Show us what you've got." -> end
+    do stable_animals()
+* "How do they do on the road?" -> road
+* "Just resting our feet." -> end
+
+== road ==
+"Better than you do, most of them." They scratch something behind the ear without looking at it.
+
+"They eat every day, mind. A beast is a bargain you keep making. Feed them, don't work them lame, and they'll carry what four of you can't." A shrug. "Lose one on the road and that's silver you'll not see again."
+
+* "Let's see them, then." -> end
+    do stable_animals()
+* "We'll think on it." -> end

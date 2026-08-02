@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Contract sites, fourth set: the jobs that are not "kill everything"
+       and not "carry the thing home". The quiet recovery pays for silence;
+       the surveyor site keeps its own secret until somebody walks it.
+       ================================================================ -->
+
+  <!-- The objective of the quiet job: a ledger the guild would rather
+       nobody knew was ever out of its hands. Worthless to sell (the
+       guild's cipher, the guild's business) and heavy with trouble. -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_SealedLedger</defName>
+    <label>sealed guild ledger</label>
+    <description>A strapped ledger under an unbroken guild seal. Whatever is written in it is worth more than the wax, the leather, and very possibly the person carrying it.</description>
+    <graphicData>
+      <texPath>Things/Item/TSC_SealedLedger</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <stackLimit>1</stackLimit>
+    <tradeability>None</tradeability>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Mass>1.2</Mass>
+      <MarketValue>200</MarketValue>
+      <Flammability>1</Flammability>
+      <DeteriorationRate>1</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+  </ThingDef>
+
+  <!-- ============================================ 1. the quiet job -->
+  <SitePartDef>
+    <defName>TSC_ContractQuiet</defName>
+    <label>held waystation</label>
+    <description>A waystation with new tenants and the guild's ledger somewhere inside. The garrison does not know what they are sitting on, and the guild would very much like to keep it that way.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Approach {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>150</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_ContractQuiet</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractQuiet_Structure</defName>
+    <linkWithSite>TSC_ContractQuiet</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Waystation</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractQuiet_Ledger</defName>
+    <linkWithSite>TSC_ContractQuiet</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceInStructure">
+      <thingDef>TSC_SealedLedger</thingDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_ContractQuiet_Garrison</defName>
+    <linkWithSite>TSC_ContractQuiet</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <count>4~6</count>
+      <scaledClamp>3~10</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
+  <!-- Thievery ways in, so a light-handed party has something to be
+       light-handed WITH. -->
+  <GenStepDef>
+    <defName>TSC_ContractQuiet_Spots</defName>
+    <linkWithSite>TSC_ContractQuiet</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_WatchPost</def><count>1~1</count></li>
+        <li><def>TSC_BanditLedger</def><count>0~1</count></li>
+        <li><def>TSC_ContractChest</def><count>0~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ 2. the surveyor -->
+  <SitePartDef>
+    <defName>TSC_SurveyorSite</defName>
+    <label>surveyor's last camp</label>
+    <description>The stretch of country the guild's surveyor was marking when his reports stopped. Whatever happened to him, it happened somewhere in here.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCamp</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCamp</expandingIconTexture>
+    <approachOrderString>Search {0}</approachOrderString>
+    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>false</wantsThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_SurveyorSite</li>
+    </tags>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_SurveyorSite_Fate</defName>
+    <linkWithSite>TSC_SurveyorSite</linkWithSite>
+    <order>482</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_SurveyorFate" />
+  </GenStepDef>
+
+  <!-- His trail: what Search and a sharp eye have to work with. -->
+  <GenStepDef>
+    <defName>TSC_SurveyorSite_Spots</defName>
+    <linkWithSite>TSC_SurveyorSite</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_CampfireCircle</def><count>1~1</count></li>
+        <li><def>TSC_StrewnBaggage</def><count>0~1</count></li>
+        <li><def>TSC_SpoorTrail</def><count>0~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The surveyor himself: spawned by the fate genstep, in whichever
+       condition the ground decided. The dialogue only matters for the
+       fate where he can still use it. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_Surveyor</defName>
+    <label>guild surveyor</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_Surveyor</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+  <!-- The escort's charge: a guild clerk who counted the wrong man's
+       money, being moved somewhere the wrong man is not. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_EscortCharge</defName>
+    <label>guild clerk</label>
+    <combatPower>20</combatPower>
+    <isFighter>false</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_EscortCharge</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+</Defs>

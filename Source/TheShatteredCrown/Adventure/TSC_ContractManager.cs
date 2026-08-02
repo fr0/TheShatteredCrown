@@ -298,7 +298,7 @@ namespace TheShatteredCrown
             return ContractPoints();
         }
 
-        private static float ContractPoints()
+        public static float ContractPoints()
         {
             int totalLevels = 0;
             int adventurers = 0;

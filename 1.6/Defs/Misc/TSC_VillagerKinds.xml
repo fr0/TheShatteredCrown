@@ -211,7 +211,7 @@
         <thingDef>TSC_Apparel_Gambeson</thingDef>
         <countRange>2~4</countRange>
       </li>
-      <!-- Whatever else the load order calls medieval. With no armour mods
+      <!-- Whatever else the load order calls medieval. With no armor mods
            this adds a little vanilla variety; with Medieval Overhaul the
            smith finally sells the arms the rest of the world is using.
            Named/legendary pieces are excluded by value (TSC_MedievalGear). -->
@@ -253,7 +253,7 @@
         <countRange>50~100</countRange>
       </li>
       <li Class="StockGenerator_BuyExpensiveSimple" />
-      <!-- Willingness to buy every weapon and every piece of armour is
+      <!-- Willingness to buy every weapon and every piece of armor is
            enforced in code (Patch_SmithWillTrade), NOT with zero-count
            category generators: vanilla's category generator expects a
            price range alongside its def count, and a malformed one broke

@@ -912,7 +912,7 @@
 
   <ThingSetMakerDef>
     <defName>TSC_Loot_Armory</defName>
-    <!-- A garrison rack: several weapons and a piece or two of armour, all
+    <!-- A garrison rack: several weapons and a piece or two of armor, all
          of it maintained rather than looted, drawn from the whole medieval
          catalogue (TSC_MedievalGear) so a load order with Medieval Overhaul
          or Combat Extended arms the old kingdom with its own gear. -->

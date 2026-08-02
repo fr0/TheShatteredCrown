@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- The stables: the sixth town facility, and the only one that sells
+       something that walks home with you.
+
+       A travelling company's real limit is what it can carry, and the answer
+       every road has ever had is a beast. Buying one was possible only by
+       waiting for a trade caravan with the right animal in stock, which is
+       not a plan. -->
+
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_StablesBanner</defName>
+    <label>stable sign</label>
+    <description>A horseshoe over a bale, cut into an oak board. Beasts for sale or hire, and a boy who will tell you which of them bites.</description>
+    <graphicData>
+      <texPath>Things/Building/TSC_StablesBanner</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1.1,1.4)</drawSize>
+    </graphicData>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <pathCost>14</pathCost>
+    <rotatable>false</rotatable>
+    <fillPercent>0.2</fillPercent>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Flammability>0.8</Flammability>
+      <Beauty>3</Beauty>
+    </statBases>
+    <size>(1,1)</size>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+    </building>
+  </ThingDef>
+
+  <!-- A yard, not a hall: three sides of fence, a gate, a shelter along the
+       back wall, and enough straw to smell from the road. -->
+  <PrefabDef>
+    <defName>TSC_Stables</defName>
+    <size>(11,9)</size>
+    <things>
+      <Fence>
+        <rects>
+          <li>(0,0,4,0)</li>
+          <li>(6,0,10,0)</li>
+          <li>(0,1,0,7)</li>
+          <li>(10,1,10,7)</li>
+        </rects>
+        <stuff>WoodLog</stuff>
+      </Fence>
+      <!-- The back range is a real wall: the beasts stand out of the wind. -->
+      <Wall>
+        <rects>
+          <li>(0,8,10,8)</li>
+        </rects>
+        <stuff>WoodLog</stuff>
+      </Wall>
+      <FenceGate>
+        <position>(5,0,0)</position>
+        <stuff>WoodLog</stuff>
+      </FenceGate>
+      <AnimalBed>
+        <position>(2,0,7)</position>
+        <stuff>Cloth</stuff>
+      </AnimalBed>
+      <AnimalBed>
+        <position>(5,0,7)</position>
+        <stuff>Cloth</stuff>
+      </AnimalBed>
+      <AnimalBed>
+        <position>(8,0,7)</position>
+        <stuff>Cloth</stuff>
+      </AnimalBed>
+      <Shelf>
+        <position>(9,0,2)</position>
+        <stuff>WoodLog</stuff>
+      </Shelf>
+      <TorchLamp>
+        <position>(1,0,7)</position>
+      </TorchLamp>
+      <TorchLamp>
+        <position>(9,0,7)</position>
+      </TorchLamp>
+    </things>
+    <terrain>
+      <PackedDirt>
+        <rects>
+          <li>(1,1,9,7)</li>
+          <li>(5,0,5,0)</li>
+        </rects>
+      </PackedDirt>
+    </terrain>
+  </PrefabDef>
+
+  <!-- The stabler. Not a trader: buying a beast is a conversation and a
+       window, not a caravan's stock list, because what is for sale is
+       whatever this world's roads actually breed. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_TownStabler</defName>
+    <label>stabler</label>
+    <combatPower>25</combatPower>
+    <isFighter>false</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeBasic</li>
+    </weaponTags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.DialogueExtension">
+        <dialogue>TSC_Dialogue_TownStabler</dialogue>
+      </li>
+    </modExtensions>
+  </PawnKindDef>
+
+</Defs>

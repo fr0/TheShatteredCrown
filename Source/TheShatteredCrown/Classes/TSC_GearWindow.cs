@@ -16,7 +16,7 @@ namespace TheShatteredCrown
     /// walk, then do it again for the helmet, the mail and the boots, and
     /// again for the other five. That is fine for a colony where gear
     /// changes twice a season and terrible for a party that comes out of
-    /// every dungeon carrying a pile of other people's armour.
+    /// every dungeon carrying a pile of other people's armor.
     ///
     /// So: the roster down the left, that pawn's slots in the middle, and
     /// everything in reach that fits the selected slot on the right, best
@@ -383,7 +383,7 @@ namespace TheShatteredCrown
 
         /// <summary>
         /// One number for sorting: melee damage a second for a weapon,
-        /// weighted armour for a piece of kit. Rough on purpose - the row
+        /// weighted armor for a piece of kit. Rough on purpose - the row
         /// underneath prints the real stats, and the player decides.
         /// </summary>
         public static float Score(Thing thing, Pawn pawn)

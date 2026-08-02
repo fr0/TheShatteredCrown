@@ -100,7 +100,7 @@
         <stuff>Steel</stuff>
         <quality>Excellent</quality>
         <cost>9</cost>
-        <note>For the armoured sort. What it does not cut, it closes.</note>
+        <note>For the armored sort. What it does not cut, it closes.</note>
       </li>
       <li>
         <thing>MeleeWeapon_LongSword</thing>
@@ -139,7 +139,7 @@
         <note>"Guild-strung. If you have someone who can actually play, this is the one."</note>
       </li>
 
-      <!-- ===== armour ===== -->
+      <!-- ===== armor ===== -->
       <li>
         <thing>TSC_Apparel_Helm</thing>
         <stuff>Steel</stuff>

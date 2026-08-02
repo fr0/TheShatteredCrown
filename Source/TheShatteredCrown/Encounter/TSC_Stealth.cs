@@ -23,18 +23,18 @@ namespace TheShatteredCrown
         /// <summary>Baseline notice factor, for a pawn in ordinary gear.</summary>
         public const float SightFactor = 0.5f;
 
-        // Armour is loud. The factor slides with the WEIGHT a pawn is
+        // armor is loud. The factor slides with the WEIGHT a pawn is
         // wearing: a scout in cloth and leather crosses ground almost
         // unseen, a warden in full plate clanks and is noticed at nearly
         // normal range. Mass is the honest metric - it already tracks
-        // vanilla and modded armour alike, and needs no per-def tagging.
+        // vanilla and modded armor alike, and needs no per-def tagging.
         private const float LightBurdenKg = 3f;   // cloth, leathers
         private const float HeavyBurdenKg = 22f;  // full plate and helm
         private const float LightFactor = 0.35f;  // very hard to notice
         private const float HeavyFactor = 0.9f;   // barely stealthy at all
 
         // Darkness hides; daylight and lamps do not. The cell's glow scales
-        // the armour factor, so the same kit is markedly sneakier at night
+        // the armor factor, so the same kit is markedly sneakier at night
         // or in an unlit dungeon than under a noon sun or a torch.
         private const float DarkMultiplier = 0.6f;   // pitch dark
         private const float BrightMultiplier = 1.3f; // fully lit
@@ -62,7 +62,7 @@ namespace TheShatteredCrown
             return 1f;
         }
 
-        /// <summary>The armour half: burden in kilograms, light gear to full plate.</summary>
+        /// <summary>The armor half: burden in kilograms, light gear to full plate.</summary>
         public static float GearFactor(Pawn pawn)
         {
             List<Apparel> worn = pawn?.apparel?.WornApparel;
@@ -383,11 +383,21 @@ namespace TheShatteredCrown
 
         public static void Postfix(Verb __instance, bool __result)
         {
-            if (__result && __instance.CasterIsPawn)
+            if (!__result || !__instance.CasterIsPawn)
             {
-                // Their own doing: no "Spotted!" - they chose to be seen.
-                TSC_StealthTracker.Break(__instance.CasterPawn, "they struck", spotted: false);
+                return;
             }
+            // A SPELL only reveals the caster when it is aimed at somebody:
+            // the hostile flag on the ability def is the marker, and it is
+            // what lets a hidden rogue Vanish or a cleric lay a quiet
+            // blessing without standing up out of the grass. A weapon verb
+            // is always a strike.
+            if (__instance is Verb_CastAbility cast && cast.ability?.def?.hostile != true)
+            {
+                return;
+            }
+            // Their own doing: no "Spotted!" - they chose to be seen.
+            TSC_StealthTracker.Break(__instance.CasterPawn, "they struck", spotted: false);
         }
     }
 

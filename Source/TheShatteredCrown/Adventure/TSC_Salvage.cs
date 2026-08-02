@@ -9,8 +9,8 @@ namespace TheShatteredCrown
     /// Loot drawn from the medieval catalogue instead of a hand-written list.
     ///
     /// Every chest in the game used to draw from three weapon defs and one
-    /// armour def, so a player could not find a helmet, gloves, boots or leg
-    /// armour ANYWHERE - including the five pieces this mod ships itself -
+    /// armor def, so a player could not find a helmet, gloves, boots or leg
+    /// armor ANYWHERE - including the five pieces this mod ships itself -
     /// and the twenty-three weapons the shops stock never turned up in a
     /// dungeon. Meanwhile TSC_MedievalGear was already scanning the whole
     /// load order by content, which is how the smith ends up selling
@@ -18,7 +18,7 @@ namespace TheShatteredCrown
     /// patch. This points the chests at that same catalogue.
     ///
     /// Everything about a draw is per-site: the value band, the mix of arms
-    /// to armour, the quality, and how beaten up it is. A bandit camp yields
+    /// to armor, the quality, and how beaten up it is. A bandit camp yields
     /// used kit; a king's grave yields something nobody has swung in nine
     /// hundred years.
     /// </summary>
@@ -30,7 +30,7 @@ namespace TheShatteredCrown
         /// <summary>Market-value band. Deep sites may exceed the shop ceiling; villages may not.</summary>
         public FloatRange value = new FloatRange(20f, 400f);
 
-        /// <summary>Odds a given piece is armour rather than a weapon.</summary>
+        /// <summary>Odds a given piece is armor rather than a weapon.</summary>
         public float armorChance = 0.4f;
 
         /// <summary>Odds it fires at all, for tables where gear is a bonus rather than the point.</summary>

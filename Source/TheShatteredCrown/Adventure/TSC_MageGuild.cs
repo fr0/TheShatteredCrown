@@ -19,7 +19,7 @@ namespace TheShatteredCrown
     /// which is the honest cost of a spell that moves people, not property.
     ///
     /// ENCHANTMENT puts one of the loot enchantments (TSC_EnchantDef) on a
-    /// piece of armour that has none - the same four the world can roll, at
+    /// piece of armor that has none - the same four the world can roll, at
     /// a price that makes finding one still feel lucky.
     /// </summary>
     public static class TSC_MageGuild
@@ -106,7 +106,7 @@ namespace TheShatteredCrown
             return true;
         }
 
-        /// <summary>Armour the guild can enchant: real armour, carried or worn by the party, with nothing on it yet.</summary>
+        /// <summary>armor the guild can enchant: real armor, carried or worn by the party, with nothing on it yet.</summary>
         public static List<Thing> Enchantable(Map map)
         {
             List<Thing> found = new List<Thing>();
@@ -123,6 +123,10 @@ namespace TheShatteredCrown
                         Consider(found, worn);
                     }
                 }
+                if (pawn.equipment?.Primary != null)
+                {
+                    Consider(found, pawn.equipment.Primary);
+                }
                 if (pawn.inventory?.innerContainer != null)
                 {
                     foreach (Thing thing in pawn.inventory.innerContainer)
@@ -136,7 +140,22 @@ namespace TheShatteredCrown
 
         private static void Consider(List<Thing> found, Thing thing)
         {
-            if (thing == null || !thing.def.IsApparel)
+            // The Kingsblade is not improved by a man with a bench.
+            if (thing == null || TSC_Enchanter.Artifact(thing))
+            {
+                return;
+            }
+            // A bare weapon is workable the same way bare armor is.
+            if (TSC_Enchanter.IsWeaponThing(thing))
+            {
+                Comp_TSC_Enchant blade = thing.TryGetComp<Comp_TSC_Enchant>();
+                if (blade != null && blade.enchant == null)
+                {
+                    found.Add(thing);
+                }
+                return;
+            }
+            if (!thing.def.IsApparel)
             {
                 return;
             }
@@ -334,7 +353,7 @@ namespace TheShatteredCrown
             Text.Font = GameFont.Tiny;
             GUI.color = new Color(0.75f, 0.7f, 0.6f);
             Widgets.Label(new Rect(0f, 32f, inRect.width, 40f),
-                "\"Armour only, and only armour with nothing on it already. One working to a piece: "
+                "\"armor only, and only armor with nothing on it already. One working to a piece: "
                 + "they argue otherwise, and the argument goes badly for the wearer.\"");
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
@@ -343,7 +362,7 @@ namespace TheShatteredCrown
             Rect left = new Rect(0f, 76f, inRect.width * 0.5f - 6f, inRect.height - 76f - CloseButSize.y - 8f);
             if (pieces.Count == 0)
             {
-                Widgets.Label(left, "\"Nothing here to work on. Bring me plain armour.\"");
+                Widgets.Label(left, "\"Nothing here to work on. Bring me bare steel: plain armor or a plain blade.\"");
                 return;
             }
             if (selected == null || !pieces.Contains(selected))
@@ -381,17 +400,28 @@ namespace TheShatteredCrown
             float ry = right.y;
             Widgets.Label(new Rect(right.x, ry, right.width, 24f), $"Working for: {selected.LabelCap}");
             ry += 30f;
+            bool forWeapon = TSC_Enchanter.IsWeaponThing(selected);
             foreach (TSC_EnchantDef enchant in DefDatabase<TSC_EnchantDef>.AllDefsListForReading)
             {
+                // The card list matches the thing on the bench: weapon
+                // workings for a blade, the passives for a coat.
+                if (enchant.forWeapons != forWeapon)
+                {
+                    continue;
+                }
                 Rect card = new Rect(right.x, ry, right.width, 64f);
                 Widgets.DrawBoxSolidWithOutline(card, new Color(0.13f, 0.12f, 0.10f), new Color(0.30f, 0.26f, 0.20f));
                 Rect inner = card.ContractedBy(6f);
                 Widgets.Label(new Rect(inner.x, inner.y, inner.width - 120f, 22f), enchant.LabelCap);
+                // The numbers, not the prose: the description is written
+                // for the inspect pane and overflowed this card. The full
+                // text still lives in the tooltip for anyone curious.
                 Text.Font = GameFont.Tiny;
                 GUI.color = new Color(0.75f, 0.7f, 0.6f);
-                Widgets.Label(new Rect(inner.x, inner.y + 18f, inner.width - 120f, 34f), enchant.description);
+                Widgets.Label(new Rect(inner.x, inner.y + 18f, inner.width - 120f, 34f), enchant.EffectLine());
                 GUI.color = Color.white;
                 Text.Font = GameFont.Small;
+                TooltipHandler.TipRegion(inner, $"{enchant.description}\n\n{enchant.flavor}");
 
                 Rect button = new Rect(inner.xMax - 110f, inner.y + 14f, 110f, 26f);
                 bool afford = silver >= TSC_MageGuild.EnchantPrice;

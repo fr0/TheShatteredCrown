@@ -529,7 +529,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelRitesDone">The Poured Cup</label>
-                <text TKey="LetterTextRitesDone">The rite is sung, and the ettersnap dreamed for all to see: a sanguophage's crypt holding a shard of the shattered crown, and a waterfall-fed lake in the hills beyond Harrowfield, the farming village off the old road. Serra and Oswin will break camp and meet you there.\n\nRide ahead to Harrowfield.</text>
+                <text TKey="LetterTextRitesDone">The rite is sung, and the ettersnap dreamed for all to see. A sanguophage's crypt holds a shard of the shattered crown; above it, a waterfall-fed lake in the hills beyond Harrowfield, the farming village off the old road. Serra and Oswin will break camp and meet you there.\n\nRide ahead to Harrowfield.</text>
               </li>
               <!-- The epilogue quest: the road to the village the vision pointed past -->
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">

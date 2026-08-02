@@ -106,7 +106,7 @@ namespace TheShatteredCrown
             listing.Gap();
 
             listing.CheckboxLabeled("Hide worn and wielded gear when trading", ref Settings.tradeHideEquipped,
-                "When ON, the trade screen leaves out what the company is actually wearing and holding, so a misclick cannot sell the armour off a pawn's back. Spares in a pack still show. The same checkbox is on the trade window itself.");
+                "When ON, the trade screen leaves out what the company is actually wearing and holding, so a misclick cannot sell the armor off a pawn's back. Spares in a pack still show. The same checkbox is on the trade window itself.");
             listing.Gap();
 
             listing.CheckboxLabeled("Reform caravan despite hidden enemies", ref Settings.reformIgnoresHiddenEnemies,

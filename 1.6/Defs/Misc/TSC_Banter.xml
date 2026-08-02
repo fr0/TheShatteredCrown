@@ -30,7 +30,7 @@
   </TheShatteredCrown.TSC_BanterDef>
 
   <TheShatteredCrown.TSC_BanterDef>
-    <defName>TSC_Banter_WrenArmour</defName>
+    <defName>TSC_Banter_Wrenarmor</defName>
     <speakers>
       <li>TSC_Npc_Bran</li>
       <li>TSC_Npc_Bard</li>

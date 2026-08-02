@@ -30,6 +30,75 @@ namespace TheShatteredCrown
 
         /// <summary>One quartermaster's line for the inspect pane.</summary>
         public string flavor;
+
+        /// <summary>
+        /// Weapon workings, as opposed to armor ones: rolled onto blades
+        /// and bows, and they DO something when a hit lands rather than
+        /// sitting in a stat sheet. One proc roll per landed hit covers
+        /// every rider this def carries.
+        /// </summary>
+        public bool forWeapons;
+
+        /// <summary>Odds per landed hit that the working fires at all.</summary>
+        public float onHitChance = 1f;
+
+        /// <summary>Extra damage dealt when it fires, of onHitDamageDef's kind.</summary>
+        public float onHitDamage;
+
+        public DamageDef onHitDamageDef;
+
+        /// <summary>Stun laid on the target when it fires. 0 = no stun.</summary>
+        public int stunTicks;
+
+        /// <summary>A hediff dosed onto the target when it fires (venom, chill).</summary>
+        public HediffDef onHitHediff;
+
+        public float onHitSeverity = 1f;
+
+        /// <summary>
+        /// The effects as one plain line ("Move speed +0.30 - Incoming
+        /// damage -8%"), built from the same numbers the enchant applies so
+        /// the shop card can never drift from the def. The prose
+        /// description overflowed the enchanter's two-line card and told
+        /// the buyer everything except the number they were buying.
+        /// </summary>
+        public string EffectLine()
+        {
+            return string.Join("   ·   ", EffectParts());
+        }
+
+        /// <summary>Every effect as its own plain phrase, passive and on-hit alike.</summary>
+        public List<string> EffectParts()
+        {
+            List<string> parts = new List<string>();
+            if (statOffsets != null)
+            {
+                foreach (StatModifier offset in statOffsets)
+                {
+                    parts.Add($"{offset.stat.LabelCap} "
+                        + offset.stat.Worker.ValueToString(offset.value, false, ToStringNumberSense.Offset));
+                }
+            }
+            if (!Mathf.Approximately(damageDealtFactor, 1f))
+            {
+                parts.Add($"Damage dealt {(damageDealtFactor - 1f).ToStringPercent("+0;-0")}");
+            }
+            string odds = onHitChance < 1f ? $"{onHitChance.ToStringPercent()} chance of " : "";
+            if (onHitDamage > 0f && onHitDamageDef != null)
+            {
+                parts.Add($"On hit: {odds}+{onHitDamage:0} {onHitDamageDef.label}");
+            }
+            if (stunTicks > 0)
+            {
+                parts.Add($"On hit: {odds}stun {stunTicks / 60f:0.#}s");
+            }
+            if (onHitHediff != null)
+            {
+                string dose = onHitSeverity < 1f ? $" +{onHitSeverity.ToStringPercent()}" : "";
+                parts.Add($"On hit: {odds}{onHitHediff.label}{dose}");
+            }
+            return parts;
+        }
     }
 
     public class Comp_TSC_Enchant : ThingComp
@@ -46,21 +115,16 @@ namespace TheShatteredCrown
                 return null;
             }
             StringBuilder sb = new StringBuilder();
-            sb.Append($"Enchanted ({enchant.label}), while worn:");
-            if (enchant.statOffsets != null)
+            sb.Append(enchant.forWeapons
+                ? $"Enchanted ({enchant.label}), while wielded:"
+                : $"Enchanted ({enchant.label}), while worn:");
+            foreach (string part in enchant.EffectParts())
             {
-                foreach (StatModifier offset in enchant.statOffsets)
-                {
-                    sb.Append($"\n  {offset.stat.LabelCap} {offset.stat.Worker.ValueToString(offset.value, false, ToStringNumberSense.Offset)}");
-                }
-            }
-            if (!Mathf.Approximately(enchant.damageDealtFactor, 1f))
-            {
-                sb.Append($"\n  Damage dealt x{enchant.damageDealtFactor.ToStringPercent()}");
+                sb.Append("\n  " + part);
             }
             if (!enchant.flavor.NullOrEmpty())
             {
-                sb.Append($"\n{enchant.flavor}");
+                sb.Append("\n" + enchant.flavor);
             }
             return sb.ToString();
         }
@@ -88,7 +152,7 @@ namespace TheShatteredCrown
             CompProperties comp = new CompProperties(typeof(Comp_TSC_Enchant));
             foreach (ThingDef def in DefDatabase<ThingDef>.AllDefsListForReading)
             {
-                if (def.IsApparel && def.comps != null
+                if ((def.IsApparel || IsWeaponDef(def)) && def.comps != null
                     && !def.comps.Any(c => c.compClass == typeof(Comp_TSC_Enchant)))
                 {
                     def.comps.Add(comp);
@@ -116,9 +180,29 @@ namespace TheShatteredCrown
             && (t.GetStatValue(StatDefOf.ArmorRating_Sharp) > 0.05f
                 || t.GetStatValue(StatDefOf.ArmorRating_Blunt) > 0.05f);
 
+        /// <summary>A real hand-held weapon: the equip test, not the tools test (wood is not a club).</summary>
+        public static bool IsWeaponDef(ThingDef def) =>
+            def.category == ThingCategory.Item && def.IsWeapon && !def.IsApparel
+            && def.equipmentType == EquipmentType.Primary && !def.destroyOnDrop;
+
+        public static bool IsWeaponThing(Thing t) => t != null && IsWeaponDef(t.def);
+
+        /// <summary>
+        /// Story artifacts refuse the bench and the loot roll alike. The
+        /// marker is tradeability None - the same "the world does not deal
+        /// in this" flag the Kingsblade and the Crown already carry - so a
+        /// named thing is protected by what it IS, not by being listed.
+        /// </summary>
+        public static bool Artifact(Thing t) => t?.def != null && t.def.tradeability == Tradeability.None;
+
         public static void MaybeEnchant(Thing thing, float chance)
         {
-            if (thing == null || !Rand.Chance(chance) || !IsArmor(thing))
+            if (thing == null || Artifact(thing) || !Rand.Chance(chance))
+            {
+                return;
+            }
+            bool weapon = IsWeaponThing(thing);
+            if (!weapon && !IsArmor(thing))
             {
                 return;
             }
@@ -127,7 +211,17 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            comp.enchant = DefDatabase<TSC_EnchantDef>.AllDefsListForReading.RandomElementWithFallback();
+            // Two pools, one roll: armor draws the passive workings and a
+            // weapon draws the ones that DO something when a hit lands.
+            List<TSC_EnchantDef> pool = new List<TSC_EnchantDef>();
+            foreach (TSC_EnchantDef def in DefDatabase<TSC_EnchantDef>.AllDefsListForReading)
+            {
+                if (def.forWeapons == weapon)
+                {
+                    pool.Add(def);
+                }
+            }
+            comp.enchant = pool.RandomElementWithFallback();
         }
 
         /// <summary>Total offset for a stat from everything the pawn is wearing.</summary>
@@ -225,6 +319,30 @@ namespace TheShatteredCrown
     }
 
     /// <summary>
+    /// Carried enemy weapons: what they swing is what they drop, at the
+    /// same rate their armor enchants at. The blade in a bandit's hand is
+    /// the other half of the loot table.
+    /// </summary>
+    [HarmonyPatch(typeof(PawnWeaponGenerator), nameof(PawnWeaponGenerator.TryGenerateWeaponFor))]
+    public static class Patch_PawnWeapon_Enchant
+    {
+        public static void Postfix(Pawn pawn)
+        {
+            // OfPlayerSilentFail for the same reason as the apparel patch:
+            // weapons generate during world generation too, before the
+            // player faction exists.
+            Faction player = Faction.OfPlayerSilentFail;
+            if (!TSC_RpgMode.Active || player == null
+                || pawn?.equipment?.Primary == null
+                || pawn.Faction == player || !pawn.RaceProps.Humanlike)
+            {
+                return;
+            }
+            TSC_Enchanter.MaybeEnchant(pawn.equipment.Primary, TSC_Enchanter.WornChance);
+        }
+    }
+
+    /// <summary>
     /// The worn-only stat application, in the same place vanilla applies
     /// def-level gear offsets. Fast path: bail unless the stat is one an
     /// enchant can touch at all.
@@ -268,6 +386,69 @@ namespace TheShatteredCrown
     [HarmonyPatch(typeof(Thing), nameof(Thing.TakeDamage))]
     public static class Patch_TakeDamage_Enchant
     {
+        /// <summary>Reentry guard: the shock rider must not proc itself.</summary>
+        private static bool applyingRider;
+
+        /// <summary>
+        /// Weapon workings fire here, after the hit has actually landed:
+        /// __result carries what got through, so a deflected blow procs
+        /// nothing. dinfo.Weapon must be the wielded weapon's def - that is
+        /// what ties the damage to the enchanted thing rather than to a
+        /// fire, a trap, or our own rider (which carries no weapon).
+        /// </summary>
+        public static void Postfix(Thing __instance, DamageInfo dinfo, DamageWorker.DamageResult __result)
+        {
+            if (applyingRider || !TSC_RpgMode.Active || __result == null || __result.totalDamageDealt <= 0f)
+            {
+                return;
+            }
+            if (!(__instance is Pawn victim) || victim.Dead
+                || !(dinfo.Instigator is Pawn attacker) || attacker == victim)
+            {
+                return;
+            }
+            ThingWithComps weapon = attacker.equipment?.Primary;
+            if (weapon == null || dinfo.Weapon != weapon.def)
+            {
+                return;
+            }
+            TSC_EnchantDef enchant = weapon.TryGetComp<Comp_TSC_Enchant>()?.enchant;
+            if (enchant == null || !enchant.forWeapons || !Rand.Chance(enchant.onHitChance))
+            {
+                return;
+            }
+            applyingRider = true;
+            try
+            {
+                if (enchant.onHitDamage > 0f && enchant.onHitDamageDef != null)
+                {
+                    victim.TakeDamage(new DamageInfo(enchant.onHitDamageDef, enchant.onHitDamage,
+                        0f, -1f, attacker));
+                    if (victim.Spawned)
+                    {
+                        FleckMaker.ThrowMicroSparks(victim.DrawPos, victim.Map);
+                    }
+                }
+                if (enchant.stunTicks > 0 && !victim.Dead)
+                {
+                    victim.stances?.stunner?.StunFor(enchant.stunTicks, attacker, addBattleLog: false);
+                }
+                if (enchant.onHitHediff != null && !victim.Dead)
+                {
+                    Hediff dose = victim.health.hediffSet.GetFirstHediffOfDef(enchant.onHitHediff)
+                        ?? victim.health.AddHediff(enchant.onHitHediff);
+                    if (enchant.onHitSeverity < 1f)
+                    {
+                        dose.Severity += enchant.onHitSeverity;
+                    }
+                }
+            }
+            finally
+            {
+                applyingRider = false;
+            }
+        }
+
         public static void Prefix(ref DamageInfo dinfo)
         {
             if (!TSC_RpgMode.Active || dinfo.Def == null || !dinfo.Def.harmsHealth)

@@ -345,6 +345,9 @@ def parse_effects(expr: str, path, lineno) -> list:
                 raise ParseError(path, lineno, "smith_repair syntax: smith_repair() or smith_repair(free)")
             effects.append(Effect("DialogueEffect_TSC_Smithy",
                                   {"free": "true"} if arg else {}))
+        elif name == "stable_animals":
+            # The town stable's line of pack animals, for silver.
+            effects.append(Effect("DialogueEffect_TSC_Stables", {}))
         elif name == "training_hall":
             effects.append(Effect("DialogueEffect_TSC_TrainingHall", {}))
         elif name == "mage_translocate":
@@ -375,7 +378,7 @@ def parse_effects(expr: str, path, lineno) -> list:
             effects.append(Effect("DialogueEffect_Affinity", fields))
         else:
             raise ParseError(path, lineno,
-                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, trade, grant_xp, learn_class, teach_class, grant_prof, affinity, parley_hostile, parley_flee, temple_heal, smith_repair, descend, lure, demoralize, guard_fight, guard_yield, crown_ending, part_ways, courier_ends)")
+                             f"unknown effect '{name}' (know: flag, unflag, signal, give_quest, give_quest_silent, message, goodwill, join_party, trade, grant_xp, learn_class, teach_class, grant_prof, affinity, parley_hostile, parley_flee, temple_heal, smith_repair, stable_animals, descend, lure, demoralize, guard_fight, guard_yield, crown_ending, part_ways, courier_ends)")
     return effects
 
 

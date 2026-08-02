@@ -158,7 +158,7 @@ namespace TheShatteredCrown
     /// What counts as "in a sellable position".
     ///
     /// Vanilla only accepts goods lying loose on the map, which quietly
-    /// excluded everything a travelling company owns: the packs, the armour
+    /// excluded everything a travelling company owns: the packs, the armor
     /// on their backs, the swords in their hands. The shop offered those
     /// items and the deal then refused them, so nothing could be sold.
     /// Anything held by a player pawn now qualifies. RPG mode only, so an

@@ -162,6 +162,74 @@ namespace TheShatteredCrown
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(options));
         }
 
+        /// <summary>
+        /// One entry per contract template, generated exactly the way the
+        /// board generates them - same points, same letter - so a spawned
+        /// contract IS the real thing and not a lookalike. Playtesting a
+        /// specific template used to mean rerolling the board until it came
+        /// up, which for twelve templates is a long evening.
+        /// </summary>
+        [DebugAction("The Shattered Crown", "Spawn contract...", allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        private static void SpawnContract()
+        {
+            if (!RpgGate())
+            {
+                return;
+            }
+            System.Collections.Generic.List<DebugMenuOption> options =
+                new System.Collections.Generic.List<DebugMenuOption>();
+            System.Collections.Generic.List<QuestScriptDef> contracts =
+                new System.Collections.Generic.List<QuestScriptDef>();
+            foreach (QuestScriptDef def in DefDatabase<QuestScriptDef>.AllDefsListForReading)
+            {
+                if (TSC_ContractManager.IsContract(def))
+                {
+                    contracts.Add(def);
+                }
+            }
+            contracts.SortBy(d => d.defName);
+            foreach (QuestScriptDef def in contracts)
+            {
+                QuestScriptDef local = def;
+                options.Add(new DebugMenuOption(local.defName.Substring("TSC_Contract_".Length),
+                    DebugMenuOptionMode.Action, delegate
+                    {
+                        Quest quest = QuestUtility.GenerateQuestAndMakeAvailable(
+                            local, TSC_ContractManager.ContractPoints());
+                        if (quest == null)
+                        {
+                            Messages.Message($"{local.defName}: generation failed (its TestRun said no - "
+                                + "usually no valid site tile or destination from here).",
+                                MessageTypeDefOf.RejectInput, historical: false);
+                            return;
+                        }
+                        if (!quest.hidden)
+                        {
+                            QuestUtility.SendLetterQuestAvailable(quest);
+                        }
+                    }));
+            }
+            Find.WindowStack.Add(new Dialog_DebugOptionListLister(options));
+        }
+
+        [DebugAction("The Shattered Crown", "Homeward: report status", allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        private static void HomewardReport()
+        {
+            GameComponent_TSC_Homeward homeward = Verse.Current.Game?.GetComponent<GameComponent_TSC_Homeward>();
+            System.Text.StringBuilder report = new System.Text.StringBuilder();
+            report.AppendLine($"component = {(homeward != null ? "alive" : "MISSING")}, "
+                + $"rpgMode = {TSC_RpgMode.Active}");
+            homeward?.Sweep(report);
+            Log.Message("[The Shattered Crown] Homeward status:" + System.Environment.NewLine + report);
+            Messages.Message("Homeward status written to the log.", MessageTypeDefOf.NeutralEvent, historical: false);
+        }
+
+        [DebugAction("The Shattered Crown", "Homeward: sweep now", allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        private static void HomewardSweep()
+        {
+            Verse.Current.Game?.GetComponent<GameComponent_TSC_Homeward>()?.Sweep(null);
+        }
+
         [DebugAction("The Shattered Crown", "Show act title card", allowedGameStates = AllowedGameStates.PlayingOnMap)]
         private static void ShowTitleCard()
         {

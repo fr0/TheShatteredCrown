@@ -616,7 +616,7 @@
   <ThingDef ParentName="BuildingBase">
     <defName>TSC_MageBanner</defName>
     <label>mage guild sign</label>
-    <description>A silver ring and an open eye on a violet board, hung from an iron bracket. Wherever it hangs, distance is negotiable and armour can be argued with.</description>
+    <description>A silver ring and an open eye on a violet board, hung from an iron bracket. Wherever it hangs, distance is negotiable and armor can be argued with.</description>
     <graphicData>
       <texPath>Things/Building/TSC_MageBanner</texPath>
       <graphicClass>Graphic_Single</graphicClass>

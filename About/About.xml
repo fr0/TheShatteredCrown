@@ -38,9 +38,9 @@
   <!-- Combat Extended must come AFTER this mod, and the reason is concrete:
        CE patches other people's content. Its Patches folder and its gun and
        apparel auto-patchers only see defs that are already loaded, and this
-       mod ships its own weapons and armour (the Kingsblade above all).
+       mod ships its own weapons and armor (the Kingsblade above all).
        Loaded the wrong way round, CE never sees them: the Kingsblade keeps
-       vanilla Tools, which in CE's penetration model means no armour
+       vanilla Tools, which in CE's penetration model means no armor
        penetration at all, and the campaign's one irreplaceable weapon
        cannot trouble a man in plate. -->
   <loadBefore>

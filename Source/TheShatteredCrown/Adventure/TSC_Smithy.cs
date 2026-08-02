@@ -98,7 +98,7 @@ namespace TheShatteredCrown
         }
 
         /// <summary>
-        /// A weapon or a piece of armour, and something that can be damaged
+        /// A weapon or a piece of armor, and something that can be damaged
         /// at all. Shares the gear screen's test for what counts as a
         /// weapon, so the anvil and the equip list never disagree about
         /// whether a stack of planks is a club.

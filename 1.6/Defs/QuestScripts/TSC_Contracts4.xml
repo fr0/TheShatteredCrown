@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Contracts, fourth set: work that is not a body count.
+       The quiet job pays for what DIDN'T happen; the surveyor pays for
+       an answer; the escort pays for somebody else's heartbeat.
+       ================================================================ -->
+
+  <!-- ============ 10. The quiet job: silence is the bonus ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Quiet</defName>
+    <defaultChallengeRating>2</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [qj_name]</li>
+        <li>qj_name->The Quiet Job</li>
+        <li>qj_name->Nobody's Ledger</li>
+        <li>qj_name->The Unbroken Seal</li>
+        <li>qj_name->In and Out</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[qj_flavor]\n\nBring the sealed ledger to a guild hall. The fee stands however you get it out - but it DOUBLES if no alarm is ever raised. Sleeping guards, picked locks and soft feet keep the bonus; a drawn blade or a body found breathing in a hedge does not.\n\nThe guild suggests going in at night.</li>
+        <li>qj_flavor->A guild ledger is sitting in a waystation the guild no longer holds. The tenants have not opened it. The guild would pay handsomely for that to stay true.</li>
+        <li>qj_flavor->When the waystation fell, the factor walked out with his life and left the books. The books have names in them.</li>
+        <li>qj_flavor->There is a ledger under seal in someone else's cellar. The guild will not say what is in it.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_SubScript"><def>Util_AdjustPointsForDistantFight</def></li>
+        <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
+        <li Class="QuestNode_Set"><name>siteDistRange</name><value>3~10</value></li>
+        <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags><li><tag>TSC_ContractQuiet</tag></li></sitePartsTags>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetBanditFaction"><storeAs>siteFaction</storeAs></li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile><faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
+        <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_FailUnlessHolding">
+          <inSignal>site.Destroyed</inSignal>
+          <item>TSC_SealedLedger</item>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelQuietLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextQuietLost">The waystation was left with the ledger still in it. The guild strikes the contract. No payment, no penalty, no comment.</text>
+              </li>
+              <li Class="QuestNode_End"><outcome>Fail</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <!-- The bad news, the moment it becomes true. -->
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Alarmed</inSignal>
+          <node Class="QuestNode_Letter">
+            <label TKey="LetterLabelQuietBroken">The quiet is broken</label>
+            <text TKey="LetterTextQuietBroken">Whatever happens now, the garrison knows somebody came. The base fee still stands on delivery; the silence bonus is gone.</text>
+          </node>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+          <item>TSC_SealedLedger</item>
+          <deliverToGuild>true</deliverToGuild>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="TheShatteredCrown.QuestNode_TSC_TakeItem">
+                <item>TSC_SealedLedger</item>
+                <count>1</count>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_QuietOutcome" />
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>quiet.Clean</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelQuietClean">Contract complete, quietly</label>
+                <text TKey="LetterTextQuietClean">The seal is unbroken and so, remarkably, is everything else: no alarm, no blood, no story for the garrison to tell. The factor pays double and asks no questions at all.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>340</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>640</amount><coins>8</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>quiet.Loud</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelQuietLoud">Contract complete, loudly</label>
+                <text TKey="LetterTextQuietLoud">The ledger is home, and so is the story of how it left. The factor pays the base fee and notes that the bonus was for the quieter version.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>220</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>320</amount><coins>4</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ 11. The surveyor: pay for an answer ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Surveyor</defName>
+    <defaultChallengeRating>2</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [sv_name]</li>
+        <li>sv_name->The Missing Surveyor</li>
+        <li>sv_name->His Last Report</li>
+        <li>sv_name->The Unmarked Mile</li>
+        <li>sv_name->Gone Off the Map</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[sv_flavor]\n\nThe last camp is marked on your map. Find out what happened. The guild pays for the answer, whatever the answer is.\n\nBring eyes that read ground: the trail is three weeks old.</li>
+        <li>sv_flavor->The guild's surveyor went out to mark the road north and stopped reporting three weeks ago. The horse came back. The instruments did not.</li>
+        <li>sv_flavor->Every guild road starts as one surveyor with a chain and a notebook. The one marking this stretch has gone quiet, and the road is stopped behind them.</li>
+        <li>sv_flavor->The surveyor's reports arrived like clockwork for nine years. The clock has stopped.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap"><canBeSpace>false</canBeSpace></li>
+        <li Class="QuestNode_Set"><name>siteDistRange</name><value>4~12</value></li>
+        <li Class="QuestNode_GetSiteTile">
+          <selectLandmarkChance>0</selectLandmarkChance><storeAs>siteTile</storeAs><preferCloserTiles>true</preferCloserTiles></li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags><li><tag>TSC_SurveyorSite</tag></li></sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile><faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript"><def>Util_GenerateSite</def></li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
+        <li Class="QuestNode_SpawnWorldObjects"><worldObjects>$site</worldObjects></li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>site.Destroyed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelSurveyorLost">Contract lapsed: [resolvedQuestName]</label>
+                <text TKey="LetterTextSurveyorLost">The camp was left unread and the weather is already at work on what was there. The guild strikes the contract; the road stays stopped.</text>
+              </li>
+              <li Class="QuestNode_End"><outcome>Fail</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>SurveyorFound</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelSurveyorDead">Found: the hard answer</label>
+                <text TKey="LetterTextSurveyorDead">The surveyor is where the country left them, weeks gone, the measuring chain still coiled at their belt. The party takes the guild signet and marks the place. It is not the answer anyone hoped for, but it is the answer, and the guild pays for answers.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>240</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>320</amount><coins>4</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>SurveyorFreed</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelSurveyorFreed">Found: alive, and owed</label>
+                <text TKey="LetterTextSurveyorFreed">The surveyor was nobody's guest. Cut loose, fed, and standing straighter by the hour, they throw in with the company for now - the guild counts its surveyor found, pays in full, and adds a line of thanks in a hand that does not usually bother.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>280</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>380</amount><coins>5</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>SurveyorReturns</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelSurveyorReturns">Found: coming home</label>
+                <text TKey="LetterTextSurveyorReturns">The surveyor argued, and then packed, and set off down the road they themselves had marked, toward the guild that pays for it. Full fee, and the road moves again.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>280</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>380</amount><coins>5</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>SurveyorReported</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelSurveyorReported">Found: the true report</label>
+                <text TKey="LetterTextSurveyorReported">Alive, well, and finished - and that is what the guild is told, word for word. The factor reads it twice, files it, and pays the full fee for an honest answer. Somewhere in the hills, a surveyor goes on being free.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>240</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>380</amount><coins>4</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>SurveyorStays</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelSurveyorStays">Never found</label>
+                <text TKey="LetterTextSurveyorStays">The report reads: no trace. The factor pays the half-fee a cold trail earns and closes the file. The party carries the rest of it - a fire in the hills, a handshake apiece, and a road that will need a new surveyor.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>240</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>190</amount><coins>2</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- ============ 12. The escort: a heartbeat, delivered ============ -->
+
+  <QuestScriptDef ParentName="TSC_ContractBase">
+    <defName>TSC_Contract_Escort</defName>
+    <defaultChallengeRating>1</defaultChallengeRating>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->Contract: [es_name]</li>
+        <li>es_name->The Living Cargo</li>
+        <li>es_name->Walk Them There</li>
+        <li>es_name->The Clerk Who Counted</li>
+        <li>es_name->One Road, Alive</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->[es_flavor]\n\nThe charge joins the company the moment the contract is taken, and travels with you - eating your food, riding your pace, trusting your blades. Walk them through the destination's gates alive and the fee is paid. There is no fee for a body.\n\nThe fee is flat. The road is not.</li>
+        <li>es_flavor->A guild clerk counted the wrong man's money, and the wrong man knows. The guild wants its clerk somewhere the counting cannot be corrected.</li>
+        <li>es_flavor->Somebody saw something, wrote it down, and signed it. Now they have to arrive wherever the paper already has.</li>
+        <li>es_flavor->The guild moves silver in strongboxes and trouble in people. This cargo answers to a name.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <!-- No GetMap and no vanilla settlement node: both assume a slate
+             map, which board- and debug-generated quests may not have. The
+             escort node finds the party and the gates by itself. -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_Escort">
+          <maxTileDistance>40</maxTileDistance>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>escort.NoRoad</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <label TKey="LetterLabelEscortNoRoad">Contract void: [resolvedQuestName]</label>
+                <text TKey="LetterTextEscortNoRoad">There are no friendly gates within a sensible ride of here, and the guild does not pay people to walk its clerk in circles. The contract is voided before it starts: no charge, no fee, no penalty.</text>
+              </li>
+              <li Class="QuestNode_End"><outcome>Fail</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>escort.Died</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NegativeEvent</letterDef>
+                <label TKey="LetterLabelEscortLost">Contract failed: [resolvedQuestName]</label>
+                <text TKey="LetterTextEscortLost">The charge did not reach the gates. The guild pays nothing, asks for the details, and files them.</text>
+              </li>
+              <li Class="QuestNode_End"><outcome>Fail</outcome></li>
+            </nodes>
+          </node>
+        </li>
+
+        <li Class="QuestNode_Signal">
+          <inSignal>escort.Delivered</inSignal>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>PositiveEvent</letterDef>
+                <label TKey="LetterLabelEscortDone">Contract complete</label>
+                <text TKey="LetterTextEscortDone">The charge walks through the gates on their own feet, exactly as specified. Payment as chartered.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>260</xp></li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>420</amount><coins>6</coins></li>
+              <li Class="QuestNode_End"><outcome>Success</outcome></li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+</Defs>

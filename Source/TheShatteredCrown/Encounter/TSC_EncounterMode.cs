@@ -2542,7 +2542,31 @@ namespace TheShatteredCrown
     {
         private static readonly Color SpentColor = new Color(0.4f, 0.4f, 0.4f, 0.8f);
         private static readonly Color AvailableColor = new Color(1f, 1f, 1f, 0.95f);
-        private static readonly Color WarnColor = new Color(0.95f, 0.75f, 0.3f);
+        /// <summary>
+        /// A cursor label with something behind it.
+        ///
+        /// These float over whatever the map happens to be: lit stone,
+        /// firelight, a dozen colours of terrain. Amber tiny text on top of
+        /// that is unreadable, and it is the amber one (the warning) that
+        /// matters most. A dark plate under the text costs nothing and makes
+        /// every state legible on every background. The caller sets
+        /// GUI.color; this preserves it for the text and paints the plate
+        /// itself in black.
+        /// </summary>
+        private static void CursorLabel(Vector2 topLeft, string label)
+        {
+            Vector2 size = Text.CalcSize(label);
+            Rect plate = new Rect(topLeft.x - 4f, topLeft.y - 1f, size.x + 8f, size.y + 2f);
+            Color text = GUI.color;
+            GUI.color = new Color(0f, 0f, 0f, 0.62f);
+            GUI.DrawTexture(plate, BaseContent.WhiteTex);
+            GUI.color = text;
+            Widgets.Label(new Rect(topLeft.x, topLeft.y, size.x + 2f, size.y + 2f), label);
+        }
+
+        // Brighter than it was: this is the mid-confidence state and it sat
+        // at 0.75 green, which reads as brown once the plate is behind it.
+        private static readonly Color WarnColor = new Color(1f, 0.84f, 0.42f);
         private static readonly Color OverColor = new Color(0.95f, 0.35f, 0.3f);
 
         public MapComponent_TSC_EncounterGUI(Map map) : base(map)
@@ -3092,7 +3116,7 @@ namespace TheShatteredCrown
             // Above-right of the cursor: vanilla tooltips spawn below-right and
             // were covering the labels there.
             Vector2 mouse = Event.current.mousePosition;
-            Widgets.Label(new Rect(mouse.x + 16f, mouse.y - 38f, 90f, 18f), $"{previewCostAp:0.#} AP");
+            CursorLabel(new Vector2(mouse.x + 16f, mouse.y - 38f), $"{previewCostAp:0.#} AP");
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
@@ -3171,7 +3195,7 @@ namespace TheShatteredCrown
                 : OverColor;
             // Stacked above the cursor with the AP label, clear of the tooltip zone.
             Vector2 mouse = Event.current.mousePosition;
-            Widgets.Label(new Rect(mouse.x + 16f, mouse.y - 20f, 140f, 18f), text);
+            CursorLabel(new Vector2(mouse.x + 16f, mouse.y - 20f), text);
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
@@ -3531,7 +3555,15 @@ namespace TheShatteredCrown
                 {
                     barBottom = Mathf.Max(barBottom, drawLocs[i].y);
                 }
-                topY = barBottom + colonistBar.Size.y + 26f;
+                // Clear the portraits AND what hangs under them. The bar
+                // reports only its portrait size, while the name labels sit
+                // below that and mods that draw equipped-weapon icons under
+                // each colonist sit lower still - which is what the banner
+                // was landing on. Half a portrait more of room, expressed in
+                // portrait heights so it holds at every UI scale and every
+                // colonist-bar zoom rather than being a pixel count that
+                // happens to work on one machine.
+                topY = barBottom + colonistBar.Size.y * 1.5f + 30f;
             }
             Rect banner = new Rect(UI.screenWidth / 2f - 380f, topY, 760f, 30f);
             GUI.color = new Color(0f, 0f, 0f, 0.6f);
@@ -3653,6 +3685,34 @@ namespace TheShatteredCrown
         }
     }
 
+    /// <summary>
+    /// No drafted shuffling while the turn engine holds the map.
+    ///
+    /// JobGiver_MoveToStandable is vanilla's "two drafted pawns are
+    /// standing in one cell, one of them should step aside" reflex, and it
+    /// assumes the pawn can actually walk. Under the freeze nobody walks
+    /// out of turn, so the condition never clears and the think tree
+    /// re-issues the same Goto until vanilla's ten-jobs-in-a-tick alarm
+    /// fires (seen in play: Cameron, ten Gotos to one cell, a page of
+    /// stack traces). Positions get sorted out by the players' own orders
+    /// when their turns come; the reflex can wait for the fight to end.
+    /// </summary>
+    [HarmonyPatch(typeof(Verse.AI.JobGiver_MoveToStandable), "TryGiveJob")]
+    public static class Patch_MoveToStandable_TurnFreeze
+    {
+        public static bool Prefix(Pawn pawn, ref Verse.AI.Job __result)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            if (ctrl != null && ctrl.Active && !ctrl.ApproachMode
+                && pawn?.Map != null && ctrl.ActiveOn(pawn.Map))
+            {
+                __result = null;
+                return false;
+            }
+            return true;
+        }
+    }
+
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.GetGizmos))]
     public static class Patch_Pawn_GetGizmos_EncounterToggle
     {
@@ -3714,7 +3774,7 @@ namespace TheShatteredCrown
                         + "(and the distance that triggers turn-based combat).\n\n"
                         + $"Gear: {TSC_StealthTracker.BurdenLabel(__instance)}, in {TSC_StealthTracker.LightLabel(__instance)} - noticed at "
                         + $"{TSC_StealthTracker.SightFactorFor(__instance).ToStringPercent()} of normal range. "
-                        + "Heavy armour clanks; darkness hides.\n\n"
+                        + "Heavy armor clanks; darkness hides.\n\n"
                         + "Being seen up close, taking a hit, or attacking ends it.\n\n"
                         + "Toggles every selected pawn at once.",
                     // The same hood the sneaking pawns wear, so button and

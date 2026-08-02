@@ -33,7 +33,13 @@
         <requiresInjury>true</requiresInjury>
       </li>
     </modExtensions>
-    <!-- Field medicine: castable undrafted (energy and cooldown still apply) -->
+    <!-- Field medicine: castable undrafted (energy and cooldown still apply).
+         BOTH flags are needed and they are not the same question.
+         disableGizmoWhileUndrafted only un-greys the button;
+         displayGizmoWhileUndrafted (default FALSE) decides whether it is
+         drawn at all, and without it the un-greyed button was never on
+         screen to press. -->
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
     <cooldownTicksRange>15000</cooldownTicksRange>
     <verbProperties>
@@ -63,7 +69,13 @@
     <label>cleanse</label>
     <description>Removes diseases, wound infections, food poisoning, and toxic buildup from the target. Touch range.</description>
     <iconPath>UI/TSC_Abilities/TSC_Cleanse</iconPath>
-    <!-- Field medicine: castable undrafted (energy and cooldown still apply) -->
+    <!-- Field medicine: castable undrafted (energy and cooldown still apply).
+         BOTH flags are needed and they are not the same question.
+         disableGizmoWhileUndrafted only un-greys the button;
+         displayGizmoWhileUndrafted (default FALSE) decides whether it is
+         drawn at all, and without it the un-greyed button was never on
+         screen to press. -->
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
     <cooldownTicksRange>60000</cooldownTicksRange>
     <verbProperties>
@@ -133,7 +145,13 @@
     <label>prayer of mending</label>
     <description>Every ally within 6.9 cells of the caster mends over the next 30 seconds, closing about 12 points of injury each, worst wounds first.</description>
     <iconPath>UI/TSC_Abilities/TSC_PrayerOfMending</iconPath>
-    <!-- Field medicine: castable undrafted (energy and cooldown still apply) -->
+    <!-- Field medicine: castable undrafted (energy and cooldown still apply).
+         BOTH flags are needed and they are not the same question.
+         disableGizmoWhileUndrafted only un-greys the button;
+         displayGizmoWhileUndrafted (default FALSE) decides whether it is
+         drawn at all, and without it the un-greyed button was never on
+         screen to press. -->
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
     <cooldownTicksRange>15000</cooldownTicksRange>
     <statBases>
@@ -269,7 +287,13 @@
     <label>song of rest</label>
     <description>Allies within 9.9 cells gain +25% rest rate and 50% faster injury healing for 12 hours, and each restores 15 Energy. The singer gains no Energy.</description>
     <iconPath>UI/TSC_Abilities/TSC_SongOfRest</iconPath>
-    <!-- Field medicine: castable undrafted (energy and cooldown still apply) -->
+    <!-- Field medicine: castable undrafted (energy and cooldown still apply).
+         BOTH flags are needed and they are not the same question.
+         disableGizmoWhileUndrafted only un-greys the button;
+         displayGizmoWhileUndrafted (default FALSE) decides whether it is
+         drawn at all, and without it the un-greyed button was never on
+         screen to press. -->
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
     <cooldownTicksRange>120000</cooldownTicksRange>
     <verbProperties>
@@ -377,6 +401,9 @@ In turn-based combat the surge grants +4 AP on cast, offsetting most of its cost
 
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_SecondWind</defName>
+    <!-- Field medicine, on yourself: same undrafted rule as the rest. -->
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
+    <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
     <label>second wind</label>
     <description>Heals up to 15 points of the caster's own injuries, worst first.</description>
     <iconPath>UI/TSC_Abilities/TSC_SecondWind</iconPath>
@@ -1005,6 +1032,8 @@ Costs what one ordinary swing of the same weapon costs, so there is turn enough 
 
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_Whirlwind</defName>
+    <!-- An attack, and marked as one: the hostile flag is also what breaks stealth. -->
+    <hostile>true</hostile>
     <label>whirlwind</label>
     <description>One full turning blow: strikes every enemy within melee range (1.9 cells) for the caster's normal weapon damage.
 
@@ -1054,7 +1083,13 @@ Costs what two ordinary swings of the same weapon cost, so it pays from the seco
     <label>nature's balm</label>
     <description>Heals up to 20 points of injury on the target, worst wounds first. Touch range.</description>
     <iconPath>UI/TSC_Abilities/TSC_NaturesBalm</iconPath>
-    <!-- Field medicine: castable undrafted (energy and cooldown still apply) -->
+    <!-- Field medicine: castable undrafted (energy and cooldown still apply).
+         BOTH flags are needed and they are not the same question.
+         disableGizmoWhileUndrafted only un-greys the button;
+         displayGizmoWhileUndrafted (default FALSE) decides whether it is
+         drawn at all, and without it the un-greyed button was never on
+         screen to press. -->
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
     <cooldownTicksRange>15000</cooldownTicksRange>
     <verbProperties>
@@ -1227,7 +1262,13 @@ Costs what two ordinary swings of the same weapon cost, so it pays from the seco
     <label>inner calm</label>
     <description>The monk turns it inward. Purges disease, infection, poisoning and toxic buildup from the monk alone, and leaves them composed: +10% consciousness and a far steadier mind for 60 seconds. Recovers in a quarter of the time a cleric's cleanse takes.</description>
     <iconPath>UI/TSC_Abilities/TSC_InnerCalm</iconPath>
-    <!-- Field medicine: castable undrafted (energy and cooldown still apply) -->
+    <!-- Field medicine: castable undrafted (energy and cooldown still apply).
+         BOTH flags are needed and they are not the same question.
+         disableGizmoWhileUndrafted only un-greys the button;
+         displayGizmoWhileUndrafted (default FALSE) decides whether it is
+         drawn at all, and without it the un-greyed button was never on
+         screen to press. -->
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
     <cooldownTicksRange>15000</cooldownTicksRange>
     <statBases>
@@ -1342,7 +1383,13 @@ Costs what two ordinary swings of the same weapon cost, so it pays from the seco
     <label>lay on hands</label>
     <description>Heals up to 35 points of injury on the target, worst wounds first. Touch range.</description>
     <iconPath>UI/TSC_Abilities/TSC_LayOnHands</iconPath>
-    <!-- Field medicine: castable undrafted (energy and cooldown still apply) -->
+    <!-- Field medicine: castable undrafted (energy and cooldown still apply).
+         BOTH flags are needed and they are not the same question.
+         disableGizmoWhileUndrafted only un-greys the button;
+         displayGizmoWhileUndrafted (default FALSE) decides whether it is
+         drawn at all, and without it the un-greyed button was never on
+         screen to press. -->
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
     <cooldownTicksRange>30000</cooldownTicksRange>
     <verbProperties>
@@ -1470,6 +1517,8 @@ Costs what two ordinary swings of the same weapon cost, so it pays from the seco
 
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_ChargedShot</defName>
+    <!-- An attack, and marked as one: the hostile flag is also what breaks stealth. -->
+    <hostile>true</hostile>
     <label>charged shot</label>
     <description>Every draw measured, every loose meant: the caster's next 3 ranged attacks fly truer (improved accuracy) and deal 150% damage (charges last up to 60 seconds; a missed shot still spends its charge).</description>
     <iconPath>UI/TSC_Abilities/TSC_ChargedShot</iconPath>
@@ -1515,7 +1564,13 @@ Costs what two ordinary swings of the same weapon cost, so it pays from the seco
     <label>field dressing</label>
     <description>Heals up to 15 points of injury on the target, worst wounds first. Touch range.</description>
     <iconPath>UI/TSC_Abilities/TSC_FieldDressing</iconPath>
-    <!-- Field medicine: castable undrafted (energy and cooldown still apply) -->
+    <!-- Field medicine: castable undrafted (energy and cooldown still apply).
+         BOTH flags are needed and they are not the same question.
+         disableGizmoWhileUndrafted only un-greys the button;
+         displayGizmoWhileUndrafted (default FALSE) decides whether it is
+         drawn at all, and without it the un-greyed button was never on
+         screen to press. -->
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
     <cooldownTicksRange>15000</cooldownTicksRange>
     <verbProperties>

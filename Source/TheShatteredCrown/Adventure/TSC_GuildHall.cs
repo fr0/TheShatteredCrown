@@ -125,6 +125,32 @@ namespace TheShatteredCrown
             SpawnTownTrainer(settlement);
             SpawnTownMage(settlement);
             SpawnTownInnkeeper(settlement);
+            SpawnTownStabler(settlement);
+        }
+
+        /// <summary>The stables: pack animals, for silver.</summary>
+        private void SpawnTownStabler(Settlement settlement)
+        {
+            PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail("TSC_TownStabler");
+            if (kind == null)
+            {
+                return;
+            }
+            Pawn stabler = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                kind, settlement.Faction, PawnGenerationContext.NonPlayer,
+                forceGenerateNewPawn: true, canGeneratePawnRelations: false));
+            IntVec3 cell = StampBuilding("TSC_Stables", "TSC_StablesBanner");
+            if (!cell.IsValid)
+            {
+                cell = CellFinder.StandableCellNear(map.Center, map, 26f);
+            }
+            if (!cell.IsValid)
+            {
+                return;
+            }
+            GenSpawn.Spawn(stabler, cell, map);
+            LordMaker.MakeNewLord(stabler.Faction, new LordJob_DefendPoint(cell, wanderRadius: 3.5f),
+                map, Gen.YieldSingle(stabler));
         }
 
         /// <summary>The tavern: a night off, for silver.</summary>

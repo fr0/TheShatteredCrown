@@ -106,7 +106,7 @@
   <TheShatteredCrown.TSC_WishDef>
     <defName>TSC_Wish_Mace</defName>
     <label>a masterwork mace</label>
-    <description>Plasteel, masterwork. For the armoured problems.</description>
+    <description>Plasteel, masterwork. For the armored problems.</description>
     <category>Arms</category>
     <order>20</order>
     <thingDef>MeleeWeapon_Mace</thingDef>

@@ -112,9 +112,10 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->[wr_flavor]\n\nTravel to the ruin and clear it out: BOTH sets of tenants, the squatters and the insects, have to be dead or driven off before the guild takes the building back. Leaving one lot in place finishes nothing.\n\nThey are hostile to you and to each other. Let them fight each other first if you can.\n\nPay is charter silver and guild coin, on the building standing empty.</li>
-        <li>wr_flavor->A ruin the guild wants back has two occupants: squatters at one end, insects at the other. Neither has managed to shift the other.</li>
+        <li>questDescription->[wr_flavor]\n\nTravel to the ruin and clear it out: BOTH sets of tenants have to be dead or driven off before the guild takes the building back. Leaving one lot in place finishes nothing.\n\nThey are hostile to you and to each other. Let them fight each other first if you can.\n\nPay is charter silver and guild coin, on the building standing empty.</li>
+        <li>wr_flavor->A ruin the guild wants back has two occupants: squatters at one end, and something else at the other. Neither has managed to shift the other.</li>
         <li>wr_flavor->Squatters took a waystation, then found out what was already living under it. The stand-off has held for a season.</li>
+        <li>wr_flavor->The guild's surveyor counted two lots of tenants in one building and would not say which of them he liked less.</li>
         <li>wr_flavor->There are two kinds of tracks going in and one kind coming out. The guild's surveyor did not stay to work out why.</li>
       </rulesStrings>
     </questDescriptionRules>
@@ -433,7 +434,7 @@
         <li>questDescription->[wk_flavor]\n\nThe wreck is strung along the road. The locked coffer has been dragged into the old watch-post beside it, along with the people who dragged it. Recover it and bring it to a guild hall.\n\nCharter silver and guild coin, on delivery.</li>
         <li>wk_flavor->A guild caravan did not arrive. A rider found it a week later, spread along half a mile of road, with scavengers still working it.</li>
         <li>wk_flavor->The drivers are dead, the animals gone, the boxes open. The guild wants the one box that was locked.</li>
-        <li>wk_flavor->Whoever took the caravan has not moved on. They have settled into the ruined post beside it, which suggests something is still unopened.</li>
+        <li>wk_flavor->Whoever took the caravan has not moved on. They have settled into the ruined post beside it. Something in there is still shut.</li>
       </rulesStrings>
     </questDescriptionRules>
     <root Class="QuestNode_Sequence">

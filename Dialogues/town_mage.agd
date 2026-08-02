@@ -7,10 +7,10 @@ dialogue TSC_Dialogue_TownMage
 == start ==
 The mage is sitting on the edge of an inlaid marble circle, eating an apple, and does not stand up when you come in.
 
-"Two things for sale, and neither of them is advice. I can move you, and I can argue with your armour. Both cost silver, and the silver is not the hard part."
+"Two things for sale, and neither of them is advice. I can move you, and I can enchant your gear. Both cost silver, and the silver is not the hard part."
 
 * "Move us how far?" -> travel
-* "Argue with our armour?" -> enchant
+* "Enchant our gear?" -> enchant
 * "Neither today." -> end
 
 == travel ==
@@ -21,7 +21,7 @@ The mage is sitting on the edge of an inlaid marble circle, eating an apple, and
 * "Not yet." -> end
 
 == enchant ==
-"Armour remembers what it's for. Given time and silver, it can be taught something extra: a ward, a lightness, a bite, a quickness." He finishes the apple. "Plain armour only. One working to a piece. Two workings on one coat argue with each other, and they settle it through whoever is wearing it."
+"Given time and silver, your weapons and armor be taught something extra: a ward, a lightness, a bite, a quickness." He finishes the apple. "Plain armor and weapons only. One to a piece."
 
 * "Show me the bench." -> end
     do mage_enchant()

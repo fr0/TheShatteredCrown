@@ -103,7 +103,7 @@ namespace TheShatteredCrown
                 OpenGear(party.Count > 0 ? party[0] : null);
             }
             TooltipHandler.TipRegion(gear,
-                "Weapons and armour for the whole company: every slot, and everything within reach that fits it.");
+                "Weapons and armor for the whole company: every slot, and everything within reach that fits it.");
 
             TSC_ProgressionManager progression = TSC_ProgressionManager.Current;
             List<TSC_ProficiencyDef> profs = Proficiencies();

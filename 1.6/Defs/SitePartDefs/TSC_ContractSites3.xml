@@ -103,7 +103,8 @@
   </GenStepDef>
 
   <!-- Two posts, two factions, one building: the squatters hold one end and
-       the insects hold the other. They fight each other as readily as you,
+       whatever else got there first holds the other. They fight each other
+       as readily as they fight you,
        which is the point of the contract.
 
        Both sides run larger than a comparable one-faction garrison (3~6 a
@@ -129,11 +130,66 @@
     <linkWithSite>TSC_ContractWarren</linkWithSite>
     <order>484</order>
     <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
-      <faction>insects</faction>
-      <kinds>
-        <li>Megascarab</li>
-        <li>Spelopede</li>
-      </kinds>
+      <!-- Whoever else got there first. Rolled per map, because a warren
+           whose other end is insects every single time has one surprise in
+           it and never again.
+
+           Every crew here is hostile to the squatters as well as to the
+           party, which is the contract's whole premise: insects are at war
+           with everything, and a manhunting animal does not check factions
+           before it charges. A rival human crew would need a faction the
+           squatters' own faction is hostile to, which is not something a
+           generated world guarantees, so that stays out for now.
+
+           Kinds are named as strings and any that a load order lacks simply
+           drop out; a crew left with nothing is skipped in the roll. -->
+      <crews>
+        <li>
+          <faction>insects</faction>
+          <kinds>
+            <li>Megascarab</li>
+            <li>Spelopede</li>
+          </kinds>
+          <pickOneKind>false</pickOneKind>
+          <weight>1.4</weight>
+        </li>
+        <li>
+          <!-- A pack: one kind for the whole crew, and already hunting. -->
+          <faction>wild</faction>
+          <manhunter>true</manhunter>
+          <kinds>
+            <li>Wolf_Timber</li>
+            <li>Wolf_Arctic</li>
+            <li>Warg</li>
+            <li>Lynx</li>
+            <li>Cougar</li>
+          </kinds>
+          <weight>1.2</weight>
+        </li>
+        <li>
+          <!-- Heavier animals: fewer things that bite, each of them worse. -->
+          <faction>wild</faction>
+          <manhunter>true</manhunter>
+          <kinds>
+            <li>Bear_Grizzly</li>
+            <li>Bear_Polar</li>
+            <li>Boar</li>
+            <li>WildBoar</li>
+          </kinds>
+          <weight>0.7</weight>
+        </li>
+        <li>
+          <!-- Scavengers that took the cellar: many, weak, everywhere. -->
+          <faction>wild</faction>
+          <manhunter>true</manhunter>
+          <kinds>
+            <li>Rat</li>
+            <li>Raccoon</li>
+            <li>Boomrat</li>
+          </kinds>
+          <weight>0.6</weight>
+        </li>
+      </crews>
       <count>3~6</count>
       <scaledClamp>3~10</scaledClamp>
       <holdEnd>NE</holdEnd>

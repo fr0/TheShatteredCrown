@@ -20,7 +20,8 @@ namespace TheShatteredCrown
     ///
     /// That has now happened twice with two different causes (the pack, then
     /// the warren), so the guard belongs here rather than in each quest
-    /// script: hold the signal until this map has actually held an enemy.
+    /// script: hold the signal until this map has actually held an enemy,
+    /// and hold it again for as long as one is still standing on it.
     ///
     /// The hold is not forever. If a minute passes with the map still empty,
     /// the signal goes through - a player must never be stranded on a
@@ -42,6 +43,77 @@ namespace TheShatteredCrown
 
         public bool EnemiesEverSeen => everSawHostile;
 
+        /// <summary>
+        /// Only sites a quest is actually listening to. A discovery site - a
+        /// wild cave the party's survival roll turned up - sends its
+        /// "all enemies defeated" signal to nobody, has every right to be
+        /// peaceful, and must not be complained about. Quest tags are the
+        /// test vanilla itself uses to route the signal, so they are the
+        /// test here.
+        /// </summary>
+        private bool? listening;
+
+        /// <summary>
+        /// Only sites whose "all enemies defeated" signal somebody actually
+        /// wants. Quest tags alone were not enough: the surveyor site is
+        /// quest-tagged and DESIGNED to be peaceful in two of its three
+        /// fates, and the watch cried wolf over it in play. So the parts of
+        /// every live quest are checked - by their signal fields, via
+        /// reflection, cached once - for a listener on this site's clear
+        /// signal. No listener, no watch.
+        /// </summary>
+        private bool Watched(out Site site)
+        {
+            site = map.Parent as Site;
+            if (site == null || site.questTags.NullOrEmpty())
+            {
+                return false;
+            }
+            if (listening == null)
+            {
+                listening = AnyQuestListens(site);
+            }
+            return listening == true;
+        }
+
+        private static bool AnyQuestListens(Site site)
+        {
+            foreach (string tag in site.questTags)
+            {
+                string wanted = tag + ".AllEnemiesDefeated";
+                foreach (Quest quest in Find.QuestManager.QuestsListForReading)
+                {
+                    if (quest.State != QuestState.Ongoing && quest.State != QuestState.NotYetAccepted)
+                    {
+                        continue;
+                    }
+                    foreach (QuestPart part in quest.PartsListForReading)
+                    {
+                        foreach (System.Reflection.FieldInfo field in part.GetType().GetFields(
+                            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+                        {
+                            if (field.FieldType == typeof(string))
+                            {
+                                if ((string)field.GetValue(part) == wanted)
+                                {
+                                    return true;
+                                }
+                            }
+                            else if (field.FieldType == typeof(List<string>))
+                            {
+                                List<string> values = (List<string>)field.GetValue(part);
+                                if (values != null && values.Contains(wanted))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         public override void FinalizeInit()
         {
             base.FinalizeInit();
@@ -49,7 +121,7 @@ namespace TheShatteredCrown
             {
                 startTick = Find.TickManager.TicksGame;
             }
-            if (!(map.Parent is Site site))
+            if (!Watched(out Site site))
             {
                 return;
             }
@@ -73,6 +145,19 @@ namespace TheShatteredCrown
             Recheck();
         }
 
+        /// <summary>Alive, standing, and no friend of ours - asleep or not.</summary>
+        private bool AnyLivingHostile()
+        {
+            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+            {
+                if (!pawn.Dead && !pawn.Downed && pawn.HostileTo(Faction.OfPlayer))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private void Recheck()
         {
             foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
@@ -91,6 +176,27 @@ namespace TheShatteredCrown
         /// </summary>
         public bool AllowCompletion()
         {
+            if (!Watched(out _))
+            {
+                return true; // nobody is listening; nothing to guard
+            }
+            // Vanilla's threat scan does not count a SLEEPING pawn
+            // (GenHostility.IsPotentialThreat: "if (pawn != null &&
+            // !pawn.Awake()) return false"). That is sensible for deciding
+            // whether a raid is over and wrong for deciding whether a ruin
+            // has been cleared: the warren's insects doze in their own end
+            // of the building until something disturbs them, so killing the
+            // squatters completed a contract with a nest still in it.
+            //
+            // A contract that says both sets of tenants have to be dead or
+            // driven off means exactly that, so anything alive and standing
+            // holds the signal. Downed still counts as defeated, as vanilla
+            // has it - nobody should have to walk around executing the
+            // unconscious to get paid.
+            if (AnyLivingHostile())
+            {
+                return false;
+            }
             if (everSawHostile)
             {
                 return true;

@@ -200,8 +200,12 @@ namespace TheShatteredCrown
             }
 
             // A scraped success gets a wide guess and one find; a clean one
-            // gets tight marks and the whole floor's worth.
-            float spread = Mathf.Clamp(9f - margin * 1.5f, 0f, 9f);
+            // gets tight marks and the whole floor's worth. Tuned wider by
+            // request: a bare success is now a genuinely broad "somewhere in
+            // this quarter of the map" sweep (27 cells), narrowing three
+            // cells for every point of margin, floored so even a perfect
+            // roll is an area to walk rather than a pin.
+            float spread = Mathf.Clamp(27f - margin * 3f, 4f, 27f);
             int lootWanted = margin >= 5 ? 3 : 1;
             int threatWanted = margin >= 5 ? 4 : 1;
             marks.Clear();
@@ -274,16 +278,36 @@ namespace TheShatteredCrown
         /// </summary>
         private List<Thing> Loot(Pawn searcher, int wanted)
         {
-            List<Thing> candidates = new List<Thing>();
+            // The contract's own box rides above the trim: whatever else a
+            // narrow success surfaces, the party can always find the thing
+            // it was paid to find. It used to be sorted with the rest, and a
+            // nearer chest could push it out of a one-find result.
+            List<Thing> found = new List<Thing>();
             ThingDef strongbox = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_GuildStrongbox");
             if (strongbox != null)
             {
-                candidates.AddRange(map.listerThings.ThingsOfDef(strongbox));
+                found.AddRange(map.listerThings.ThingsOfDef(strongbox));
             }
+            List<Thing> candidates = new List<Thing>();
             foreach (Thing thing in map.listerThings.AllThings)
             {
-                if (thing.Faction == Faction.OfPlayer || candidates.Contains(thing))
+                if (thing.Faction == Faction.OfPlayer || found.Contains(thing))
                 {
+                    continue;
+                }
+                // The mod's own curiosities: tracks to read, a blind to
+                // search, a hatch under the moss. These are most of what a
+                // random discovery site actually holds, and they were
+                // invisible to Search because none of them is an openable
+                // or an item. An unspent spot is a find; a spent one is
+                // yesterday's news.
+                Comp_TSC_CheckSpot spot = thing.TryGetComp<Comp_TSC_CheckSpot>();
+                if (spot != null)
+                {
+                    if (!spot.Spent)
+                    {
+                        candidates.Add(thing);
+                    }
                     continue;
                 }
                 if (thing is IOpenable openable && openable.CanOpen)
@@ -301,11 +325,15 @@ namespace TheShatteredCrown
                 }
             }
             candidates.SortBy(t => t.Position.DistanceToSquared(searcher.Position));
-            if (candidates.Count > wanted)
+            foreach (Thing candidate in candidates)
             {
-                candidates.RemoveRange(wanted, candidates.Count - wanted);
+                if (found.Count >= wanted)
+                {
+                    break;
+                }
+                found.Add(candidate);
             }
-            return candidates;
+            return found;
         }
 
         /// <summary>Hostiles, grouped: three bandits in one room are one answer, not three.</summary>
@@ -353,6 +381,10 @@ namespace TheShatteredCrown
             if (thing.def.defName == "TSC_GuildStrongbox")
             {
                 return "the guild's seal";
+            }
+            if (thing.TryGetComp<Comp_TSC_CheckSpot>() != null)
+            {
+                return "something worth a closer look";
             }
             return thing is IOpenable ? "something shut" : "something worth carrying";
         }
@@ -427,12 +459,22 @@ namespace TheShatteredCrown
         public static TSC_SearchMark Make(IntVec3 at, float spread, bool threat)
         {
             // The mark is not centred on the thing: a rough answer should be
-            // rough in WHERE as well as in how much, so the ring wanders by
-            // up to its own spread and the party has to look inside it.
-            IntVec3 drift = spread <= 0.5f
-                ? IntVec3.Zero
-                : new IntVec3(Mathf.RoundToInt(Rand.Range(-spread, spread)), 0,
-                    Mathf.RoundToInt(Rand.Range(-spread, spread)));
+            // rough in WHERE as well as in how much - but the thing must
+            // still be INSIDE the ring, or the ring is a lie. The first
+            // version rolled x and z drift independently, and a diagonal
+            // roll put the find root-two times the spread from the centre
+            // of a spread-radius circle: a playtest cairn sat plainly
+            // outside its own marker. Now the drift is a bearing and a
+            // distance capped at six-tenths of the radius, which keeps the
+            // target inside the line even after rounding to a cell.
+            IntVec3 drift = IntVec3.Zero;
+            if (spread > 0.5f)
+            {
+                float bearing = Rand.Range(0f, 360f) * Mathf.Deg2Rad;
+                float distance = Rand.Range(0f, spread * 0.6f);
+                drift = new IntVec3(Mathf.RoundToInt(Mathf.Cos(bearing) * distance), 0,
+                    Mathf.RoundToInt(Mathf.Sin(bearing) * distance));
+            }
             return new TSC_SearchMark
             {
                 cell = at + drift,

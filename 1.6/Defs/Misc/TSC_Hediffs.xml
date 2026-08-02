@@ -48,7 +48,7 @@
              therefore to nothing in particular: it read as a work speed
              bonus the cleric happened to cast before a battle. These are
              the numbers a blessing should touch, and they stay out of the
-             other buffs' lanes - Barkskin owns armour, Unbreakable owns
+             other buffs' lanes - Barkskin owns armor, Unbreakable owns
              damage taken, Battle Hymn owns the feet. -->
         <statOffsets>
           <MeleeHitChance>0.12</MeleeHitChance>
@@ -1087,6 +1087,25 @@
           <MeleeDamageFactor>1.40</MeleeDamageFactor>
         </statFactors>
       </li>
+    </stages>
+  </HediffDef>
+
+  <!-- The rescue's ticket home: visible, so the health tab answers "why
+       is this stranger with us" - and its removal is the moment they stop
+       being with us. Applied by TSC_Homeward on generic rescues only. -->
+  <HediffDef>
+    <defName>TSC_Hediff_HomewardBound</defName>
+    <label>homeward bound</label>
+    <description>Rescued, and riding with the company only as far as somewhere safe. They will part ways at the next friendly or neutral settlement.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <initialSeverity>1</initialSeverity>
+    <maxSeverity>1</maxSeverity>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <defaultLabelColor>(0.7, 0.8, 0.9)</defaultLabelColor>
+    <stages>
+      <li />
     </stages>
   </HediffDef>
 
