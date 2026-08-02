@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Party banter: two companions talking to each other rather than to the
+       player. Floats over their heads out of combat, one line at a time,
+       once per save each.
+
+       Line format is "<index>: text", where the index picks a speaker out of
+       the speakers list. Everything here has to survive the canon: Bran was
+       twelve days alone in a border ruin eating rats and named a wall
+       Gerald; Madoc keeps counsel with Hew and Gille, who are dead, and
+       Gille complained beautifully because it was how he loved things; Wren
+       taught herself and carries the lute; Maewyn answers in one word when
+       one word will do, and Corvus rides with her. -->
+
+  <!-- ================================ Wren and Bran -->
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_Gerald</defName>
+    <speakers>
+      <li>TSC_Npc_Bard</li>
+      <li>TSC_Npc_Bran</li>
+    </speakers>
+    <lines>
+      <li>0: Twelve days alone in a ruin, and you named a wall.</li>
+      <li>1: Gerald held up his end better than most people I've travelled with.</li>
+      <li>0: Does Gerald get a verse?</li>
+      <li>1: Gerald gets a verse or I'm walking back there.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_WrenArmour</defName>
+    <speakers>
+      <li>TSC_Npc_Bran</li>
+      <li>TSC_Npc_Bard</li>
+    </speakers>
+    <lines>
+      <li>0: You could wear something with metal in it.</li>
+      <li>1: And sound like a kitchen falling downstairs? No.</li>
+      <li>0: You'd be a loud bard. Loud and breathing.</li>
+      <li>1: I'll take it under advisement, mother.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <!-- ================================ Wren and Maewyn -->
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_RhymeAshvale</defName>
+    <speakers>
+      <li>TSC_Npc_Bard</li>
+      <li>TSC_Npc_Maewyn</li>
+    </speakers>
+    <lines>
+      <li>0: Ashvale. Ashvale. Nothing rhymes with Ashvale.</li>
+      <li>1: Good.</li>
+      <li>0: That was not a request for approval. That was a cry for help.</li>
+      <li>1: Hm.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_CorvusWords</defName>
+    <speakers>
+      <li>TSC_Npc_Bard</li>
+      <li>TSC_Npc_Maewyn</li>
+    </speakers>
+    <lines>
+      <li>0: Does Corvus know words, or only how they're said?</li>
+      <li>1: He knows yours.</li>
+      <li>0: That is either very lovely or a threat.</li>
+      <li>1: Yes.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <!-- ================================ Wren and Madoc -->
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_FireLikesTheLongOne</defName>
+    <speakers>
+      <li>TSC_Npc_Madoc</li>
+      <li>TSC_Npc_Bard</li>
+    </speakers>
+    <lines>
+      <li>0: Sing the long one. The fire sits up for the long one.</li>
+      <li>1: Your fire has better taste than half the rooms I've played.</li>
+      <li>0: Oh, it has no taste at all! It only likes company.</li>
+      <li>1: ...I'm putting that in something.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <!-- Gille by name, and what he was actually like. Earned: Madoc has to
+       trust the company before he hands a dead man to a stranger's song. -->
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_GilleVerse</defName>
+    <speakers>
+      <li>TSC_Npc_Madoc</li>
+      <li>TSC_Npc_Bard</li>
+    </speakers>
+    <conditions>
+      <li Class="TheShatteredCrown.DialogueCondition_Affinity">
+        <npc>TSC_Npc_Madoc</npc>
+        <min>10</min>
+      </li>
+    </conditions>
+    <lines>
+      <li>0: Put Gille in the song. He'd have hated it. That's rather the point.</li>
+      <li>1: Give me one true thing about him and I'll do it properly.</li>
+      <li>0: He complained. Beautifully. It was how he loved things.</li>
+      <li>1: That's a verse. That's the whole verse, Madoc.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <!-- ================================ Bran and Madoc -->
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_HewIsRight</defName>
+    <speakers>
+      <li>TSC_Npc_Madoc</li>
+      <li>TSC_Npc_Bran</li>
+    </speakers>
+    <lines>
+      <li>0: Hew says this ground drinks too fast. He wants us higher.</li>
+      <li>1: Hew's right. Higher's drier. I'll take first watch.</li>
+      <li>0: You always agree with Hew.</li>
+      <li>1: Hew hasn't been wrong yet.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <!-- ================================ Bran and Maewyn -->
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_TracksAge</defName>
+    <speakers>
+      <li>TSC_Npc_Bran</li>
+      <li>TSC_Npc_Maewyn</li>
+    </speakers>
+    <lines>
+      <li>0: Tracks by the stream. Two days old. Maybe three.</li>
+      <li>1: Two.</li>
+      <li>0: Two, then.</li>
+      <li>1: You were close.</li>
+      <li>0: That's the warmest thing you've said all week.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_RatAndNettle</defName>
+    <speakers>
+      <li>TSC_Npc_Bran</li>
+      <li>TSC_Npc_Maewyn</li>
+    </speakers>
+    <lines>
+      <li>0: Twelve days of rat. I've not gone back to it since.</li>
+      <li>1: Nettle's better.</li>
+      <li>0: The nettle was WITH the rat.</li>
+      <li>1: Then you did it right.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <!-- ================================ Madoc and Maewyn -->
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_BurnTheDeadfall</defName>
+    <speakers>
+      <li>TSC_Npc_Maewyn</li>
+      <li>TSC_Npc_Madoc</li>
+    </speakers>
+    <lines>
+      <li>0: Not the standing wood. Burn the deadfall.</li>
+      <li>1: The deadfall is BORING. It goes up like an apology.</li>
+      <li>0: Then burn it apologetically.</li>
+      <li>1: She made a joke. The hills made a joke!</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_ThingsNotThere</defName>
+    <speakers>
+      <li>TSC_Npc_Madoc</li>
+      <li>TSC_Npc_Maewyn</li>
+    </speakers>
+    <lines>
+      <li>0: Do you ever talk to things that aren't there?</li>
+      <li>1: Yes.</li>
+      <li>0: ...Oh, GOOD.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <!-- ================================ Serra and the rest -->
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_TallInTheSong</defName>
+    <speakers>
+      <li>TSC_Npc_Bard</li>
+      <li>TSC_Npc_Serra</li>
+    </speakers>
+    <lines>
+      <li>0: Captain. In the song, would you like to be tall?</li>
+      <li>1: In the song I would like to be accurate.</li>
+      <li>0: That's a no from the tall, then.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_EightWeeks</defName>
+    <speakers>
+      <li>TSC_Npc_Serra</li>
+      <li>TSC_Npc_Bran</li>
+    </speakers>
+    <lines>
+      <li>0: Twelve days in that ruin, Bran.</li>
+      <li>1: I know how long it was, captain.</li>
+      <li>0: You could have run for it after the first two.</li>
+      <li>1: And crossed the road you'd come looking down. No.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_OswinFieldwork</defName>
+    <speakers>
+      <li>TSC_Npc_Oswin</li>
+      <li>TSC_Npc_Maewyn</li>
+    </speakers>
+    <lines>
+      <li>0: I want it on record that I am a scholar, and this is a bog.</li>
+      <li>1: It's a fen.</li>
+      <li>0: How is that better?</li>
+      <li>1: It isn't. It's just true.</li>
+    </lines>
+  </TheShatteredCrown.TSC_BanterDef>
+
+</Defs>

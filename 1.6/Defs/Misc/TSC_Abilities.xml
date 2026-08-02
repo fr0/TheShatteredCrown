@@ -89,7 +89,7 @@
   <AbilityDef ParentName="TSC_AbilityBase">
     <defName>TSC_Ability_Blessing</defName>
     <label>blessing</label>
-    <description>The target gains +10% consciousness for 1 day.</description>
+    <description>A blessing laid on before the fighting. For one day the target strikes and shoots 12% surer, aims 15% faster, and is harder to knock down with pain.</description>
     <iconPath>UI/TSC_Abilities/TSC_Blessing</iconPath>
     <!-- Enemy shamans bless unbuffed allies (TSC_AiCastHint). -->
     <aiCanUse>true</aiCanUse>

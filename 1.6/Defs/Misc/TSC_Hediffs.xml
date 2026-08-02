@@ -35,7 +35,7 @@
   <HediffDef ParentName="TSC_TimedBuffBase">
     <defName>TSC_Hediff_Blessing</defName>
     <label>blessed</label>
-    <description>Steadied by a cleric's blessing: clearer of mind and surer of hand.</description>
+    <description>Laid on before the fighting: the hand steadier, the eye quicker, and pain further away than it has any right to be.</description>
     <comps>
       <li Class="HediffCompProperties_Disappears">
         <disappearsAfterTicks>60000</disappearsAfterTicks>
@@ -44,12 +44,20 @@
     </comps>
     <stages>
       <li>
-        <capMods>
-          <li>
-            <capacity>Consciousness</capacity>
-            <offset>0.10</offset>
-          </li>
-        </capMods>
+        <!-- Was +10% Consciousness, which is a buff to EVERYTHING and
+             therefore to nothing in particular: it read as a work speed
+             bonus the cleric happened to cast before a battle. These are
+             the numbers a blessing should touch, and they stay out of the
+             other buffs' lanes - Barkskin owns armour, Unbreakable owns
+             damage taken, Battle Hymn owns the feet. -->
+        <statOffsets>
+          <MeleeHitChance>0.12</MeleeHitChance>
+          <ShootingAccuracyPawn>0.12</ShootingAccuracyPawn>
+          <PainShockThreshold>0.10</PainShockThreshold>
+        </statOffsets>
+        <statFactors>
+          <AimingDelayFactor>0.85</AimingDelayFactor>
+        </statFactors>
       </li>
     </stages>
   </HediffDef>

@@ -166,6 +166,44 @@ display text. Indented lines under an option add behavior:
 - The flag `TSC_Talked_<defName>` is set automatically the first time a
   conversation opens - use it for "have we met" entry conditions.
 
+## Party banter (XML, not .agd)
+
+Two companions talking to each other, floating over their heads out of
+combat. No choices and no window, so it is not a conversation and does not
+belong in the DSL - author it as `TSC_BanterDef` in `1.6/Defs/Misc/TSC_Banter.xml`:
+
+```xml
+<TheShatteredCrown.TSC_BanterDef>
+  <defName>TSC_Banter_Gerald</defName>
+  <speakers>
+    <li>TSC_Npc_Bard</li>              <!-- speaker 0 -->
+    <li>TSC_Npc_Bran</li>              <!-- speaker 1 -->
+  </speakers>
+  <lines>
+    <li>0: Twelve days alone in a ruin, and you named a wall.</li>
+    <li>1: Gerald held up his end better than most people.</li>
+  </lines>
+  <once>true</once>                    <!-- default; a repeated joke is not a joke -->
+  <weight>1</weight>                   <!-- odds against the other eligible banters -->
+  <conditions>                         <!-- same condition classes as dialogue -->
+    <li Class="TheShatteredCrown.DialogueCondition_Affinity">
+      <npc>TSC_Npc_Madoc</npc><min>10</min>
+    </li>
+  </conditions>
+</TheShatteredCrown.TSC_BanterDef>
+```
+
+- A banter only fires when EVERY speaker is present, awake, upright and
+  within 10 cells of each other, out of combat, with no conversation window
+  open. Conditions are evaluated with the first two speakers as the pair.
+- One banter runs at a time, with 75 to 200 seconds of silence between them.
+- Interrupted (a fight starts, they walk apart) means not heard: no flag is
+  set, so it comes round again later.
+- In a caravan it goes to the message feed instead, since there are no heads
+  to put text over.
+- Line pauses are read off the length of the line; override with the long
+  form `<li><speaker>1</speaker><text>...</text><pause>240</pause></li>`.
+
 ## NPC-initiated conversations
 
 Companions can start conversations themselves. Author the conversation as a

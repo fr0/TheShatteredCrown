@@ -97,12 +97,16 @@ namespace TheShatteredCrown
             }
         }
 
-        /// <summary>A weapon or a piece of armour, and something that can be damaged at all.</summary>
+        /// <summary>
+        /// A weapon or a piece of armour, and something that can be damaged
+        /// at all. Shares the gear screen's test for what counts as a
+        /// weapon, so the anvil and the equip list never disagree about
+        /// whether a stack of planks is a club.
+        /// </summary>
         public static bool IsGear(Thing thing)
         {
-            ThingDef def = thing?.def;
-            return def != null && def.useHitPoints && thing.MaxHitPoints > 1
-                && (def.IsWeapon || def.IsApparel);
+            return thing != null && thing.def.useHitPoints && thing.MaxHitPoints > 1
+                && TSC_Gear.IsGear(thing);
         }
 
         /// <summary>Hit points below the ceiling: what a smith could actually put back.</summary>

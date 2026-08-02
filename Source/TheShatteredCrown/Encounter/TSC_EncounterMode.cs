@@ -3630,7 +3630,7 @@ namespace TheShatteredCrown
             if (paused && planned > 0.01f)
             {
                 float remaining = current - planned;
-                label = $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} → ~{remaining:0.#}";
+                label = $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} to ~{remaining:0.#}";
                 GUI.color = remaining < -0.01f ? OverColor
                     : remaining < cheapest ? WarnColor
                     : AvailableColor;
@@ -4569,7 +4569,7 @@ namespace TheShatteredCrown
             }
             float effective = TSC_EncounterController.EffectiveMeleeHitChance(caster, victim);
             ctrl.AddLog(
-                $"{caster.LabelShortCap} → {victim.LabelShortCap}: melee {effective:P0} effective → {outcome}",
+                $"{caster.LabelShortCap} vs. {victim.LabelShortCap}: melee {effective:P0} effective : {outcome}",
                 TSC_EncounterController.LogWorldColor);
         }
     }

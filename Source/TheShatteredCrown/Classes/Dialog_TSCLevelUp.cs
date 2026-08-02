@@ -123,7 +123,7 @@ namespace TheShatteredCrown
             {
                 TSC_ClassDef classDef = record.classes[i];
                 int current = record.levels[i];
-                string label = $"{classDef.LabelCap} {current} → {current + 1}";
+                string label = $"{classDef.LabelCap} {current} to {current + 1}";
                 string unlockPreview = UnlocksAt(classDef, current + 1);
                 if (!unlockPreview.NullOrEmpty())
                 {
@@ -165,30 +165,71 @@ namespace TheShatteredCrown
             Widgets.Label(new Rect(0f, y, inRect.width, 24f), $"Improve which proficiency? ({chosen.label}-trained improve by 2)");
             y += 26f;
 
+            // A table, not eleven sentences. Every row used to read
+            // "Lore: 0 -> 2 (trained: +2) [total bonus now: 1]", which put
+            // the three numbers that actually differ between rows at three
+            // different x positions on every line, so comparing two
+            // proficiencies meant reading both sentences. Columns let the
+            // eye run down one number at a time.
             List<TSC_ProficiencyDef> allProfs = DefDatabase<TSC_ProficiencyDef>.AllDefsListForReading;
+            Rect header = new Rect(0f, y, inRect.width - 16f, 22f);
+            Columns(header, out Rect hName, out Rect hPoints, out Rect hGain, out Rect hBonus, out float radioX);
+            Text.Font = GameFont.Tiny;
+            GUI.color = new Color(0.72f, 0.70f, 0.62f);
+            Widgets.Label(hName, "Proficiency");
+            Text.Anchor = TextAnchor.UpperCenter;
+            Widgets.Label(hPoints, "Points");
+            Widgets.Label(hGain, "This pick");
+            Text.Anchor = TextAnchor.UpperRight;
+            Widgets.Label(hBonus, "Bonus now");
+            Text.Anchor = TextAnchor.UpperLeft;
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+            y += 22f;
+            Widgets.DrawLineHorizontal(0f, y - 1f, inRect.width - 16f);
+
             Rect outRect = new Rect(0f, y, inRect.width, inRect.height - y - 46f);
             Rect viewRect = new Rect(0f, 0f, outRect.width - 16f, allProfs.Count * RowHeight);
             Widgets.BeginScrollView(outRect, ref scroll, viewRect);
             float py = 0f;
-            foreach (TSC_ProficiencyDef prof in allProfs)
+            for (int i = 0; i < allProfs.Count; i++)
             {
+                TSC_ProficiencyDef prof = allProfs[i];
                 bool trained = chosen.proficiencies.Contains(prof);
                 int gain = trained ? 2 : 1;
                 int currentPoints = progression.ProficienciesOf(pawn).PointsIn(prof);
                 int effective = progression.EffectiveProficiency(pawn, prof);
-                string label = $"{prof.LabelCap}: {currentPoints} → {currentPoints + gain}" +
-                               (trained ? "   (trained: +2)" : "   (+1)") +
-                               $"   [total bonus now: {effective}]";
+
                 Rect row = new Rect(0f, py, viewRect.width, RowHeight);
-                if (trained)
+                if (i % 2 == 1)
                 {
-                    GUI.color = new Color(0.7f, 1f, 0.7f);
+                    Widgets.DrawAltRect(row);
                 }
-                if (Widgets.RadioButtonLabeled(row, label, selectedProficiency == prof))
+                if (selectedProficiency == prof)
+                {
+                    Widgets.DrawHighlightSelected(row);
+                }
+                Widgets.DrawHighlightIfMouseover(row);
+                Columns(row, out Rect cName, out Rect cPoints, out Rect cGain, out Rect cBonus, out float rowRadioX);
+
+                // Trained rows stay green, which is the one thing the old
+                // line did well: it is the reason to pick one at all.
+                GUI.color = trained ? new Color(0.7f, 1f, 0.7f) : Color.white;
+                Widgets.Label(cName, prof.LabelCap);
+                Text.Anchor = TextAnchor.MiddleCenter;
+                Widgets.Label(cPoints, $"{currentPoints} to {currentPoints + gain}");
+                Widgets.Label(cGain, trained ? "trained +2" : "+1");
+                Text.Anchor = TextAnchor.MiddleRight;
+                Widgets.Label(cBonus, effective.ToString());
+                Text.Anchor = TextAnchor.UpperLeft;
+                GUI.color = Color.white;
+
+                bool clicked = Widgets.RadioButton(rowRadioX, py + (RowHeight - 24f) / 2f,
+                    selectedProficiency == prof);
+                if (clicked || Widgets.ButtonInvisible(row))
                 {
                     selectedProficiency = prof;
                 }
-                GUI.color = Color.white;
                 py += RowHeight;
             }
             Widgets.EndScrollView();
@@ -231,7 +272,7 @@ namespace TheShatteredCrown
                 // proficiency, stepped to the feat page, took a feat, and got
                 // bounced back to a class page they thought they had already
                 // filled in - the dialog was right, and looked broken.
-                string nextLabel = ready ? "Confirm and choose a feat  →" : "Choose a feat  →";
+                string nextLabel = ready ? "Confirm and choose a feat >" : "Choose a feat >";
                 if (Widgets.ButtonText(next, nextLabel))
                 {
                     if (ready)
@@ -381,6 +422,26 @@ namespace TheShatteredCrown
                 }
             }
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// One column layout for the header and every row, so the two can
+        /// never drift apart. Proportional rather than fixed pixels: the
+        /// dialog is resizable and proficiency names vary in length.
+        /// </summary>
+        private static void Columns(Rect row, out Rect name, out Rect points, out Rect gain, out Rect bonus,
+            out float radioX)
+        {
+            const float RadioWidth = 30f;
+            float usable = row.width - RadioWidth;
+            float nameWidth = usable * 0.34f;
+            float pointsWidth = usable * 0.22f;
+            float gainWidth = usable * 0.20f;
+            name = new Rect(row.x + 4f, row.y, nameWidth, row.height);
+            points = new Rect(name.xMax, row.y, pointsWidth, row.height);
+            gain = new Rect(points.xMax, row.y, gainWidth, row.height);
+            bonus = new Rect(gain.xMax, row.y, usable - nameWidth - pointsWidth - gainWidth - 8f, row.height);
+            radioX = row.xMax - RadioWidth + 2f;
         }
     }
 }

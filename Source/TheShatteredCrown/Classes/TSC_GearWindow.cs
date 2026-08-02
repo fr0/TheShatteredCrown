@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -210,6 +209,22 @@ namespace TheShatteredCrown
         /// weapon declares itself equippable in the primary slot; a stack
         /// of planks does not.
         /// </summary>
+        /// <summary>
+        /// Something you would actually equip.
+        ///
+        /// Not ThingDef.IsWeapon, which is true of anything carrying tools -
+        /// vanilla wood has them (a plank is a club in a pinch) and a big
+        /// load order hands them to more besides. Not equipmentType either:
+        /// that was the second guess, and a stack of 54 planks still walked
+        /// straight through it, so something out there sets the field on
+        /// things that are not weapons.
+        ///
+        /// So ask what the thing IS instead of what its author declared.
+        /// Filed under Weapons in the category tree is proof; failing that,
+        /// it has to be equippable AND not something you carry by the dozen,
+        /// eat, or build walls out of. That covers the planks, the three
+        /// bottles of wine, and whatever the next one turns out to be.
+        /// </summary>
         public static bool IsGear(Thing thing)
         {
             ThingDef def = thing?.def;
@@ -217,7 +232,19 @@ namespace TheShatteredCrown
             {
                 return false;
             }
-            return def.IsApparel || (def.IsWeapon && def.equipmentType == EquipmentType.Primary);
+            if (def.IsApparel)
+            {
+                return true;
+            }
+            if (!def.IsWeapon || def.IsIngestible || def.IsDrug || def.IsStuff || def.IsMedicine)
+            {
+                return false;
+            }
+            if (ThingCategoryDefOf.Weapons != null && def.IsWithinCategory(ThingCategoryDefOf.Weapons))
+            {
+                return true;
+            }
+            return def.equipmentType == EquipmentType.Primary && def.stackLimit <= 1;
         }
 
         /// <summary>
@@ -556,7 +583,7 @@ namespace TheShatteredCrown
 
     /// <summary>
     /// The gear screen: roster, slots, and what fits. Opened from the party
-    /// tab, and from the gizmo on a selected colonist in RPG mode.
+    /// tab, per pawn or for the whole company.
     /// </summary>
     public class Window_TSC_Gear : Window
     {
@@ -841,48 +868,6 @@ namespace TheShatteredCrown
                 TSC_Gear.Take(selected, entry);
                 Refresh();
             }
-        }
-    }
-
-    /// <summary>
-    /// The way in from the map: select anyone in the company and the gear
-    /// screen is one click away, opened on them. The party tab has the same
-    /// button, for when nobody is selected or the party is out on the world
-    /// map.
-    /// </summary>
-    [HarmonyPatch(typeof(Pawn), nameof(Pawn.GetGizmos))]
-    public static class Patch_Pawn_GetGizmos_Gear
-    {
-        public static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> gizmos, Pawn __instance)
-        {
-            foreach (Gizmo gizmo in gizmos)
-            {
-                yield return gizmo;
-            }
-            if (!__instance.IsColonistPlayerControlled || !__instance.RaceProps.Humanlike
-                || !TSC_RpgMode.Active)
-            {
-                yield break;
-            }
-            yield return new Command_Action
-            {
-                defaultLabel = "Gear",
-                defaultDesc = "Open the company's gear screen on this one: every slot they have, and everything "
-                    + "within reach that fits it - their own pack, the party's packs, and anything of yours "
-                    + "lying on this map they can walk to.",
-                icon = ContentFinder<Texture2D>.Get("UI/Icons/TSC_GearIcon", reportFailure: false)
-                    ?? ContentFinder<Texture2D>.Get("UI/Buttons/OpenInspector", reportFailure: false)
-                    ?? BaseContent.BadTex,
-                action = () =>
-                {
-                    Window_TSC_Gear open = Find.WindowStack.WindowOfType<Window_TSC_Gear>();
-                    if (open != null)
-                    {
-                        open.Close(doCloseSound: false);
-                    }
-                    Find.WindowStack.Add(new Window_TSC_Gear(__instance));
-                },
-            };
         }
     }
 }
