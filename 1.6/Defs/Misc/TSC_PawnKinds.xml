@@ -325,6 +325,12 @@
               <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
                 <flag>TSC_Act4CardShown</flag>
               </li>
+              <!-- "I have never told anybody this, because in a tavern it is
+                   a good story and out here it is not." She tells people she
+                   trusts, not people she travels with. -->
+              <li Class="TheShatteredCrown.DialogueCondition_Affinity">
+                <min>15</min>
+              </li>
             </conditions>
           </li>
           <!-- And she comes back to it once the songbook has been read. -->

@@ -283,6 +283,12 @@
               <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
                 <flag>TSC_MadocCampTalk</flag>
               </li>
+              <!-- He is asking somebody to sit with him while he says the
+                   worst sentence he owns. That is not a thing he asks of a
+                   company he is merely employed by. -->
+              <li Class="TheShatteredCrown.DialogueCondition_Affinity">
+                <min>15</min>
+              </li>
             </conditions>
           </li>
         </initiations>
