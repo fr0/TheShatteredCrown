@@ -44,3 +44,13 @@ The forge is quiet. Out front, a boy sits on the anvil eating with both hands, a
 
 * "Feed him first, smith. He's earned it." -> end
     do affinity(+5)
+* "You said this forge was ours. We've steel that needs mending." -> forlife
+
+== forlife ==
+"I did say it." He is already clearing the anvil with his forearm, and Bry is already off it and standing clear, which tells you they have practised this.
+
+"For life. Put it down there. And don't come to me with coin in your hand, or I'll take it as an insult and charge you double the once."
+
+* [Set the gear down.] -> end
+    do smith_repair(free)
+* "We'll bring it by tomorrow." -> end

@@ -65,6 +65,12 @@ namespace TheShatteredCrown
                         yield return thing;
                     }
                 }
+                // ...unless the player has ticked the box on the trade
+                // window that keeps their own kit out of the sell column.
+                if (TSC_TradeFilter.HideEquipped)
+                {
+                    continue;
+                }
                 if (member.equipment?.AllEquipmentListForReading != null)
                 {
                     foreach (ThingWithComps eq in member.equipment.AllEquipmentListForReading)

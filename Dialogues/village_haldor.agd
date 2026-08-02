@@ -28,6 +28,7 @@ Haldor sets down his hammer, and the ringing fades.
 * "I found an old journal in the caves under the well. Unsigned. Does it mean anything to you?" -> journal
     if flag(TSC_WeatheredJournalRead)
 * "Do you have any stock?" -> stock
+* "Could you put an edge back on some of our gear?" -> mend
 * "Any work for a capable blade?" -> coldiron_offer
     if not quest_active(TSC_Side_ColdIron) and not quest_succeeded(TSC_Side_ColdIron)
 * "Still hunting your grave-iron." -> coldiron_progress
@@ -51,6 +52,15 @@ He sighs, considering how much time and materials your requests might need.
 * "Guild work keeps these roads open, Haldor. Militia rates?" -> discount_yes
     check Persuasion 8 -> discount_yes | discount_no
 * "Maybe some other time." -> end
+
+== mend ==
+Haldor takes the nearest damaged thing off you without asking, turns it in the light, and grunts at whatever he sees in it.
+
+"Aye. Steel's steel, and I've mended worse than this for men who deserved it less." He sets it on the anvil. "Understand me on one thing. Every time a piece goes back in the fire it comes out a little less than it was. I can do that twice and you'll never notice. Six times and you're carrying a different sword that happens to look like your old one."
+
+* "Understood. Do what you can with these." -> end
+    do smith_repair()
+* "We'll manage a while longer." -> end
 
 # One-time haggle (the check's once-per-save key handles the "one attempt
 # ever"): success = 15% off everything he sells, applied by the

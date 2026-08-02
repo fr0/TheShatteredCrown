@@ -157,6 +157,7 @@ display text. Indented lines under an option add behavior:
 | `grant_prof(Lore, 1)` | the talking colonist gains proficiency points (friendly names or defNames) |
 | `affinity(+5)` | the NPC being talked to gains 5 affinity ("X approves. (+5)" message; use negatives to lose it, |10|+ reads "greatly") |
 | `affinity(TSC_Npc_Bran, -5)` | a specific named character's affinity shifts - bystander reactions to a choice made in someone else's conversation |
+| `smith_repair()` | opens the forge's repair window: every damaged weapon and piece of armour the party carries on this map, priced off market value and village standing. `smith_repair(free)` for a smith who is not taking coin (Garrick, once Bry is home). Each mending permanently lowers that piece's HP ceiling by 10%, floor 60% |
 
 ## Text substitutions (at display time)
 

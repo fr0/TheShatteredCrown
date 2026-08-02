@@ -54,8 +54,30 @@ namespace TheShatteredCrown
                     Armor.Add(def);
                 }
             }
+            // The rejection count is the diagnostic that matters in a big
+            // load order: if firearms ever turn up in a medieval campaign
+            // again, this line says whether the filter saw them at all.
+            int firearms = 0;
+            int undated = 0;
+            foreach (ThingDef def in DefDatabase<ThingDef>.AllDefsListForReading)
+            {
+                if (!def.IsWeapon || def.IsApparel)
+                {
+                    continue;
+                }
+                if (def.techLevel == TechLevel.Undefined)
+                {
+                    undated++;
+                }
+                else if (def.techLevel <= TechLevel.Medieval && IsFirearm(def))
+                {
+                    firearms++;
+                }
+            }
             Log.Message($"[The Shattered Crown] Medieval catalogue: {Weapons.Count} weapons, "
-                + $"{Armor.Count} pieces of armour available to shops.");
+                + $"{Armor.Count} pieces of armour available to shops. "
+                + $"Rejected {firearms} bullet-firing weapon(s) claiming medieval tech and "
+                + $"{undated} weapon(s) with no tech level declared.");
         }
 
         /// <summary>
@@ -96,7 +118,7 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                if (def.destroyOnDrop || (int)def.techLevel > (int)TechLevel.Medieval)
+                if (!AgeAppropriate(def) || def.tradeability == Tradeability.None)
                 {
                     continue;
                 }
@@ -115,9 +137,60 @@ namespace TheShatteredCrown
             return pool;
         }
 
+        /// <summary>
+        /// Age-appropriate, and actually a period thing.
+        ///
+        /// The tech-level test used to be "not above Medieval", and
+        /// TechLevel.Undefined is ZERO - so every def that never declared a
+        /// tech level sailed straight through it. With Combat Extended in
+        /// the load order that is a lot of defs, and the party started
+        /// finding firearms in a medieval campaign (seen in a caravan
+        /// formation screen: a bunch of guns).
+        ///
+        /// So the band is now stated positively - Neolithic through Medieval,
+        /// Undefined excluded - and anything that fires a bullet is out
+        /// regardless of what it claims to be, because a def that shoots is
+        /// a gun whether or not its author filled in the field.
+        /// </summary>
+        public static bool AgeAppropriate(ThingDef def)
+        {
+            if (def == null || def.destroyOnDrop)
+            {
+                return false;
+            }
+            if (def.techLevel < TechLevel.Neolithic || def.techLevel > TechLevel.Medieval)
+            {
+                return false;
+            }
+            return !IsFirearm(def);
+        }
+
+        /// <summary>Fires a bullet, by its own verbs. Bows and crossbows do not.</summary>
+        private static bool IsFirearm(ThingDef def)
+        {
+            if (def.Verbs.NullOrEmpty())
+            {
+                return false;
+            }
+            foreach (VerbProperties verb in def.Verbs)
+            {
+                ThingDef projectile = verb?.defaultProjectile;
+                DamageDef damage = projectile?.projectile?.damageDef;
+                if (damage == null)
+                {
+                    continue;
+                }
+                if (damage == DamageDefOf.Bullet || damage.defName.Contains("Bullet"))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private static bool Sellable(ThingDef def)
         {
-            if (def == null || def.destroyOnDrop || (int)def.techLevel > (int)TechLevel.Medieval)
+            if (!AgeAppropriate(def))
             {
                 return false;
             }

@@ -766,8 +766,27 @@
   <ThingDef ParentName="AncientSealedCrateBase">
     <defName>TSC_StrongboxCrate</defName>
     <label>guild strongbox crate</label>
+    <!-- Its own art, closed and opened. It used to inherit vanilla's
+         SealedCrate graphic, so the one thing a delve contract is about
+         looked exactly like every other cache on the floor: pale timber and
+         brass banding under a red guild seal reads as "this is the job" at a
+         glance, and the opened variant shows the lid off and the seal
+         broken. The EmptyStateGraphic comp is overridden wholesale because
+         inheriting half of it would leave a vanilla lid on a guild crate. -->
+    <graphicData>
+      <texPath>Things/Building/TSC_StrongboxCrate</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1.15,1.15)</drawSize>
+    </graphicData>
     <description>A shipping crate under a guild lock, the kind couriers were told never to open. The seal is intact, which after all these years says something about the people who died around it.</description>
     <comps>
+      <li Class="CompProperties_EmptyStateGraphic">
+        <graphicData>
+          <texPath>Things/Building/TSC_StrongboxCrate_Open</texPath>
+          <graphicClass>Graphic_Single</graphicClass>
+          <drawSize>(1.15,1.15)</drawSize>
+        </graphicData>
+      </li>
       <li Class="CompProperties_LootSpawn">
         <contents>TSC_Loot_Strongbox</contents>
       </li>

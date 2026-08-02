@@ -45,6 +45,9 @@ namespace TheShatteredCrown
             public int xp;
             /// <summary>Whoever struck the blow: the per-kill mood memory is theirs.</summary>
             public Pawn killer;
+
+            /// <summary>Where it happened; the kill mood is paid to the company standing there.</summary>
+            public Map map;
         }
 
         public static Pending Evaluate(Pawn victim, DamageInfo? dinfo)
@@ -75,6 +78,7 @@ namespace TheShatteredCrown
             }
             pending.eligible = true;
             pending.xp = XpFor(victim);
+            pending.map = victim.MapHeld;
             return pending;
         }
 
@@ -110,7 +114,7 @@ namespace TheShatteredCrown
             // the combat log in a firefight.
             TSC_ProgressionManager.Current.GrantXpToParty(pending.xp, "kills", announce: false);
             // Optional, off by default, and stacking: one memory per kill.
-            TSC_MoodOptions.NoteKill(pending.killer);
+            TSC_MoodOptions.NoteKill(pending.killer, pending.map);
             pendingXp += pending.xp;
             pendingKills++;
             lastKillTick = Find.TickManager.TicksGame;

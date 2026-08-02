@@ -216,6 +216,7 @@
         <!-- The pack itself: manhunter from the first tick, so there is no
              creeping up on a herd of neutral wildlife. -->
         <li Class="TheShatteredCrown.QuestNode_TSC_SpawnAnimalAtSite">
+          <inSignal>site.MapGenerated</inSignal>
           <kind>Warg</kind>
           <countRange>3~4</countRange>
           <scaledClamp>2~9</scaledClamp>

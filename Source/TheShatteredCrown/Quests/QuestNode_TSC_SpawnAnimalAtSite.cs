@@ -124,7 +124,16 @@ namespace TheShatteredCrown
                 kind = kind.GetValue(slate),
                 count = ResolveCount(slate),
                 mapParent = site.GetValue(slate) as MapParent,
-                inSignal = QuestGenUtility.HardcodedSignalWithQuestID(inSignal.GetValue(slate)) ?? slate.Get<string>("inSignal"),
+                // No authored signal means map generation, NOT the quest's own
+                // initiate signal. The old fallback was slate "inSignal",
+                // which fires the moment the contract is accepted - while the
+                // site is still a dot on the world map with no Map behind it.
+                // The spawn silently did nothing, and the pack contract then
+                // completed itself the instant the party walked in, because a
+                // site with no hostiles on it is a site whose enemies are all
+                // defeated.
+                inSignal = QuestGenUtility.HardcodedSignalWithQuestID(inSignal.GetValue(slate))
+                    ?? QuestGenUtility.HardcodedSignalWithQuestID("site.MapGenerated"),
                 questTagToAdd = rawTag.NullOrEmpty() ? null : QuestGenUtility.HardcodedTargetQuestTagWithQuestID(rawTag),
                 beastName = beastName,
                 manhunter = manhunter.GetValue(slate),
@@ -167,9 +176,26 @@ namespace TheShatteredCrown
         private bool spawned;
         private List<Pawn> spawnedPawns = new List<Pawn>();
 
+        /// <summary>
+        /// The signal arrived before the site had a map. Kept so the beasts
+        /// still turn up rather than never turning up at all.
+        /// </summary>
+        private bool waitingForMap;
+
         public override void Notify_QuestSignalReceived(Signal signal)
         {
             base.Notify_QuestSignalReceived(signal);
+            // A spawn that was asked for too early goes ahead on the next
+            // signal that arrives with a map behind it. site.MapGenerated is
+            // always one of them, so the beasts are there before the party
+            // is. (Only QuestPartActivable gets ticked, so signals are the
+            // only clock a plain part has.)
+            if (waitingForMap && kind != null && mapParent?.Map != null)
+            {
+                waitingForMap = false;
+                Spawn(mapParent.Map);
+                return;
+            }
             if (signal.tag != inSignal || kind == null)
             {
                 return;
@@ -177,8 +203,25 @@ namespace TheShatteredCrown
             Map map = mapParent?.Map;
             if (map == null)
             {
+                // Authored against a signal that fires before the map exists.
+                // Complain once, then spawn as soon as there is a map: late
+                // beasts beat no beasts, and a contract with nothing on its
+                // map hands itself in the moment the party arrives.
+                if (!waitingForMap)
+                {
+                    waitingForMap = true;
+                    Log.Warning($"[The Shattered Crown] {kind.defName} spawn fired on '{signal.tag}' "
+                        + "before the site had a map; spawning on arrival instead. "
+                        + "The quest script should use site.MapGenerated.");
+                }
                 return;
             }
+            waitingForMap = false;
+            Spawn(map);
+        }
+
+        private void Spawn(Map map)
+        {
             if (spawned && !AllPreviousGoneWithoutDying())
             {
                 return;
@@ -268,6 +311,7 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref beastName, "beastName");
             Scribe_Values.Look(ref manhunter, "manhunter", defaultValue: false);
             Scribe_Values.Look(ref spawned, "spawned", defaultValue: false);
+            Scribe_Values.Look(ref waitingForMap, "waitingForMap", defaultValue: false);
             Scribe_Collections.Look(ref spawnedPawns, "spawnedPawns", LookMode.Reference);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {

@@ -12,8 +12,18 @@ The smith looks up from the anvil, takes in the road-dirt and the weapons, and r
 
 * "Let's trade." -> end
     do trade()
+* "Some of our gear is in a bad way." -> mend
 * "What's the news here?" -> news
 * "Just looking." -> end
+
+== mend ==
+He wipes his hands and holds one out, palm up, without any ceremony at all.
+
+"Bring it here. Blades, mail, boots, whatever's bitten. I'll tell you what it costs before I start, and I'll tell you if it's past me."
+
+* "Take a look at these." -> end
+    do smith_repair()
+* "Another time." -> end
 
 == news ==
 He shrugs, working the bellows with one foot.
@@ -22,4 +32,5 @@ He shrugs, working the bellows with one foot.
 
 * "Let's trade, then." -> end
     do trade()
+* "Then you can mend as well as sell." -> mend
 * "Good day to you." -> end

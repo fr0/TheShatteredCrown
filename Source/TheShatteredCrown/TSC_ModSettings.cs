@@ -35,6 +35,14 @@ namespace TheShatteredCrown
         public float killMoodBonus;
         public float killMoodHours = 12f;
 
+        /// <summary>
+        /// Trade screen: leave what the company is wearing and holding out of
+        /// the sell list. Off by default - selling the kit off your own back
+        /// is a feature here - but the checkbox on the trade window writes
+        /// the player's answer straight into this.
+        /// </summary>
+        public bool tradeHideEquipped;
+
         public int EnemyBeatTicks => Mathf.RoundToInt(enemyBeatSeconds * 60f);
 
         public override void ExposeData()
@@ -48,6 +56,7 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref adventuringLife, "adventuringLife", 0f);
             Scribe_Values.Look(ref killMoodBonus, "killMoodBonus", 0f);
             Scribe_Values.Look(ref killMoodHours, "killMoodHours", 12f);
+            Scribe_Values.Look(ref tradeHideEquipped, "tradeHideEquipped", defaultValue: false);
         }
     }
 
@@ -94,6 +103,10 @@ namespace TheShatteredCrown
             listing.Label("Held stillness before an enemy acts (camera framed on them) and again after they finish, so their turn is readable. 0 = instant enemy turns.");
             GUI.color = Color.white;
             Settings.enemyBeatSeconds = Mathf.Round(listing.Slider(Settings.enemyBeatSeconds, 0f, 2f) * 10f) / 10f;
+            listing.Gap();
+
+            listing.CheckboxLabeled("Hide worn and wielded gear when trading", ref Settings.tradeHideEquipped,
+                "When ON, the trade screen leaves out what the company is actually wearing and holding, so a misclick cannot sell the armour off a pawn's back. Spares in a pack still show. The same checkbox is on the trade window itself.");
             listing.Gap();
 
             listing.CheckboxLabeled("Reform caravan despite hidden enemies", ref Settings.reformIgnoresHiddenEnemies,

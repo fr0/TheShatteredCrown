@@ -1828,6 +1828,16 @@ namespace TheShatteredCrown
             base.WorldComponentTick();
             if (!active)
             {
+                // Let go of a battlefield that no longer exists. The check
+                // below only runs while the mode is ON, so an armed-then-
+                // abandoned pocket map left this field pointing at a
+                // destroyed Map for the rest of the game - and the save
+                // system then wrote a reference to something it could not
+                // find ("Map_1 is referenced but is not deep-saved").
+                if (map != null && (Find.Maps == null || !Find.Maps.Contains(map)))
+                {
+                    map = null;
+                }
                 TrackRealtimeExertion();
                 return;
             }
@@ -2301,6 +2311,16 @@ namespace TheShatteredCrown
                 }
                 return p == activePawn || activeGroup.Contains(p);
             }
+            // Approach mode is REAL TIME and is the whole point of being
+            // armed rather than fighting: no engaged hostiles, no initiative,
+            // nobody frozen, and the party walks up to the trouble at normal
+            // speed. There is no turn coming to release a held order here, so
+            // the order hold below must not apply - holding it stopped the
+            // company moving at all while armed.
+            if (approachMode)
+            {
+                return true;
+            }
             if (combatants.Contains(p) && !p.Dead && !p.Downed)
             {
                 return false;
@@ -2381,6 +2401,28 @@ namespace TheShatteredCrown
         public override void ExposeData()
         {
             base.ExposeData();
+            // Drop a dead map BEFORE writing anything that mentions it.
+            //
+            // Game.ExposeData deep-saves Game.maps, so a map reference is
+            // only unresolvable when the map is no longer in Find.Maps: the
+            // party armed turn-based mode on a site or a pocket map, left,
+            // and the map was destroyed while this component still pointed
+            // at it. Saving then wrote a reference to nothing, and the save
+            // system said so:
+            //
+            //   Object with load ID Map_1 is referenced (xml node name: map)
+            //   but is not deep-saved. This will cause errors during loading.
+            //
+            // PostLoadInit below already cleaned this up on the way IN. This
+            // is the same repair on the way OUT, so the warning never gets
+            // written in the first place.
+            if (Scribe.mode == LoadSaveMode.Saving && map != null
+                && (Find.Maps == null || !Find.Maps.Contains(map)))
+            {
+                map = null;
+                active = false;
+                approachMode = false;
+            }
             Scribe_Values.Look(ref active, "active", defaultValue: false);
             Scribe_References.Look(ref map, "map");
             Scribe_Values.Look(ref cycle, "cycle", 1);

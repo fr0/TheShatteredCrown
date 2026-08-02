@@ -97,6 +97,13 @@ namespace TheShatteredCrown
             GUI.color = HeaderColor;
             Widgets.Label(new Rect(inner.x, inner.y, inner.width, 22f), "Best in the company");
             GUI.color = Color.white;
+            Rect gear = new Rect(inner.xMax - 150f, inner.y - 2f, 150f, 26f);
+            if (Widgets.ButtonText(gear, "Gear"))
+            {
+                OpenGear(party.Count > 0 ? party[0] : null);
+            }
+            TooltipHandler.TipRegion(gear,
+                "Weapons and armour for the whole company: every slot, and everything within reach that fits it.");
 
             TSC_ProgressionManager progression = TSC_ProgressionManager.Current;
             List<TSC_ProficiencyDef> profs = Proficiencies();
@@ -164,11 +171,17 @@ namespace TheShatteredCrown
             int level = progression?.LevelOf(pawn) ?? 0;
             Widgets.Label(nameRect, $"{pawn.Name?.ToStringShort ?? pawn.LabelShortCap}   (level {level})");
             GUI.color = Color.white;
+            Rect gear = new Rect(nameRect.xMax - 90f, nameRect.y, 90f, 24f);
+            nameRect.width -= 96f;
             if (Widgets.ButtonInvisible(nameRect))
             {
                 CameraJumper.TryJumpAndSelect(pawn);
             }
             Widgets.DrawHighlightIfMouseover(nameRect);
+            if (Widgets.ButtonText(gear, "Gear"))
+            {
+                OpenGear(pawn);
+            }
             y += 26f;
 
             TSC_ClassRecord record = progression?.RecordOf(pawn);
@@ -206,6 +219,17 @@ namespace TheShatteredCrown
                     ability.def.description);
                 index++;
             }
+        }
+
+        /// <summary>One gear screen at a time, opened on whoever was asked for.</summary>
+        private static void OpenGear(Pawn pawn)
+        {
+            Window_TSC_Gear open = Find.WindowStack.WindowOfType<Window_TSC_Gear>();
+            if (open != null)
+            {
+                open.Close(doCloseSound: false);
+            }
+            Find.WindowStack.Add(new Window_TSC_Gear(pawn));
         }
 
         /// <summary>A labelled line. The label is only drawn on the first row of a run.</summary>
