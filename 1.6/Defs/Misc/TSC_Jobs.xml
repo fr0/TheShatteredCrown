@@ -77,4 +77,10 @@
     <allowOpportunisticPrefix>false</allowOpportunisticPrefix>
   </JobDef>
 
+  <JobDef>
+    <defName>TSC_ReadMapCase</defName>
+    <driverClass>TheShatteredCrown.JobDriver_TSC_ReadMapCase</driverClass>
+    <reportString>reading the border survey.</reportString>
+  </JobDef>
+
 </Defs>

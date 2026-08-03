@@ -62,7 +62,12 @@ namespace TheShatteredCrown
     /// </summary>
     public class TSC_ShardTracker : WorldComponent
     {
-        private const int ScanIntervalTicks = 60;
+        // 5 seconds, up from 1: the scan is a dozen story-heal checks plus a
+        // party-inventory sweep per shard, and a shard changes hands maybe
+        // once an act. A 5-second lag on gaining/losing a shard ability (or
+        // an act gate opening) is imperceptible; the per-second cost was not.
+        private const int ScanIntervalTicks = 300;
+        private const int TitleIntervalTicks = 60;
         public const string RushFlag = "TSC_ShardRushSeen";
         public const string TitleFlag = "TSC_Act2TitleShown";
         public const string Rush2Flag = "TSC_ShardRush2Seen";
@@ -268,13 +273,20 @@ namespace TheShatteredCrown
         {
             base.WorldComponentTick();
             // Commands are short: they expire on their own second, not on
-            // the shard scan's minute.
+            // the shard scan's cadence.
             TickCommands();
-            if (Find.TickManager.TicksGame % ScanIntervalTicks != 0)
+            int now = Find.TickManager.TicksGame;
+            // The title card follows a scene closing; a lag the length of the
+            // full scan interval would read as a hang, so it keeps the fast
+            // pulse. Its early-out is a plain bool when nothing is pending.
+            if (now % TitleIntervalTicks == 0)
+            {
+                ShowPendingTitle();
+            }
+            if (now % ScanIntervalTicks != 0)
             {
                 return;
             }
-            ShowPendingTitle();
             HealSharedDefSplit();
             HealThorndenSignal();
             HealBrokenAct3();
@@ -285,6 +297,9 @@ namespace TheShatteredCrown
             OpenAct4IfPending();
             TryFireFourthRush();
             OpenAct5IfPending();
+            // One party snapshot for all five shards, not one per shard: the
+            // PawnsFinder property builds a fresh list every call.
+            List<Pawn> party = PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists;
             foreach (ThingDef shardDef in TSC_Shards.AllDefs)
             {
                 AbilityDef ability = TSC_Shards.AbilityFor(shardDef);
@@ -292,7 +307,7 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                foreach (Pawn pawn in PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists)
+                foreach (Pawn pawn in party)
                 {
                     bool holds = HoldsShard(pawn, shardDef);
                     Ability existing = pawn.abilities?.GetAbility(ability);

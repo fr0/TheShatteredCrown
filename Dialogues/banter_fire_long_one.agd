@@ -1,0 +1,15 @@
+# Party banter: Madoc's fire has requests.
+dialogue TSC_Banter_FireLikesTheLongOne
+
+== start ==
+Madoc: Sing the long one. The fire sits up for the long one.
+
+Wren: Your fire has better taste than half the rooms I've played.
+
+Madoc: Oh, it has no taste at all! It only likes company.
+
+Wren stops mid-chord.
+
+Wren: ...I'm putting that in something.
+
+* [Leave them to it.] -> end

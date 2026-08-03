@@ -110,9 +110,28 @@ namespace TheShatteredCrown
 
         public TSC_ProgressionManager(World world) : base(world)
         {
+            cached = this;
         }
 
-        public static TSC_ProgressionManager Current => Find.World.GetComponent<TSC_ProgressionManager>();
+        // Cached for the same reason as DialogueStateManager.Current: feats,
+        // levels, and energy are asked for from damage patches, tick sweeps,
+        // and the colonist bar every frame, and World.GetComponent<T> is a
+        // linear scan of the whole component list per call.
+        private static TSC_ProgressionManager cached;
+
+        public static TSC_ProgressionManager Current
+        {
+            get
+            {
+                TSC_ProgressionManager c = cached;
+                if (c != null && ReferenceEquals(c.world, Find.World))
+                {
+                    return c;
+                }
+                cached = Find.World?.GetComponent<TSC_ProgressionManager>();
+                return cached;
+            }
+        }
 
         // ---------------------------------------------------------------- levels & xp
 

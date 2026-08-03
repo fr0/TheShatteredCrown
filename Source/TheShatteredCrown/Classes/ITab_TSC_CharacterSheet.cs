@@ -117,7 +117,7 @@ namespace TheShatteredCrown
             if (record.classes.Count == 0)
             {
                 GUI.color = Color.gray;
-                Line(ref y, viewRect.width, "No class yet. Classes are learned from mentors met on the road.");
+                Line(ref y, viewRect.width, "No class yet. Classes are learned from reading class books.");
                 GUI.color = Color.white;
             }
             for (int i = 0; i < record.classes.Count; i++)

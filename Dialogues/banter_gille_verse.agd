@@ -1,0 +1,23 @@
+# Party banter, the earned one: Madoc hands a dead man to the song.
+# Gated on Madoc's affinity (the trigger def carries the condition).
+dialogue TSC_Banter_GilleVerse
+
+== start ==
+Madoc says it out of nowhere, to the fire rather than to anyone.
+
+Madoc: Put Gille in the song. He'd have hated it. That's rather the point.
+
+Wren sets down the lute the way you put down something that might spill.
+
+Wren: Give me one true thing about him and I'll do it properly.
+
+* [Listen.] -> verse
+
+== verse ==
+Madoc: He complained. Beautifully. It was how he loved things.
+
+There is a quiet in which somebody feeds the fire.
+
+Wren: That's a verse. That's the whole verse, Madoc.
+
+* [Leave them to it.] -> end

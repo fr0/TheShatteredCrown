@@ -1,0 +1,15 @@
+# Party banter: Wren asks the raven question everyone was thinking.
+dialogue TSC_Banter_CorvusWords
+
+== start ==
+Wren: Does Corvus know words, or only how they're said?
+
+Maewyn considers the bird on her shoulder.
+
+Maewyn: He knows yours.
+
+Wren: That is either very lovely or a threat.
+
+Maewyn: Yes.
+
+* [Leave them to it.] -> end

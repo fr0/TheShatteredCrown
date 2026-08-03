@@ -28,6 +28,17 @@ namespace TheShatteredCrown
         private static float openingScheduledRealTime;
         private static bool openingSawWindow;
 
+        /// <summary>
+        /// SAVED, unlike everything above it. The pending flag was a static,
+        /// which only exists in the process where the game was created: play
+        /// the intro, save, quit for the night, and the card was gone
+        /// forever - which is exactly how a real first session goes, and why
+        /// a playtest reached Act 5 without ever seeing the Act 1 curtain.
+        /// Until this is true, every load of a story-scenario save re-arms
+        /// the opening card.
+        /// </summary>
+        private static bool openingShown;
+
         public TSC_TitleCardManager(Game game)
         {
         }
@@ -108,8 +119,12 @@ namespace TheShatteredCrown
                 return;
             }
             openingPending = false;
+            openingShown = true;
             TriggerLog("FIRING now");
-            Show("Act 1", "Distilled Memory");
+            // "Distilled Memory" until now: a title from a draft of Act 1
+            // that predates the rework. The act opens on the guild's letter
+            // about its missing company, and the card says so.
+            Show("Act 1", "The Wayfarers' Call");
         }
 
         private static Window FirstModalWindow()
@@ -123,6 +138,30 @@ namespace TheShatteredCrown
                 }
             }
             return null;
+        }
+
+        /// <summary>Re-arm on load for story saves that have never shown it.</summary>
+        public override void LoadedGame()
+        {
+            base.LoadedGame();
+            if (openingShown || Find.Scenario == null)
+            {
+                return;
+            }
+            foreach (ScenPart part in Find.Scenario.AllParts)
+            {
+                if (part is ScenPart_TSC_IntroSetup)
+                {
+                    ScheduleOpening();
+                    return;
+                }
+            }
+        }
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look(ref openingShown, "tscOpeningCardShown");
         }
 
         public override void GameComponentOnGUI()

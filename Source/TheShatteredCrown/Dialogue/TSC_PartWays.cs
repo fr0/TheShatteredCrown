@@ -94,21 +94,15 @@ namespace TheShatteredCrown
 
     public static class TSC_PartWays
     {
-        /// <summary>The NamedNpcDef this pawn is, if they are a story companion at all.</summary>
+        /// <summary>
+        /// The NamedNpcDef this pawn is, if they are a story companion at
+        /// all. Delegates to NpcDefFor: one pass over the (small) name-to-
+        /// pawn registry, instead of the old all-defs-times-lookup walk -
+        /// this runs per party pawn in the carried-gear sweep.
+        /// </summary>
         public static NamedNpcDef CompanionDefOf(Pawn pawn)
         {
-            if (pawn == null)
-            {
-                return null;
-            }
-            foreach (NamedNpcDef def in DefDatabase<NamedNpcDef>.AllDefsListForReading)
-            {
-                if (DialogueStateManager.Current.GetNamedNpcIfExists(def) == pawn)
-                {
-                    return def;
-                }
-            }
-            return null;
+            return pawn == null ? null : DialogueStateManager.Current?.NpcDefFor(pawn);
         }
 
         /// <summary>

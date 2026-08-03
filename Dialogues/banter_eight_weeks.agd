@@ -1,0 +1,15 @@
+# Party banter: the debrief Serra never filed.
+dialogue TSC_Banter_EightWeeks
+
+== start ==
+Serra: Twelve days in that ruin, Bran.
+
+Bran: I know how long it was, captain.
+
+Serra: You could have run for it after the first two.
+
+Bran: And crossed the road you'd come looking down. No.
+
+Serra looks at him for a moment, and lets it stand.
+
+* [Leave them to it.] -> end

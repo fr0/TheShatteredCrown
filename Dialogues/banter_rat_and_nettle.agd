@@ -1,0 +1,13 @@
+# Party banter: Bran's twelve days, reviewed by a professional forager.
+dialogue TSC_Banter_RatAndNettle
+
+== start ==
+Bran: Twelve days of rat. I've not gone back to it since.
+
+Maewyn: Nettle's better.
+
+Bran: The nettle was WITH the rat.
+
+Maewyn: Then you did it right.
+
+* [Leave them to it.] -> end

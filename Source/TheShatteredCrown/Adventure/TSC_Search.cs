@@ -60,9 +60,10 @@ namespace TheShatteredCrown
         };
 
         // Gold for things worth having, red for things that will object to
-        // you having them.
+        // you having them, and pale blue for somebody alive who is neither.
         private static readonly Color LootColor = new Color(1f, 0.85f, 0.35f, 0.85f);
         private static readonly Color ThreatColor = new Color(1f, 0.42f, 0.34f, 0.85f);
+        private static readonly Color PersonColor = new Color(0.55f, 0.85f, 0.95f, 0.85f);
 
         private int readyAtTick;
         private List<TSC_SearchMark> marks = new List<TSC_SearchMark>();
@@ -128,7 +129,7 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                GUI.color = mark.threat ? ThreatColor : LootColor;
+                GUI.color = mark.person ? PersonColor : mark.threat ? ThreatColor : LootColor;
                 GUI.DrawTexture(rect, TSC_SearchArt.Ring);
             }
             GUI.color = Color.white;
@@ -216,6 +217,18 @@ namespace TheShatteredCrown
                 marks.Add(TSC_SearchMark.Make(thing.Position, spread, threat: false));
                 found.Add($"{Describe(thing)} {Bearing(searcher.Position, thing.Position)}, "
                     + $"{Paces(searcher.Position.DistanceTo(thing.Position))}");
+            }
+            // The third kind of find: somebody alive, hidden, and not
+            // hunting you. Bran holed up in his ruin is the type case - the
+            // first map's whole question is "where is the scout", and a
+            // ranger who can read a three-week trail can read a chimney.
+            foreach (Pawn hidden in Presences(searcher, margin >= 5 ? 2 : 1))
+            {
+                TSC_SearchMark mark = TSC_SearchMark.Make(hidden.Position, spread, threat: false);
+                mark.person = true;
+                marks.Add(mark);
+                found.Add($"somebody alive and keeping out of sight {Bearing(searcher.Position, hidden.Position)}, "
+                    + $"{Paces(searcher.Position.DistanceTo(hidden.Position))}");
             }
             foreach (KeyValuePair<IntVec3, int> cluster in Threats(searcher, threatWanted))
             {
@@ -336,6 +349,58 @@ namespace TheShatteredCrown
             return found;
         }
 
+        /// <summary>
+        /// People worth finding: humanlike, not ours, not hostile, and
+        /// HIDDEN. Hidden used to mean vanilla-fogged, which only covers
+        /// enclosed rooms - Bran in his sealed ruin qualified and Maewyn
+        /// standing in her open grove never did (found in play: a success
+        /// on the grove map said nothing about her). Hidden now means what
+        /// it says: nobody in the party can currently see them - out of
+        /// line of sight or beyond eyeshot of every colonist - with fog as
+        /// the automatic case. People standing in plain view still do not
+        /// need a d10 to notice.
+        /// </summary>
+        private List<Pawn> Presences(Pawn searcher, int wanted)
+        {
+            List<Pawn> found = new List<Pawn>();
+            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+            {
+                if (!pawn.RaceProps.Humanlike || pawn.Dead
+                    || pawn.Faction == Faction.OfPlayer
+                    || pawn.HostileTo(Faction.OfPlayer)
+                    || !HiddenFromParty(pawn))
+                {
+                    continue;
+                }
+                found.Add(pawn);
+            }
+            found.SortBy(p => p.Position.DistanceToSquared(searcher.Position));
+            if (found.Count > wanted)
+            {
+                found.RemoveRange(wanted, found.Count - wanted);
+            }
+            return found;
+        }
+
+        /// <summary>Out of everyone's sight: fogged, or no colonist within eyeshot with a clear line.</summary>
+        private bool HiddenFromParty(Pawn pawn)
+        {
+            if (pawn.Position.Fogged(map))
+            {
+                return true;
+            }
+            const float Eyeshot = 32f;
+            foreach (Pawn colonist in map.mapPawns.FreeColonistsSpawned)
+            {
+                if (colonist.Position.DistanceTo(pawn.Position) <= Eyeshot
+                    && GenSight.LineOfSight(colonist.Position, pawn.Position, map, skipFirstCell: true))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         /// <summary>Hostiles, grouped: three bandits in one room are one answer, not three.</summary>
         private List<KeyValuePair<IntVec3, int>> Threats(Pawn searcher, int wanted)
         {
@@ -454,6 +519,7 @@ namespace TheShatteredCrown
         public IntVec3 cell;
         public float radius;
         public bool threat;
+        public bool person;
         public int expiresTick;
 
         public static TSC_SearchMark Make(IntVec3 at, float spread, bool threat)
@@ -489,6 +555,7 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref cell, "cell");
             Scribe_Values.Look(ref radius, "radius");
             Scribe_Values.Look(ref threat, "threat");
+            Scribe_Values.Look(ref person, "person");
             Scribe_Values.Look(ref expiresTick, "expiresTick");
         }
     }
@@ -522,7 +589,8 @@ namespace TheShatteredCrown
                 defaultLabel = "Search",
                 defaultDesc = "Read the ground: the party's best perception and best survival, plus a die, "
                     + "against what this place is willing to give up. A success marks roughly where the "
-                    + "worthwhile things and the living things are; the better the roll, the tighter the "
+                    + "worthwhile things and the living things are - gold for goods, red for hostiles, pale "
+                    + "blue for somebody hidden and not hunting you. The better the roll, the tighter the "
                     + "marks and the more it names. Not during a fight.",
                 icon = ContentFinder<Texture2D>.Get("UI/TSC_Search", reportFailure: false)
                     ?? TexCommand.Attack,

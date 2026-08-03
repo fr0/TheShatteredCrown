@@ -1,0 +1,15 @@
+# Party banter: forestry policy, negotiated.
+dialogue TSC_Banter_BurnTheDeadfall
+
+== start ==
+Maewyn: Not the standing wood. Burn the deadfall.
+
+Madoc: The deadfall is BORING. It goes up like an apology.
+
+Maewyn: Then burn it apologetically.
+
+Madoc turns to the rest of the camp, delighted.
+
+Madoc: She made a joke. The hills made a joke!
+
+* [Leave them to it.] -> end

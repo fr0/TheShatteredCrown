@@ -123,6 +123,19 @@ namespace TheShatteredCrown
         /// </summary>
         public bool TryDiscoverNear(PlanetTile fromTile)
         {
+            return TryDiscoverNear(fromTile, 1, 2, null, null);
+        }
+
+        /// <summary>
+        /// The parameterised form: how far off the marked country lies, and
+        /// what the letter says. The map case reads a survey rather than
+        /// sighting something from the saddle, so it wants both a longer
+        /// reach and its own words; the letter format takes {0} = the
+        /// place's label and {1} = its description.
+        /// </summary>
+        public bool TryDiscoverNear(PlanetTile fromTile, int minDist, int maxDist,
+            string letterLabel, string letterTextFormat)
+        {
             List<SitePartDef> pool = new List<SitePartDef>();
             List<float> weights = new List<float>();
             foreach (SitePartDef def in DefDatabase<SitePartDef>.AllDefsListForReading)
@@ -138,7 +151,7 @@ namespace TheShatteredCrown
             {
                 return false;
             }
-            if (!TileFinder.TryFindPassableTileWithTraversalDistance(fromTile, 1, 2, out PlanetTile tile,
+            if (!TileFinder.TryFindPassableTileWithTraversalDistance(fromTile, minDist, maxDist, out PlanetTile tile,
                 t => !Find.WorldObjects.AnyWorldObjectAt(t)))
             {
                 return false;
@@ -153,8 +166,10 @@ namespace TheShatteredCrown
             site.GetComponent<TimeoutComp>()?.StartTimeout(TimeoutDays * GenDate.TicksPerDay);
             Find.WorldObjects.Add(site);
             Find.LetterStack.ReceiveLetter(
-                $"Discovered: {part.label}",
-                $"Riding the wilds, the party sights something off the route: {part.label}.\n\n{part.description}\n\nIt is marked on the map. Untouched places do not stay untouched for long: the mark fades in about two weeks.",
+                letterLabel ?? $"Discovered: {part.label}",
+                letterTextFormat != null
+                    ? string.Format(letterTextFormat, part.label, part.description)
+                    : $"Riding the wilds, the party sights something off the route: {part.label}.\n\n{part.description}\n\nIt is marked on the map. Untouched places do not stay untouched for long: the mark fades in about two weeks.",
                 LetterDefOf.NeutralEvent, site);
             return true;
         }
@@ -1526,6 +1541,96 @@ namespace TheShatteredCrown
             }
         }
 
+        /// <summary>
+        /// Checked once per session against the party's ACTUAL position,
+        /// deliberately not saved: every visit re-verifies.
+        /// </summary>
+        private bool reachabilityVerified;
+
+        /// <summary>
+        /// The placement genstep guarantees the captive can reach A map
+        /// edge - but two sealed regions can each touch DIFFERENT edges
+        /// without connecting to each other, and a prisoner in a cave that
+        /// opens onto the far rim passed that test while the party stared
+        /// at solid rock (seen in play: a rescue that needed mining).
+        /// Nobody knows the party's entry side at map generation, so the
+        /// honest check happens here, against a real colonist, and anyone
+        /// walled off is moved to the deepest cell the party can actually
+        /// walk to.
+        /// </summary>
+        private void EnsureReachable()
+        {
+            Pawn anchor = null;
+            foreach (Pawn colonist in map.mapPawns.FreeColonistsSpawned)
+            {
+                anchor = colonist;
+                break;
+            }
+            if (anchor == null)
+            {
+                return;
+            }
+            RelocateIfSealed(anchor, captive);
+            foreach (Pawn other in others)
+            {
+                RelocateIfSealed(anchor, other);
+            }
+        }
+
+        private void RelocateIfSealed(Pawn anchor, Pawn prisoner)
+        {
+            if (prisoner == null || prisoner.Dead || !prisoner.Spawned
+                || prisoner.Faction == Faction.OfPlayer)
+            {
+                return;
+            }
+            TraverseParms walk = TraverseParms.For(TraverseMode.PassDoors);
+            if (map.reachability.CanReach(anchor.Position, prisoner.Position, Verse.AI.PathEndMode.Touch, walk))
+            {
+                return;
+            }
+            // Sealed off. The deepest reachable cell keeps the shape of the
+            // rescue - a walk into the dark - without the pickaxe.
+            IntVec3 best = IntVec3.Invalid;
+            float bestScore = -1f;
+            for (int i = 0; i < 250; i++)
+            {
+                IntVec3 candidate = CellFinder.RandomCell(map);
+                if (!candidate.Standable(map)
+                    || candidate.GetFirstPawn(map) != null
+                    || !map.reachability.CanReach(anchor.Position, candidate, Verse.AI.PathEndMode.OnCell, walk))
+                {
+                    continue;
+                }
+                // Never in the party's laps: a hard penalty inside 12 cells
+                // of any colonist means close cells only win when the whole
+                // reachable world is a pocket - in which case close is the
+                // truth, and still better than sealed.
+                float nearestColonist = float.MaxValue;
+                foreach (Pawn colonist in map.mapPawns.FreeColonistsSpawned)
+                {
+                    nearestColonist = Mathf.Min(nearestColonist, candidate.DistanceTo(colonist.Position));
+                }
+                float score = candidate.DistanceTo(anchor.Position)
+                    + (candidate.Roofed(map) ? 40f : 0f)
+                    + (nearestColonist < 12f ? -1000f : 0f);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = candidate;
+                }
+            }
+            if (!best.IsValid)
+            {
+                return; // no reachable ground at all; nothing sane to do
+            }
+            IntVec3 from = prisoner.Position;
+            prisoner.DeSpawn();
+            GenSpawn.Spawn(prisoner, best, map);
+            Log.Warning($"[The Shattered Crown] Captive {prisoner.LabelShortCap} was sealed off from the "
+                + $"party (at {from}, no path from {anchor.Position}); relocated to {best}.");
+        }
+
         private void FreeOne(Pawn pawn)
         {
             pawn.SetFaction(Faction.OfPlayer);
@@ -1562,6 +1667,11 @@ namespace TheShatteredCrown
             if (joined || captive == null || captive.Dead)
             {
                 return;
+            }
+            if (!reachabilityVerified && map.mapPawns.FreeColonistsSpawnedCount > 0)
+            {
+                reachabilityVerified = true;
+                EnsureReachable();
             }
             if (!announced && map.mapPawns.FreeColonistsSpawnedCount > 0)
             {

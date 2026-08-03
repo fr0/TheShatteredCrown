@@ -1,0 +1,14 @@
+# Party banter: overheard, not joined. Speaker lines use the "Name:" prefix
+# that Dialog_Conversation renders as a coloured tag.
+dialogue TSC_Banter_Gerald
+
+== start ==
+Wren: Twelve days alone in a ruin, and you named a wall.
+
+Bran: Gerald held up his end better than most people I've travelled with.
+
+Wren: Does Gerald get a verse?
+
+Bran: Gerald gets a verse or I'm walking back there.
+
+* [Leave them to it.] -> end

@@ -32,9 +32,30 @@ namespace TheShatteredCrown
 
         public DialogueStateManager(World world) : base(world)
         {
+            cached = this;
         }
 
-        public static DialogueStateManager Current => Find.World.GetComponent<DialogueStateManager>();
+        // Cached: this is the mod's most-called accessor (flags, affinity,
+        // named pawns - from tick sweeps, damage patches, and per-frame UI),
+        // and World.GetComponent<T> is a linear type-scan of every world
+        // component in the load order on every call. The instance registers
+        // itself in the constructor; the world check invalidates it across
+        // save loads.
+        private static DialogueStateManager cached;
+
+        public static DialogueStateManager Current
+        {
+            get
+            {
+                DialogueStateManager c = cached;
+                if (c != null && ReferenceEquals(c.world, Find.World))
+                {
+                    return c;
+                }
+                cached = Find.World?.GetComponent<DialogueStateManager>();
+                return cached;
+            }
+        }
 
         public bool IsSet(string flag)
         {

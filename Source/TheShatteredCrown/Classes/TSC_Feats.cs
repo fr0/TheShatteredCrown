@@ -106,6 +106,12 @@ namespace TheShatteredCrown
             return Mathf.Max(0, characterLevel / LevelsPerFeat);
         }
 
+        /// <summary>
+        /// NOT for hot paths: allocates a list and resolves defs on every
+        /// call. Fine from UI and level-up flows; from a stat hook, tick
+        /// sweep, or damage patch, use Has(pawn, defName) instead - it is a
+        /// dictionary lookup and a small string list Contains.
+        /// </summary>
         public static List<TSC_FeatDef> Taken(Pawn pawn)
         {
             List<TSC_FeatDef> taken = new List<TSC_FeatDef>();

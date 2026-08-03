@@ -4252,6 +4252,13 @@ namespace TheShatteredCrown
     [HarmonyPatch(typeof(Command), nameof(Command.GizmoOnGUI))]
     public static class Patch_CommandAbility_ApShortfallBar
     {
+        // Translated once: this postfix runs per gizmo per frame, and
+        // .Translate() is a dictionary walk plus a string build every call.
+        private static string meleeAttackLabel;
+
+        private static string MeleeAttackLabel =>
+            meleeAttackLabel ?? (meleeAttackLabel = "CommandMeleeAttack".Translate());
+
         public static void Postfix(Command __instance, Vector2 topLeft, float maxWidth, GizmoRenderParms parms)
         {
             if (parms.shrunk || Verse.Current.Game == null)
@@ -4278,7 +4285,7 @@ namespace TheShatteredCrown
                         ? TSC_EncounterController.AttackApCostFor(pawn)
                         : TSC_EncounterController.MeleeApCostFor(pawn);
             }
-            else if (__instance is Command_Target && __instance.defaultLabel == "CommandMeleeAttack".Translate())
+            else if (__instance is Command_Target && __instance.defaultLabel == MeleeAttackLabel)
             {
                 // The drafted "Melee attack" gizmo is a bare Command_Target
                 // with no pawn on it - but gizmos render for the selected

@@ -1,0 +1,11 @@
+# Party banter: the shortest mutual recognition in the company's history.
+dialogue TSC_Banter_ThingsNotThere
+
+== start ==
+Madoc: Do you ever talk to things that aren't there?
+
+Maewyn: Yes.
+
+Madoc: ...Oh, GOOD.
+
+* [Leave them to it.] -> end

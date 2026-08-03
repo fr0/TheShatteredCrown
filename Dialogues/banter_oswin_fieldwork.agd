@@ -1,0 +1,15 @@
+# Party banter: the scholar files a complaint with the landscape.
+dialogue TSC_Banter_OswinFieldwork
+
+== start ==
+Oswin extracts a boot from the ground with a noise like a kiss.
+
+Oswin: I want it on record that I am a scholar, and this is a bog.
+
+Maewyn: It's a fen.
+
+Oswin: How is that better?
+
+Maewyn: It isn't. It's just true.
+
+* [Leave them to it.] -> end

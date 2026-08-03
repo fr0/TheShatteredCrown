@@ -95,6 +95,11 @@ namespace TheShatteredCrown
     /// </summary>
     public class MapComponent_TSC_FeatCombatHooks : MapComponent
     {
+        // 5 ticks is deliberate, not an oversight: a pawn crosses a cell in
+        // ~13 ticks, and the opportunity swing has to land while the leaver
+        // is still inside MeleeReach - poll slower and they are gone before
+        // the poll. The sweep is dictionary lookups per colonist (Feats.Has
+        // against the cached progression manager), so the cadence is cheap.
         private const int Interval = 5;
         private const float MeleeReach = 1.9f;
 

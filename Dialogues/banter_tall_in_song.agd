@@ -1,0 +1,11 @@
+# Party banter: the captain declines to be improved.
+dialogue TSC_Banter_TallInTheSong
+
+== start ==
+Wren: Captain. In the song, would you like to be tall?
+
+Serra: In the song I would like to be accurate.
+
+Wren: That's a no from the tall, then.
+
+* [Leave them to it.] -> end

@@ -167,26 +167,26 @@ display text. Indented lines under an option add behavior:
 - The flag `TSC_Talked_<defName>` is set automatically the first time a
   conversation opens - use it for "have we met" entry conditions.
 
-## Party banter (XML, not .agd)
+## Party banter
 
-Two companions talking to each other, floating over their heads out of
-combat. No choices and no window, so it is not a conversation and does not
-belong in the DSL - author it as `TSC_BanterDef` in `1.6/Defs/Misc/TSC_Banter.xml`:
+Two companions talking to each other, shown in the ordinary conversation
+window with the player as eavesdropper. The WORDS are normal `.agd`
+dialogue (`Dialogues/banter_*.agd`) written script-style: a paragraph that
+begins with a conversant's short name and a colon ("Wren: Nothing rhymes
+with Ashvale.") renders the name as a bold coloured speaker tag - gold for
+the window's npc, blue for the partner. Unprefixed paragraphs are
+narration. Only the two conversants' names are recognised, so "Note:" in
+any other dialogue stays plain prose. Give the player only
+[Leave them to it.]-style options. The TRIGGER is
+a `TSC_BanterDef` in `1.6/Defs/Misc/TSC_Banter.xml`:
 
 ```xml
 <TheShatteredCrown.TSC_BanterDef>
   <defName>TSC_Banter_Gerald</defName>
-  <speakers>
-    <li>TSC_Npc_Bard</li>              <!-- speaker 0 -->
-    <li>TSC_Npc_Bran</li>              <!-- speaker 1 -->
-  </speakers>
-  <lines>
-    <li>0: Twelve days alone in a ruin, and you named a wall.</li>
-    <li>1: Gerald held up his end better than most people.</li>
-  </lines>
-  <once>true</once>                    <!-- default; a repeated joke is not a joke -->
-  <weight>1</weight>                   <!-- odds against the other eligible banters -->
-  <conditions>                         <!-- same condition classes as dialogue -->
+  <speakers><li>TSC_Npc_Bard</li><li>TSC_Npc_Bran</li></speakers>
+  <dialogue>TSC_Banter_Gerald</dialogue>  <!-- the DialogueDef to open -->
+  <weight>1</weight>
+  <conditions>  <!-- same condition classes as dialogue options -->
     <li Class="TheShatteredCrown.DialogueCondition_Affinity">
       <npc>TSC_Npc_Madoc</npc><min>10</min>
     </li>
@@ -194,16 +194,13 @@ belong in the DSL - author it as `TSC_BanterDef` in `1.6/Defs/Misc/TSC_Banter.xm
 </TheShatteredCrown.TSC_BanterDef>
 ```
 
-- A banter only fires when EVERY speaker is present, awake, upright and
-  within 10 cells of each other, out of combat, with no conversation window
-  open. Conditions are evaluated with the first two speakers as the pair.
-- One banter runs at a time, with 75 to 200 seconds of silence between them.
-- Interrupted (a fight starts, they walk apart) means not heard: no flag is
-  set, so it comes round again later.
-- In a caravan it goes to the message feed instead, since there are no heads
-  to put text over.
-- Line pauses are read off the length of the line; override with the long
-  form `<li><speaker>1</speaker><text>...</text><pause>240</pause></li>`.
+- Fires when both speakers are in the party and together - on one map
+  within 10 cells, or riding in the same caravan (the road counts).
+- Out of combat, never over another conversation, with 75-200 seconds of
+  quiet between banters.
+- Once per save, marked heard the moment the window opens: a modal window
+  cannot be missed, so there are no cooldowns and no repeats.
+- speakers[0] is the window's npc (portrait side), speakers[1] the partner.
 
 ## NPC-initiated conversations
 

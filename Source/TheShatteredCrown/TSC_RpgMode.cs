@@ -16,6 +16,14 @@ namespace TheShatteredCrown
         /// (toggled by a debug action; static, never saved).</summary>
         public static bool debugOverride;
 
+        // Cached per Game: this gate sits in front of nearly every tick sweep,
+        // damage patch, and per-frame UI hook in the mod, and the scenario of
+        // a running game never changes - but walking scenario.AllParts (an
+        // enumerator allocation plus type checks) on every call meant the
+        // mod's cheapest question was one of its most-computed answers.
+        private static Game cachedGame;
+        private static bool cachedActive;
+
         public static bool Active
         {
             get
@@ -24,22 +32,41 @@ namespace TheShatteredCrown
                 {
                     return true;
                 }
-                Scenario scenario = Current.Game?.Scenario;
-                if (scenario == null)
+                Game game = Current.Game;
+                // No caching until the scenario is assigned: a Game exists for
+                // a moment before its Scenario does (new-game setup), and a
+                // false locked in during that window would shut the mod off
+                // for the whole session.
+                if (game?.Scenario == null)
                 {
                     return false;
                 }
-                foreach (ScenPart part in scenario.AllParts)
+                if (!ReferenceEquals(game, cachedGame))
                 {
-                    // Either of the mod's scenarios: the hand-crafted campaign
-                    // (Lone Adventurer) or procedural Adventure Mode.
-                    if (part is ScenPart_TSC_IntroSetup || part is ScenPart_TSC_AdventureSetup)
-                    {
-                        return true;
-                    }
+                    cachedGame = game;
+                    cachedActive = ComputeActive(game);
                 }
+                return cachedActive;
+            }
+        }
+
+        private static bool ComputeActive(Game game)
+        {
+            Scenario scenario = game.Scenario;
+            if (scenario == null)
+            {
                 return false;
             }
+            foreach (ScenPart part in scenario.AllParts)
+            {
+                // Either of the mod's scenarios: the hand-crafted campaign
+                // (Lone Adventurer) or procedural Adventure Mode.
+                if (part is ScenPart_TSC_IntroSetup || part is ScenPart_TSC_AdventureSetup)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

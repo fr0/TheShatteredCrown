@@ -1,0 +1,15 @@
+# Party banter: two professionals, one datum.
+dialogue TSC_Banter_TracksAge
+
+== start ==
+Bran: Tracks by the stream. Two days old. Maybe three.
+
+Maewyn: Two.
+
+Bran: Two, then.
+
+Maewyn: You were close.
+
+Bran: That's the warmest thing you've said all week.
+
+* [Leave them to it.] -> end

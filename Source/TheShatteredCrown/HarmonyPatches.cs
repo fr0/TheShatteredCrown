@@ -333,7 +333,11 @@ namespace TheShatteredCrown
     /// </summary>
     public static class TSC_PlotArmor
     {
-        private static readonly Dictionary<Pawn, int> lastNotifyTick = new Dictionary<Pawn, int>();
+        // Keyed by thingIDNumber, not Pawn: a static dictionary holding Pawn
+        // references keeps every pawn it ever noted alive for the whole
+        // session - a slow leak of dead story characters. The int key
+        // dedupes the message just as well and holds nothing.
+        private static readonly Dictionary<int, int> lastNotifyTick = new Dictionary<int, int>();
 
         /// <summary>
         /// The one pawn the story is currently killing on purpose.
@@ -408,9 +412,9 @@ namespace TheShatteredCrown
                 return;
             }
             int now = Find.TickManager.TicksGame;
-            if (!lastNotifyTick.TryGetValue(pawn, out int last) || now - last > 2500)
+            if (!lastNotifyTick.TryGetValue(pawn.thingIDNumber, out int last) || now - last > 2500)
             {
-                lastNotifyTick[pawn] = now;
+                lastNotifyTick[pawn.thingIDNumber] = now;
                 Messages.Message(
                     $"{pawn.LabelShortCap} is struck down, but clings to life. This story is not done with them.",
                     pawn, MessageTypeDefOf.NegativeEvent, historical: false);
@@ -508,8 +512,24 @@ namespace TheShatteredCrown
         private static readonly AccessTools.FieldRef<TooltipGiverList, List<Thing>> GiversField =
             AccessTools.FieldRefAccess<TooltipGiverList, List<Thing>>("givers");
 
+        /// <summary>
+        /// Real-time throttle: the giver list holds every tooltip-bearing
+        /// thing on the map and vanilla is about to walk it anyway - doubling
+        /// that walk every repaint was a per-frame tax paid against a leak
+        /// seen once. Real time rather than ticks so a paused game still
+        /// heals; half a second bounds how long a stale entry can NRE the
+        /// map UI before this catches it.
+        /// </summary>
+        private const float PruneEverySeconds = 0.5f;
+        private static float nextPruneRealTime;
+
         public static void Prefix(TooltipGiverList __instance)
         {
+            if (UnityEngine.Time.realtimeSinceStartup < nextPruneRealTime)
+            {
+                return;
+            }
+            nextPruneRealTime = UnityEngine.Time.realtimeSinceStartup + PruneEverySeconds;
             List<Thing> givers = GiversField(__instance);
             for (int i = givers.Count - 1; i >= 0; i--)
             {

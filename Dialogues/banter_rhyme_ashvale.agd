@@ -1,0 +1,13 @@
+# Party banter: the composition process meets its match.
+dialogue TSC_Banter_RhymeAshvale
+
+== start ==
+Wren: Ashvale. Ashvale. Nothing rhymes with Ashvale.
+
+Maewyn: Good.
+
+Wren: That was not a request for approval. That was a cry for help.
+
+Maewyn: Hm.
+
+* [Leave them to it.] -> end

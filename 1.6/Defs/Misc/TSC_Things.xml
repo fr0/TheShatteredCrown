@@ -280,7 +280,7 @@
   <ThingDef ParentName="ResourceBase">
     <defName>TSC_WeatheredMapCase</defName>
     <label>weathered map case</label>
-    <description>A leather map case, cracked with age and sealed with the sigil of the old kingdom's border guard.</description>
+    <description>A leather map case, cracked with age and sealed with the sigil of the old kingdom's border guard. Whatever the border guard surveyed is still in there, waiting to be read.</description>
     <graphicData>
       <texPath>Things/Item/Book/Schematic/Schematic</texPath>
       <graphicClass>Graphic_Single</graphicClass>

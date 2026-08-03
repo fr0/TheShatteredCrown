@@ -20,3 +20,9 @@ There are some AI-built tools that make this feasible:
 
 * Spell icons by [Lorc](https://lorcblog.blogspot.com) ([CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)), from the [700+ RPG Icons pack](https://opengameart.org/content/700-rpg-icons) (also at [game-icons.net](https://game-icons.net)).
 * Gear icons ("Gauntlet", "Metal boot") by [Delapouite](https://delapouite.com) ([CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)), via [game-icons.net](https://game-icons.net).
+
+## Contributions
+
+Pull requests are welcome.
+
+AI use is allowed, but vibe-coding is not. **All changes must be human-reviewed.**

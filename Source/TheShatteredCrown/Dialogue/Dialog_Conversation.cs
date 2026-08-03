@@ -411,7 +411,51 @@ namespace TheShatteredCrown
                 .Replace("{NPC}", context.npc != null ? context.npc.LabelShortCap : "the stranger")
                 .Replace("{PLAYER}", context.interactor != null ? context.interactor.LabelShortCap : "you")
                 .Replace("\\n", "\n");
-            return EmphasisRegex.Replace(text, "<b>$1</b>");
+            return ColorizeSpeakers(EmphasisRegex.Replace(text, "<b>$1</b>"));
+        }
+
+        /// <summary>The two conversants' name tags, told apart at a glance.</summary>
+        private static readonly Color NpcNameColor = new Color(0.95f, 0.80f, 0.45f);
+        private static readonly Color PartnerNameColor = new Color(0.60f, 0.82f, 1f);
+
+        /// <summary>
+        /// Script-style speaker attribution. The window carries ONE portrait,
+        /// so a scene with two voices (party banter) names each line:
+        ///
+        ///   Wren: Nothing rhymes with Ashvale.
+        ///   Maewyn: Good.
+        ///
+        /// A line that begins with a conversant's short name and a colon gets
+        /// the name rendered bold in that speaker's colour. ONLY the two
+        /// conversants' names qualify - "Note:" or a stranger's name stays
+        /// ordinary prose - so every existing dialogue renders unchanged.
+        /// </summary>
+        private string ColorizeSpeakers(string text)
+        {
+            if (text.IndexOf(':') < 0)
+            {
+                return text;
+            }
+            string[] lines = text.Split('\n');
+            bool touched = false;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                touched |= TagSpeaker(ref lines[i], context.npc, NpcNameColor);
+                touched |= TagSpeaker(ref lines[i], context.interactor, PartnerNameColor);
+            }
+            return touched ? string.Join("\n", lines) : text;
+        }
+
+        private static bool TagSpeaker(ref string line, Pawn pawn, Color color)
+        {
+            string name = pawn?.LabelShort;
+            if (name.NullOrEmpty() || line.Length <= name.Length
+                || !line.StartsWith(name) || line[name.Length] != ':')
+            {
+                return false;
+            }
+            line = ("<b>" + name + "</b>").Colorize(color) + line.Substring(name.Length);
+            return true;
         }
     }
 }

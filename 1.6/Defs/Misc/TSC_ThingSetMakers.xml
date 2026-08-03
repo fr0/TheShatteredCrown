@@ -196,6 +196,22 @@
          anything Medieval Overhaul or Combat Extended contributed. -->
     <root Class="ThingSetMaker_Sum">
       <options>
+        <!-- Rarely: a sealed border survey - a treasure map into the
+             discovery loop. Read via the float menu; reveals a wilderness
+             location a few days out from wherever it is read. -->
+        <li>
+          <chance>0.04</chance>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>TSC_WeatheredMapCase</li>
+                </thingDefs>
+              </filter>
+              <countRange>1</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
         <li>
           <thingSetMaker Class="ThingSetMaker_RandomOption">
             <options>
@@ -251,6 +267,22 @@
     <defName>TSC_Loot_BanditSpoils</defName>
     <root Class="ThingSetMaker_Sum">
       <options>
+        <!-- Rarely: a sealed border survey - a treasure map into the
+             discovery loop. Read via the float menu; reveals a wilderness
+             location a few days out from wherever it is read. -->
+        <li>
+          <chance>0.08</chance>
+          <thingSetMaker Class="ThingSetMaker_StackCount">
+            <fixedParams>
+              <filter>
+                <thingDefs>
+                  <li>TSC_WeatheredMapCase</li>
+                </thingDefs>
+              </filter>
+              <countRange>1</countRange>
+            </fixedParams>
+          </thingSetMaker>
+        </li>
         <li>
           <thingSetMaker Class="ThingSetMaker_StackCount">
             <fixedParams>

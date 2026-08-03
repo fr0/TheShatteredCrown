@@ -1,0 +1,13 @@
+# Party banter: Bran and the tactical opinions of a dead man.
+dialogue TSC_Banter_HewIsRight
+
+== start ==
+Madoc: Hew says this ground drinks too fast. He wants us higher.
+
+Bran: Hew's right. Higher's drier. I'll take first watch.
+
+Madoc: You always agree with Hew.
+
+Bran: Hew hasn't been wrong yet.
+
+* [Leave them to it.] -> end

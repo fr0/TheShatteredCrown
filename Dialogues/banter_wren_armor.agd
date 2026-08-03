@@ -1,0 +1,13 @@
+# Party banter: Bran on the professional advantages of not dying.
+dialogue TSC_Banter_WrenArmor
+
+== start ==
+Bran: You could wear something with metal in it.
+
+Wren: And sound like a kitchen falling downstairs? No.
+
+Bran: You'd be a loud bard. Loud and breathing.
+
+Wren: I'll take it under advisement, mother.
+
+* [Leave them to it.] -> end

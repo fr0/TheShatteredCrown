@@ -21,7 +21,13 @@ namespace TheShatteredCrown
 
         private const int RefreshIntervalTicks = 120;
 
-        private readonly List<Pawn> conversable = new List<Pawn>();
+        private struct Bubble
+        {
+            public Pawn pawn;
+            public string talkedFlag;
+        }
+
+        private readonly List<Bubble> conversable = new List<Bubble>();
         private int nextRefreshTick;
 
         public MapComponent_TSC_DialogueIndicator(Map map) : base(map)
@@ -51,7 +57,19 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                conversable.Add(pawn);
+                // Visibility is decided HERE, on the tick, not per frame: it
+                // only changes when the world ticks (vanilla fog and RFoW's
+                // veil both move on game time), and the RFoW query is a
+                // reflection Invoke - per pawn per frame it was boxing its
+                // way through hundreds of calls a second for bobbing icons.
+                // Never point at someone the player cannot see: the bubble
+                // draws on the meta-overlay layer, above fog, so without this
+                // it announces every unmet NPC through solid dark.
+                if (!VisibleToPlayer(pawn))
+                {
+                    continue;
+                }
+                conversable.Add(new Bubble { pawn = pawn, talkedFlag = ext.dialogue.TalkedFlag });
             }
         }
 
@@ -66,22 +84,16 @@ namespace TheShatteredCrown
             float bob = 0.08f * Mathf.Sin(Time.realtimeSinceStartup * 2.4f);
             for (int i = 0; i < conversable.Count; i++)
             {
-                Pawn pawn = conversable[i];
+                Pawn pawn = conversable[i].pawn;
                 if (pawn == null || !pawn.Spawned || pawn.Map != map || pawn.Dead)
                 {
                     continue;
                 }
                 // Re-check the flag per frame: the talk can start while paused
-                // (dialog force-pauses) and the tick refresh wouldn't run.
-                DialogueExtension ext = pawn.kindDef?.GetModExtension<DialogueExtension>();
-                if (ext?.dialogue == null || state.IsSet(ext.dialogue.TalkedFlag))
-                {
-                    continue;
-                }
-                // Never point at someone the player cannot see: the bubble
-                // draws on the meta-overlay layer, above fog, so without this
-                // it announces every unmet NPC through solid dark.
-                if (!VisibleToPlayer(pawn))
+                // (dialog force-pauses) and the tick refresh wouldn't run. The
+                // flag string was captured at refresh, so this is one hash
+                // lookup, not a mod-extension walk.
+                if (state.IsSet(conversable[i].talkedFlag))
                 {
                     continue;
                 }
