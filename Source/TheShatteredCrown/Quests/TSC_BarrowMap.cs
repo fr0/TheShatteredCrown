@@ -24,16 +24,49 @@ namespace TheShatteredCrown
         /// Same self-heal as the cellar hatch: the portal system reads exitDef
         /// but never spawns it - if the genstep's exit is missing for any
         /// reason, place one so arrival is never "destination is blocked".
+        ///
+        /// The linking has to be done by hand. PocketMapExit.SpawnSetup binds
+        /// itself to PocketMapUtility.currentlyGeneratingPortal, a static that
+        /// only holds a value WHILE a pocket map is being generated - and this
+        /// heal runs later, from GetOtherMap. Spawning blind logged "Pocket map
+        /// exit could not find map portal to connect to" and left an exit
+        /// wired to nothing, which is worse than the missing exit it was
+        /// meant to fix. Borrowing the static for the length of the spawn
+        /// makes vanilla's own binding do the right thing.
         /// </summary>
         private void EnsureExit(Map other)
         {
             ThingDef exitDef = def.portal?.exitDef;
-            if (other == null || exitDef == null || other.listerThings.ThingsOfDef(exitDef).Count > 0)
+            if (other == null || exitDef == null)
             {
                 return;
             }
+            List<Thing> existing = other.listerThings.ThingsOfDef(exitDef);
+            if (existing.Count > 0)
+            {
+                // Present, but a save from before this fix may hold one that
+                // never bound to anything: adopt it rather than add a second.
+                for (int i = 0; i < existing.Count; i++)
+                {
+                    if (existing[i] is PocketMapExit orphan && orphan.entrance == null)
+                    {
+                        orphan.entrance = this;
+                        exit = orphan;
+                    }
+                }
+                return;
+            }
             IntVec3 cell = CellFinder.RandomClosewalkCellNear(other.Center, other, 6);
-            GenSpawn.Spawn(ThingMaker.MakeThing(exitDef), cell, other);
+            MapPortal previous = PocketMapUtility.currentlyGeneratingPortal;
+            PocketMapUtility.currentlyGeneratingPortal = this;
+            try
+            {
+                GenSpawn.Spawn(ThingMaker.MakeThing(exitDef), cell, other);
+            }
+            finally
+            {
+                PocketMapUtility.currentlyGeneratingPortal = previous;
+            }
         }
     }
 

@@ -2,6 +2,8 @@
 dialogue TSC_Banter_BurnTheDeadfall
 
 == start ==
+_You overhear Maewyn and Madoc negotiating firewood._
+
 Maewyn: Not the standing wood. Burn the deadfall.
 
 Madoc: The deadfall is BORING. It goes up like an apology.

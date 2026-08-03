@@ -411,8 +411,18 @@ namespace TheShatteredCrown
                 .Replace("{NPC}", context.npc != null ? context.npc.LabelShortCap : "the stranger")
                 .Replace("{PLAYER}", context.interactor != null ? context.interactor.LabelShortCap : "you")
                 .Replace("\\n", "\n");
-            return ColorizeSpeakers(EmphasisRegex.Replace(text, "<b>$1</b>"));
+            text = EmphasisRegex.Replace(text, "<b>$1</b>");
+            // _text_ renders italic: stage direction and narrator asides
+            // ("You overhear Bran and Maewyn arguing."), quieter on the eye
+            // than speech. Same contract as *bold*: unpaired underscores
+            // stay literal.
+            text = ItalicRegex.Replace(text, "<i>$1</i>");
+            return ColorizeSpeakers(text);
         }
+
+        private static readonly System.Text.RegularExpressions.Regex ItalicRegex =
+            new System.Text.RegularExpressions.Regex(@"_([^_
+]{1,120})_");
 
         /// <summary>The two conversants' name tags, told apart at a glance.</summary>
         private static readonly Color NpcNameColor = new Color(0.95f, 0.80f, 0.45f);

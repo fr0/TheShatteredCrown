@@ -230,6 +230,69 @@ namespace TheShatteredCrown
             Verse.Current.Game?.GetComponent<GameComponent_TSC_Homeward>()?.Sweep(null);
         }
 
+        /// <summary>
+        /// Every link in the kill-mood chain, printed. The setting, the
+        /// live def value the setting is supposed to patch, whether the
+        /// thought can be gained at all, and what a real grant does to a
+        /// real colonist - so a report of "still not working" can name the
+        /// broken link instead of the symptom.
+        /// </summary>
+        [DebugAction("The Shattered Crown", "Mood: test kill thought", allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        private static void TestKillMood()
+        {
+            System.Text.StringBuilder report = new System.Text.StringBuilder();
+            float setting = TSC_Mod.Settings?.killMoodBonus ?? -1f;
+            report.AppendLine($"setting killMoodBonus = {setting} (hours {TSC_Mod.Settings?.killMoodHours})");
+            ThoughtDef def = TSC_MoodOptions.Bloodied;
+            report.AppendLine($"def TSC_Thought_Bloodied = {(def == null ? "MISSING" : "found")}");
+            if (def != null)
+            {
+                TSC_MoodOptions.ApplySettings();
+                report.AppendLine($"  after ApplySettings: baseMoodEffect = {def.stages[0].baseMoodEffect}, "
+                    + $"durationDays = {def.durationDays}, stackLimit = {def.stackLimit}");
+            }
+            Pawn subject = null;
+            foreach (Pawn pawn in Find.CurrentMap.mapPawns.FreeColonistsSpawned)
+            {
+                subject = pawn;
+                break;
+            }
+            if (subject == null || def == null)
+            {
+                report.AppendLine("no colonist on this map to test with");
+            }
+            else
+            {
+                report.AppendLine($"subject = {subject.LabelShort}, "
+                    + $"CanGetThought = {ThoughtUtility.CanGetThought(subject, def, checkIfNullified: true)}");
+                int before = CountMemories(subject, def);
+                TSC_MoodOptions.NoteKill(subject, subject.Map);
+                int after = CountMemories(subject, def);
+                report.AppendLine($"NoteKill: memories {before} -> {after}");
+                Thought_Memory got = subject.needs?.mood?.thoughts?.memories?.Memories
+                    ?.Find(m => m.def == def);
+                report.AppendLine(got == null
+                    ? "  no memory present after the grant"
+                    : $"  memory present, MoodOffset = {got.MoodOffset()}");
+            }
+            Log.Message("[The Shattered Crown] Kill-mood test:" + System.Environment.NewLine + report);
+            Messages.Message("Kill-mood test written to the log.", MessageTypeDefOf.NeutralEvent, historical: false);
+        }
+
+        private static int CountMemories(Pawn pawn, ThoughtDef def)
+        {
+            int n = 0;
+            List<Thought_Memory> memories = pawn.needs?.mood?.thoughts?.memories?.Memories;
+            for (int i = 0; memories != null && i < memories.Count; i++)
+            {
+                if (memories[i].def == def)
+                {
+                    n++;
+                }
+            }
+            return n;
+        }
+
         [DebugAction("The Shattered Crown", "Show act title card", allowedGameStates = AllowedGameStates.PlayingOnMap)]
         private static void ShowTitleCard()
         {

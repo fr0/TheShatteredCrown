@@ -134,9 +134,23 @@
       <li>ClassicStart</li>
       <li>ClassicStartTechprints</li>
     </startingTechprintsResearchTags>
+    <!-- What starting and generated members of the company are dressed
+         in. Synthread came along with the vanilla faction template this
+         was cloned from, and put every adventurer in a fabric nobody in
+         this century can weave. Cloth and leather only: the same list a
+         medieval world's own tailors work from. -->
     <apparelStuffFilter>
       <thingDefs>
-        <li>Synthread</li>
+        <li>Cloth</li>
+        <li>Leather_Plain</li>
+        <li>Leather_Bear</li>
+        <li>Leather_Wolf</li>
+        <li>Leather_Bluefur</li>
+        <li>Leather_Light</li>
+        <li>Leather_Heavy</li>
+        <li>WoolSheep</li>
+        <li>WoolAlpaca</li>
+        <li>WoolMuffalo</li>
       </thingDefs>
     </apparelStuffFilter>
   </FactionDef>

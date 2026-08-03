@@ -71,8 +71,23 @@ namespace TheShatteredCrown
         private void EnsureExit(Map other)
         {
             ThingDef exitDef = def.portal?.exitDef;
-            if (other == null || exitDef == null || other.listerThings.ThingsOfDef(exitDef).Count > 0)
+            if (other == null || exitDef == null)
             {
+                return;
+            }
+            List<Thing> existing = other.listerThings.ThingsOfDef(exitDef);
+            if (existing.Count > 0)
+            {
+                // Adopt an exit that never bound to anything (saves made
+                // before the binding fix).
+                for (int i = 0; i < existing.Count; i++)
+                {
+                    if (existing[i] is PocketMapExit orphan && orphan.entrance == null)
+                    {
+                        orphan.entrance = this;
+                        exit = orphan;
+                    }
+                }
                 return;
             }
             IntVec3 cell = other.Center + new IntVec3(0, 0, 2);
@@ -80,7 +95,19 @@ namespace TheShatteredCrown
             {
                 cell = CellFinder.RandomClosewalkCellNear(other.Center, other, 4);
             }
-            GenSpawn.Spawn(ThingMaker.MakeThing(exitDef), cell, other);
+            // PocketMapExit.SpawnSetup binds through this static, which is
+            // only set during pocket-map generation - see the barrow mouth's
+            // copy of this heal for the full story.
+            MapPortal previous = PocketMapUtility.currentlyGeneratingPortal;
+            PocketMapUtility.currentlyGeneratingPortal = this;
+            try
+            {
+                GenSpawn.Spawn(ThingMaker.MakeThing(exitDef), cell, other);
+            }
+            finally
+            {
+                PocketMapUtility.currentlyGeneratingPortal = previous;
+            }
         }
     }
 

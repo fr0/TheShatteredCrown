@@ -143,6 +143,15 @@ namespace TheShatteredCrown
 
         private static void Open(TSC_BanterDef def, List<Pawn> cast)
         {
+            // Belt and braces against a repeat: the flag is checked again
+            // here, and the firing is logged so a duplicate in play can be
+            // told apart from a reloaded save replaying it.
+            if (DialogueStateManager.Current.IsSet(def.HeardFlag))
+            {
+                return;
+            }
+            Log.Message($"[The Shattered Crown] Banter: {def.defName} "
+                + $"({cast[0].LabelShort} and {cast[1].LabelShort}).");
             // Heard the moment it opens: a modal window cannot be missed,
             // and marking here is what makes once mean once even if the
             // save happens mid-conversation.

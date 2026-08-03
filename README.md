@@ -26,3 +26,4 @@ There are some AI-built tools that make this feasible:
 Pull requests are welcome.
 
 AI use is allowed, but vibe-coding is not. **All changes must be human-reviewed.**
+No gen-AI art, please. Procedurally-generated art is acceptable.

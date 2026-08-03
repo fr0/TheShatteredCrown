@@ -155,7 +155,39 @@ namespace TheShatteredCrown
         {
             return pawn != null && !pawn.Dead && !pawn.Downed && pawn.Spawned
                 && pawn.RaceProps.Humanlike && pawn.Faction != Faction.OfPlayer
-                && pawn.HostileTo(Faction.OfPlayer);
+                && pawn.HostileTo(Faction.OfPlayer)
+                && CanSpeak(pawn);
+        }
+
+        /// <summary>
+        /// The dead do not banter.
+        ///
+        /// Barrow shamblers and the first king's oath-keepers are humanlike
+        /// and hostile, which was the whole test - so a crypt full of risen
+        /// dead was jeering like a bandit camp. Anything mutant (vanilla's
+        /// shambler and its kin) or wired shut by a hediff that removes
+        /// speech now fights in silence, which is considerably worse to be
+        /// on the wrong end of.
+        /// </summary>
+        public static bool CanSpeak(Pawn pawn)
+        {
+            if (pawn.IsMutant)
+            {
+                return false;
+            }
+            // The bark pool is a BANDIT CREW's ("Get 'em, lads!"), and a
+            // crew is a faction. The first king's oath-keepers are dead men
+            // posted alone with no faction at all: they have their own
+            // scripted words and would never borrow a brigand's, so a
+            // factionless hostile fights in silence too.
+            if (pawn.Faction == null)
+            {
+                return false;
+            }
+            // No tongue, no taunt: covers the undead marked by hediff rather
+            // than by mutant def, and anything else that lost the capacity.
+            return pawn.health?.capacities == null
+                || pawn.health.capacities.CapableOf(PawnCapacityDefOf.Talking);
         }
 
         private static bool Fleeing(Pawn pawn)

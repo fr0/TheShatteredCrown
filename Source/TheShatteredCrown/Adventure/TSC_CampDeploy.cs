@@ -98,7 +98,9 @@ namespace TheShatteredCrown
                 return;
             }
             List<CellRect> claimed = new List<CellRect>();
+            HashSet<Pawn> interrupted = new HashSet<Pawn>();
             int ordered = 0;
+            int refused = 0;
             int nextColonist = 0;
             foreach (Pawn holder in Carriers(map))
             {
@@ -132,13 +134,31 @@ namespace TheShatteredCrown
                     }
                     Job job = JobMaker.MakeJob(TSC_CampJobDefOf.TSC_DeployBedroll, roll, cell, animal);
                     job.playerForced = true;
-                    worker.jobs.TryTakeOrderedJob(job, JobTag.Misc, requestQueueing: true);
-                    ordered++;
+                    // The FIRST roll a worker is given interrupts whatever
+                    // they are doing; the rest queue behind it. Queuing them
+                    // all was the bug behind "they just ignore deploy camp":
+                    // a queued order waits for the current job to finish, and
+                    // a pawn hauling across a site map, tending, or standing
+                    // in a long wait toil simply never got to it. Camp is an
+                    // order, not a suggestion.
+                    bool first = !interrupted.Contains(worker);
+                    interrupted.Add(worker);
+                    if (worker.jobs.TryTakeOrderedJob(job, JobTag.Misc, requestQueueing: !first))
+                    {
+                        ordered++;
+                    }
+                    else
+                    {
+                        refused++;
+                    }
                 }
             }
             Messages.Message(ordered > 0
                     ? $"Making camp: {ordered} bedroll{(ordered == 1 ? "" : "s")} to lay out."
-                    : "No ground for the camp: nowhere near that spot fits a bedroll.",
+                      + (refused > 0 ? $" ({refused} could not be ordered.)" : "")
+                    : refused > 0
+                        ? "Nobody could take the order: the party is busy with work they cannot drop."
+                        : "No ground for the camp: nowhere near that spot fits a bedroll.",
                 new TargetInfo(center, map),
                 ordered > 0 ? MessageTypeDefOf.SilentInput : MessageTypeDefOf.RejectInput,
                 historical: false);

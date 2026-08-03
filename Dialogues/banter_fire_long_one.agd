@@ -2,6 +2,8 @@
 dialogue TSC_Banter_FireLikesTheLongOne
 
 == start ==
+_You overhear Madoc passing along a request from the fire._
+
 Madoc: Sing the long one. The fire sits up for the long one.
 
 Wren: Your fire has better taste than half the rooms I've played.

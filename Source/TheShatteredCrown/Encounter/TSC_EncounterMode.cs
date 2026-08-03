@@ -280,7 +280,12 @@ namespace TheShatteredCrown
         /// rolls. Spells flat.
         /// </summary>
         /// <summary>Pure self-buffs cast at half price: a round-up, not a round.</summary>
-        public const float SelfBuffApCost = ActionApCost / 2f;
+        /// <summary>
+        /// What a buff costs the turn. A THIRD of a spell, not half: at 3 of
+        /// 8 a warden could brace and still swing, which is the only reason
+        /// to brace at all. At 4 the buff ate the turn it was protecting.
+        /// </summary>
+        public const float SelfBuffApCost = 2f;
 
         private static readonly Dictionary<AbilityDef, bool> selfBuffCache = new Dictionary<AbilityDef, bool>();
 
@@ -311,8 +316,27 @@ namespace TheShatteredCrown
         private static bool ComputeSelfBuff(AbilityDef def)
         {
             TargetingParameters tp = def.verbProperties?.targetParams;
-            if (tp == null || !tp.canTargetSelf || tp.canTargetPawns
-                || tp.canTargetBuildings || tp.canTargetLocations)
+            if (tp == null)
+            {
+                return false;
+            }
+            // Buffs are cheap wherever they LAND. The old test demanded
+            // self-only targeting, so Stand Fast, Barkskin and Aura of
+            // Courage paid a full spell's 6 of 8 AP for the crime of being
+            // castable on a friend - and a buff that eats the whole turn is
+            // one nobody presses. What still costs a spell's worth is a
+            // spell: anything hostile, and anything that touches ground or
+            // walls rather than people.
+            // Hostile is a spell; so is anything that works on buildings.
+            // Targeting a LOCATION is not disqualifying on its own - an aura
+            // (Stand Fast, Aura of Courage, Battle Hymn) is aimed at a spot
+            // only to centre it on the party, and the effect lands on people.
+            // What decides it is the comp list below.
+            if (def.hostile || tp.canTargetBuildings)
+            {
+                return false;
+            }
+            if (!tp.canTargetSelf && !tp.canTargetPawns && !tp.canTargetLocations)
             {
                 return false;
             }
@@ -327,11 +351,16 @@ namespace TheShatteredCrown
                 {
                     hasBuff = true;
                 }
+                else if (comp is CompProperties_TSC_AreaHediff)
+                {
+                    // A ward laid over the whole party is still a ward.
+                    hasBuff = true;
+                }
                 else if (!(comp is CompProperties_TSC_EnergyCost)
                     && !(comp is CompProperties_TSC_Vfx)
                     && !(comp is CompProperties_TSC_GrantAp))
                 {
-                    return false; // it does something beyond buffing the caster
+                    return false; // it does something beyond buffing somebody
                 }
             }
             return hasBuff;
@@ -340,7 +369,7 @@ namespace TheShatteredCrown
         /// <summary>
         /// What a cast costs the turn.
         ///
-        /// A spell is most of a turn (6 of 8), a self-buff half of one, and
+        /// A spell is most of a turn (6 of 8), a buff a quarter of one, and
         /// that is right for things that come out of nowhere and change the
         /// fight. It is wrong for an ability that is simply a SWING - one
         /// weapon strike, done better. Ambush was priced as a spell and paid

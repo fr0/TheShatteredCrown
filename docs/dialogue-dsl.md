@@ -111,8 +111,10 @@ display text. Indented lines under an option add behavior:
 ## Emphasis in dialogue text
 
 `*word*` renders **bold** in the conversation window (stress in speech:
-"What *did* happen out here?"). ALL-CAPS is reserved for actual shouting
-("IS IT BANDITS?"). Unpaired asterisks stay literal.
+"What *did* happen out here?"). `_text_` renders italic: stage direction
+and narrator asides ("_You overhear Bran and Maewyn arguing._" - every
+banter opens with one). ALL-CAPS is reserved for actual shouting
+("IS IT BANDITS?"). Unpaired asterisks and underscores stay literal.
 
 ## Conditions
 

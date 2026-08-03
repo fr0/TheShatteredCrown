@@ -2,6 +2,8 @@
 dialogue TSC_Banter_TracksAge
 
 == start ==
+_You overhear Bran and Maewyn reading the same ground._
+
 Bran: Tracks by the stream. Two days old. Maybe three.
 
 Maewyn: Two.

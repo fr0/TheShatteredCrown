@@ -213,17 +213,17 @@
   <TheShatteredCrown.TSC_GuildStoreDef>
     <defName>TSC_GuildStore_Manuals</defName>
     <entries>
-      <li><thing>TSC_Book_Warden</thing><cost>15</cost><note>Copied from the border garrison drill-books.</note></li>
-      <li><thing>TSC_Book_Cleric</thing><cost>15</cost><note>The guild keeps these behind the ledger, and does not discuss where from.</note></li>
-      <li><thing>TSC_Book_Bard</thing><cost>15</cost><note>Half songbook, half something less innocent.</note></li>
-      <li><thing>TSC_Book_Rogue</thing><cost>15</cost><note>Sold openly, which tells you something about the guild.</note></li>
-      <li><thing>TSC_Book_Wizard</thing><cost>15</cost><note>Chained shut. The factor unchains it after the coins.</note></li>
-      <li><thing>TSC_Book_Sorcerer</thing><cost>15</cost><note>Nobody at the guild will admit to having read it.</note></li>
-      <li><thing>TSC_Book_Barbarian</thing><cost>15</cost><note>Not written by the people it describes.</note></li>
-      <li><thing>TSC_Book_Druid</thing><cost>15</cost><note>Damp to the touch in any weather.</note></li>
-      <li><thing>TSC_Book_Monk</thing><cost>15</cost><note>Ninety pages of standing correctly, and then the rest.</note></li>
-      <li><thing>TSC_Book_Paladin</thing><cost>15</cost><note>An oath, and the small print under an oath.</note></li>
-      <li><thing>TSC_Book_Ranger</thing><cost>15</cost><note>Mostly maps. The maps are the lesson.</note></li>
+      <li><thing>TSC_Book_Warden</thing><cost>6</cost><note>Copied from the border garrison drill-books.</note></li>
+      <li><thing>TSC_Book_Cleric</thing><cost>6</cost><note>The guild keeps these behind the ledger, and does not discuss where from.</note></li>
+      <li><thing>TSC_Book_Bard</thing><cost>6</cost><note>Half songbook, half something less innocent.</note></li>
+      <li><thing>TSC_Book_Rogue</thing><cost>6</cost><note>Sold openly, which tells you something about the guild.</note></li>
+      <li><thing>TSC_Book_Wizard</thing><cost>6</cost><note>Chained shut. The factor unchains it after the coins.</note></li>
+      <li><thing>TSC_Book_Sorcerer</thing><cost>6</cost><note>Nobody at the guild will admit to having read it.</note></li>
+      <li><thing>TSC_Book_Barbarian</thing><cost>6</cost><note>Not written by the people it describes.</note></li>
+      <li><thing>TSC_Book_Druid</thing><cost>6</cost><note>Damp to the touch in any weather.</note></li>
+      <li><thing>TSC_Book_Monk</thing><cost>6</cost><note>Ninety pages of standing correctly, and then the rest.</note></li>
+      <li><thing>TSC_Book_Paladin</thing><cost>6</cost><note>An oath, and the small print under an oath.</note></li>
+      <li><thing>TSC_Book_Ranger</thing><cost>6</cost><note>Mostly maps. The maps are the lesson.</note></li>
     </entries>
   </TheShatteredCrown.TSC_GuildStoreDef>
 

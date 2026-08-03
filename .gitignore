@@ -9,3 +9,4 @@ tools/**/bin/
 **/.vs/
 dist/
 __pycache__
+.upload-junction-target.txt
