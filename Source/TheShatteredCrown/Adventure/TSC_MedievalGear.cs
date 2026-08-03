@@ -162,6 +162,14 @@ namespace TheShatteredCrown
             {
                 return false;
             }
+            // Nothing you drink, eat, or build with. Anything with tools
+            // counts as a weapon to the engine, which is how Medieval
+            // Overhaul's bottles ended up eligible to be sold and handed
+            // out as salvage.
+            if (def.IsIngestible || def.IsDrug || def.IsStuff || def.IsMedicine)
+            {
+                return false;
+            }
             return !IsFirearm(def);
         }
 

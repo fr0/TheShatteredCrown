@@ -144,7 +144,12 @@ namespace TheShatteredCrown
             npc.guest?.SetGuestStatus(null);
             npc.SetFaction(Faction.OfPlayer);
             List<Pawn> animals = BringBondedAnimals(npc);
+            bool broughtBedding = BringBedroll(npc);
             string text = $"{npc.LabelShortCap} has thrown in with your company and will follow you from here on.";
+            if (broughtBedding)
+            {
+                text += " Their bedroll is already rolled and on their back.";
+            }
             if (animals.Count > 0)
             {
                 text += $"\n\n{animals.Select(a => a.LabelShortCap).ToCommaList(useAnd: true)} comes along, "
@@ -152,6 +157,41 @@ namespace TheShatteredCrown
             }
             Find.LetterStack.ReceiveLetter($"{npc.LabelShortCap} joins the party", text,
                 LetterDefOf.PositiveEvent, npc);
+        }
+
+        /// <summary>
+        /// Everyone who joins brings their own bed.
+        ///
+        /// A companion who has been living on the road owns a bedroll, and
+        /// the party's camp system runs on carried bedding - so a recruit
+        /// with none was a permanent extra sleeper the player had to buy
+        /// for, and one more roll to remember at every stop. Skipped for
+        /// anyone already carrying one (a rescue who kept their kit), so
+        /// nobody ends up with two.
+        /// </summary>
+        public static bool BringBedroll(Pawn npc)
+        {
+            if (npc.inventory?.innerContainer == null)
+            {
+                return false;
+            }
+            foreach (Thing carried in npc.inventory.innerContainer)
+            {
+                if (TSC_CampDeploy.IsBedroll(carried))
+                {
+                    return false;
+                }
+            }
+            ThingDef bedroll = DefDatabase<ThingDef>.GetNamedSilentFail("Bedroll");
+            if (bedroll == null)
+            {
+                return false;
+            }
+            ThingDef stuff = bedroll.MadeFromStuff
+                ? (DefDatabase<ThingDef>.GetNamedSilentFail("Cloth") ?? GenStuff.DefaultStuffFor(bedroll))
+                : null;
+            Thing rolled = MinifyUtility.MakeMinified(ThingMaker.MakeThing(bedroll, stuff));
+            return npc.inventory.innerContainer.TryAdd(rolled);
         }
 
         /// <summary>

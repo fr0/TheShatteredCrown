@@ -661,9 +661,11 @@ namespace TheShatteredCrown
                 }
                 GenSpawn.Spawn(recruit, cell, map);
                 recruit.SetFaction(Faction.OfPlayer);
+                // Anyone who signs on for road work owns bedding.
+                DialogueEffect_JoinParty.BringBedroll(recruit);
                 Find.LetterStack.ReceiveLetter(
                     $"{recruit.LabelShortCap} hires on",
-                    $"{recruit.LabelShortCap} the {classLabel} takes the guild's rate and your orders. Whether they are worth the silver is now a field question.",
+                    $"{recruit.LabelShortCap} the {classLabel} takes the guild's rate and your orders, and comes with their own bedroll. Whether they are worth the silver is now a field question.",
                     LetterDefOf.PositiveEvent, recruit);
             }));
         }

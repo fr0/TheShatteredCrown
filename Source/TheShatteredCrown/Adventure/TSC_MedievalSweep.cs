@@ -150,7 +150,18 @@ namespace TheShatteredCrown
         private static bool Offending(Thing thing)
         {
             ThingDef def = thing?.def;
-            if (def == null || (!def.IsWeapon && !def.IsApparel))
+            if (def == null)
+            {
+                return false;
+            }
+            // TSC_Gear.IsGear, not def.IsWeapon: IsWeapon is true of anything
+            // carrying tools, and vanilla WOOD carries them (a plank is a
+            // club in a pinch). Wood also declares no tech level, so it
+            // failed the period test and this sweep cheerfully "replaced"
+            // the party's lumber with same-value items out of the weapon
+            // catalogue - which under Medieval Overhaul meant bottles of
+            // drink, because those carry tools too. Resources are not gear.
+            if (!TSC_Gear.IsGear(thing))
             {
                 return false;
             }
