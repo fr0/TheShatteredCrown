@@ -357,7 +357,7 @@
       <rulesStrings>
         <li>questDescription->[sh_flavor]\n\nWhoever is using the shrine has written what they are doing on the stones. Read them before you break them - the guild wants to know what this was.\n\nCharter silver and guild coin, on the ground being clear.</li>
         <li>sh_flavor->A roadside shrine on a pilgrim route has stopped being a shrine. The pilgrims have not stopped coming.</li>
-        <li>sh_flavor->Somebody is keeping an old-faith shrine in a way the old faith would not recognise, in sight of a road the guild is paid to keep open.</li>
+        <li>sh_flavor->Somebody is keeping an old-faith shrine in a way the old faith would not recognize, in sight of a road the guild is paid to keep open.</li>
         <li>sh_flavor->Three pilgrims passed the marked shrine last month. Two came back, and neither will say what they saw.</li>
       </rulesStrings>
     </questDescriptionRules>

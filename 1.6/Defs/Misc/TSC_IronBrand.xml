@@ -501,7 +501,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteVillage</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteVillage</expandingIconTexture>
     <approachOrderString>Visit {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <gravShipsCanLandOn>true</gravShipsCanLandOn>
     <considerEnteringAsAttack>false</considerEnteringAsAttack>
@@ -585,7 +585,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
     <approachOrderString>Raid {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <wantsThreatPoints>true</wantsThreatPoints>
     <minThreatPoints>160</minThreatPoints>

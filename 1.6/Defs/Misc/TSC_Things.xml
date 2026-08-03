@@ -329,7 +329,7 @@
   <ThingDef ParentName="AncientSealedCrateBase">
     <defName>TSC_IronboundChest_Grave</defName>
     <label>reliquary chest</label>
-    <description>An ornate chest of dark wood and tarnished gold fittings, of the kind the old kingdom buried its honoured dead beside. Whatever was laid to rest with this one, it was not a sword.</description>
+    <description>An ornate chest of dark wood and tarnished gold fittings, of the kind the old kingdom buried its honored dead beside. Whatever was laid to rest with this one, it was not a sword.</description>
     <comps>
       <li Class="CompProperties_LootSpawn">
         <contents>TSC_Loot_GraveGoods</contents>

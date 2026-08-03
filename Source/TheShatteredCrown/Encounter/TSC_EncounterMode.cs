@@ -2189,7 +2189,7 @@ namespace TheShatteredCrown
                             reason = "the weapon cannot start the attack";
                         }
                     }
-                    AddLog($"{p.LabelShortCap} can't make the attack: {reason}. Order cancelled, AP kept.",
+                    AddLog($"{p.LabelShortCap} can't make the attack: {reason}. Order canceled, AP kept.",
                         LogWorldColor);
                     Messages.Message($"{p.LabelShortCap} can't make the attack: {reason}.",
                         p, MessageTypeDefOf.RejectInput, historical: false);

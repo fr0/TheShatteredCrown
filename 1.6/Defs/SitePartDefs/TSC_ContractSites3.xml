@@ -23,7 +23,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
     <approachOrderString>Storm {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <wantsThreatPoints>true</wantsThreatPoints>
     <minThreatPoints>200</minThreatPoints>
@@ -82,7 +82,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
     <approachOrderString>Clear {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <wantsThreatPoints>true</wantsThreatPoints>
     <minThreatPoints>150</minThreatPoints>
@@ -219,7 +219,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCave</expandingIconTexture>
     <approachOrderString>Hunt at {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <wantsThreatPoints>false</wantsThreatPoints>
     <gravShipsCanLandOn>true</gravShipsCanLandOn>
@@ -252,7 +252,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
     <approachOrderString>Enter {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <wantsThreatPoints>true</wantsThreatPoints>
     <minThreatPoints>150</minThreatPoints>
@@ -314,7 +314,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</expandingIconTexture>
     <approachOrderString>Cleanse {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <wantsThreatPoints>true</wantsThreatPoints>
     <minThreatPoints>130</minThreatPoints>
@@ -383,7 +383,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
     <approachOrderString>Recover from {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <wantsThreatPoints>true</wantsThreatPoints>
     <minThreatPoints>120</minThreatPoints>

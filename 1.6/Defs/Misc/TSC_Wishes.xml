@@ -154,7 +154,7 @@
   <TheShatteredCrown.TSC_WishDef>
     <defName>TSC_Wish_SculptureSmall</defName>
     <label>a small sculpture in gold</label>
-    <description>Excellent work, in gold, of nobody the wearer recognises. It is very beautiful and it is looking slightly away.</description>
+    <description>Excellent work, in gold, of nobody the wearer recognizes. It is very beautiful and it is looking slightly away.</description>
     <category>Beautiful things</category>
     <order>10</order>
     <thingDef>SculptureSmall</thingDef>

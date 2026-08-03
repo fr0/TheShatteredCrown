@@ -132,7 +132,7 @@
     <questDescriptionRules>
       <rulesStrings>
         <li>questDescription->[rs_flavor]\n\nThe holdfast is marked on your map. Get them out alive. The guild pays for the rider, not for the crew: you do not have to clear the place.\n\nCharter silver and guild coin, on their return.</li>
-        <li>rs_flavor->A charter rider went out with a satchel and did not come back. A ransom demand did, in a hand the guild recognises.</li>
+        <li>rs_flavor->A charter rider went out with a satchel and did not come back. A ransom demand did, in a hand the guild recognizes.</li>
         <li>rs_flavor->One of the guild's own is being held for a price the guild will not pay. The factor was careful to say that is not the same as leaving them there.</li>
         <li>rs_flavor->A crew took a rider off the road three weeks ago and has fed them since. That means they want the money more than the trouble. It will not last.</li>
       </rulesStrings>

@@ -75,7 +75,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
     <approachOrderString>Clear {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <wantsThreatPoints>true</wantsThreatPoints>
     <minThreatPoints>150</minThreatPoints>

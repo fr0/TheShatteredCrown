@@ -16,7 +16,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteKeep</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteKeep</expandingIconTexture>
     <approachOrderString>Travel to {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <gravShipsCanLandOn>true</gravShipsCanLandOn>
     <considerEnteringAsAttack>false</considerEnteringAsAttack>

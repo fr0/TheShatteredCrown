@@ -19,7 +19,7 @@
   <ThingDef ParentName="ResourceBase">
     <defName>TSC_GuildCoin</defName>
     <label>guild coin</label>
-    <description>A thick brass token struck with the Wayfarers' crown, milled on the edge so it cannot be shaved. The guild honours these at any factor's table for goods it does not sell for silver. Everyone else honours them at nothing: outside a guild locker it is a heavy brass disc with somebody else's crown on it.\n\nThey are paid for finished contracts and for nothing else, which is rather the point of them.</description>
+    <description>A thick brass token struck with the Wayfarers' crown, milled on the edge so it cannot be shaved. The guild honors these at any factor's table for goods it does not sell for silver. Everyone else honours them at nothing: outside a guild locker it is a heavy brass disc with somebody else's crown on it.\n\nThey are paid for finished contracts and for nothing else, which is rather the point of them.</description>
     <techLevel>Medieval</techLevel>
     <graphicData>
       <texPath>Things/Item/TSC_GuildCoin</texPath>

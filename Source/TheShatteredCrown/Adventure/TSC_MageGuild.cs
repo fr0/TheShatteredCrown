@@ -235,7 +235,7 @@ namespace TheShatteredCrown
         {
 
             Text.Font = GameFont.Medium;
-            Widgets.Label(new Rect(0f, 0f, inRect.width - 200f, 34f), "The travelling circle");
+            Widgets.Label(new Rect(0f, 0f, inRect.width - 200f, 34f), "The traveling circle");
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperRight;
             GUI.color = new Color(0.85f, 0.85f, 0.9f);

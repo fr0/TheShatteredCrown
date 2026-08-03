@@ -28,7 +28,7 @@ He wipes his hands and holds one out, palm up, without any ceremony at all.
 == news ==
 He shrugs, working the bellows with one foot.
 
-"Roads are bad. They're always bad. Steel's dear, charcoal's dearer, and every second traveller through that door has a story about something in the hills." He nods at the shelf. "I sell to all of them."
+"Roads are bad. They're always bad. Steel's dear, charcoal's dearer, and every second traveler through that door has a story about something in the hills." He nods at the shelf. "I sell to all of them."
 
 * "Let's trade, then." -> end
     do trade()

@@ -40,7 +40,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
     <approachOrderString>Approach {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <wantsThreatPoints>true</wantsThreatPoints>
     <minThreatPoints>150</minThreatPoints>
@@ -102,7 +102,7 @@
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteCamp</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteCamp</expandingIconTexture>
     <approachOrderString>Search {0}</approachOrderString>
-    <approachingReportString>Travelling to {0}.</approachingReportString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
     <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
     <wantsThreatPoints>false</wantsThreatPoints>
     <gravShipsCanLandOn>true</gravShipsCanLandOn>

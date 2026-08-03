@@ -287,7 +287,7 @@
             <label>Find the way they meant to reopen it</label>
             <successXp>35</successXp>
             <successRemoves>true</successRemoves>
-            <successMessage>Nobody seals a door they never intend to open. Third stone left of the frame sits a finger-width proud of its neighbours, and it moves when pushed, and the door moves with it.</successMessage>
+            <successMessage>Nobody seals a door they never intend to open. Third stone left of the frame sits a finger-width proud of its neighbors, and it moves when pushed, and the door moves with it.</successMessage>
             <failMessage>You go over every stone within reach twice. If there is a catch, it is not within reach.</failMessage>
           </li>
           <li>
@@ -342,7 +342,7 @@
             <dc>8</dc>
             <label>Read what they wrote underneath</label>
             <successXp>35</successXp>
-            <successMessage>Under the last group, in letters half a fingernail high, an old-kingdom prayer for safe roads - the traveller's one, the one nobody says any more because nobody remembers it. They were not from around here, and they had been keeping that to themselves for two hundred days.</successMessage>
+            <successMessage>Under the last group, in letters half a fingernail high, an old-kingdom prayer for safe roads - the traveler's one, the one nobody says any more because nobody remembers it. They were not from around here, and they had been keeping that to themselves for two hundred days.</successMessage>
             <failMessage>There is lettering under the marks, small and worn, in a script that will not resolve for you.</failMessage>
           </li>
         </approaches>
@@ -454,7 +454,7 @@
             <label>Invoke the old truce aloud</label>
             <successXp>40</successXp>
             <successHediff>TSC_Hediff_Blessed</successHediff>
-            <successMessage>You say the formula at the stone the way it was meant to be said, to an audience of your own people and whatever else is listening. It is theatre and everyone knows it, and it works anyway: the party settles the way people do when somebody has drawn a line and named it.</successMessage>
+            <successMessage>You say the formula at the stone the way it was meant to be said, to an audience of your own people and whatever else is listening. It is theater and everyone knows it, and it works anyway: the party settles the way people do when somebody has drawn a line and named it.</successMessage>
             <failMessage>The words are close but not right, and said at a rock, and the moment lands as exactly what it is.</failMessage>
           </li>
           <li>

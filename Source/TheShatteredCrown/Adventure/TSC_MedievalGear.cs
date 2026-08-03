@@ -74,7 +74,7 @@ namespace TheShatteredCrown
                     firearms++;
                 }
             }
-            Log.Message($"[The Shattered Crown] Medieval catalogue: {Weapons.Count} weapons, "
+            Log.Message($"[The Shattered Crown] Medieval catalog: {Weapons.Count} weapons, "
                 + $"{Armor.Count} pieces of armor available to shops. "
                 + $"Rejected {firearms} bullet-firing weapon(s) claiming medieval tech and "
                 + $"{undated} weapon(s) with no tech level declared.");

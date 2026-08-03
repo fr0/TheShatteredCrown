@@ -386,7 +386,7 @@
 
   <TheShatteredCrown.TSC_FeatDef>
     <defName>TSC_Feat_Judgement</defName>
-    <label>judgement</label>
+    <label>judgment</label>
     <description>All player attacks deal 10% more damage against a Righteous Brand target.</description>
     <category>Paladin</category>
     <order>20</order>
