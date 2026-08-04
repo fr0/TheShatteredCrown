@@ -129,13 +129,31 @@ He comes up the steps.
 == where ==
 "Thornden. His mother is dead but his sister is not, and there is a yard behind the smithy with three of them in it already."
 
-He is not asking. Then he stops, halfway to the light, and asks anyway.
+He is not asking.
+
+* [Continue.] -> serra
+    if not dead(TSC_Npc_Serra)
+* [Continue.] -> serra_gone
+    if dead(TSC_Npc_Serra)
+
+== serra ==
+Then he stops, halfway to the light, and asks anyway.
 
 "And Serra. That is not mine to decide alone. She has been carrying this with the wrong story attached to it, and I have been carrying the right one and not sharing it."
 
 * "Tell her. She has earned the truth." -> tell
 * "Tell her when you are ready. Not before." -> later
 * "Do not tell her. It changes nothing now." -> never
+
+# Serra did not live to hear it. No flag: there is no telling left to
+# schedule, and the payoff scene in bran.agd is gated on her being in the
+# party anyway.
+== serra_gone ==
+Then he stops, halfway to the light.
+
+"Serra should have heard this from me. That is one more door I waited too long on."
+
+* [Carry him up.] -> carry
 
 == tell ==
 "Aye." He nods once. "Aye. She will take it badly and she will take it in front of me. That is the correct way round."
@@ -144,7 +162,7 @@ He is not asking. Then he stops, halfway to the light, and asks anyway.
     do flag(TSC_BranTellSerra)
 
 == later ==
-"That is the answer I would have given, and I have noticed lately that it is the answer I give to everything." A dry sound that is not a laugh. "All right. When I am ready. I will try not to make that mean never."
+"That is the answer I would have given, and I have noticed lately that it is the answer I give to everything." A dry laugh. "All right. When I am ready. I will try not to make that mean never."
 
 * [Carry him up.] -> carry
     do flag(TSC_BranTellLater)

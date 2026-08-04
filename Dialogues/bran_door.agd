@@ -38,7 +38,7 @@ He is not looking up.
 == waited ==
 "Two days."
 
-He lets that sit exactly as long as it needs to.
+He lets it sit.
 
 "The ruin you found me in. The north end of it is down, and it came down before I got there, and under the heap of it is a cellar door."
 
@@ -51,7 +51,7 @@ He turns his hand over.
 * [Say nothing.] -> called
 
 == raiders ==
-"Could have been. You cannot tell what a noise under a slate heap is. It could be a man under it. It could as easily be men on the far side of it, working at the fall, because that is the one way into that ruin that does not come past me." A shrug that costs him something. "That is the argument. I have made it to myself about four hundred times and it is a good one."
+"Could have been. You cannot tell what a noise under a slate heap is. It could be a man under it. It could as easily be men on the far side of it, working at the fall, because that is the one way into that ruin that does not come past me." A shrug. "That is the argument. I have made it to myself about four hundred times and it is a good one."
 
 * "You did not call out?" -> called
 
@@ -95,7 +95,7 @@ He looks up.
 * "Then we go and look." -> go
 
 == go ==
-"Aye." He stands, steadier for having said it out loud, and being steadier is not the same as being all right. "It is three days back down the pass. I can walk you to the north end with my eyes shut."
+"Aye." He stands, steadier for having said it out loud. "It is three days back down the pass. I can walk you to the north end with my eyes shut."
 
 "And if it is him: he goes home to Thornden, under his own name, and it gets written down. He was very bad at maps and very good at everything else and there is no reason at all for that to be a secret."
 

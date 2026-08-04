@@ -39,7 +39,7 @@ The beds have not died. That would be simpler. They have gone *wild*: sagewort s
 * [Continue.] -> beds_ok
 
 == beds_ok ==
-Two beds are gone past saving and would need breaking and starting again. Four are recoverable by a hand that knows what it is looking at and is willing to spend a week on their knees.
+Two beds are gone past saving and would need breaking and starting again. Four are recoverable by someone that knows what they are looking at and is willing to spend a week on their knees.
 
 The ninth bed, the one at the top with the black soil, is untouched and thriving. Whatever is in it, nothing else will grow near it and nothing has tried.
 
@@ -63,7 +63,7 @@ The last is loud, overfull, and about a week from doing the same.
 * [Watch Maewyn.] -> watch
 
 == watch ==
-She does not do anything dramatic. She walks the rows and stops at the top bed, and stands there.
+She walks the rows, stops at the top bed, and stands there.
 
 Then she says, to the bed: "It only takes one season."
 
@@ -111,7 +111,7 @@ A pause.
 * "Give it back to the hills." -> hills
 
 == keeper ==
-"Aye," she says, and the tenseness in her shoulders drops half an inch.
+"Aye," she says.
 
 She sends the thin raven that evening, with a strip of bark-cord and a message she does not explain, and the bird goes without being asked twice.
 

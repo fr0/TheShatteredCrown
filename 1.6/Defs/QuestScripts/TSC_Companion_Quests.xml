@@ -84,7 +84,7 @@ The brothers of the Silent Monastery took in the fourth rider at their gate and 
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelWrenReady">Not a curse. An unfinished song.</label>
-                <text TKey="LetterTextWrenReady">The rider told the brothers outright: singing an ending onto the fifth verse early does nothing at all, except make the tune wrong. Wren's teacher died of being sixty-one.\n\nWhat the rider would not give them was the last four bars, on the grounds that they had not happened yet. When the fifth road ends, he said, whoever is standing there will know how it goes.\n\nWren has the copied pages in her lute case. She is waiting for the end of a road.</text>
+                <text TKey="LetterTextWrenReady">The rider told the brothers outright: singing an ending onto the fifth verse early does nothing at all, except make the tune wrong. Wren's teacher died of being sixty-one with a smokeleaf addiction.\n\nWhat the rider would not give them was the last four bars, on the grounds that they had not happened yet. When the fifth road ends, he said, whoever is standing there will know how it goes.\n\nWren has the copied pages in her lute case. She is waiting for the end of a road.</text>
               </li>
               <!-- No GrantXp here: the XP is paid by the dialogue that sends
                    the signal (wren_verse2), same as Madoc's quest. A node

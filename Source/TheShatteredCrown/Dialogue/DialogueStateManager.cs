@@ -478,6 +478,15 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            // Not while anyone is fighting. The caravan path only rolls
+            // during night rest, but nothing stopped the map path from
+            // opening Madoc's worst evening while raiders were mid-charge.
+            // Same quiet test the camp system uses; the roll simply comes
+            // back next hour.
+            if (!TSC_CampDeploy.CombatQuiet(map))
+            {
+                return;
+            }
             Pawn target = FindInitiationTarget(npc, map);
             if (target == null)
             {

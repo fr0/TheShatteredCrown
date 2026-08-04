@@ -68,6 +68,15 @@ namespace TheShatteredCrown
 
         private static readonly IntRange BetweenBanters = new IntRange(4500, 12000);
 
+        /// <summary>
+        /// Floor between two banters that actually PLAY: 12 in-game hours.
+        /// The short range above is only how often the clock looks for an
+        /// opportunity; without this floor, two different exchanges could
+        /// land within a couple of hours and read as a chatty highlight
+        /// reel rather than a road's worth of conversation.
+        /// </summary>
+        private const int MinGapTicks = 12 * GenDate.TicksPerHour;
+
         private int nextBanterTick = -1;
 
         public GameComponent_TSC_Banter(Game game)
@@ -90,21 +99,23 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            nextBanterTick = now + BetweenBanters.RandomInRange;
-            TryStart();
+            nextBanterTick = now + (TryStart()
+                ? MinGapTicks + BetweenBanters.RandomInRange
+                : BetweenBanters.RandomInRange);
         }
 
-        private void TryStart()
+        /// <summary>True when a banter actually opened this check.</summary>
+        private bool TryStart()
         {
             List<Pawn> company = Company();
             if (company.Count < 2)
             {
-                return;
+                return false;
             }
             DialogueStateManager state = DialogueStateManager.Current;
             if (state == null)
             {
-                return;
+                return false;
             }
             List<TSC_BanterDef> eligible = null;
             List<List<Pawn>> casts = null;
@@ -126,7 +137,7 @@ namespace TheShatteredCrown
             }
             if (eligible == null)
             {
-                return;
+                return false;
             }
             float roll = Rand.Range(0f, total);
             for (int i = 0; i < eligible.Count; i++)
@@ -136,19 +147,19 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                Open(eligible[i], casts[i]);
-                return;
+                return Open(eligible[i], casts[i]);
             }
+            return false;
         }
 
-        private static void Open(TSC_BanterDef def, List<Pawn> cast)
+        private static bool Open(TSC_BanterDef def, List<Pawn> cast)
         {
             // Belt and braces against a repeat: the flag is checked again
             // here, and the firing is logged so a duplicate in play can be
             // told apart from a reloaded save replaying it.
             if (DialogueStateManager.Current.IsSet(def.HeardFlag))
             {
-                return;
+                return false;
             }
             Log.Message($"[The Shattered Crown] Banter: {def.defName} "
                 + $"({cast[0].LabelShort} and {cast[1].LabelShort}).");
@@ -157,6 +168,7 @@ namespace TheShatteredCrown
             // save happens mid-conversation.
             DialogueStateManager.Current.Set(def.HeardFlag);
             Find.WindowStack.Add(new Dialog_Conversation(def.dialogue, cast[0], cast[1]));
+            return true;
         }
 
         /// <summary>
