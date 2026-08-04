@@ -96,3 +96,5 @@ The mood settings are off by default, because I think that leaning into RimWorld
 [img]{{IMG_H_CREDITS}}[/img]
 
 Spell and ability icons by Lorc (lorcblog.blogspot.com) and gear icons by Delapouite (delapouite.com), both CC BY 3.0, via game-icons.net.
+
+Source code: https://github.com/fr0/TheShatteredCrown
