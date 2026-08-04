@@ -49,9 +49,18 @@ namespace TheShatteredCrown
             };
             roll.AddFinishAction(delegate
             {
-                Fire fire;
-                while ((fire = pawn.GetAttachment(ThingDefOf.Fire) as Fire) != null)
+                // Bounded, and never destroys twice. AttachableThing only
+                // takes itself off the parent's list if it HAS a parent, and
+                // Thing.Destroy refuses a second destroy with an error and
+                // returns - so an orphaned or already-dead fire would leave
+                // this loop spinning on the same object forever. A pawn is
+                // never on fire in more than a handful of places anyway.
+                for (int i = 0; i < 8; i++)
                 {
+                    if (!(pawn.GetAttachment(ThingDefOf.Fire) is Fire fire) || fire.Destroyed)
+                    {
+                        break;
+                    }
                     fire.Destroy();
                 }
                 FleckMaker.ThrowSmoke(pawn.DrawPos, pawn.Map, 1.4f);
