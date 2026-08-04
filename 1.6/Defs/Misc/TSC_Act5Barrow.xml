@@ -162,7 +162,7 @@
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
             <successFlag>TSC_Road_Grave</successFlag>
-            <successMessage>The north road, cut in stone: a rider carrying a wrapped thing to a hill grave, and laid in it himself when the carrying was done. The party has already stood in that grave and taken what he was guarding. The panel was carved before he set out. Somebody knew how it would end.</successMessage>
+            <successMessage>The north road, cut in stone: a rider carrying a wrapped thing to a hill grave, and laid in it himself when the carrying was done. The party has already stood in that grave and taken what he was guarding. The chisel work is sixteen centuries old - these panels were cut eight hundred years before the hall they show ever burned, by whatever made the thing in the hill. Somebody knew how it would end before it began.</successMessage>
             <failMessage>The panel is worn past reading in this light.</failMessage>
           </li>
         </approaches>
@@ -206,7 +206,7 @@
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
             <successFlag>TSC_Road_Hoard</successFlag>
-            <successMessage>The third rider is shown handing his piece to nobody: he is robbed on the road, and the panel follows the piece instead of the man, hand to hand to hand, down to a figure sitting on a heap with a sword across his knees. The Baron is on this wall. He has been on this wall for eight hundred years, waiting for the party to catch up.</successMessage>
+            <successMessage>The third rider is shown handing his piece to nobody: he is robbed on the road, and the panel follows the piece instead of the man, hand to hand to hand, down to a figure sitting on a heap with a sword across his knees. The Baron is on this wall. He has been on this wall for sixteen centuries, waiting for the party to catch up.</successMessage>
             <failMessage>The lower panels are cracked through and the sequence breaks.</failMessage>
           </li>
         </approaches>
@@ -250,7 +250,7 @@
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>50</successXp>
             <successFlag>TSC_Road_Last</successFlag>
-            <successMessage>The fifth rider is carved walking, not riding, and the road under him has no end because the carver left it unfinished on purpose: the chisel marks simply stop. The other four panels were cut before their riders ever left, and every one of them came true. This one is still waiting for its ending, and the man it is about is somewhere overhead, still walking.</successMessage>
+            <successMessage>The fifth rider is carved walking, not riding, and the road under him has no end because the carver left it unfinished on purpose: the chisel marks simply stop. The other four panels were cut sixteen centuries ago, eight hundred years before their riders ever left, and every one of them came true. This one is still waiting for its ending, and the man it is about is somewhere overhead, still walking.</successMessage>
             <failMessage>The panel is the plainest of the five, and gives up nothing.</failMessage>
           </li>
         </approaches>
