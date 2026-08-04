@@ -51,7 +51,7 @@ He turns his hand over and studies it with mild professional interest.
 == read_ok ==
 You sense Madoc's concentration, emanating from the fire. But it is broken and haphazard.
 
-And behind it, much fainter and much further off, there is a second one. Older. Channeled without a break for days.
+And behind it, much fainter and much further off, there is a second one. Older. Channeled without a break for a very long time.
 
 This is not the fire itself. All of it is Madoc, and he has been doing it every hour since the ford without noticing.
 
@@ -76,7 +76,7 @@ He does not look up.
 == season ==
 "Yes. Small, steady, no trouble at all, burning over the two of them the entire time, because I am very good and it costs me almost nothing."
 
-"Almost nothing, every minute, for days. That adds up. The bill came in tonight, in a perfectly ordinary campfire, in front of people I like."
+"Almost nothing, every minute, since the ford. That adds up. The bill came in tonight, in a perfectly ordinary campfire, in front of people I like."
 
 * "So open it." -> open
 * "Why can you not just stop?" -> why
@@ -101,7 +101,7 @@ He finally looks up.
 == ready ==
 He works at it for a while. It comes hard, and he is left to it.
 
-Then: two names. One ford. The number of arrows and the day of the week. That they are not resting. That they cannot feel cold and have not needed a fire since the day he set it. That he has been the only warm thing in that camp for a week, and that he is going to stop.
+Then: two names. One ford. The number of arrows and the day of the week. That they are not resting. That they cannot feel cold and have not needed a fire since the day he set it. That he has been the only warm thing in that camp since the ford, and that he is going to stop.
 
 * [Wait with him.] -> release
 * [Say the last of it with him, the part he cannot get out.] -> release
@@ -118,7 +118,7 @@ He gets as far as *they are dead* and stops there, and the silence goes on long 
 == release ==
 He opens his hand.
 
-There is no sound and no sign. The campfire in front of him crackles and sags and spits and behaves exactly like a campfire. East, a small flame that has burned flat and unmoving over two men for days is simply not there any more.
+There is no sound and no sign. The campfire in front of him crackles and sags and spits and behaves exactly like a campfire. East, a small flame that has burned flat and unmoving over two men since the ford is simply not there any more.
 
 He cannot see it happen. He knows the moment it does, and something in his shoulders goes with it.
 

@@ -237,7 +237,7 @@ Oswin's quill stops mid-word.
     do flag(TSC_OswinRespect); grant_xp(25); affinity(TSC_Npc_Oswin, +5)
 
 == lore_shallow ==
-"The Chronicle of the Nine Passes." Oswin's eyes narrow. "Which canto, courier? Because the Chronicle has no burial cantos; you're thinking of the Lay of the Cold Hearth, and misquoting it at that. Points for ambition. None for scholarship."
+"Twice." Oswin's eyes narrow. "Which cantos, courier? Cite them." And under that squint the recall goes to pieces: a canto number half-remembered, a line that turns out to be from the Lay of the Cold Hearth, the wrong pass entirely. He returns to his writing. "You have read *about* the Chronicle. It is not the same trade. Points for ambition. None for scholarship."
 
 * "Worth a try. Tell me more about the creature, then." -> lore
 

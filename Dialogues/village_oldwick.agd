@@ -10,7 +10,7 @@ entry hub if flag(TSC_MetOldWick)
 == start ==
 The chair by the cottage hearth has clearly been that man's chair since before the hearth was laid. He might be the oldest human you've seen on this trip. He doesn't look up when you enter. He was already looking at where you'd stop.
 
-"Wick Alderman. The young ones say Old Wick, as if there were another." His voice is dry. "Seventy-two years in this valley, and I remember when the pass road carried kings' couriers instead of trouble. Sit. Or don't. Both tell me something."
+"Wick Alderman. The young ones say Old Wick, as if there were another." His voice is dry. "Sixty years in this valley, and I remember when the pass road carried the guild's riders instead of trouble. Sit. Or don't. Both tell me something."
 
 * [Sit.] "Then I'll give the chair a chance to talk." -> hub
     do flag(TSC_MetOldWick); affinity(+5)
@@ -94,7 +94,7 @@ The question lands in silence. Old Wick's hands still on his stick. For a moment
 * "Forget I asked." -> hub
 
 == crypt_mara ==
-"...Mara." It is a dry sound, not quite a laugh. "A quiet woman who notices loud things. Aye, I talk in my sleep. Seventy-two years, a man's earned the right to talk to whoever's listening." The eye that fixes you is old but clear. "The trouble, courier, is that lately something has started talking *back*."
+"...Mara." It is a dry sound, not quite a laugh. "A quiet woman who notices loud things. Aye, I talk in my sleep. Sixty years, a man's earned the right to talk to whoever's listening." The eye that fixes you is old but clear. "The trouble, courier, is that lately something has started talking *back*."
 
 He settles deeper into the chair, and Betsy resettles with him, and both of them watch you.
 
@@ -114,7 +114,7 @@ The eye closes. The audience, evidently, is over.
 * "Have it your way." -> hub
 
 == crypt_tell ==
-The old man is quiet for a long time. Then: "I did ask, you know. At the well." His hands fold on the stick. "So. Sixty years ago I swung a pick for the Crown survey, up the old road into the Harrow hills. And one spring we cut into a gallery that had no business being there. Dressed stone, courier, older than the kingdom that was paying us. And at the end of it, a door." The hearth pops. He does not blink. "Warm. Warm to the hand, underground, in winter."
+The old man is quiet for a long time. Then: "I did ask, you know. At the well." His hands fold on the stick. "So. Sixty years ago I swung a pick for a guild survey, up the old road into the Harrow hills. And one spring we cut into a gallery that had no business being there. Dressed stone, courier, older than any map the guild was paying us to draw. And at the end of it, a door." The hearth pops. He does not blink. "Warm. Warm to the hand, underground, in winter."
 
 "We bricked it up and we swore, the four of us, and I am the last one left who swore. And lately," he says, softly, "the door has started swearing back. In my sleep. It knows my name, and it is *patient*."
 

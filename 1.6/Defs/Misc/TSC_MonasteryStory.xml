@@ -317,7 +317,7 @@
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
             <successFlag>TSC_MonSatchelRead</successFlag>
-            <successMessage>The device on the flap is the royal courier cipher: the dying pilgrim was a king's man, on a king's errand, eight hundred years after his king. Inside: a road warrant from a chancery that no longer exists, and a strip of vellum with five marks. Four are struck through. Under the fifth, one word in courier's shorthand: EAST, and a small drawing of mountains with a gap in them. He was not fleeing with his piece. He was delivering it, one of five couriers on five roads. Somewhere east through the mountains, the fifth road still has an end.</successMessage>
+            <successMessage>The device on the flap is the royal courier cipher: the dying pilgrim was a king's man, still on a king's errand, a decade after the kingdom that sent him had ended. Inside: a road warrant from a chancery that no longer exists, and a strip of vellum with five marks. Four are struck through. Under the fifth, one word in courier's shorthand: EAST, and a small drawing of mountains with a gap in them. He was not fleeing with his piece. He was delivering it, one of five couriers on five roads. Somewhere east through the mountains, the fifth road still has an end.</successMessage>
             <failMessage>The leather has fused shut, and forcing it costs most of what it holds. A vellum strip survives: five marks, four struck through.</failMessage>
           </li>
         </approaches>

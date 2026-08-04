@@ -582,7 +582,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->Old Wick has given up the place he kept for sixty years: a Crown-survey gallery in the Harrow hills, bricked shut over a crypt that was old before the kingdom had a name. A shard of the shattered crown lies at the bottom of it, behind a door of warm stone, on the chest of the sanguophage it was buried with.\n\nFind the gallery, go down, and bring the shard out. It will not come quietly off that chest.</li>
+        <li>questDescription->Old Wick has given up the place he kept for sixty years: a guild-survey gallery in the Harrow hills, bricked shut over a crypt that was old before the kingdom had a name. A shard of the shattered crown lies at the bottom of it, behind a door of warm stone, on the chest of the sanguophage it was buried with.\n\nFind the gallery, go down, and bring the shard out. It will not come quietly off that chest.</li>
       </rulesStrings>
     </questDescriptionRules>
     <root Class="QuestNode_Sequence">

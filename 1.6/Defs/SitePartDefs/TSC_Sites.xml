@@ -379,7 +379,7 @@
   <SitePartDef>
     <defName>TSC_CryptSite</defName>
     <label>old survey gallery</label>
-    <description>A Crown-survey gallery cut into the Harrow hills sixty years ago, and abandoned in a hurry. Whatever the crew found at the end of it, they bricked it up and never spoke of it sober.</description>
+    <description>A guild-survey gallery cut into the Harrow hills sixty years ago, and abandoned in a hurry. Whatever the crew found at the end of it, they bricked it up and never spoke of it sober.</description>
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteGallery</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteGallery</expandingIconTexture>
     <approachOrderString>Explore {0}</approachOrderString>

@@ -15,13 +15,13 @@ dialogue TSC_Dialogue_WrenVerse2
 == start ==
 Wren has had the copied pages for a day and a half. She has not sung anything.
 
-"It has words," she says, without preamble. "Under the staves. In a hand that has been dead nine hundred years, in a language I can actually read, and they are not sinister at all. They are *directions*."
+"It has words," she says, without preamble. "Under the staves. In a hand that has been dead eight hundred years, in a language I can actually read, and they are not sinister at all. They are *directions*."
 
 * "Directions." -> directions
 * "How do you feel about that?" -> feel
 
 == directions ==
-"Which road, which rider, where the piece goes. That is the crux of it. It is a delivery note somebody set to music so that a man who could not write could carry it in his head." She laughs, and it comes out wrong the first time, so she does it again properly. "Two winters. Two winters of not looking at a song because I had decided it was looking back."
+"Which road, which rider, where the piece goes. That is the crux of it. It is a delivery note somebody set to music so that a man who could not write could carry it in his head." She laughs, and it comes out wrong the first time, so she does it again properly. "Three winters. Three winters of not looking at a song because I had decided it was looking back."
 
 * "How do you feel about that?" -> feel
 
@@ -50,7 +50,7 @@ She says it lightly. It is not a light thing and everyone at the fire knows it.
 * "You could still never sing it." -> never
 
 == never ==
-"I could." She turns the page over, and over again. "But somebody wrote out empty staves nine hundred years ago on the chance that a person would one day be standing in the right place with the right information, and I would quite like to be that person, out of professional interest."
+"I could." She turns the page over, and over again. "But somebody wrote out empty staves eight hundred years ago on the chance that a person would one day be standing in the right place with the right information, and I would quite like to be that person, out of professional interest."
 
 * "Then be ready." -> ready
 

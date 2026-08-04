@@ -16,7 +16,7 @@
   <ThingDef ParentName="BuildingBase">
     <defName>TSC_CryptEntrance</defName>
     <label>survey gallery mouth</label>
-    <description>The mouth of a Crown-survey gallery, cut sixty years ago and shored with timber gone grey. The air rising out of it is warmer than it has any right to be.</description>
+    <description>The mouth of a guild-survey gallery, cut sixty years ago and shored with timber gone grey. The air rising out of it is warmer than it has any right to be.</description>
     <size>(6,6)</size>
     <useHitPoints>false</useHitPoints>
     <thingClass>TheShatteredCrown.Building_TSC_BarrowEntrance</thingClass>

@@ -14,7 +14,7 @@ dialogue TSC_Dialogue_BaronParley
 == start ==
 The Baron does not stand. He sits above the hoard on a camp chair worn to the shape of him, sword flat across his knees: a big man gone grey at the temples, in plate he wears as easily as a shirt. He watches {PLAYER} pick a path through his gold with the expression of a man checking a bill he already knows the total of.
 
-"Five years," he says. "Five years I flew banners in these hills. Hanged thieves. Kept the roads. More than the crown ever did for this country, and the crown sends me... what are you, exactly. Adventurers."
+"Five years," he says. "Five years I flew banners in these hills. Hanged thieves. Kept the roads. More than any crown ever did for this country, and what does this country send me... what are you, exactly. Adventurers."
 
 * "Thieves hanging thieves is still thieves." -> thieves
 * "We came for what's under your gold, not for you." -> shard
@@ -85,7 +85,7 @@ They have just stopped planning to die for him.
     do demoralize(); grant_xp(50); flag(TSC_BaronParleyDone)
 
 == unmoved ==
-"They heard the same offer twice already," the Baron says, level. "Once from the crown's men, once from the company I took this keep from. The men who took those offers are the reason the road here was so quiet."
+"They heard the same offer twice already," the Baron says, level. "Once from the guild's men, once from the company I took this keep from. The men who took those offers are the reason the road here was so quiet."
 
 Nothing moves in the hall except firelight.
 

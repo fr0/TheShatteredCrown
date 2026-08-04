@@ -39,11 +39,11 @@ Bran's eyebrows climb. It's the first thing about you that's genuinely surprised
 * "Fair enough. What *did* happen out here?" -> story
 
 == story ==
-"Same thing that happens to everything out here. We cornered the thing we've been hunting, and the pass surprised us. Raiders on the roads and our last raven eaten by a hawk."
+"Same thing that happens to everything out here. We were closing on the thing we've been hunting, and the pass surprised us. Raiders on the roads and our last raven eaten by a hawk."
 
 He sits on a fallen block, suddenly tired.
 
-"I was scouting a route to the cave when the raiders pushed between me and camp. Been living in this ruin since, eating scraps."
+"I was scouting the deep hills for its den when the raiders pushed between me and camp. Been living in this ruin since, eating scraps."
 
 * "Cornered *what*, exactly?" -> quarry
     do flag(TSC_BranStory)
@@ -53,7 +53,7 @@ He sits on a fallen block, suddenly tired.
     do flag(TSC_BranStory)
 
 == quarry ==
-Bran glances around the ruin from habit (there's nobody for kilometers) and lowers his voice anyway.
+Bran glances around the ruin from habit (there's nobody for miles) and lowers his voice anyway.
 
 "Serra will want to tell it proper. But you've earned a taste: we've been stalking an ettersnap. Yes, they're real. Ask at the camp."
 
@@ -184,7 +184,7 @@ He stands up before he can talk himself out of it, and does not look back to see
 == confidant ==
 Bran considers the road behind you both before he answers.
 
-"Only that forty years of Underhills stood a wall and watched the kingdom rot past it. And the first time I walk *away* from a post, the road hands me a company worth keeping." He taps his knife's pommel twice, an old watch signal. "All quiet. That's the report."
+"Only that a hundred years of Underhills stood a wall and watched the kingdom rot past it. And the first time I walk *away* from a post, the road hands me a company worth keeping." He taps his knife's pommel twice, an old watch signal. "All quiet. That's the report."
 
 * "All quiet. Carry on, Bran." -> end
     do flag(TSC_BranConfided); grant_xp(10)

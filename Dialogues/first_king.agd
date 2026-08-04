@@ -63,7 +63,7 @@ His fingers move very slightly on the hollow at his chest.
 * "Will it help?" -> advice
 
 == advice ==
-"It wants without stopping, and it has wanted the same thing since the day it was split: to be whole, and worn. That part never sleeps and you will not talk it out of it. What it cannot do is reach. It has no hands and it has never had any, and that is its one weakness and it is total. Eight centuries of manoeuvring pieces of itself across four graves and a bandit's counting room and a house full of men who died rather than pass it on, and every single step of that had to be walked by somebody else."
+"It wants without stopping, and it has wanted the same thing since the day it was split: to be whole, and worn. That part never sleeps and you will not talk it out of it. What it cannot do is reach. It has no hands and it has never had any, and that is its one weakness and it is total. Eight centuries of manoeuvring pieces of itself across three graves, a bandit's counting room and a courier who could not stop walking, and every single step of that had to be walked by somebody else."
 
 The dry eyes come up.
 
@@ -112,7 +112,7 @@ They take up the pieces without ceremony. They have all carried packs before.
 
 "Better," the dead king says, and for the first time in the conversation he sounds like a man and not a lesson. "Mine at least know what they are holding. Mine will not be talked into putting it on."
 
-Somewhere in the dark, four thin voices that have not been able to want anything for a very long time start wanting again, in five directions at once.
+Somewhere in the dark, five thin voices that have not been able to want anything for a very long time start wanting again, in five directions at once.
 
 * [The Shattered Crown.] -> end
     do crown_ending(scatter)
@@ -124,7 +124,7 @@ The carriers are told the truth, which is more than the first five got. Whether 
 
 "It will work," the dead king says. "For about eight hundred years. Which is not nothing. Nothing is what I managed."
 
-Somewhere in the dark, four thin voices that have not been able to want anything for a very long time start wanting again, in five directions at once.
+Somewhere in the dark, five thin voices that have not been able to want anything for a very long time start wanting again, in five directions at once.
 
 * [The Shattered Crown.] -> end
     do crown_ending(scatter)

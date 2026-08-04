@@ -33,7 +33,7 @@
       <rulesStrings>
         <li>questDescription->Nobody taught Wren the lay of the roads. It arrived: a month after a beggar went down the cistern stairs and did not come up, she opened her mouth in a common room and the crown verses came out of it. She sings the fifth with her eyes closed, cannot translate a line of it, and it stops in the same place every time.
 
-A chorister held that verse in a cellar for eight centuries. A beggar carried it down a flooded stair and died there. Wren would like to know whether she is a bard with a good ear or the next person it picked up.
+A chorister held that verse in a cellar for eight centuries. A beggar carried it up a flooded stair and died on the way. Wren would like to know whether she is a bard with a good ear or the next person it picked up.
 
 The brothers of the Silent Monastery took in the fourth rider at their gate and wrote down what he sang while he was dying, words and all. Find their songbook and read the staves.</li>
       </rulesStrings>
@@ -72,7 +72,7 @@ The brothers of the Silent Monastery took in the fourth rider at their gate and 
           <node Class="QuestNode_Letter">
             <letterDef>NeutralEvent</letterDef>
             <label TKey="LetterLabelWrenBook">The staves run out</label>
-            <text TKey="LetterTextWrenBook">The house songbook holds the lay of the five roads, set down from a dying rider at the gate, exactly as he sang it. Four verses end. The fifth stops in the middle of a phrase, and after it there is a page and a half of ruled staves with nothing written on them at all.\n\nSomebody prepared the room for an ending nine hundred years ago. Wren should see this.</text>
+            <text TKey="LetterTextWrenBook">The house songbook holds the lay of the five roads, set down from a dying rider at the gate, exactly as he sang it. Four verses end. The fifth stops in the middle of a phrase, and after it there is a page and a half of ruled staves with nothing written on them at all.\n\nSomebody prepared the room for an ending eight hundred years ago. Wren should see this.</text>
           </node>
         </li>
 
@@ -120,7 +120,7 @@ The brothers of the Silent Monastery took in the fourth rider at their gate and 
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->Hew and Gille took Iron Brand arrows at the north ford, and Madoc closed his hand on a fire so that they would be warm. He has not opened it since. It has been burning over them all season, small and steady, three weeks east of wherever the company happens to be.\n\nIt costs him almost nothing. Almost nothing, every minute, for a season, and tonight the bill arrived: the best fire shaper any of them has met cannot keep an ordinary campfire flickering.\n\nThere is nothing on the other end of this and no bargain to close. There is a man who has to decide to open his hand, and who cannot decide it without saying out loud what he has been doing.</li>
+        <li>questDescription->Hew and Gille took Iron Brand arrows at the north ford, and Madoc closed his hand on a fire so that they would be warm. He has not opened it since. It has been burning over them ever since, small and steady, three weeks east of wherever the company happens to be.\n\nIt costs him almost nothing. Almost nothing, every minute, since the day he set it, and tonight the bill arrived: the best fire shaper any of them has met cannot keep an ordinary campfire flickering.\n\nThere is nothing on the other end of this and no bargain to close. There is a man who has to decide to open his hand, and who cannot decide it without saying out loud what he has been doing.</li>
       </rulesStrings>
     </questDescriptionRules>
     <root Class="QuestNode_Sequence">
