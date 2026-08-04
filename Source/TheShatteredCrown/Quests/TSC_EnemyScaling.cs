@@ -163,10 +163,18 @@ namespace TheShatteredCrown
         private static void Bump(Thing thing, QualityCategory target)
         {
             CompQuality quality = thing?.TryGetComp<CompQuality>();
-            if (quality != null && (int)quality.Quality < (int)target)
+            if (quality == null || (int)quality.Quality >= (int)target)
             {
-                quality.SetQuality(target, ArtGenerationContext.Outsider);
+                return;
             }
+            quality.SetQuality(target, ArtGenerationContext.Outsider);
+            // The kit just became worth enchanting, so it gets the roll it
+            // was not eligible for at generation. Random workings only take
+            // to good quality or better, and a pawn kind bakes its quality
+            // once: without this, the gate would make enchanted enemies
+            // RARER the deeper the campaign went, which is backwards. A
+            // veteran's raised blade is exactly the one that should hum.
+            TSC_Enchanter.MaybeEnchant(thing, TSC_Enchanter.WornChance);
         }
     }
 

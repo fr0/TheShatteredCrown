@@ -195,9 +195,30 @@ namespace TheShatteredCrown
         /// </summary>
         public static bool Artifact(Thing t) => t?.def != null && t.def.tradeability == Tradeability.None;
 
+        /// <summary>The floor a random working needs to have settled on a piece.</summary>
+        public const QualityCategory MinRolledQuality = QualityCategory.Good;
+
+        /// <summary>
+        /// Whether a chance roll may land on this piece at all. Magic follows
+        /// craft: a working takes to a well-made blade and slides off a
+        /// shoddy one, so the roll only ever looks at good quality or better.
+        /// It is also the difference between "enchanted" meaning something
+        /// and every third bandit carrying a shock club.
+        ///
+        /// No quality comp at all means no craft to speak of, and it fails
+        /// the same test. That is deliberate: the pieces without quality are
+        /// the odd utility items, not the swords and cuirasses.
+        ///
+        /// Only the RANDOM paths ask this. The enchanter's bench still takes
+        /// whatever the party carries in and charges for it - a paid working
+        /// is the player's decision, not the loot table's.
+        /// </summary>
+        public static bool GoodEnoughToRoll(Thing t) =>
+            t.TryGetQuality(out QualityCategory quality) && quality >= MinRolledQuality;
+
         public static void MaybeEnchant(Thing thing, float chance)
         {
-            if (thing == null || Artifact(thing) || !Rand.Chance(chance))
+            if (thing == null || Artifact(thing) || !GoodEnoughToRoll(thing) || !Rand.Chance(chance))
             {
                 return;
             }
