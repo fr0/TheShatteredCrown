@@ -51,6 +51,14 @@ namespace TheShatteredCrown
                 done = true;
                 return;
             }
+            // Behind a setting, and deliberately not marked done while it is
+            // off: flipping the setting on while the party is standing in
+            // their bare camp makes the camp form then and there, which is
+            // exactly what whoever just flipped it wants to see.
+            if (!TSC_Mod.Settings.autoFormCamp)
+            {
+                return;
+            }
             // Wait for the party to be on the ground, and for the arrival
             // not to be an ambush: a camp interrupted by a fight sets
             // itself up later, by hand, like anyone would.

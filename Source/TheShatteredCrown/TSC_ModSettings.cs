@@ -23,6 +23,9 @@ namespace TheShatteredCrown
         /// <summary>Reforming a caravan ignores hostiles that are fogged (never revealed). Visible threats still block.</summary>
         public bool reformIgnoresHiddenEnemies = true;
 
+        /// <summary>"Set up camp" on the world map lights a fire and pitches the party's bedrolls by itself.</summary>
+        public bool autoFormCamp = true;
+
         /// <summary>
         /// Mood bonus the whole company gets for two days after finishing one of
         /// this mod's quests. 0 = off (the default): the campaign is balanced
@@ -52,6 +55,7 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref autoEndTurn, "autoEndTurn", defaultValue: true);
             Scribe_Values.Look(ref enemyBeatSeconds, "enemyBeatSeconds", 0.5f);
             Scribe_Values.Look(ref reformIgnoresHiddenEnemies, "reformIgnoresHiddenEnemies", defaultValue: true);
+            Scribe_Values.Look(ref autoFormCamp, "autoFormCamp", defaultValue: true);
             Scribe_Values.Look(ref questMoodBonus, "questMoodBonus", 0f);
             Scribe_Values.Look(ref adventuringLife, "adventuringLife", 0f);
             Scribe_Values.Look(ref killMoodBonus, "killMoodBonus", 0f);
@@ -111,6 +115,10 @@ namespace TheShatteredCrown
 
             listing.CheckboxLabeled("Reform caravan despite hidden enemies", ref Settings.reformIgnoresHiddenEnemies,
                 "When ON, hostiles sitting in fog you have never revealed (a sleeping guard in an unexplored corner) do not block reforming the caravan. Threats you can actually SEE still block it.");
+            listing.Gap();
+
+            listing.CheckboxLabeled("Set up camp automatically", ref Settings.autoFormCamp,
+                "When ON, using \"set up camp\" on the world map lights a campfire where the party stands and sets them pitching their carried bedrolls around it. When OFF, the party arrives on an empty map and camp is made by hand with the Deploy camp order.");
             listing.Gap();
 
             listing.Label(Settings.questMoodBonus <= 0f
