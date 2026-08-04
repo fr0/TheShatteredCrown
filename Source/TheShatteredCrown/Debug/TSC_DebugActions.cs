@@ -327,26 +327,34 @@ namespace TheShatteredCrown
             }
             // Skips the MTB roll and the once-per-save guard; reports (instead
             // of skipping) unmet conditions, so gating problems are visible.
+            // A PICKER, not first-in-list: most companions lead with the
+            // part-ways ask, so "first" fired the leaving talk at whoever the
+            // tester actually wanted the quest talk from.
             Pawn talker = pawn.Map?.mapPawns?.FreeColonists?.FirstOrDefault(c => c != pawn);
             if (talker == null)
             {
                 Messages.Message("No other free colonist on the map to talk to.", RimWorld.MessageTypeDefOf.RejectInput, historical: false);
                 return;
             }
-            DialogueContext context = new DialogueContext(pawn, talker);
+            List<DebugMenuOption> options = new List<DebugMenuOption>();
             foreach (DialogueInitiation init in ext.initiations)
             {
-                foreach (DialogueCondition condition in init.conditions)
+                DialogueInitiation localInit = init;
+                options.Add(new DebugMenuOption(localInit.dialogue?.defName ?? "(no dialogue)", DebugMenuOptionMode.Action, delegate
                 {
-                    if (!condition.Met(context))
+                    DialogueContext context = new DialogueContext(pawn, talker);
+                    foreach (DialogueCondition condition in localInit.conditions)
                     {
-                        Messages.Message($"{init.dialogue?.defName}: condition {condition.GetType().Name} not met (firing anyway).",
-                            RimWorld.MessageTypeDefOf.NeutralEvent, historical: false);
+                        if (!condition.Met(context))
+                        {
+                            Messages.Message($"{localInit.dialogue?.defName}: condition {condition.GetType().Name} not met (firing anyway).",
+                                RimWorld.MessageTypeDefOf.NeutralEvent, historical: false);
+                        }
                     }
-                }
-                Find.WindowStack.Add(new Dialog_Conversation(init.dialogue, pawn, talker));
-                return;
+                    Find.WindowStack.Add(new Dialog_Conversation(localInit.dialogue, pawn, talker));
+                }));
             }
+            Find.WindowStack.Add(new Dialog_DebugOptionListLister(options));
         }
 
         [DebugAction("The Shattered Crown", "Fire caravan camp talk...", actionType = DebugActionType.Action, allowedGameStates = AllowedGameStates.Playing)]
