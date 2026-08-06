@@ -364,6 +364,24 @@
               </li>
             </conditions>
           </li>
+          <!-- The last four bars, almost. Once the regalia is gathered and
+               her own question is settled, she notices the ending getting
+               close - the road's end she has been waiting to stand at is
+               now a place with a name on the map. -->
+          <li>
+            <dialogue>TSC_Dialogue_WrenBars</dialogue>
+            <mtbDays>0.5</mtbDays>
+            <once>true</once>
+            <conditions>
+              <li Class="TheShatteredCrown.DialogueCondition_InParty" />
+              <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
+                <flag>TSC_RegaliaGathered</flag>
+              </li>
+              <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
+                <flag>TSC_WrenLay</flag>
+              </li>
+            </conditions>
+          </li>
           <!-- And she comes back to it once the songbook has been read.
                ALSO gated on her having asked (TSC_WrenVerseAsked): the
                songbook spawns at the monastery unconditionally, so without

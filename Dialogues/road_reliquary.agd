@@ -1,0 +1,26 @@
+# The second road panel (TSC_Road_Reliquary check spot, Arcana 14). The
+# road under the city: Aldis the cantor, ordered to sing, and the number
+# that is not a number a man can live.
+
+dialogue TSC_Dialogue_RoadReliquary
+
+== start ==
+The sigils along the second panel resolve at last, noise settling into words. The road on this one goes down: stairs, then water, then stairs again, under the weight of a carved city.
+
+* [Follow the road down.] -> down
+
+== down ==
+At the bottom, a small room, and in the room a figure with his mouth open. The piece is on a stand in front of him. The carver has ringed the singer's head with a line of sigils, and the sigils are a duration.
+
+{PLAYER} works the number twice, because the first answer is not a number a man can live.
+
+The party has met him. Aldis, in the white room, still singing, eight of those centuries deep. The number on this wall is longer than the time he served.
+
+* "He could have been relieved. The stone always said so." -> relief
+
+== relief ==
+The duration carved here runs past the day the beggar came down the stairs, past the day the party did, on toward an end the singer was never told. Whoever set Aldis his post copied the order off this wall and left out the length.
+
+Kinder, maybe. Or just easier to get a man to agree to.
+
+* [Move on.] -> end

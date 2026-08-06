@@ -39,7 +39,7 @@
     <defName>TSC_ContractRuin_Strongbox</defName>
     <linkWithSite>TSC_ContractRuin</linkWithSite>
     <order>480</order>
-    <!-- Was a centre-anchored scatter, which regularly left the strongbox
+    <!-- Was a center-anchored scatter, which regularly left the strongbox
          sitting in open desert a screen away from the ruin the contract says
          it is buried under. Now placed in the deepest enclosed room the
          layout actually built. -->

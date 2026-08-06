@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       The fifth ending: unmake the crown (TSC_Unmaking.cs).
+
+       Gated on the campaign done right - the five roads read, the
+       wardens' confession read, the Honor Guard talked down and still
+       standing - and paid for with the hardest fight in the mod: the
+       eleven lesser kings, worn one last time.
+       ================================================================ -->
+
+  <!-- The crown's grip on a buried king: no pain, no bleeding, and no
+       voice - the dead do not taunt, and these are not even properly
+       the dead. They are gloves. -->
+  <HediffDef>
+    <defName>TSC_Hediff_Risen</defName>
+    <label>worn</label>
+    <description>The crown is wearing this body. Whoever it used to be is not consulted: it does not feel pain, it does not bleed out, and it has no voice of its own, because the thing moving it never needed one.</description>
+    <defaultLabelColor>(0.75, 0.65, 0.5)</defaultLabelColor>
+    <isBad>false</isBad>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <initialSeverity>1</initialSeverity>
+    <maxSeverity>1</maxSeverity>
+    <stages>
+      <li>
+        <label>worn</label>
+        <painFactor>0</painFactor>
+        <totalBleedFactor>0</totalBleedFactor>
+        <capMods>
+          <li>
+            <capacity>Talking</capacity>
+            <setMax>0</setMax>
+          </li>
+        </capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- The eleven, one per lesser tomb: kings in their grave-plate, moved
+       by something that remembers exactly how each of them fought. -->
+  <PawnKindDef ParentName="VillagerBase">
+    <defName>TSC_RisenKing</defName>
+    <label>risen king</label>
+    <combatPower>220</combatPower>
+    <itemQuality>Excellent</itemQuality>
+    <isFighter>true</isFighter>
+    <weaponTags Inherit="False">
+      <li>MedievalMeleeAdvanced</li>
+    </weaponTags>
+    <weaponMoney>700~1000</weaponMoney>
+    <apparelRequired>
+      <li>Apparel_PlateArmor</li>
+    </apparelRequired>
+  </PawnKindDef>
+
+  <!-- The crescent of black stone at the middle of the making room: the
+       socket the crown was worked in, and the one place it can be
+       worked back out of existence. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>TSC_MakingStone</defName>
+    <label>the making stone</label>
+    <description>A crescent of black stone, waist-high, its inner curve polished by work finished sixteen centuries ago. It is the shape the shards keep trying to make, and the shape the staff's head has always echoed, and it is warm, and it is patient, and for the first time in the whole long story, the patience is on the company's side.</description>
+    <size>(1,1)</size>
+    <rotatable>false</rotatable>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <fillPercent>0.4</fillPercent>
+    <altitudeLayer>Building</altitudeLayer>
+    <destroyable>false</destroyable>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_GravenStone</texPath>
+      <drawSize>(1.4,1.4)</drawSize>
+      <color>(70,66,60)</color>
+    </graphicData>
+    <statBases>
+      <Flammability>0</Flammability>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <deconstructible>false</deconstructible>
+      <claimable>false</claimable>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+  </ThingDef>
+
+</Defs>

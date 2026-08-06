@@ -1,0 +1,22 @@
+# Party banter: the night after the amulet is taken, the whole company
+# has the same dream. Serra and Oswin compare notes without meaning to.
+dialogue TSC_Banter_AmuletDream
+
+== start ==
+_You overhear Serra and Oswin, both awake far too early, both careful not to look at each other._
+
+Serra: You were up before me. That has never once happened.
+
+Oswin: I had a dream I did not care to continue having. A hall with a roof of turf, and a chair at the end of it, and everyone in the hall waiting for somebody to sit down.
+
+Serra: ...Long hall. Fire pits down the middle. Door at the far end, closed.
+
+Oswin: You had it too.
+
+Serra: Ask the others when they wake. No. Don't. If everyone says yes I am going to want to give that amulet back, and we need it.
+
+Oswin: For the record, in the dream, I was not waiting. I was holding the door.
+
+Serra: Everyone was holding the door, Oswin. That is what worries me about the chair.
+
+* [Leave them to it.] -> end

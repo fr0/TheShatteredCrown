@@ -113,8 +113,9 @@
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>35</successXp>
             <successFlag>TSC_UndercellDustRead</successFlag>
-            <successMessage>Dust settles evenly in still air. This does not. There is a faint grain to it, all pointing one way, the way dust lies when air has been moving over it very slowly for a very long time.\n\nSomething at the deep end of this floor is not sealed as well as it looks, and it has been breathing since before the kingdom fell.</successMessage>
-            <failMessage>Dust. A great deal of it, lying the way dust lies.</failMessage>
+            <successDialogue>TSC_Dialogue_DustLine</successDialogue>
+            <successMessage>The dust has a grain, and the grain points down the hall.</successMessage>
+            <failMessage>Dust. A great deal of it, lying as dust lies.</failMessage>
           </li>
         </approaches>
       </li>

@@ -1,0 +1,17 @@
+# The dust in the Barrow of Kings' hall (TSC_Spot_DustLine, Perception):
+# the first niche in the procession, and the first hint that something at
+# the deep end of the floor is not as sealed as it looks.
+
+dialogue TSC_Dialogue_DustLine
+
+== start ==
+Dust settles evenly in still air, and this has not. Under the lamp there is a faint grain to it, every mote lain down along the same line, combed by air that has been moving over this floor very slowly for a very long time.
+
+* [Follow the grain.] -> follow
+
+== follow ==
+The grain runs the length of the hall, all of it pointing one direction: toward the deep end of the floor, and whatever the deep end holds.
+
+Sealed rooms do not breathe. Something down there is not sealed as well as it looks, and it has been drawing slow breath since before the kingdom fell.
+
+* [Keep walking, and keep count of your own breathing.] -> end

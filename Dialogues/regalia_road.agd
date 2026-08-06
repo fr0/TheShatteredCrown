@@ -1,0 +1,51 @@
+# The road home, once per save, the first night the caravan rests with
+# two or more regalia pieces aboard (WorldComponent_TSC_RegaliaRoad).
+# A remnant of the Baron's people, come to sell the king's waking back
+# to the company. Pay, talk, or steel - steel is a real ambush.
+
+dialogue TSC_Dialogue_RegaliaRoad
+
+== start ==
+Hooves, walking pace, deliberate: riders who want to be heard coming. Four of them stop at the edge of the firelight and the front one leans on his saddle horn like a man at a market stall.
+
+"Evening. You are the company off the barrow road, carrying what you are carrying. We rode for the Baron, when there was a Baron. We know what dead kings' trinkets fetch, and we know who is buying. So: toll. Two hundred silver, and the road east is yours, and nobody has to bleed."
+
+* "Two hundred, and you were never here." -> paid
+    if has_item(Silver, 200)
+* "You rode for the Baron. You saw what sleeping next to one piece did to him. We are carrying the makings of the man it *obeyed*. Ride away." -> think
+    check Persuasion 11 -> ride_off | insulted
+* [Say nothing. Stand up.] -> steel
+
+== paid ==
+The silver goes into a saddlebag without being counted.
+
+"Wise," the rider says, turning his horse. "The Baron counted his. Every night. You saw how he ended." They are gone at a walk, unhurried, the way they came.
+
+* [Let them go.] -> end
+    do take_item(Silver, 200)
+
+== think ==
+The rider does not answer at once, and behind him a horse shifts as its man's hands go quiet on the reins.
+
+* [Continue.] -> ride_off
+
+== ride_off ==
+"We did see," the rider says at last. All the market-stall ease is gone. "Five years of watching him count. You are right, and I am cold, and this was a bad idea I owed the boys an attempt at."
+
+He straightens up. "Keep the toll. Ride careful. Whatever you wake at the end of this road, tell it the Baron's men are done."
+
+* [Let them go.] -> end
+    do grant_xp(80)
+
+== insulted ==
+"The Baron," the rider says, quietly, "fed us for five years, and went mad doing it, and you will not lecture me about him at your own fire."
+
+He wheels the horse. "Take them, and take the trinkets."
+
+* [Steel.] -> steel
+
+== steel ==
+The riders come out of the dark in earnest.
+
+* [Meet them.] -> end
+    do ambush_caravan()

@@ -1,0 +1,25 @@
+# The sealed chamber's two biers (TSC_MonSpot_TwoBiers, Insight): the
+# pilgrim laid out with honor, and the abbot who laid himself.
+
+dialogue TSC_Dialogue_MonTwoBiers
+
+== start ==
+The pilgrim was tended: washed, wrapped, laid straight, his warrant folded under his fingers in the place a knight's hands would hold a sword. Whoever did it honored the errand as much as the man.
+
+The abbot had no such hands left to him.
+
+* [Look at the second bier.] -> abbot
+
+== abbot ==
+He climbed up alone. The scuff marks are still on the stone lip where an old man's boots fought for purchase, and he arranged himself as best a dying man can: flat, hands folded, habit pulled straight by feel.
+
+Between the two biers, on the floor, sits the space where a wrapped thing rested. He put it where both of them could mind it, and took the last watch of his house.
+
+* [Read the dust.] -> watch
+
+== watch ==
+The dust on the floor lies even, unmarked, centuries deep. Nothing crossed this room after him. Nothing disturbed the thing between the biers until the party came down the stairs.
+
+The watch held. Of everything this house was ordered to do, every part of it done at the cost the tallies record, that is the line worth carving somewhere: the watch held.
+
+* [Leave them to it.] -> end

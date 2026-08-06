@@ -365,7 +365,7 @@ namespace TheShatteredCrown
             if (canGoBack && TSC_ProgressionManager.Current.PendingPoints(pawn) > 0)
             {
                 Rect back = new Rect(0f, buttonY, 180f, 34f);
-                if (Widgets.ButtonText(back, "←  Class level"))
+                if (Widgets.ButtonText(back, "<  Class level"))
                 {
                     page = 0;
                 }

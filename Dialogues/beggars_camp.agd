@@ -1,0 +1,26 @@
+# The sunken cellars: a beggar's last camp on the descent (TSC_BeggarsCamp,
+# Lore approach). The chalk wall. Canon: nobody taught him the verse
+# either; he carried it down toward where it came from.
+
+dialogue TSC_Dialogue_BeggarsCamp
+
+== start ==
+Under the bedroll: a stub of chalk, worn to a fingernail. He wrote on the wall until it ran out.
+
+It is one verse. Over and over, edge to edge, in a meter eight hundred years dead, each copy steadier than a beggar's hand has any business being.
+
+* [Read to the bottom of the wall.] -> bottom
+
+== bottom ==
+At the bottom, where the chalk gave out, the meter breaks. Plain hand, plain words, the only line on this wall that is his own:
+
+I ONLY EVER REPEATED IT.
+
+* "Then the song has a source." -> source
+
+== source ==
+He did not compose it and he did not learn it in any tavern. It passed through him, downhill, back toward wherever it rose - and he followed it with a bedroll and a chalk stub until following was all that was left of him.
+
+The source is further down. So is whatever he sat here listening to.
+
+* [Pack up and keep descending.] -> end

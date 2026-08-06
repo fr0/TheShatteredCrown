@@ -1,0 +1,22 @@
+# The bride's tower, the quiet way: a successful Nature read on the den
+# (TSC_WargDen check spot) opens this. The pack isn't guarding the tower;
+# it is sitting on the ring and cannot say why. Meat downwind solves what
+# steel would have to.
+
+dialogue TSC_Dialogue_WargDen
+
+== start ==
+The pack dens on the sweepings and will not range. Whatever glitters in the old fur has them anchored to it, fed or not - and they are not fed. There is a way to use that.
+
+Half a day's meat, laid out downwind of the tower and left alone.
+
+* [Lay out the bait and stand well off.] -> bait
+* [Leave the den be.] -> end
+
+== bait ==
+It takes the better part of an hour for hunger to overcome whatever whispers the ring pours into their thoughts. The big one goes first, and the pack peels off the stones after her, one shadow at a time, down toward the meat and the treeline.
+
+The tower stands open. The floor of the den, picked over, holds one small warm thing.
+
+* [Go in.] -> end
+    do calm_beasts(); grant_xp(30)

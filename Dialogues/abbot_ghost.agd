@@ -41,7 +41,7 @@ The quiet stretches. He stands in it comfortably; it was his element long before
 * [Listen.] -> defense
 
 == defense ==
-"A courier came to my gate dying, carrying a fifth of something that should never have been whole. Within a month my strongest were dreaming awake and my youngest were writing sins that were not sins. And my rule, MY rule, meant every man of them faced it alone."
+"A courier came to my gate dying, carrying a fifth of something that should never have been whole. Within a month my strongest were dreaming awake and my youngest were writing sins that were not sins. And my rule, *my* rule, meant every man of them faced it alone."
 
 His folded hands tighten.
 
@@ -85,7 +85,7 @@ How should it be said?
 
 * [Say it plainly, as to a room of brothers.] -> spoken
     check Persuasion 8 -> spoken_well | spoken_rough
-* "Wren. Your song has needed its last verse for eight hundred years." -> sung
+* "Wren. The fourth verse has been wrong for eight hundred years. Sing it right." -> sung
     if in_party(TSC_Npc_Bard)
 * [Read the abbot's own letter aloud.] -> letter
     check Lore 8 -> letter_well | spoken_rough
@@ -113,9 +113,9 @@ The house listens to the end.
 == sung ==
 Wren steps up beside the altar, and for once there is nothing performative in her.
 
-"The Quiet Brothers," she says. "The true last verse." She sings it: the courier on the winter road, the humming in the teeth, the brothers each alone in a full house, the knife at the bell rope, the niches sealed from within, the watch kept below. Her voice cracks once, and she lets it.
+"The Quiet Brothers," she says. "The fourth road, as it actually went." She sings it: the courier on the winter road, the humming in the teeth, the brothers each alone in a full house, the knife at the bell rope, the niches sealed from within, the watch kept below. Her voice cracks once, and she lets it.
 
-The song her beggar carried up a cistern stair is finished now, on purpose.
+Four verses of the five, whole and true, in the house the fourth one is about. The fifth still leans forward and stops where it always stops, because the road it is about has not ended yet.
 
 * [And the last word.] -> broken
 

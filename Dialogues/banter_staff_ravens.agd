@@ -1,0 +1,20 @@
+# Party banter: after the staff, Maewyn's ravens will only perch facing
+# the barrow, and she and Wren draw different conclusions from it.
+dialogue TSC_Banter_StaffRavens
+
+== start ==
+_You overhear Wren and Maewyn watching the ravens, who are watching the east._
+
+Wren: They've been like that since the hall. Both of them. Like weather vanes.
+
+Maewyn: Aye.
+
+Wren: Corvus won't even take bread if I stand west of him. I have never in my life been refused food by an animal.
+
+Maewyn: They sit facing the thing that is realest to them. Usually that is food. Sometimes weather.
+
+Wren: And now it is the barrow. That is going in a song, and it is going to be a frightening song.
+
+Maewyn: Good. Songs should tell the truth. The truth is east, and even the birds know it.
+
+* [Leave them to it.] -> end

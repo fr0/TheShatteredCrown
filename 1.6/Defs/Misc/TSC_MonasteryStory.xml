@@ -134,7 +134,7 @@
             <successFlag>TSC_MonWriting_Infirmary</successFlag>
             <successDialogue>TSC_Dialogue_MonInfirmary</successDialogue>
             <successMessage>Midwinter: a pilgrim arrived half frozen, clutching a wrapped bundle he refused to let go of. Fever on the second day; he talked about a crown and about four other couriers on other roads. He died on the third morning, still holding it. Below, in a different hand: HIS EFFECTS TAKEN DOWN. PRIOR ALONE. Whatever he carried, the Prior took it below by himself.</successMessage>
-            <failMessage>Damp has fused the last winter into one grey brick of vellum. A margin survives: still holding.</failMessage>
+            <failMessage>Damp has fused the last winter into one gray brick of vellum. A margin survives: still holding.</failMessage>
           </li>
         </approaches>
       </li>
@@ -289,7 +289,8 @@
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
             <successFlag>TSC_MonBellSeen</successFlag>
-            <successMessage>The climb is bad and the belfry worse. The rope did not rot: it was cut, high, where it could not be reached from below, and the coil hung on a peg past the wheel. Somebody made certain that no brother, in whatever last hour, could weaken and ring for help. The bell itself is fine. It has just had nothing to say for eight hundred years.</successMessage>
+            <successDialogue>TSC_Dialogue_MonBellTower</successDialogue>
+            <successMessage>The rope did not rot.</successMessage><!--OLD: The rope did not rot: it was cut, high, where it could not be reached from below, and the coil hung on a peg past the wheel. Somebody made certain that no brother, in whatever last hour, could weaken and ring for help. The bell itself is fine. It has just had nothing to say for eight hundred years.-->
             <failMessage>The ladder sheds a rung and nearly a climber. From the highest safe step one detail resolves: the bell rope is not hanging where a bell rope hangs.</failMessage>
           </li>
         </approaches>
@@ -317,7 +318,8 @@
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
             <successFlag>TSC_MonSatchelRead</successFlag>
-            <successMessage>The device on the flap is the royal courier cipher: the dying pilgrim was a king's man, still on a king's errand, a decade after the kingdom that sent him had ended. Inside: a road warrant from a chancery that no longer exists, and a strip of vellum with five marks. Four are struck through. Under the fifth, one word in courier's shorthand: EAST, and a small drawing of mountains with a gap in them. He was not fleeing with his piece. He was delivering it, one of five couriers on five roads. Somewhere east through the mountains, the fifth road still has an end.</successMessage>
+            <successDialogue>TSC_Dialogue_MonSatchel</successDialogue>
+            <successMessage>The device on the flap is the royal courier cipher.</successMessage><!--OLD: was a king's man, still on a king's errand, a decade after the kingdom that sent him had ended. Inside: a road warrant from a chancery that no longer exists, and a strip of vellum with five marks. Four are struck through. Under the fifth, one word in courier's shorthand: EAST, and a small drawing of mountains with a gap in them. He was not fleeing with his piece. He was delivering it, one of five couriers on five roads. Somewhere east through the mountains, the fifth road still has an end.-->
             <failMessage>The leather has fused shut, and forcing it costs most of what it holds. A vellum strip survives: five marks, four struck through.</failMessage>
           </li>
         </approaches>
@@ -375,7 +377,8 @@
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
             <successFlag>TSC_MonBiersSeen</successFlag>
-            <successMessage>The pilgrim was laid out by hands that honored him: washed, wrapped, his warrant folded under his fingers where a sword would go. The abbot laid himself: climbed onto the second bier alone, with the wrapped thing set on the floor between them. He took the last watch of his house. The dust says it was never disturbed. The watch held.</successMessage>
+            <successDialogue>TSC_Dialogue_MonTwoBiers</successDialogue>
+            <successMessage>One was laid out with honor. One laid himself.</successMessage><!--OLD: washed, wrapped, his warrant folded under his fingers where a sword would go. The abbot laid himself: climbed onto the second bier alone, with the wrapped thing set on the floor between them. He took the last watch of his house. The dust says it was never disturbed. The watch held.-->
             <failMessage>Two dead men and a room that wants quiet. It seems wisest to give it that.</failMessage>
           </li>
         </approaches>
@@ -551,7 +554,7 @@
   <ThingDef ParentName="BuildingBase">
     <defName>TSC_UndercellDoor</defName>
     <label>the closed door</label>
-    <description>A door of grey wood bound in grey iron, at the bottom of the last stair, exactly where the vision stopped. There is no lock and no bar, and it does not open, because what holds a door like this shut is not carpentry.</description>
+    <description>A door of gray wood bound in gray iron, at the bottom of the last stair, exactly where the vision stopped. There is no lock and no bar, and it does not open, because what holds a door like this shut is not carpentry.</description>
     <thingClass>TheShatteredCrown.Building_TSC_UndercellDoor</thingClass>
     <size>(1,1)</size>
     <passability>Impassable</passability>

@@ -35,9 +35,9 @@
     </modExtensions>
     <!-- Field medicine: castable undrafted (energy and cooldown still apply).
          BOTH flags are needed and they are not the same question.
-         disableGizmoWhileUndrafted only un-greys the button;
+         disableGizmoWhileUndrafted only un-grays the button;
          displayGizmoWhileUndrafted (default FALSE) decides whether it is
-         drawn at all, and without it the un-greyed button was never on
+         drawn at all, and without it the un-grayed button was never on
          screen to press. -->
     <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
@@ -71,9 +71,9 @@
     <iconPath>UI/TSC_Abilities/TSC_Cleanse</iconPath>
     <!-- Field medicine: castable undrafted (energy and cooldown still apply).
          BOTH flags are needed and they are not the same question.
-         disableGizmoWhileUndrafted only un-greys the button;
+         disableGizmoWhileUndrafted only un-grays the button;
          displayGizmoWhileUndrafted (default FALSE) decides whether it is
-         drawn at all, and without it the un-greyed button was never on
+         drawn at all, and without it the un-grayed button was never on
          screen to press. -->
     <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
@@ -147,9 +147,9 @@
     <iconPath>UI/TSC_Abilities/TSC_PrayerOfMending</iconPath>
     <!-- Field medicine: castable undrafted (energy and cooldown still apply).
          BOTH flags are needed and they are not the same question.
-         disableGizmoWhileUndrafted only un-greys the button;
+         disableGizmoWhileUndrafted only un-grays the button;
          displayGizmoWhileUndrafted (default FALSE) decides whether it is
-         drawn at all, and without it the un-greyed button was never on
+         drawn at all, and without it the un-grayed button was never on
          screen to press. -->
     <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
@@ -289,9 +289,9 @@
     <iconPath>UI/TSC_Abilities/TSC_SongOfRest</iconPath>
     <!-- Field medicine: castable undrafted (energy and cooldown still apply).
          BOTH flags are needed and they are not the same question.
-         disableGizmoWhileUndrafted only un-greys the button;
+         disableGizmoWhileUndrafted only un-grays the button;
          displayGizmoWhileUndrafted (default FALSE) decides whether it is
-         drawn at all, and without it the un-greyed button was never on
+         drawn at all, and without it the un-grayed button was never on
          screen to press. -->
     <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
@@ -1085,9 +1085,9 @@ Costs what two ordinary swings of the same weapon cost, so it pays from the seco
     <iconPath>UI/TSC_Abilities/TSC_NaturesBalm</iconPath>
     <!-- Field medicine: castable undrafted (energy and cooldown still apply).
          BOTH flags are needed and they are not the same question.
-         disableGizmoWhileUndrafted only un-greys the button;
+         disableGizmoWhileUndrafted only un-grays the button;
          displayGizmoWhileUndrafted (default FALSE) decides whether it is
-         drawn at all, and without it the un-greyed button was never on
+         drawn at all, and without it the un-grayed button was never on
          screen to press. -->
     <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
@@ -1264,9 +1264,9 @@ Costs what two ordinary swings of the same weapon cost, so it pays from the seco
     <iconPath>UI/TSC_Abilities/TSC_InnerCalm</iconPath>
     <!-- Field medicine: castable undrafted (energy and cooldown still apply).
          BOTH flags are needed and they are not the same question.
-         disableGizmoWhileUndrafted only un-greys the button;
+         disableGizmoWhileUndrafted only un-grays the button;
          displayGizmoWhileUndrafted (default FALSE) decides whether it is
-         drawn at all, and without it the un-greyed button was never on
+         drawn at all, and without it the un-grayed button was never on
          screen to press. -->
     <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
@@ -1385,9 +1385,9 @@ Costs what two ordinary swings of the same weapon cost, so it pays from the seco
     <iconPath>UI/TSC_Abilities/TSC_LayOnHands</iconPath>
     <!-- Field medicine: castable undrafted (energy and cooldown still apply).
          BOTH flags are needed and they are not the same question.
-         disableGizmoWhileUndrafted only un-greys the button;
+         disableGizmoWhileUndrafted only un-grays the button;
          displayGizmoWhileUndrafted (default FALSE) decides whether it is
-         drawn at all, and without it the un-greyed button was never on
+         drawn at all, and without it the un-grayed button was never on
          screen to press. -->
     <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
@@ -1566,9 +1566,9 @@ Costs what two ordinary swings of the same weapon cost, so it pays from the seco
     <iconPath>UI/TSC_Abilities/TSC_FieldDressing</iconPath>
     <!-- Field medicine: castable undrafted (energy and cooldown still apply).
          BOTH flags are needed and they are not the same question.
-         disableGizmoWhileUndrafted only un-greys the button;
+         disableGizmoWhileUndrafted only un-grays the button;
          displayGizmoWhileUndrafted (default FALSE) decides whether it is
-         drawn at all, and without it the un-greyed button was never on
+         drawn at all, and without it the un-grayed button was never on
          screen to press. -->
     <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
     <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>

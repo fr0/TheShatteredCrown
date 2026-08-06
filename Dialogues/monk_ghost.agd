@@ -26,7 +26,7 @@ Stillness. This place has stood the test of time, but there are no occupants. An
 
 But, no. That is not quite right.
 
-The cold crosses the yard first. Then, between one blink and the next, a brother is standing in the cloister arch: grey habit, folded hands, a pale face. The dust on the floor remains undisturbed in his presence.
+The cold crosses the yard first. Then, between one blink and the next, a brother is standing in the cloister arch: gray habit, folded hands, a pale face. The dust on the floor remains undisturbed in his presence.
 
 He looks at {PLAYER} a long moment.
 
@@ -57,7 +57,7 @@ He sees it was not understood, and bows his head.
     check Insight 8 -> read | ask
 
 == wait ==
-{PLAYER} waits. The brother seems to find this correct; some tension leaves the grey shoulders.
+{PLAYER} waits. The brother seems to find this correct; some tension leaves the gray shoulders.
 
 "Patient," he says. "Good. They were... we were. Patient people."
 

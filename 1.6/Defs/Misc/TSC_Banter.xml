@@ -98,4 +98,41 @@
     <dialogue>TSC_Banter_OswinFieldwork</dialogue>
   </TheShatteredCrown.TSC_BanterDef>
 
+  <!-- ============ Act 5: the pieces wake in order. One small road beat
+       after each regalia pickup, so the world leans toward the ending as
+       the set completes. Flags come from the regalia quest script. -->
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_RingFire</defName>
+    <speakers><li>TSC_Npc_Madoc</li><li>TSC_Npc_Bran</li></speakers>
+    <dialogue>TSC_Banter_RingFire</dialogue>
+    <conditions>
+      <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
+        <flag>TSC_RingTaken</flag>
+      </li>
+    </conditions>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_AmuletDream</defName>
+    <speakers><li>TSC_Npc_Serra</li><li>TSC_Npc_Oswin</li></speakers>
+    <dialogue>TSC_Banter_AmuletDream</dialogue>
+    <conditions>
+      <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
+        <flag>TSC_AmuletTaken</flag>
+      </li>
+    </conditions>
+  </TheShatteredCrown.TSC_BanterDef>
+
+  <TheShatteredCrown.TSC_BanterDef>
+    <defName>TSC_Banter_StaffRavens</defName>
+    <speakers><li>TSC_Npc_Maewyn</li><li>TSC_Npc_Bard</li></speakers>
+    <dialogue>TSC_Banter_StaffRavens</dialogue>
+    <conditions>
+      <li Class="TheShatteredCrown.DialogueCondition_FlagSet">
+        <flag>TSC_StaffTaken</flag>
+      </li>
+    </conditions>
+  </TheShatteredCrown.TSC_BanterDef>
+
 </Defs>

@@ -9,7 +9,7 @@
 dialogue TSC_Dialogue_CrownOffer
 
 == start ==
-The pieces have gone quiet. Not silent: attentive, the way a room goes quiet when somebody important starts speaking.
+The pieces have gone quiet. Not silent: attentive: the hush before somebody important speaks.
 
 And then it does speak, and it is not visions any more. It is words, in {PLAYER}'s own voice, using {PLAYER}'s own mannerisms. It is the most frightening thing that has happened on this journey.
 
@@ -19,7 +19,7 @@ It says: you are carrying more of me than anyone has held since the day I was sp
 * [Say nothing and keep walking.] -> walking
 
 == walking ==
-{PLAYER} keeps walking. The offer keeps pace, unhurried, the way water keeps pace with a boat.
+{PLAYER} keeps walking. The offer keeps pace, effortless, a current under the hull.
 
 It is patient. It has been doing this a long time, and it has noticed that walking away is not the same as saying no.
 
@@ -54,7 +54,7 @@ That is the entire price and it is offered without any attempt to hide it. Someh
 * "No." -> refuse
 
 == refuse ==
-The offer withdraws. It does not sulk and it does not threaten; it simply files the answer away, the way a creditor files a date, and moves on.
+The offer withdraws. It does not sulk and it does not threaten; it simply files the answer away, creditor-patient, and moves on.
 
 Then, mildly, as a last remark rather than a bargain:
 

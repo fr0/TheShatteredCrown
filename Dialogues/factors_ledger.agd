@@ -1,0 +1,26 @@
+# The toll book (TSC_FactorsLedger, ledger chain): the reveal that the
+# toll crew reports to somebody, and the somebody signs in a guild hand.
+# Both lore approaches open this; the spot sets TSC_LedgerRead.
+
+dialogue TSC_Dialogue_FactorsLedger
+
+== start ==
+The entries are the wrong shape for banditry. Every caravan this crew took is written in days BEFORE they took it: route, escort count, load itemized down to the barrel.
+
+They did not scout. They were told.
+
+* [Check the margins.] -> margins
+
+== margins ==
+One hand has initialed every page, cramped in the margin beside the crew's sprawl. A clerk's hand, chancery-trained, with a particular hooked terminal on the final stroke.
+
+{PLAYER} has seen that hook before. It is on the company's own guild charter.
+
+* "A toll crew that gets audited." -> audited
+
+== audited ==
+Bandits do not keep books. Men who must SHOW their books keep them, and show them to whoever signs the margin - and this margin is signed from inside the guild.
+
+The pages come out of the stitching clean. The signature now belongs to somebody who can be found.
+
+* [Pocket the pages.] -> end

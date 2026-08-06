@@ -41,7 +41,8 @@
             <label>Work out how they knew the schedules</label>
             <successXp>40</successXp>
             <successFlag>TSC_LedgerRead</successFlag>
-            <successMessage>They did not guess. Every caravan they took is entered days BEFORE they took it, load and all, and the same hand has signed each entry in the margin. It is a guild hand. You have seen it on your own charter.\n\nYou put the book in your coat.</successMessage>
+            <successDialogue>TSC_Dialogue_FactorsLedger</successDialogue>
+            <successMessage>The entries predate the robberies. The book goes into your coat.</successMessage>
             <failMessage>Dates, loads, and a lot of abbreviations. Somebody who reads ledgers for a living could make sense of it. You cannot.</failMessage>
           </li>
           <li>
@@ -50,7 +51,8 @@
             <label>Ask why a toll crew keeps books at all</label>
             <successXp>40</successXp>
             <successFlag>TSC_LedgerRead</successFlag>
-            <successMessage>Bandits do not keep accounts. Men who have to SHOW their accounts to somebody do - and that somebody has signed the margins, in a guild hand you have seen on your own charter.\n\nYou take the book.</successMessage>
+            <successDialogue>TSC_Dialogue_FactorsLedger</successDialogue>
+            <successMessage>Somebody audits this crew. The book goes into your coat.</successMessage>
             <failMessage>You look for the shape of it and find only a tidy crew with tidy habits.</failMessage>
           </li>
           <li>

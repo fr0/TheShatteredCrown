@@ -2,7 +2,7 @@
 <Defs>
 
   <!-- ================================================================
-       Act 5: The Barrow of the First King. Opened from code when the
+       Act 5: The Barrow of Kings. Opened from code when the
        fourth shard rush closes (TSC_ShardTracker): title card, then the
        road. The act's first beat is an interruption - Serra and Oswin,
        taken on the same road the party is walking, held at a bandit
@@ -82,8 +82,8 @@
 
   <SitePartDef>
     <defName>TSC_FirstKingBarrow</defName>
-    <label>the Barrow of the First King</label>
-    <description>A long green mound on high ground, older than the kingdom that ended, with a stone throat facing the dawn. The crown was made in this hill, a very long time before the man buried here dug it out. Every road the shards have drawn ends at this door.</description>
+    <label>the Barrow of Kings</label>
+    <description>A long green mound on high ground, older than the kingdom that ended, with a stone throat facing the dawn. The crown was made in this hill, a very long time before the first of the twelve buried here dug it out. Every road the shards have drawn ends at this door.</description>
     <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</siteTexture>
     <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteBarrow</expandingIconTexture>
     <approachOrderString>Travel to {0}</approachOrderString>

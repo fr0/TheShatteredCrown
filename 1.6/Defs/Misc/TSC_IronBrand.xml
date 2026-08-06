@@ -90,7 +90,7 @@
   <ThingDef ParentName="ApparelBase">
     <defName>TSC_Apparel_BaronPlate</defName>
     <label>the Baron's plate</label>
-    <description>Overlapping plates of grey iron, mended by hands that knew how, worn every day for five years by a man who slept beside something that hums. The metal has learned things iron should not know: it sits on the shoulders like wool, sheds winter like a hearth stone, and turns a blade with a sound like a struck bell heard from far away.\n\nIt does not rust, and it does not care who wears it.</description>
+    <description>Overlapping plates of gray iron, mended by hands that knew how, worn every day for five years by a man who slept beside something that hums. The metal has learned things iron should not know: it sits on the shoulders like wool, sheds winter like a hearth stone, and turns a blade with a sound like a struck bell heard from far away.\n\nIt does not rust, and it does not care who wears it.</description>
     <techLevel>Medieval</techLevel>
     <smeltable>false</smeltable>
     <graphicData>
@@ -416,7 +416,7 @@
   <TheShatteredCrown.NamedNpcDef>
     <defName>TSC_Npc_Odo</defName>
     <label>Odo Larkin</label>
-    <description>The old man on the kerb of Thornden's well. He has watched every tribute day for five years on the grounds that somebody ought to.</description>
+    <description>The old man on the curb of Thornden's well. He has watched every tribute day for five years on the grounds that somebody ought to.</description>
     <firstName>Odo</firstName>
     <lastName>Larkin</lastName>
     <kind>TSC_Villager_Odo</kind>

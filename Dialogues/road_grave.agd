@@ -1,0 +1,26 @@
+# The first road panel, in the Barrow of Kings (TSC_Road_Grave check
+# spot, Lore 14). The north road: the rider who dug the grave and lay
+# down in it. The party has stood in that grave.
+
+dialogue TSC_Dialogue_RoadGrave
+
+== start ==
+The lamp steadies, and the first panel gives up its order: five riders leaving a burning hall, and this one peeling north, into hill country.
+
+The chisel work is not eight hundred years old. It is twice that. These panels were cut eight hundred years before the hall they show ever burned, by whatever made the crown, here in this hill, before there was anybody to wear it.
+
+* [Follow the road north.] -> north
+
+== north ==
+The north road ends in three scenes: a rider carrying a wrapped thing into hills; the rider digging; the rider lying down in the grave he dug, with the wrapped thing in his arms, and the last figure pulling the earth in over both of them is the rider too. Nobody buried him. He managed.
+
+The party has stood in that grave. It is where this road began for them: the crypt, the moss, the first piece.
+
+* "Somebody knew how it would end before it began." -> knew
+
+== knew ==
+Whoever cut this stone knew the hall would burn, knew the grave's dead would rise, and had sixteen centuries of patience about it. The maker of the crown carved its breaking into the walls of the room it was made in.
+
+Which means the breaking was never a surprise to the wanting in the hill. It may not have been a defeat.
+
+* [Move on.] -> end

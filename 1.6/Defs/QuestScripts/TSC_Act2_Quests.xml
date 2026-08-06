@@ -116,9 +116,15 @@
         <li Class="QuestNode_GetMap">
           <canBeSpace>false</canBeSpace>
         </li>
+        <!-- VERY close to the city: Wren busked at this stairhead for
+             coppers and the beggar was a fixture of it - it is the city's
+             own unswept margin ("down where the city forgets to sweep"),
+             not an expedition. The quest is granted in her conversation
+             at the city, so the party's map IS the city and the range
+             anchors there. preferCloserTiles makes 1 the usual answer. -->
         <li Class="QuestNode_Set">
           <name>siteDistRange</name>
-          <value>5~14</value>
+          <value>1~3</value>
         </li>
         <li Class="QuestNode_GetSiteTile">
           <selectLandmarkChance>0</selectLandmarkChance>

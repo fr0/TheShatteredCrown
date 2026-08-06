@@ -18,7 +18,7 @@ namespace TheShatteredCrown
     {
         private static readonly string[] Heads =
         {
-            "Ash", "Grim", "Iron", "Mire", "Thorn", "Black", "Grey", "Red",
+            "Ash", "Grim", "Iron", "Mire", "Thorn", "Black", "Gray", "Red",
             "Salt", "Bone", "Storm", "Rook", "Wither", "Hollow", "Frost",
             "Cinder", "Gall", "Rust", "Slake", "Bram",
         };

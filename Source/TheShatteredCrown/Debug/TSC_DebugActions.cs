@@ -212,24 +212,6 @@ namespace TheShatteredCrown
             Find.WindowStack.Add(new Dialog_DebugOptionListLister(options));
         }
 
-        [DebugAction("The Shattered Crown", "Homeward: report status", allowedGameStates = AllowedGameStates.PlayingOnMap)]
-        private static void HomewardReport()
-        {
-            GameComponent_TSC_Homeward homeward = Verse.Current.Game?.GetComponent<GameComponent_TSC_Homeward>();
-            System.Text.StringBuilder report = new System.Text.StringBuilder();
-            report.AppendLine($"component = {(homeward != null ? "alive" : "MISSING")}, "
-                + $"rpgMode = {TSC_RpgMode.Active}");
-            homeward?.Sweep(report);
-            Log.Message("[The Shattered Crown] Homeward status:" + System.Environment.NewLine + report);
-            Messages.Message("Homeward status written to the log.", MessageTypeDefOf.NeutralEvent, historical: false);
-        }
-
-        [DebugAction("The Shattered Crown", "Homeward: sweep now", allowedGameStates = AllowedGameStates.PlayingOnMap)]
-        private static void HomewardSweep()
-        {
-            Verse.Current.Game?.GetComponent<GameComponent_TSC_Homeward>()?.Sweep(null);
-        }
-
         /// <summary>
         /// Every link in the kill-mood chain, printed. The setting, the
         /// live def value the setting is supposed to patch, whether the
@@ -293,12 +275,6 @@ namespace TheShatteredCrown
             return n;
         }
 
-        [DebugAction("The Shattered Crown", "Show act title card", allowedGameStates = AllowedGameStates.PlayingOnMap)]
-        private static void ShowTitleCard()
-        {
-            TSC_TitleCardManager.Show("Act 1", "Distilled Memory");
-        }
-
         [DebugAction("The Shattered Crown", "Spawn bandit hexer", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
         private static void SpawnBanditHexer()
         {
@@ -313,6 +289,45 @@ namespace TheShatteredCrown
                 kind, faction, PawnGenerationContext.NonPlayer,
                 forceGenerateNewPawn: true, mustBeCapableOfViolence: true));
             GenSpawn.Spawn(hexer, UI.MouseCell(), Verse.Find.CurrentMap);
+        }
+
+        [DebugAction("The Shattered Crown", "Unmaking: report witnesses", allowedGameStates = AllowedGameStates.Playing)]
+        private static void ReportUnmakingWitnesses()
+        {
+            // One line per witness, so "the king refused" stops being a
+            // guessing game about WHICH leg of the gate is short.
+            var state = DialogueStateManager.Current;
+            string Flag(string name) => state.IsSet(name) ? "SET" : "missing";
+            Log.Message("[The Shattered Crown] Unmaking witnesses:\n"
+                + $"  road panels: grave {Flag("TSC_Road_Grave")}, reliquary {Flag("TSC_Road_Reliquary")}, "
+                + $"hoard {Flag("TSC_Road_Hoard")}, quiet {Flag("TSC_Road_Quiet")}, last {Flag("TSC_Road_Last")}\n"
+                + $"  warden's confession (TSC_WardKeystone): {Flag("TSC_WardKeystone")} (toll waiver only, not required)\n"
+                + $"  guard yielded (TSC_HonorGuardYielded): {Flag("TSC_HonorGuardYielded")}\n"
+                + $"  guard standing now (TSC_HonorGuardStands): {Flag("TSC_HonorGuardStands")} "
+                + "(recomputed on the barrow map; stale elsewhere)\n"
+                + $"  => gate (TSC_UnmakeReady): {Flag("TSC_UnmakeReady")}");
+            Messages.Message("Unmaking witness report written to the log.",
+                RimWorld.MessageTypeDefOf.NeutralEvent, historical: false);
+        }
+
+        [DebugAction("The Shattered Crown", "Unmaking: grant witnesses", allowedGameStates = AllowedGameStates.Playing)]
+        private static void GrantUnmakingWitnesses()
+        {
+            // The five roads, the wardens' word, and the yield. The third
+            // witness (guard standing) is recomputed from the live guard, so
+            // on the barrow map this only completes the gate if they are
+            // actually alive and yielded - which is the honest test anyway.
+            foreach (string flag in new[]
+            {
+                "TSC_Road_Grave", "TSC_Road_Reliquary", "TSC_Road_Hoard",
+                "TSC_Road_Quiet", "TSC_Road_Last", "TSC_WardKeystone",
+                "TSC_HonorGuardYielded",
+            })
+            {
+                DialogueStateManager.Current.Set(flag);
+            }
+            Messages.Message("Unmaking witnesses granted (guard must still be alive and yielded on the barrow map).",
+                RimWorld.MessageTypeDefOf.NeutralEvent, historical: false);
         }
 
         [DebugAction("The Shattered Crown", "Fire initiated talk (pawn)", actionType = DebugActionType.ToolMapForPawns, allowedGameStates = AllowedGameStates.PlayingOnMap)]

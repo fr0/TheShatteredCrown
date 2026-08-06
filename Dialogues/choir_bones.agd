@@ -1,0 +1,18 @@
+# The hollow choir in the sunken cellars (TSC_ChoirBones, Arcana
+# approach): the bones are not buried. They are seated.
+
+dialogue TSC_Dialogue_ChoirBones
+
+== start ==
+The stacks resolve under a steady look, and the first word for them is wrong. This is not an ossuary. Ossuaries pack bone for storage; these are in rows, ranked, spaced.
+
+Every skull is oriented. All of them, cheek by cheek, turned toward the passage and the room below it.
+
+* [Work out what was done here.] -> seated
+
+== seated ==
+A congregation. Laid out to hear something beneath the floor, and kept in position for eight centuries by whoever arranged them.
+
+They were not burying their dead. They were seating them - and the service those seats were set for has a voice, and the voice is still down there, and it has not stopped.
+
+* [Go toward what they are all facing.] -> end

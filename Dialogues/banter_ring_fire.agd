@@ -1,0 +1,20 @@
+# Party banter: the night after the ring comes off the tower. The
+# campfire burns in a shape, and Madoc pointedly says nothing about it.
+dialogue TSC_Banter_RingFire
+
+== start ==
+_You overhear Bran and Madoc by the fire, which is burning wrong._
+
+Bran: Madoc. The fire.
+
+Madoc: I see it.
+
+Bran: It has points. It has had points for an hour. Five of them.
+
+Madoc: I am aware, and I am not doing it, and I have asked it twice to stop, and it has told me, very politely, that it is not for me.
+
+Bran: Can it hear the ring, then?
+
+Madoc: Everything can hear the ring, watchman. The fire is just the only one of us being honest about it.
+
+* [Leave them to it.] -> end

@@ -1,0 +1,85 @@
+# The roadside chantry: the grave robbers got here first and have not
+# found the amulet. Auto-opens when a colonist nears the captain
+# (MapComponent_TSC_CryptParley, wired by GenStep_TSC_ChantryRobbers).
+# Every exit resolves the crew: parley_flee clears the chantry,
+# parley_hostile starts the fight. One encounter per save
+# (TSC_ChantryRobbersMet). The amulet stays a floor find inside.
+
+dialogue TSC_Dialogue_ChantryRobbers
+
+== start ==
+The picks stop. A man comes out of the chantry door with a drawn face and a hand on his sword, and the crew behind him spreads without being told.
+
+"Claimed," he says. "Whole site. We have been breaking this floor for six days and whatever the priests buried is ours when it comes up. Walk on."
+
+He does not look like a man six days into easy work. He looks like a man who has not slept.
+
+* "Six days of digging and nothing to show. How are the nights?" -> nights
+    if passive(Insight, 8)
+* "The guild claims it. Name a price for your shovels and go." -> buy
+    if has_item(Silver, 300)
+* "You are digging for something that belongs to a dead king. Ask your men if they want to be holding it when he notices."
+    check Persuasion 10 -> scared | called
+    on success do parley_flee(); grant_xp(60)
+* [Look past him at the crew.] -> count
+* [Draw steel.] -> fight
+    do parley_hostile()
+
+== nights ==
+The hand on the sword loosens a little.
+
+"Nights are long," he says, flat. "Something in that floor keeps time. Tick, tick, tick, all dark, every dark. The men sleep outside now. They think I have not noticed that they have moved the fire twice."
+
+He looks back at the chantry door once, quick.
+
+* "It is counting, captain. Ask yourself what happens when it finishes. Take your men and be somewhere else for that." -> scared
+    do parley_flee(); grant_xp(60)
+* "Sell us the claim and the ticking is our problem." -> buy
+    if has_item(Silver, 300)
+* [Draw steel while his eyes are on the door.] -> fight
+    do parley_hostile()
+
+== buy ==
+"Three hundred," he says, too fast, and then catches himself. "Silver. And we were never here."
+
+* [Pay it.] -> paid
+    do take_item(Silver, 300); parley_flee(); grant_xp(40)
+* "No. Walk away for free, or stay for nothing."
+    check Persuasion 10 -> scared | called
+    on success do parley_flee(); grant_xp(40)
+
+== paid ==
+The silver changes hands at arm's length and the crew is packed inside the half hour, faster than six days of camp should strike.
+
+The captain pauses at the head of the track. "The little sealed door behind the altar," he says, not turning around. "Six days of floor and we never got under it. Whatever ticks is on the other side of that seal, and it does not answer picks. I would finish before dark."
+
+* [Let them go.] -> end
+
+== count ==
+Four shovels, two bows, a crew that has dug for six days and camps OUTSIDE the roof they are robbing. They are more afraid of the chantry than of you, and their captain knows the numbers of the party in front of him.
+
+* "You are outnumbered and out of sleep. Go." -> scared
+    if party_size(>=4)
+    do parley_flee(); grant_xp(40)
+* "Last chance to sell: the claim for three hundred, or we take it up with the crew." -> buy
+    if has_item(Silver, 300)
+* [Draw steel.] -> fight
+    do parley_hostile()
+
+== scared ==
+Something goes through the crew, and it is relief wearing a scowl.
+
+"Keep it," the captain says. "Keep the whole ticking house." He is already walking. "Six days. Tell the priests' ghosts we broke honest floor."
+
+* [Let them go.] -> end
+
+== called ==
+"No," the captain says, and the tiredness in his face reorganizes into something worse. "No, I think six days is too much to walk away from. DIG THEM UNDER, boys."
+
+* [Steel it is.] -> fight
+    do parley_hostile()
+
+== fight ==
+The chantry yard goes loud.
+
+* [Continue.] -> end

@@ -58,6 +58,10 @@
     <childhood>TSC_Backstory_HuntersChild</childhood>
     <adulthood>TSC_Backstory_CompanyCaptain</adulthood>
     <classDef>TSC_Class_Ranger</classDef>
+    <!-- She joins in Act 5, out of a holding camp, into the endgame: a
+         company captain arrives as a veteran, not an apprentice. Seeded
+         (never granted), so the level-up picks wait for the player. -->
+    <startingLevel>5</startingLevel>
     <plotArmor>true</plotArmor>
     <!-- Always the greatbow her dialogue describes (the kind's tag could roll Pila) -->
     <forcedWeapon>Bow_Great</forcedWeapon>
@@ -86,6 +90,8 @@
     <childhood>TSC_Backstory_CopyistsChild</childhood>
     <adulthood>TSC_Backstory_ItinerantScholar</adulthood>
     <classDef>TSC_Class_Wizard</classDef>
+    <!-- Same as Serra: an Act 5 arrival keeps pace with the party. -->
+    <startingLevel>5</startingLevel>
     <plotArmor>true</plotArmor>
     <combatBarks>
       <li>I am a SCHOLAR!</li>

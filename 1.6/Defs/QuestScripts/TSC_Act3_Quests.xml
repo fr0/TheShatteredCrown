@@ -139,7 +139,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelCollectorsFled">Empty-handed</label>
-                <text TKey="LetterTextCollectorsFled">The Brand's collectors left Thornden at a walk that kept trying to be a run, and left the tribute behind them. The village breathes. The Baron will hear of it by nightfall.\n\nNobody in the square will speak first. The old man on the well kerb has not moved through any of it, and he is looking at you.</text>
+                <text TKey="LetterTextCollectorsFled">The Brand's collectors left Thornden at a walk that kept trying to be a run, and left the tribute behind them. The village breathes. The Baron will hear of it by nightfall.\n\nNobody in the square will speak first. The old man on the well curb has not moved through any of it, and he is looking at you.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>600</xp>
@@ -162,7 +162,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelCollectorsDead">The tribute stays</label>
-                <text TKey="LetterTextCollectorsDead">The Brand's collectors will not be reporting back. Thornden keeps its grain, and gains a war it did not ask for; the village is with you now because it has no other direction left.\n\nThe square empties, then fills again. The old man on the well kerb has not moved through any of it, and he is looking at you.</text>
+                <text TKey="LetterTextCollectorsDead">The Brand's collectors will not be reporting back. Thornden keeps its grain, and gains a war it did not ask for; the village is with you now because it has no other direction left.\n\nThe square empties, then fills again. The old man on the well curb has not moved through any of it, and he is looking at you.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>600</xp>

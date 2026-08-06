@@ -48,7 +48,7 @@
   <ThingDef ParentName="BuildingBase">
     <defName>TSC_MonasteryGate</defName>
     <label>the monastery gate</label>
-    <description>Oak a hand thick under an arch of dressed stone, grey with age and hard as iron. It is barred from the inside, which is a strange thing for a dead house to be, and it does not budge.</description>
+    <description>Oak a hand thick under an arch of dressed stone, gray with age and hard as iron. It is barred from the inside, which is a strange thing for a dead house to be, and it does not budge.</description>
     <size>(3,1)</size>
     <passability>Impassable</passability>
     <fillPercent>1</fillPercent>

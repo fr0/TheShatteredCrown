@@ -244,7 +244,7 @@
             <successXp>35</successXp>
             <successDiscovery>true</successDiscovery>
             <successMessage>Water-stained, but the owner wrote like a surveyor: bearings, landmarks, days between them. The last entry names a place they never reached. You can find it.</successMessage>
-            <failMessage>The wax held the rain out and the rot in. The pages that named names are a grey felt.</failMessage>
+            <failMessage>The wax held the rain out and the rot in. The pages that named names are a gray felt.</failMessage>
           </li>
           <li>
             <proficiency>TSC_Prof_Insight</proficiency>

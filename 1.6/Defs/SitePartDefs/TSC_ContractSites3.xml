@@ -38,7 +38,10 @@
     <defName>TSC_ContractRedoubt_Structure</defName>
     <linkWithSite>TSC_ContractRedoubt</linkWithSite>
     <order>470</order>
-    <genStep Class="GenStep_AncientRuins">
+    <!-- Large variant: the castle layout's required hall needs more area
+         than vanilla's ruin fill sometimes rolls (same failure seen at
+         the wardens' hall). -->
+    <genStep Class="TheShatteredCrown.GenStep_TSC_AncientRuinsLarge">
       <layoutDef>TSC_Castle</layoutDef>
     </genStep>
   </GenStepDef>

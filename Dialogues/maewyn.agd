@@ -10,7 +10,7 @@ entry joined if in_party()
 entry sent if flag(TSC_MaewynSent)
 
 == start ==
-The cottage door opens before you knock. The woman in it has grey-green eyes, a raven on her shoulder, and the expression of someone who knew you were coming but is still unimpressed.
+The cottage door opens before you knock. The woman in it has gray-green eyes, a raven on her shoulder, and the expression of someone who knew you were coming but is still unimpressed.
 
 She looks at your boots. At your sword. At the guild's ink stains on your cuff. The raven clicks its beak.
 
@@ -133,7 +133,7 @@ Maewyn is in her garden, unsurprised as ever. She doesn't stop working.
 * "Just passing. Peace on your grove." -> end
 
 == joined ==
-Maewyn is watching the horizon the way other people read. She speaks without turning.
+Maewyn is reading the horizon. She speaks without turning.
 
 "Too quiet here. Don't trust it."
 

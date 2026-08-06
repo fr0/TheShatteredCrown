@@ -270,7 +270,7 @@
 
 
   <!-- The guild house: the Wayfarers' post in every friendly town
-       (stamped near the settlement centre by MapComponent_TSC_GuildFactor;
+       (stamped near the settlement center by MapComponent_TSC_GuildFactor;
        the factor works at the desk inside). Door on the south wall; the
        banner outside is placed by code, beside the door. -->
   <PrefabDef>
@@ -291,7 +291,7 @@
         <position>(4,0,0)</position>
         <stuff>WoodLog</stuff>
       </Door>
-      <!-- The factor's desk; he stands just east of it, at the prefab centre. -->
+      <!-- The factor's desk; he stands just east of it, at the prefab center. -->
       <Table2x2c>
         <position>(2,0,3)</position>
         <stuff>WoodLog</stuff>
@@ -490,7 +490,7 @@
         <position>(4,0,0)</position>
         <stuff>WoodLog</stuff>
       </Door>
-      <!-- The altar, centred on the back wall -->
+      <!-- The altar, centered on the back wall -->
       <Table2x2c>
         <position>(4,0,4)</position>
         <stuff>BlocksGranite</stuff>

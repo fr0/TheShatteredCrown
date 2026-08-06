@@ -21,6 +21,16 @@ namespace TheShatteredCrown
         public int dc = 7;
         /// <summary>Option text; the [Proficiency DC] prefix is added automatically.</summary>
         public string label;
+
+        /// <summary>
+        /// The DC is the DC: exempt from party-level scaling. For checks
+        /// that gate STORY rather than loot - the barrow's road panels
+        /// carry the campaign's lore and an ending's witnesses, and a
+        /// difficulty that quietly climbs with the party reads as the
+        /// walls fighting the reader.
+        /// </summary>
+        public bool noScaling;
+
         public string successMessage;
         public string failMessage;
         /// <summary>
@@ -186,7 +196,7 @@ namespace TheShatteredCrown
                 return;
             }
             TSC_CheckApproach approach = Props.approaches[approachIndex];
-            bool success = TSC_CheckUtility.Roll(pawn, approach.proficiency, approach.dc, out string line);
+            bool success = TSC_CheckUtility.Roll(pawn, approach.proficiency, approach.dc, out string line, approach.noScaling);
             if (success || !approach.failAllowsRetry)
             {
                 spent = true;
@@ -352,9 +362,35 @@ namespace TheShatteredCrown
                 yield break;
             }
             List<TSC_CheckApproach> approaches = spot.Props.approaches;
+            HashSet<string> rereadFlags = null;
             for (int i = 0; i < approaches.Count; i++)
             {
                 TSC_CheckApproach approach = approaches[i];
+                // Knowledge is campaign-wide; the stones are per-map. When a
+                // spot's success flag is already set (a regenerated barrow,
+                // a second monastery visit), the roll and its XP are not on
+                // offer again - but the SCENE is, free, because a player
+                // building the unmaking case should be able to re-read a
+                // road without paying twice. One re-read option per flag,
+                // even when several approaches share it.
+                if (!approach.successFlag.NullOrEmpty()
+                    && DialogueStateManager.Current.IsSet(approach.successFlag))
+                {
+                    if ((rereadFlags = rereadFlags ?? new HashSet<string>()).Add(approach.successFlag)
+                        && !approach.successDialogue.NullOrEmpty())
+                    {
+                        DialogueDef reread = DefDatabase<DialogueDef>.GetNamedSilentFail(approach.successDialogue);
+                        if (reread != null)
+                        {
+                            Pawn reader = actor;
+                            yield return new FloatMenuOption($"Read again: {clickedThing.LabelCap}", delegate
+                            {
+                                Find.WindowStack.Add(new Dialog_Conversation(reread, reader, reader));
+                            });
+                        }
+                    }
+                    continue;
+                }
                 if (approach.proficiency == null)
                 {
                     continue;
@@ -373,7 +409,9 @@ namespace TheShatteredCrown
                 // Show the SCALED number: the label is a promise about the
                 // roll, and quoting the base DC while rolling against a
                 // higher one would be a lie the player cannot see through.
-                int shownDc = TSC_CheckUtility.ScaledDc(actor, approach.proficiency, approach.dc);
+                int shownDc = approach.noScaling
+                    ? approach.dc
+                    : TSC_CheckUtility.ScaledDc(actor, approach.proficiency, approach.dc);
                 string label = $"[{approach.proficiency.LabelCap} {shownDc}] {approach.label}";
                 yield return new FloatMenuOption(label, delegate
                 {

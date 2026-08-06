@@ -4,8 +4,42 @@
 #
 # This scene delivers the truth and then hands the player the campaign's
 # last decision (crown_ending). {PLAYER} is whoever opened the lid.
+#
+# Two openings: campaigns with the regalia fetch (TSC_RegaliaGathered)
+# get the waking rite made explicit - the three pieces on the lid are
+# what he runs on, and he says so. Legacy saves that never had the
+# fetch keep the old opening. Both converge on -> who / -> talking.
 
 dialogue TSC_Dialogue_FirstKing
+
+entry start_woken if flag(TSC_RegaliaGathered)
+
+== start_woken ==
+The lid grinds back. Inside is a small dry man in the remains of very good clothes, hands folded on a hollow where a crown should sit.
+
+On the lid where the party laid them: the ring, gone past warm; the staff, its crescent turned some invisible force to face the man below; and the amulet, silent. Whatever it has been counting toward since the funeral, that moment has arrived.
+
+He is nine hundred years dead, and nothing in him moves. Then the ring flares once, like a held breath let go, and he opens his eyes.
+
+* [Wait.] -> woke
+* "Can you hear me?" -> woke
+
+== woke ==
+"Ah." His voice is a page turning. He does not look at the party first. He looks at the three things on his own lid, one at a time, taking inventory.
+
+"The sun to keep my hours. The ring to keep my name. The tool to hold me in a shape." A dry finger moves from one to the next as he says it. "A when, a who, and a what. Take any one of the three off that lid and the other two have nobody to argue about."
+
+"They carried them out of here behind my coffin, so that nobody could ever wake me by accident, and you have walked all three back and set them out in the right order."
+
+"Understand what you have done, because you have earned the understanding: I am not alive. I am brought back, but only just. While they lie there, I am awake. Carry them off, and I go back to being still."
+
+The dry eyes come up at last.
+
+"You did not walk three roads to return an old man's jewelry. It found somebody else."
+
+* "You are the first king." -> who
+* "It has been talking to us." -> talking
+* [Wait.] -> who
 
 == start ==
 The lid grinds back. Inside is a small dry man in the remains of very good clothes, hands folded on a hollow where a crown should sit.
@@ -19,15 +53,36 @@ He is nine hundred years dead. He opens his eyes anyway.
 * [Wait.] -> who
 
 == who ==
-"I was a chieftain with a good year and a thing I dug out of this hill," he says, "and then I was the first king, and then I was a lesson nobody read. In that order, and faster than you would think."
+"I was a chieftain with a good year and a thing I dug out of this hill," he says, "and then I was the first king, and then I was a lesson nobody learned. In that order, and faster than you would think."
 
-He does not try to sit up. Whatever holds him here does not allow it.
+He does not try to sit up. Whatever twisted magic animates him does not allow it.
 
 "They took it off my head and buried me under it, and then my son wore it. And then a cousin. Eleven of them inside a hundred years, every one of them brilliant and every one of them used up before forty, and not one of them able to say why."
 
-"It took the last of them burning her own hall down to end it. They broke the thing and sent five riders five directions, and they started them from this barrow, because this is where it was made and where I found it, and they had run out of ideas about where else it belonged."
+"It took the last of them burning her own hall down to end it. They broke the thing and sent five riders five directions, and they started them from this barrow, because this is where I found it, and they had run out of ideas about where else it belonged."
 
 "I have had a very long time to work out what I would say to whoever put it back together. Would you like the short version or the true one?"
+
+* "The true one." -> truth
+* "The short one." -> short
+* "We came through the bride's tower. The chair at the top faces this hill." -> vigil
+    if flag(TSC_VigilRead)
+
+== vigil ==
+He is quiet for longer than a dead man needs to be.
+
+"She would not come down," he says at last. "They sealed the mound and read the rites and she went up that tower, and the last thing I heard as the stone closed was her voice telling them she could see it fine from there."
+
+"Nine hundred years I have wondered whether she stayed. You have just told me she did. Whatever else you came down here to take or to ask, you have already left more than you will carry out."
+
+* "She kept your ring, too. We carried it here." -> vigil2
+
+== vigil2 ==
+"Then it is all of it home," he says. "Her watch, my ring, and the thing that cost us both. That is the whole household back under one roof, at last, and nobody left standing on a tower."
+
+A pause.
+
+"Now. The short version, or the true one?"
 
 * "The true one." -> truth
 * "The short one." -> short
@@ -80,9 +135,61 @@ Nobody says anything. It is not that kind of moment.
 * [Break the roads open again: five pieces, five directions, five new riders.] -> scatter
 * [Lay it in the coffin with him and seal the barrow.] -> entomb
 * [Leave it exactly where it lies. Walk out. Tell no one.] -> leave
+* "Your wardens tried to kill it, and failed. We think we know why they failed." -> unmake_ask
+* [Leave him, for now.] -> end
+
+== unmake_ask ==
+For the first time since the lid came off, the dead man moves: one finger, lifting off the hollow at his chest, pointing at whoever spoke.
+
+"Say what you think you know."
+
+* [Lay out everything the company has gathered.] -> unmake_agree
+    if flag(TSC_UnmakeReady)
+* [Lay out what the company has.] -> unmake_refuse
+    if not flag(TSC_UnmakeReady)
+
+== unmake_refuse ==
+He hears it out to the end, and the finger comes down.
+
+"Pieces. You have pieces of an argument, and this is not a thing you argue with half a case. My wardens had courage, numbers, and the staff itself, and it beat them, because a broken thing is still a made thing and they could not say *why* it had to end."
+
+"Unmaking wants two witnesses. The five roads, whole, read off the walls of this barrow: what it did, in order, to everyone who carried it. And men of mine, on their feet, unbought and unbeaten, to stand for the house while it is done."
+
+"Carry both, and ask me again. I have waited nine hundred years. I can wait out your reading."
+
+* [Step back from the coffin.] -> choice
+
+== unmake_agree ==
+It takes a while to lay out, and he does not interrupt: the five roads, read whole off his own walls. And outside the door, on their feet, five men who yielded without being beaten.
+
+When it is done, the chamber is very quiet.
+
+"Nine hundred years," he says, "and twelve kings, and five roads, and nobody ever once asked me for *this*."
+
+* "Can it be done?" -> unmake_how
+
+== unmake_how ==
+"It can. It could always be done, and only ever here, and only ever whole: it can only be unmade while it is one, and it can only die in the room it was born in. Which is below this floor, behind that wall, where the maker left it."
+
+"The wardens shattered it, and then tried to destroy the pieces. They could not."
+
+The dry eyes close for a moment.
+
+"Understand the price before you say yes. The moment it knows, it will spend everything it has, and everything it has is in this room. My sons are in these boxes, and it has never once let go of anything it wore."
+
+* "Open the room. We will stand the cost." -> unmake_go
+* [Step back. Not yet.] -> choice
+
+== unmake_go ==
+"Then steel out, all of you," the dead king says, "and somebody keep a hand on my lid. It is about to be loud."
+
+His fingers spread flat on the hollow at his chest, and behind the sarcophagus, stone that was never a door remembers that it is one.
+
+* [Stand ready.] -> end
+    do begin_unmaking()
 
 == wear ==
-The pieces go together without a seam, the way a word goes together out of letters, and it is not heavy at all.
+The pieces go together without a seam, letters closing into a word, and it is not heavy at all.
 
 The dead king watches with an expression that has no anger in it whatsoever. Of the available expressions, it is the worst.
 

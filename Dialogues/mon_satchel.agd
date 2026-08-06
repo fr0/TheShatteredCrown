@@ -1,0 +1,26 @@
+# The pilgrim's satchel in the monastery guest stores (TSC_MonSpot_Satchel,
+# Investigation): the fourth rider was a courier, and the strip under the
+# fifth mark points EAST. Act 5's road, planted in Act 4.
+
+dialogue TSC_Dialogue_MonSatchel
+
+== start ==
+The device worked into the flap is no pilgrim's badge. It is the royal courier cipher, from a chancery that has been ash and lawbooks for eight centuries.
+
+The dying man the brothers took in at their gate was a king's man, still on a king's errand, a decade after the king's country stopped existing.
+
+* [Open it.] -> inside
+
+== inside ==
+Inside, gone hard as the leather: a road warrant nobody living could honor, and a strip of vellum bearing five marks.
+
+Four are struck through.
+
+* [Look under the fifth.] -> fifth
+
+== fifth ==
+Under the fifth mark, in courier's shorthand, one word: EAST. Beside it, a small drawing - mountains, and a gap in the mountains.
+
+He was not fleeing with his piece. He was delivering it: one courier of five, on one road of five, and his road ended at this gate. Somewhere east, through that gap, the fifth road is still open, and something at the end of it is still waiting for the post.
+
+* [Put the strip back in the satchel.] -> end

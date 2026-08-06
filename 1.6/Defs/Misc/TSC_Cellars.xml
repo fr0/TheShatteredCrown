@@ -332,7 +332,8 @@
             <dc>7</dc>
             <label>Read what he left</label>
             <successXp>35</successXp>
-            <successMessage>Under the bedroll, a stub of chalk and a wall he wrote on until the chalk ran out. It is all one verse, over and over, in a meter eight hundred years dead - and at the bottom, in plain hand, the only line that is his own: I ONLY EVER REPEATED IT. Wren's song has a source, and the source is further down.</successMessage>
+            <successDialogue>TSC_Dialogue_BeggarsCamp</successDialogue>
+            <successMessage>Under the bedroll: a stub of chalk, and a wall written edge to edge.</successMessage>
             <failMessage>Damp has taken most of the wall, and what is left will not resolve into words. Whatever he was writing, the cellar has had it.</failMessage>
           </li>
           <li>
@@ -340,7 +341,7 @@
             <dc>7</dc>
             <label>Read how he died</label>
             <successXp>25</successXp>
-            <successMessage>No wounds, no struggle, no vermin sign on him - and he is thin in the way of a man who stopped eating on purpose. He sat down facing DOWNWARD, toward the deeper stair, and waited for something. The scarabs kept off him, which is its own kind of report.</successMessage>
+            <successMessage>No wounds, no struggle, no vermin sign on him - and he is starvation-thin with food still in his pack: he stopped eating on purpose. He sat down facing DOWNWARD, toward the deeper stair, and waited for something. The scarabs kept off him, which is its own kind of report.</successMessage>
             <failMessage>Too far gone and too wet to read. He has been here through several seasons of standing water.</failMessage>
           </li>
         </approaches>
@@ -448,7 +449,7 @@
             <label>Sing the response</label>
             <successXp>40</successXp>
             <successHediff>TSC_Hediff_Blessed</successHediff>
-            <successMessage>The verse that comes out is one of Wren's, and the meter fits the room the way a key fits a lock. Nothing rises. The skulls simply go on facing the passage, and the passage feels, for the first time since the stairs, like it is letting you through.</successMessage>
+            <successMessage>The verse that comes out is one of Wren's, and the meter locks into the room's own measure. Nothing rises. The skulls simply go on facing the passage, and the passage feels, for the first time since the stairs, like it is letting you through.</successMessage>
             <failMessage>The note is wrong and the room takes it badly: a dry rattle runs the length of the stacks and settles. Nothing rises. Yet.</failMessage>
           </li>
           <li>
@@ -456,7 +457,8 @@
             <dc>8</dc>
             <label>Read the arrangement</label>
             <successXp>35</successXp>
-            <successMessage>Not an ossuary: a congregation, laid out to hear something in the room below and kept in position for eight centuries. Whoever did this was not burying the dead. They were seating them.</successMessage>
+            <successDialogue>TSC_Dialogue_ChoirBones</successDialogue>
+            <successMessage>Not an ossuary. A congregation.</successMessage>
             <failMessage>Bones, stacked by somebody with a system you cannot follow. The system is the point, and it stays closed to you.</failMessage>
           </li>
           <li>

@@ -1,0 +1,19 @@
+# The bride's tower, top room (TSC_VigilChair check spot, Act 5). Both
+# approaches open this: what the chair faces, and what the room was for.
+# Sets TSC_VigilRead via the spot; the First King hears about it.
+
+dialogue TSC_Dialogue_VigilChair
+
+== start ==
+The chair has rotted to shape and grain, and the shape is the tell: it does not face the road, or the valley, or anything a watcher watches.
+
+It faces the high ground. Sight the line off its arms and the bearing runs straight to a long green mound with a stone throat.
+
+* [Read the rest of the room.] -> room
+
+== room ==
+Chair. A candle shelf at the sill, wax-scarred down to the stone. Nothing else, and by the old rite, nothing else permitted: a vigil room, and the vigil rite is for the dead.
+
+The bride's house did not keep his ring in a treasury. She kept his wake here, for a lifetime, and the ring stayed on this hilltop because she did.
+
+* [Leave the chair facing the mound.] -> end

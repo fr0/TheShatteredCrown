@@ -72,9 +72,9 @@ namespace TheShatteredCrown
             return best;
         }
 
-        public static bool Roll(Pawn pawn, TSC_ProficiencyDef prof, int dc, out string line)
+        public static bool Roll(Pawn pawn, TSC_ProficiencyDef prof, int dc, out string line, bool noScaling = false)
         {
-            int scaled = ScaledDc(pawn, prof, dc);
+            int scaled = noScaling ? dc : ScaledDc(pawn, prof, dc);
             int roll = Rand.RangeInclusive(1, 10);
             int bonus = TSC_ProgressionManager.Current.EffectiveProficiency(pawn, prof);
             bool success = roll + bonus >= scaled;

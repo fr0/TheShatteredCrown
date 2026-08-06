@@ -1,0 +1,24 @@
+# Wren, once the regalia is gathered and her own question is settled
+# (TSC_WrenLay): the ending she has been waiting to stand at now has a
+# place and a date. Fires as an initiation; foreshadows the sung answer
+# to the Honor Guard.
+
+dialogue TSC_Dialogue_WrenBars
+
+== start ==
+Wren has the copied pages out again, flat on her knee, and she is not looking at them. She is looking east.
+
+"I can almost hear it," she says. "The last four bars. Since the staff. Not the notes - the distilled essence of them."
+
+* "The rider said you would know it when you got there." -> there
+* "Almost?" -> there
+
+== there ==
+"When the fifth road ends, whoever is standing there will know how it goes." She says it like a lesson recited, and then, quieter: "The fifth road ends at that mound. We are carrying the end of it in our saddlebags."
+
+She rolls the pages and puts them away, in the lute case, next to the strings, where they have been since the monastery.
+
+"Eight hundred years of unfinished. When we go down that stair, keep me alive and near the front. I have a delivery to make, and I am going to make it *well*."
+
+* "Near the front. Done." -> end
+    do grant_xp(40); affinity(+5)

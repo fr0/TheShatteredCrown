@@ -1,0 +1,78 @@
+# The unmaking, after the eleven are down (MapComponent_TSC_Unmaking
+# opens this at the making stone). Two entries: with Wren's lay finished
+# and her present, the last four bars finally get sung; otherwise the
+# staff's crescent does the work alone. Both end the campaign with
+# crown_ending(unmake).
+
+dialogue TSC_Dialogue_Unmaking
+
+entry sung if flag(TSC_WrenLay) and in_party(TSC_Npc_Bard)
+
+== sung ==
+The throne room is wreckage and spent breath, and eleven suits of grave-plate lie still at last. In the sarcophagus, the first king presses the five pieces together between his flat dry palms, and they go whole without a sound.
+
+"Quickly," he says, and holds it out. "It is asking me. It asks so nicely."
+
+* [Carry the crown to the making stone.] -> sung_stone
+
+== sung_stone ==
+The crown settles into the crescent, and the crescent receives it: a fit sixteen centuries deep.
+
+Wren steps up beside it with the copied pages in her hand, and does not look at them once.
+
+"I told you," she says, to nobody, to everybody. "You get to the place the ending is about, and the ending is simply there."
+
+* [Let her sing.] -> sung_out
+
+== sung_out ==
+Four bars. She was promised four bars, and four is what the room gives her: the fifth verse, finished, in a meter eight hundred years dead and one voice entirely alive, and on the last note the crown comes apart.
+
+Not into pieces. It comes apart into *nothing*, gold unwinding into heat and the heat fading into entropy.
+
+The silence afterward has no lean in it at all. It is just quiet, at the bottom of a hill, with friends.
+
+* [It is done.] -> done
+
+== start ==
+The throne room is wreckage and spent breath, and eleven suits of grave-plate lie still at last. In the sarcophagus, the first king presses the five pieces together between his flat dry palms, and they go whole without a sound.
+
+"Quickly," he says, and holds it out. "It is asking me. It asks so nicely."
+
+* [Carry the crown to the making stone.] -> stone
+
+== stone ==
+The crown settles into the crescent, and the fit is a mold's fit, because that is what it is.
+
+The staff's head has always been this shape. The shards have always leaned toward it. Every road in the story has been pointing at this socket, and the company lays the last of the journey into it and steps back.
+
+* [Finish it.] -> out
+
+== out ==
+The stone grows warm, then bright at the seams, and the crown comes apart.
+
+Not into pieces. It comes apart into *nothing*, gold unwinding into heat and the heat fading into entropy.
+
+The silence afterward has no lean in it. It is just quiet, at the bottom of a hill.
+
+* [It is done.] -> done
+
+== done ==
+Back in the throne room, the first king is looking at the ceiling with his hands flat on an empty hollow, and for the first time in nine centuries there is nothing on his chest at all, in any sense.
+
+"Well," he says. His voice is smaller, and unclenched. "Well. Look at that. A thirteenth reign, one hour long, and the only one of the lot worth keeping."
+
+The dry eyes find the company.
+
+"One thing more, and then you are free of us. The three on my lid. Take them off, and put out the lamp."
+
+* [Take the ring, the amulet and the staff off the stone.] -> rest
+
+== rest ==
+The regalia comes away: the ring going cool at last, the amulet keeping no time at all, the staff's crescent now just a shape.
+
+"Thank you," the first king says, and gets most of the way through saying it again.
+
+The Barrow of Kings holds twelve quiet men and one empty socket, and the company walks up the long hall toward the daylight carrying nothing that wants anything.
+
+* [The Shattered Crown.] -> end
+    do crown_ending(unmake)

@@ -1,0 +1,26 @@
+# The third road panel (TSC_Road_Hoard check spot, Investigation 14).
+# The east road: the rider who was robbed, and the piece that went hand
+# to hand down to the Baron on his heap.
+
+dialogue TSC_Dialogue_RoadHoard
+
+== start ==
+The third panel is a sequence. The rider goes east into hard hills and the carving abandons him three scenes in: he is robbed on the road, and the stone does not care what became of him.
+
+The stone follows the piece.
+
+* [Follow the piece.] -> hands
+
+== hands ==
+Hand to hand to hand. A robber, a fence, a soldier, a strongroom, a fire, a second robber. The piece moves through them, and every figure that holds it is carved a little more bent than the one before.
+
+The sequence ends at a figure sitting on a heap, sword flat across his knees, not spending any of it.
+
+* "The Baron. He is on this wall." -> baron
+
+== baron ==
+He has been on this wall for sixteen centuries: a man on a hoard he cannot leave, set there by the crown's own maker, which knew a Baron would happen as surely as weather. The party took the keep out from under the real one. The wall does not show that part.
+
+The wall stops at the heap, because from the heap, the piece expected to be collected.
+
+* [Move on.] -> end

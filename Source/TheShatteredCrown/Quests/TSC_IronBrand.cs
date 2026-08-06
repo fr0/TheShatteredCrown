@@ -16,10 +16,17 @@ namespace TheShatteredCrown
     /// </summary>
     public class GenStep_TSC_IronBrandHoard : GenStep
     {
-        public IntRange silverStacks = new IntRange(3, 4);
-        public IntRange silverPerStack = new IntRange(180, 340);
-        public IntRange goldAmount = new IntRange(15, 35);
-        public int lootChests = 2;
+        // Five years of tithes off every road in these hills, and a man who
+        // says out loud that he has slept worse every year he owned more
+        // gold. The party should walk in and BELIEVE the pile: enough silver
+        // to be a floor rather than a few stacks, and gold in bars a man
+        // could sit on. It is also the campaign's one great payday, an act
+        // before the endgame's shopping.
+        public IntRange silverStacks = new IntRange(7, 10);
+        public IntRange silverPerStack = new IntRange(400, 650);
+        public IntRange goldStacks = new IntRange(3, 5);
+        public IntRange goldPerStack = new IntRange(60, 110);
+        public int lootChests = 3;
 
         public override int SeedPart => 918273645;
 
@@ -36,7 +43,10 @@ namespace TheShatteredCrown
             {
                 SpawnAt(map, vault, "Silver", silverPerStack.RandomInRange);
             }
-            SpawnAt(map, vault, "Gold", goldAmount.RandomInRange);
+            for (int i = 0; i < goldStacks.RandomInRange; i++)
+            {
+                SpawnAt(map, vault, "Gold", goldPerStack.RandomInRange);
+            }
             for (int i = 0; i < lootChests; i++)
             {
                 SpawnChest(map, vault);
@@ -287,7 +297,7 @@ namespace TheShatteredCrown
             DialogueStateManager.Current.Set("TSC_BaronFallenSeen");
             Find.LetterStack.ReceiveLetter(
                 "The Bandit Baron",
-                "Somebody finally turns the body over. The big man in the grey plate, dead in the dark "
+                "Somebody finally turns the body over. The big man in the gray plate, dead in the dark "
                 + "at the foot of his own stairs, is the Bandit Baron himself: when the stack went over, "
                 + "he came down with the rest to see about the noise, and died a sword among swords.\n\n"
                 + "Five years of banners ended in a cellar. Nobody above knows yet that they are already "

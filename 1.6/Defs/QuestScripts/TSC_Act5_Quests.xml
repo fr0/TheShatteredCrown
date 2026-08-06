@@ -2,10 +2,10 @@
 <Defs>
 
   <!-- ================================================================
-       Act 5: The Barrow of the First King. Opened from code when the
+       Act 5: The Barrow of Kings. Opened from code when the
        fourth shard rush closes (TSC_ShardTracker): title card, then
        the road, then the interruption on it.
-       Road Ambush -> The Barrow of the First King.
+       Road Ambush -> The Barrow of Kings.
        ================================================================ -->
 
   <!-- The interruption: Serra and Oswin, taken on the same road. The
@@ -90,7 +90,7 @@
     <defName>TSC_Act5_Barrow</defName>
     <questNameRules>
       <rulesStrings>
-        <li>questName->The Barrow of the First King</li>
+        <li>questName->The Barrow of Kings</li>
       </rulesStrings>
     </questNameRules>
     <questDescriptionRules>
@@ -138,16 +138,191 @@
               <li Class="QuestNode_Letter">
                 <letterDef>NeutralEvent</letterDef>
                 <label TKey="LetterLabelBarrowArrived">The mound</label>
-                <text TKey="LetterTextBarrowArrived">The barrow is exactly where four pieces of a crown said it would be: a long green mound on the high ground, turf grown over stonework older than any kingdom on the maps, and a throat of dressed rock facing the sunrise.\n\nThe humming stops at the threshold. Whatever the shards have been pulling toward, they have stopped explaining themselves now that the company is standing at its door.</text>
+                <text TKey="LetterTextBarrowArrived">The barrow is exactly where four pieces of a crown said it would be: a long green mound on the high ground, turf grown over stonework older than any kingdom on the maps, and a throat of dressed rock facing the sunrise.\n\nThe humming stops at the threshold, and here, at the door, the pieces finally show what has been done to them: held together they refuse each other, like the same poles of two lodestones. The men who broke this crown warded the break. No living hand joins it again. The only hand the wards answer to is the one the pieces were cut from, and that hand is under the mound.\n\nWhatever the mound wants brought, it will say so itself. Go down and ask.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>600</xp>
               </li>
-              <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
-                <questDef>TSC_Act5_Crown</questDef>
-              </li>
               <li Class="QuestNode_End">
                 <outcome>Success</outcome>
+              </li>
+            </nodes>
+          </node>
+        </li>
+      </nodes>
+    </root>
+  </QuestScriptDef>
+
+  <!-- The act's middle: the three things the king's undeath runs on,
+       divided three ways when the barrow was sealed. Spawns three sites
+       near the mound; the chained detections complete in ANY pickup
+       order (each part checks possession, so a piece fetched before its
+       part enables completes it the moment it does). Completion grants
+       the finale. TSC_RegaliaNeeded (set at barrow arrival) is what arms
+       the sarcophagus gate in TSC_BarrowAct.cs - old saves without it
+       keep the old, ungated tomb. -->
+  <QuestScriptDef ParentName="TSC_MainChainBase">
+    <defName>TSC_Act5_Regalia</defName>
+    <questNameRules>
+      <rulesStrings>
+        <li>questName->The King's Regalia</li>
+      </rulesStrings>
+    </questNameRules>
+    <questDescriptionRules>
+      <rulesStrings>
+        <li>questDescription->Five pieces of a crown, together at last, and they refuse each other like the same poles of two lodestones. The men who broke it warded the break: no living hand joins it again. The pieces answer one hand only, and it has been under the mound for nine hundred years.\n\nThe wards can be answered. The king can be woken. His undeath runs on three things that left the mound with his funeral: his ring, gone home with his bride to her tower; his amulet, left with the priests of the roadside chantry; his staff, kept by the warden order that served the crown and, a century later, broke it. The breakers found the three already scattered, and left them that way on purpose.\n\nGather all three and bring them to the barrow.</li>
+      </rulesStrings>
+    </questDescriptionRules>
+    <root Class="QuestNode_Sequence">
+      <nodes>
+        <li Class="QuestNode_GetMap">
+          <canBeSpace>false</canBeSpace>
+        </li>
+
+        <!-- Three sites in three disjoint distance bands, so the tile
+             searches (which all run before any site spawns) can never
+             land two keepings on the same tile. -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetPartySiteTile">
+          <storeAs>siteTile</storeAs>
+          <minDist>2</minDist>
+          <maxDist>4</maxDist>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_RegaliaTower</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetPartySiteTile">
+          <storeAs>siteTile</storeAs>
+          <minDist>5</minDist>
+          <maxDist>7</maxDist>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_RegaliaChantry</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <li Class="TheShatteredCrown.QuestNode_TSC_GetPartySiteTile">
+          <storeAs>siteTile</storeAs>
+          <minDist>8</minDist>
+          <maxDist>10</maxDist>
+        </li>
+        <li Class="QuestNode_GetSitePartDefsByTagsAndFaction">
+          <storeAs>sitePartDefs</storeAs>
+          <storeFactionAs>siteFaction</storeFactionAs>
+          <sitePartsTags>
+            <li>
+              <tag>TSC_RegaliaHall</tag>
+            </li>
+          </sitePartsTags>
+        </li>
+        <li Class="QuestNode_GetDefaultSitePartsParams">
+          <tile>$siteTile</tile>
+          <faction>$siteFaction</faction>
+          <sitePartDefs>$sitePartDefs</sitePartDefs>
+          <storeSitePartsParamsAs>sitePartsParams</storeSitePartsParamsAs>
+        </li>
+        <li Class="QuestNode_SubScript">
+          <def>Util_GenerateSite</def>
+        </li>
+        <li Class="TheShatteredCrown.QuestNode_TSC_RequireSite" />
+        <li Class="QuestNode_SpawnWorldObjects">
+          <worldObjects>$site</worldObjects>
+        </li>
+
+        <!-- Nested, not parallel: each detection enables when the outer
+             one completes, which turns three independent fetches into
+             one "all three in hand" join. Possession is re-checked on
+             enable, so pickup order does not matter. -->
+        <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+          <item>TSC_KingsRing</item>
+          <node Class="QuestNode_Sequence">
+            <nodes>
+              <li Class="QuestNode_Letter">
+                <letterDef>NeutralEvent</letterDef>
+                <label TKey="LetterLabelRegaliaRing">The ring</label>
+                <text TKey="LetterTextRegaliaRing">The first king's ring is in the company's keeping - and the moment it came off the tower stones, every shard in the party's packs went warm at once, the way they have not done since the barrow's door.</text>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
+                <flag>TSC_RingTaken</flag>
+              </li>
+              <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+                <item>TSC_KingsAmulet</item>
+                <node Class="QuestNode_Sequence">
+                  <nodes>
+                    <li Class="QuestNode_Letter">
+                      <letterDef>NeutralEvent</letterDef>
+                      <label TKey="LetterLabelRegaliaAmulet">The amulet</label>
+                      <text TKey="LetterTextRegaliaAmulet">The first king's amulet is in the company's keeping. Held to the ear it keeps time, patiently, like something that has been counting for a very long while and is nearly done.</text>
+                    </li>
+                    <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
+                      <flag>TSC_AmuletTaken</flag>
+                    </li>
+                    <li Class="TheShatteredCrown.QuestNode_TSC_DetectItem">
+                      <item>TSC_KingsStaff</item>
+                      <node Class="QuestNode_Sequence">
+                        <nodes>
+                          <li Class="QuestNode_Letter">
+                            <letterDef>PositiveEvent</letterDef>
+                            <label TKey="LetterLabelRegaliaDone">The regalia, gathered</label>
+                            <text TKey="LetterTextRegaliaDone">Ring, amulet, staff: everything the king's undeath was built to run on, together for the first time since his funeral.\n\nCarried side by side they have begun answering each other, a low three-part note that nobody in the company can quite stop hearing. The shards have gone silent altogether.\n\nTake the regalia down the stone throat and lay it on the sarcophagus.</text>
+                          </li>
+                          <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
+                            <flag>TSC_StaffTaken</flag>
+                          </li>
+                          <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
+                            <flag>TSC_RegaliaGathered</flag>
+                          </li>
+                          <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
+                            <xp>600</xp>
+                          </li>
+                          <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
+                            <questDef>TSC_Act5_Crown</questDef>
+                          </li>
+                          <li Class="QuestNode_End">
+                            <outcome>Success</outcome>
+                          </li>
+                        </nodes>
+                      </node>
+                    </li>
+                  </nodes>
+                </node>
               </li>
             </nodes>
           </node>
@@ -170,7 +345,7 @@
     </questNameRules>
     <questDescriptionRules>
       <rulesStrings>
-        <li>questDescription->Down the stone throat: five chambers with five roads cut into their walls, a throne room at the bottom, and the men who were left to guard it still standing at their post.\n\nRead the roads. Answer the Honor Guard, one way or the other. Open the sarcophagus, and decide what happens to the thing five riders died carrying.\n\nWhatever is chosen down there is the end of it.</li>
+        <li>questDescription->Down the stone throat: five chambers with five roads cut into their walls, a throne room at the bottom, and the men who were left to guard it still standing at their post.\n\nAnswer the Honor Guard, one way or the other. Lay the ring, the amulet and the staff on the sarcophagus, and wake the one hand the warded pieces will still answer to. Then decide what happens to the thing five riders died carrying.\n\nWhatever is chosen down there is the end of it.</li>
       </rulesStrings>
     </questDescriptionRules>
     <root Class="QuestNode_Sequence">

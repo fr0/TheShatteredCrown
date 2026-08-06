@@ -1,0 +1,52 @@
+# The fifth road panel (TSC_Road_Last check spot, Perception 14). The
+# unfinished road. Two readings: before the courier's handover the man
+# is still walking overhead; after it, the road has ended and the stone
+# is owed its last chisel strokes.
+
+dialogue TSC_Dialogue_RoadLast
+
+entry stopped if flag(TSC_MetCourier)
+
+== stopped ==
+The fifth panel is the plainest of the five, and the sharpest eye in the company is the one that sees why: it is not plain. It is unfinished. The rider is carved walking, not riding, and the road under his feet simply stops where the chisel marks stop.
+
+Sixteen centuries this wall has waited for its last strokes.
+
+* [Look closer at the walker.] -> walker_stopped
+
+== walker_stopped ==
+The walker's face is worn past reading, but his shoulders are not: they are carved carrying something small, held to the chest with both hands, as if it were the last thing he owned.
+
+He stopped, on the turf overhead, and handed it to the party, and sat down facing the way he came.
+
+The road on this stone has an end now. The stone just has not been told.
+
+* "Somebody should finish the carving." -> finish
+
+== finish ==
+Perhaps somebody will. Four bars of a song and a foot of chiselwork, both waiting on the same event, both owed to men who carried further than anyone should be asked to.
+
+Whatever the company does at the bottom of this barrow is the last stroke.
+
+* [Move on.] -> end
+
+== start ==
+The fifth panel is the plainest of the five, and the sharpest eye in the company is the one that sees why: it is not plain. It is unfinished. The rider is carved walking, not riding, and the road under his feet simply stops where the chisel marks stop.
+
+The other four roads were cut whole, eight hundred years before their riders ever left, and every one of them came true. This one the carver left open on purpose.
+
+* [Look closer at the walker.] -> walker
+
+== walker ==
+The walker's face is worn past reading, but his shoulders are not: they are carved carrying something small, held to the chest with both hands, as if it were the last thing he owned.
+
+He is not history. He is somewhere out there right now, still walking, and this stone is waiting to find out how he ends before it commits to an ending.
+
+* "Then the fifth road is not finished." -> open
+
+== open ==
+Not finished, and not abandoned: the chisel marks stop mid-stroke, tools-down. Work interrupted, not ended, by an answer that had not arrived yet.
+
+Whatever the company does with what it is carrying, this wall intends to be right about it.
+
+* [Move on.] -> end

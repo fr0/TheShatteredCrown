@@ -2,13 +2,15 @@
 <Defs>
 
   <!-- ================================================================
-       Act 5's finale: inside the Barrow of the First King.
+       Act 5's finale: inside the Barrow of Kings.
 
-       The shape is NOT a corridor with a boss at the end. Five chambers
-       retell the five couriers' roads (one proficiency each, the payoff
-       for four acts of collected knowledge); the crown starts bargaining
-       on the descent; the Honor Guard challenges rather than charges;
-       and the sarcophagus offers a CHOICE, not a pickup.
+       The shape is a PROCESSION: one long hall from the stair to the
+       throne room, the five road panels in wall niches along it (one
+       proficiency each, the payoff for four acts of collected
+       knowledge), and nothing hostile before the chamber door. The
+       crown starts bargaining on the descent; the Honor Guard
+       challenges rather than charges; the sarcophagus offers a CHOICE,
+       not a pickup.
        ================================================================ -->
 
   <!-- The mound's stone throat, on the surface site. -->
@@ -56,7 +58,7 @@
   </ThingDef>
 
   <!-- The mound the arrival letter describes: a long green barrow with a
-       granite kerb, and the throat set in its east end facing sunrise. -->
+       granite curb, and the throat set in its east end facing sunrise. -->
   <GenStepDef>
     <defName>TSC_FirstKingBarrow_Mound</defName>
     <linkWithSite>TSC_FirstKingBarrow</linkWithSite>
@@ -72,7 +74,7 @@
 
   <MapGeneratorDef ParentName="TSC_CellarLevelBase">
     <defName>TSC_KingsBarrow_Interior</defName>
-    <label>the King's Barrow</label>
+    <label>the Barrow of Kings</label>
     <genSteps>
       <li>ElevationFertility</li>
       <li>MutatorPostElevationFertility</li>
@@ -80,7 +82,10 @@
       <li>Terrain</li>
       <li>MutatorPostTerrain</li>
       <li>RockChunks</li>
-      <li>PlaceCaveExit</li>
+      <!-- NO PlaceCaveExit: that vanilla genstep ignores the portal's
+           exitDef and spawns a hardcoded CaveExit at a random cell,
+           which put a second, stray way up in a side cave. The hall
+           genstep spawns the real TSC_StairsUp at the hall's head. -->
       <li>TSC_KingsBarrowLevel</li>
       <li>TSC_KingsBarrowThrone</li>
       <li>MutatorFinal</li>
@@ -88,25 +93,13 @@
     </genSteps>
   </MapGeneratorDef>
 
+  <!-- One long hall, stair to king: the five road panels stand in wall
+       niches down its length (the genstep places them, dust line first),
+       and nothing hostile spawns before the throne room's door. -->
   <GenStepDef>
     <defName>TSC_KingsBarrowLevel</defName>
     <order>551</order>
-    <genStep Class="TheShatteredCrown.GenStep_TSC_CellarLevel">
-      <level>1</level>
-      <layoutDef>TSC_Catacombs</layoutDef>
-      <size>46</size>
-      <!-- Nothing squats in a king's grave. The barrow's danger is the
-           Honor Guard, and only if the company earns it. -->
-      <maxDormantPacks>0</maxDormantPacks>
-      <spots>
-        <li>TSC_Road_Grave</li>
-        <li>TSC_Road_Reliquary</li>
-        <li>TSC_Road_Hoard</li>
-        <li>TSC_Road_Quiet</li>
-        <li>TSC_Road_Last</li>
-        <li>TSC_Spot_DustLine</li>
-      </spots>
-    </genStep>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_KingsHall" />
   </GenStepDef>
 
   <GenStepDef>
@@ -119,6 +112,21 @@
       <guards>5~5</guards>
     </genStep>
   </GenStepDef>
+
+  <!-- The king's door: the throne room's threshold, sealed until the
+       regalia is carried. Walking up to it fires the sealers' riddle
+       (TSC_Dialogue_KingsDoor), which is what grants the regalia quest:
+       the mound names its own price, at its own door. -->
+  <ThingDef ParentName="Door">
+    <defName>TSC_KingsDoor</defName>
+    <label>the king's door</label>
+    <description>A door of dressed stone with no bar and no seam wide enough for a knife. Three shallow indentations are set into its face - a circle, a disc, a crescent - and above them, in deep-cut lines, the sealers left their riddle. It was not made to be forced. It was made to be answered.</description>
+    <thingClass>TheShatteredCrown.Building_TSC_KingsDoor</thingClass>
+    <designationCategory Inherit="False" />
+    <statBases>
+      <MaxHitPoints>600</MaxHitPoints>
+    </statBases>
+  </ThingDef>
 
   <!-- ============================================ the five roads -->
 
@@ -151,18 +159,20 @@
   <ThingDef ParentName="TSC_RoadStoneBase">
     <defName>TSC_Road_Grave</defName>
     <label>the first road</label>
-    <description>A carved panel in a side chamber: five riders leaving a burning hall, each on a different road. This one runs north, into hill country.</description>
+    <description>A carved panel in a wall niche: five riders leaving a burning hall, each on a different road. This one runs north, into hill country.</description>
     <comps>
       <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
         <approaches>
           <li>
             <proficiency>TSC_Prof_Lore</proficiency>
-            <dc>14</dc>
+            <dc>12</dc>
+            <noScaling>true</noScaling>
             <label>Read the first road</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
             <successFlag>TSC_Road_Grave</successFlag>
-            <successMessage>The north road, cut in stone: a rider carrying a wrapped thing to a hill grave, and laid in it himself when the carrying was done. The party has already stood in that grave and taken what he was guarding. The chisel work is sixteen centuries old - these panels were cut eight hundred years before the hall they show ever burned, by whatever made the thing in the hill. Somebody knew how it would end before it began.</successMessage>
+            <successDialogue>TSC_Dialogue_RoadGrave</successDialogue>
+            <successMessage>The first road opens under the lamp: the rider who dug a grave and lay down in it.</successMessage>
             <failMessage>The panel is worn past reading in this light.</failMessage>
           </li>
         </approaches>
@@ -179,12 +189,14 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Arcana</proficiency>
-            <dc>14</dc>
+            <dc>12</dc>
+            <noScaling>true</noScaling>
             <label>Read the second road</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
             <successFlag>TSC_Road_Reliquary</successFlag>
-            <successMessage>The road under the city: a piece carried down into the dark and left with a man told to sing until somebody came back for it. The carving shows the singer with his mouth open. It also shows how long he was meant to keep it, and the number is not a number a man can hold. They knew that too.</successMessage>
+            <successDialogue>TSC_Dialogue_RoadReliquary</successDialogue>
+            <successMessage>The sigils resolve: the road under the city, and the singer at the bottom of it.</successMessage>
             <failMessage>The sigils along the panel refuse to resolve.</failMessage>
           </li>
         </approaches>
@@ -201,12 +213,14 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Investigation</proficiency>
-            <dc>14</dc>
+            <dc>12</dc>
+            <noScaling>true</noScaling>
             <label>Read the third road</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
             <successFlag>TSC_Road_Hoard</successFlag>
-            <successMessage>The third rider is shown handing his piece to nobody: he is robbed on the road, and the panel follows the piece instead of the man, hand to hand to hand, down to a figure sitting on a heap with a sword across his knees. The Baron is on this wall. He has been on this wall for sixteen centuries, waiting for the party to catch up.</successMessage>
+            <successDialogue>TSC_Dialogue_RoadHoard</successDialogue>
+            <successMessage>The sequence comes clear: follow the piece, not the man.</successMessage>
             <failMessage>The lower panels are cracked through and the sequence breaks.</failMessage>
           </li>
         </approaches>
@@ -223,12 +237,14 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Insight</proficiency>
-            <dc>14</dc>
+            <dc>12</dc>
+            <noScaling>true</noScaling>
             <label>Read the fourth road</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>40</successXp>
             <successFlag>TSC_Road_Quiet</successFlag>
-            <successMessage>The fourth rider reaches a house with a bell tower and dies at its gate. What the carver put underneath is the part that stops the breath: the house, with its gate barred and its bell rope cut, and the brothers going into their niches in order. It is not a prophecy. It is an instruction, and the Quiet Brothers followed it eight centuries later without ever seeing this wall.</successMessage>
+            <successDialogue>TSC_Dialogue_RoadQuiet</successDialogue>
+            <successMessage>The winter road reads at last, and the part underneath is not a prophecy. It is an instruction.</successMessage>
             <failMessage>Frost damage has taken the lower half of the panel.</failMessage>
           </li>
         </approaches>
@@ -245,12 +261,14 @@
         <approaches>
           <li>
             <proficiency>TSC_Prof_Perception</proficiency>
-            <dc>14</dc>
+            <dc>12</dc>
+            <noScaling>true</noScaling>
             <label>Read the fifth road</label>
             <failAllowsRetry>true</failAllowsRetry>
             <successXp>50</successXp>
             <successFlag>TSC_Road_Last</successFlag>
-            <successMessage>The fifth rider is carved walking, not riding, and the road under him has no end because the carver left it unfinished on purpose: the chisel marks simply stop. The other four panels were cut sixteen centuries ago, eight hundred years before their riders ever left, and every one of them came true. This one is still waiting for its ending, and the man it is about is somewhere overhead, still walking.</successMessage>
+            <successDialogue>TSC_Dialogue_RoadLast</successDialogue>
+            <successMessage>The fifth panel is not plain. It is unfinished, on purpose.</successMessage>
             <failMessage>The panel is the plainest of the five, and gives up nothing.</failMessage>
           </li>
         </approaches>
@@ -369,7 +387,7 @@
   <ThingDef ParentName="ResourceBase">
     <defName>TSC_CrownShard_Road</defName>
     <label>crown shard of the road</label>
-    <description>A broken fifth of a king's crown: a curve of band and two points, worn smooth in places by eight hundred years of one man's hands. It is warm. One of five.\n\nIts gift has not yet spoken.</description>
+    <description>A broken fifth of a king's crown: a curve of band and two points, worn smooth in places by eight hundred years of one man's hands. It is warm. One of five.\n\nIts gift is the road's own. The man who carried it walked eight hundred years without once being allowed to stop, through more than a body can, and settled up at the end. The shard still keeps that bargain for whoever holds it.</description>
     <graphicData>
       <texPath>Things/Item/TSC_CrownShard</texPath>
       <graphicClass>Graphic_Single</graphicClass>
@@ -393,9 +411,80 @@
       <li>Manufactured</li>
     </thingCategories>
     <modExtensions>
-      <li Class="TheShatteredCrown.TSC_ShardAbilityExtension" />
+      <li Class="TheShatteredCrown.TSC_ShardAbilityExtension">
+        <ability>TSC_Ability_ErrandHolds</ability>
+      </li>
     </modExtensions>
   </ThingDef>
+
+  <!-- The fifth shard's power: what it did to its couriers, on loan. One
+       ally becomes unstoppable for a quarter minute - no downing, no
+       stagger, no stun, no death, wounds wait - and when the errand ends
+       the road takes its toll in months of their life, scaled to what
+       they walked through. The player meets the crown's price mechanic
+       here, in miniature, before the sarcophagus asks the big question.
+       Cooldown belongs to the shard (NoteCast), like every shard power.
+       No energy cost: it is not the pawn's magic. -->
+  <AbilityDef ParentName="TSC_AbilityBase">
+    <defName>TSC_Ability_ErrandHolds</defName>
+    <label>the errand holds</label>
+    <description>Lay the shard's warrant on one of the company. For a quarter of a minute the road carries them the way it carried its courier: they cannot be knocked down, staggered, stunned, or killed, and their wounds wait until the errand is done.\n\nThen the road settles up. The bearer ages a month for every ten points of harm they walked through. The shard allows this once in five days; carrying it is the only price.</description>
+    <iconPath>UI/TSC_Abilities/TSC_ErrandHolds</iconPath>
+    <cooldownTicksRange>300000</cooldownTicksRange>
+    <stunTargetWhileCasting>false</stunTargetWhileCasting>
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
+    <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
+    <verbProperties>
+      <warmupTime>1</warmupTime>
+      <range>6.9</range>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+        <canTargetPawns>true</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_ErrandHolds">
+        <hediff>TSC_Hediff_ErrandHolds</hediff>
+      </li>
+      <li Class="TheShatteredCrown.CompProperties_TSC_Vfx">
+        <color>(1, 0.85, 0.5)</color>
+        <scale>1.4</scale>
+      </li>
+    </comps>
+  </AbilityDef>
+
+  <HediffDef>
+    <defName>TSC_Hediff_ErrandHolds</defName>
+    <hediffClass>TheShatteredCrown.Hediff_TSC_ErrandHolds</hediffClass>
+    <label>the errand holds</label>
+    <description>The road shard's warrant. This one cannot be knocked down, staggered, stunned, or killed while it lasts, and their wounds wait. When it ends, the road takes its toll: a month of life for every ten points of harm walked through.</description>
+    <defaultLabelColor>(1, 0.85, 0.5)</defaultLabelColor>
+    <isBad>false</isBad>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <initialSeverity>1</initialSeverity>
+    <maxSeverity>1</maxSeverity>
+    <stages>
+      <li>
+        <label>held</label>
+        <painFactor>0</painFactor>
+        <totalBleedFactor>0</totalBleedFactor>
+      </li>
+    </stages>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>900</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="TheShatteredCrown.HediffCompProperties_TSC_OngoingVfx">
+        <fleck>MicroSparks</fleck>
+        <color>(1, 0.85, 0.5)</color>
+        <scale>0.6</scale>
+        <interval>40</interval>
+        <scatter>0.45</scatter>
+      </li>
+    </comps>
+  </HediffDef>
 
   <!-- Whole. The campaign's last object, and only two endings produce it.
 

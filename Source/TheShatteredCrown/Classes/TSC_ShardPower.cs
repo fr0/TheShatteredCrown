@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -213,10 +214,38 @@ namespace TheShatteredCrown
             pawn.jobs?.StopAll();
             if (pawn.Spawned && pawn.Faction != null && pawn.Faction.HostileTo(Faction.OfPlayer))
             {
-                // Back to being a problem, with a lord to organize it.
-                LordMaker.MakeNewLord(pawn.Faction,
-                    new LordJob_AssaultColony(pawn.Faction, canKidnap: false, canTimeoutOrFlee: true),
-                    pawn.Map, new List<Pawn> { pawn });
+                // Back to being a problem - and back to the RIGHT problem.
+                // Handing every released pawn a fresh default assault lord
+                // quietly re-armed the doors the scripted fights had shut:
+                // canSteal defaults TRUE, so commanding one of the eleven
+                // risen kings and letting the loan lapse put the whole
+                // group on "decided to steal what they can and leave"
+                // (seen live). Rejoin the group's own lord when one exists;
+                // only a pawn with no group left gets a new one, and that
+                // one is built shut.
+                Lord rejoin = null;
+                List<Lord> lords = pawn.Map.lordManager.lords;
+                for (int i = 0; i < lords.Count; i++)
+                {
+                    if (lords[i].faction == pawn.Faction && lords[i].ownedPawns.Count > 0
+                        && lords[i].ownedPawns[0] != pawn)
+                    {
+                        rejoin = lords[i];
+                        break;
+                    }
+                }
+                if (rejoin != null)
+                {
+                    rejoin.AddPawn(pawn);
+                }
+                else
+                {
+                    LordMaker.MakeNewLord(pawn.Faction,
+                        new LordJob_AssaultColony(pawn.Faction, canKidnap: false,
+                            canTimeoutOrFlee: false, sappers: false, useAvoidGridSmart: false,
+                            canSteal: false),
+                        pawn.Map, new List<Pawn> { pawn });
+                }
             }
             if (announce && pawn.Spawned)
             {
@@ -1267,6 +1296,190 @@ namespace TheShatteredCrown
                 }
             }
             TSC_ShardTracker.Current?.NoteCast(parent.def);
+        }
+    }
+
+    // ---------------------------------------------------------------- the errand holds
+
+    public class CompProperties_TSC_ErrandHolds : CompProperties_AbilityEffect
+    {
+        public HediffDef hediff;
+
+        public CompProperties_TSC_ErrandHolds()
+        {
+            compClass = typeof(CompAbilityEffect_TSC_ErrandHolds);
+        }
+    }
+
+    /// <summary>
+    /// The fifth shard's power: what the road did to its couriers, on loan.
+    /// The warrant is the hediff; four small patches below make it mean what
+    /// it says (no downing, no stagger, no stun, no death), and the hediff's
+    /// own removal charges the toll. The player meets the crown's economy
+    /// here in miniature - power now, paid in years - one act before the
+    /// sarcophagus asks whether they want the full subscription.
+    /// </summary>
+    public class CompAbilityEffect_TSC_ErrandHolds : CompAbilityEffect
+    {
+        public new CompProperties_TSC_ErrandHolds Props => (CompProperties_TSC_ErrandHolds)props;
+
+        public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
+        {
+            base.Apply(target, dest);
+            if (!(target.Thing is Pawn pawn) || Props.hediff == null)
+            {
+                return;
+            }
+            if (pawn.health.hediffSet.GetFirstHediffOfDef(Props.hediff) == null)
+            {
+                pawn.health.AddHediff(HediffMaker.MakeHediff(Props.hediff, pawn));
+            }
+            Messages.Message($"The road takes {pawn.LabelShortCap} up. Until the errand ends, nothing stops them.",
+                pawn, MessageTypeDefOf.PositiveEvent, historical: false);
+            TSC_ShardTracker.Current?.NoteCast(parent.def);
+        }
+
+        public override bool Valid(LocalTargetInfo target, bool throwMessages = false)
+        {
+            if (!(target.Thing is Pawn pawn) || pawn.Faction != Faction.OfPlayer || pawn.Dead)
+            {
+                if (throwMessages)
+                {
+                    Messages.Message("The road only carries its own.", MessageTypeDefOf.RejectInput, historical: false);
+                }
+                return false;
+            }
+            return base.Valid(target, throwMessages);
+        }
+    }
+
+    /// <summary>
+    /// The warrant itself. Damage endured while it holds is tallied by the
+    /// TakeDamage postfix below, and the toll is charged at REMOVAL - which
+    /// covers every way the hediff can end: the timer, the lethal-blow
+    /// conversion in the Kill patch, or anything else that strips it. A
+    /// month of life per ten points of harm, capped at five years so a
+    /// dev-mode meteor cannot delete an adventurer's whole middle age.
+    /// </summary>
+    public class Hediff_TSC_ErrandHolds : HediffWithComps
+    {
+        public float damageEndured;
+
+        private const float DamagePerMonth = 10f;
+        private const int MaxMonths = 60;
+
+        public override void PostRemoved()
+        {
+            base.PostRemoved();
+            if (pawn == null || pawn.Dead)
+            {
+                return;
+            }
+            int months = Mathf.Min(MaxMonths, Mathf.FloorToInt(damageEndured / DamagePerMonth));
+            if (months <= 0)
+            {
+                return; // the road asks nothing for a walk it did not have to carry
+            }
+            pawn.ageTracker.AgeBiologicalTicks += months * (GenDate.TicksPerYear / 12L);
+            Messages.Message($"The errand ends, and the road settles up: {pawn.LabelShortCap} pays "
+                + (months == 1 ? "a month" : $"{months} months") + " of life for the harm walked through.",
+                pawn, MessageTypeDefOf.NegativeEvent, historical: false);
+        }
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look(ref damageEndured, "damageEndured");
+        }
+    }
+
+    public static class TSC_ErrandHolds
+    {
+        private static HediffDef cachedDef;
+
+        public static HediffDef Def =>
+            cachedDef ?? (cachedDef = DefDatabase<HediffDef>.GetNamedSilentFail("TSC_Hediff_ErrandHolds"));
+
+        public static Hediff_TSC_ErrandHolds On(Pawn pawn) =>
+            Def == null ? null
+                : pawn?.health?.hediffSet?.GetFirstHediffOfDef(Def) as Hediff_TSC_ErrandHolds;
+    }
+
+    /// <summary>Cannot be knocked down: pain, blood loss and broken legs all wait for the errand's end.</summary>
+    [HarmonyPatch(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.ShouldBeDowned))]
+    public static class Patch_ShouldBeDowned_ErrandHolds
+    {
+        public static void Postfix(Pawn ___pawn, ref bool __result)
+        {
+            if (__result && TSC_ErrandHolds.On(___pawn) != null)
+            {
+                __result = false;
+            }
+        }
+    }
+
+    /// <summary>Cannot be staggered: a hit does not so much as slow the walk.</summary>
+    [HarmonyPatch(typeof(Pawn_StanceTracker), nameof(Pawn_StanceTracker.StaggerFor))]
+    public static class Patch_StaggerFor_ErrandHolds
+    {
+        public static bool Prefix(Pawn_StanceTracker __instance)
+        {
+            return TSC_ErrandHolds.On(__instance.pawn) == null;
+        }
+    }
+
+    /// <summary>Cannot be stunned, by weapon, spell, or anything else.</summary>
+    [HarmonyPatch(typeof(StunHandler), nameof(StunHandler.StunFor))]
+    public static class Patch_StunFor_ErrandHolds
+    {
+        public static bool Prefix(StunHandler __instance)
+        {
+            return !(__instance.parent is Pawn pawn) || TSC_ErrandHolds.On(pawn) == null;
+        }
+    }
+
+    /// <summary>
+    /// Cannot be killed: a lethal blow ends the ERRAND instead. The warrant
+    /// comes off first - so the toll for everything endured is charged,
+    /// aging included - and then the bearer drops where they stand, downed,
+    /// alive, done. "They finish the errand, and then they fall."
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
+    public static class Patch_Pawn_Kill_ErrandHolds
+    {
+        public static bool Prefix(Pawn __instance)
+        {
+            Hediff_TSC_ErrandHolds errand = TSC_ErrandHolds.On(__instance);
+            if (errand == null)
+            {
+                return true;
+            }
+            __instance.health.RemoveHediff(errand);
+            if (!__instance.Downed)
+            {
+                HealthUtility.DamageUntilDowned(__instance, allowBleedingWounds: false);
+            }
+            Messages.Message($"{__instance.LabelShortCap} takes a killing blow and finishes the errand standing. Then they fall.",
+                __instance, MessageTypeDefOf.NegativeEvent, historical: false);
+            return false;
+        }
+    }
+
+    /// <summary>The tally the toll is charged against: everything that got through while the warrant held.</summary>
+    [HarmonyPatch(typeof(Thing), nameof(Thing.TakeDamage))]
+    public static class Patch_TakeDamage_ErrandHolds
+    {
+        public static void Postfix(Thing __instance, DamageWorker.DamageResult __result)
+        {
+            if (__result == null || __result.totalDamageDealt <= 0f || !(__instance is Pawn pawn))
+            {
+                return;
+            }
+            Hediff_TSC_ErrandHolds errand = TSC_ErrandHolds.On(pawn);
+            if (errand != null)
+            {
+                errand.damageEndured += __result.totalDamageDealt;
+            }
         }
     }
 }

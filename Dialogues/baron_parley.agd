@@ -12,7 +12,7 @@
 dialogue TSC_Dialogue_BaronParley
 
 == start ==
-The Baron does not stand. He sits above the hoard on a camp chair worn to the shape of him, sword flat across his knees: a big man gone grey at the temples, in plate he wears as easily as a shirt. He watches {PLAYER} pick a path through his gold with the expression of a man checking a bill he already knows the total of.
+The Baron does not stand. He sits above the hoard on a camp chair worn to the shape of him, sword flat across his knees: a big man gone gray at the temples, in plate he wears as easily as a shirt. He watches {PLAYER} pick a path through his gold with the expression of a man checking a bill he already knows the total of.
 
 "Five years," he says. "Five years I flew banners in these hills. Hanged thieves. Kept the roads. More than any crown ever did for this country, and what does this country send me... what are you, exactly. Adventurers."
 
@@ -23,7 +23,9 @@ The Baron does not stand. He sits above the hoard on a camp chair worn to the sh
 == thieves ==
 He laughs once, without much in it.
 
-"Aye. And a king is a bandit whose grandfather won. I have read a book, whatever they sing of me." He rolls his shoulders, and the grey plate moves with him like cloth and makes no sound at all, which plate has no business doing. "I took this keep off men worse than me. Ask Thornden whether the tithe was smaller under the old lord. Ask them which of us rode down their sons for sport."
+"Aye. I hanged two of my own last spring for robbing a grain cart on the Thornden road." He says it without weight, the way a man reports the weather. "Thieves hanging thieves. The carts kept running. That is the whole of my philosophy, whatever they sing of me."
+
+He rolls his shoulders, and the gray plate moves with him like cloth and makes no sound at all, which plate has no business doing. "I took this keep off men worse than me. Ask Thornden whether the tithe was smaller under the old lord. Ask them which of us rode down their sons for sport."
 
 The eyes are tired and perfectly steady.
 
@@ -43,7 +45,7 @@ He leans forward.
 == shard ==
 For the first time something moves behind his face that is not pre-calculated.
 
-"So that's what it is." Quiet, almost to himself. "There is a thing in that pile I do not sell. Tried twice. Both buyers died on the road, and both times the thing came back with the men I sent after it. It hums, some nights. My dreams have run cold for five years, and I have slept worse every year I owned more gold."
+"So that's what it is." Quiet, almost to himself. "There is a thing in that pile I could not sell. Tried twice. Both buyers died on the road, and both times the thing came back with the men I sent after it. It hums, some nights. My dreams have run cold for five years, and I have slept worse every year I owned more gold."
 
 A hand goes to his breastplate, unconscious as a tic.
 
@@ -51,7 +53,7 @@ A hand goes to his breastplate, unconscious as a tic.
 
 He stands at last, and the sword comes up with him, and his voice comes back to full parade volume.
 
-"Take the cursed thing. That piece you would not have to kill me for. But the rest is my men's blood and my five years, and that you will pay for properly."
+"Take the cursed thing. That piece you would not have to kill me for. But the rest is my men's blood and my five years, and *that* you will pay for properly."
 
 * [Read the man before the blades come out.] -> resolve
     check Insight 7 -> afraid | resolve

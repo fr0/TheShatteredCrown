@@ -11,7 +11,7 @@ entry rested if flag(TSC_CantorRested)
 == start ==
 The reliquary is a white stone room with five sockets cut into the altar and one thing in it that is not stone.
 
-He is very old, and the word does not do the work: he is old the way the walls are old.
+He is very old, and the word does not do justice: he is old the way the walls are old.
 
 His hands are folded, and his eyes are open. And he is singing, quietly, in the meter you have been hearing in taverns and on the road and in your sleep since a bard in a distant city put it in your head.
 
@@ -142,6 +142,6 @@ He rises, and the blade he draws is not for show. He has kept this post, alone, 
 * [Step back.] -> end
 
 == rested ==
-Grey vestments on white stone, and the room finally quiet.
+Gray vestments on white stone, and the room finally quiet.
 
 * [Go.] -> end

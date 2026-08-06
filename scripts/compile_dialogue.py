@@ -263,6 +263,10 @@ def parse_effects(expr: str, path, lineno) -> list:
             effects.append(Effect("DialogueEffect_TSC_GuardYield", {}))
         elif name == "crown_ending":
             effects.append(Effect("DialogueEffect_TSC_CrownEnding", {"kind": arg}))
+        elif name == "begin_unmaking":
+            # The fifth ending's fight: breach the making room, raise the
+            # eleven, and let the crown spend everything (TSC_Unmaking.cs).
+            effects.append(Effect("DialogueEffect_TSC_BeginUnmaking", {}))
         elif name == "demoralize":
             # Every hostile humanlike on the map takes Shaken (the Baron
             # parley's Persuasion payoff).
@@ -276,6 +280,15 @@ def parse_effects(expr: str, path, lineno) -> list:
         elif name == "npc_leave":
             # The npc walks off the map for good ("let him walk").
             effects.append(Effect("DialogueEffect_TSC_NpcLeave", {}))
+        elif name == "calm_beasts":
+            # Every manhunting animal on the interactor's map goes back to
+            # being an animal (the warg den, baited off the bride's tower).
+            effects.append(Effect("DialogueEffect_TSC_CalmBeasts", {}))
+        elif name == "ambush_caravan":
+            # The interactor's caravan is ambushed NOW (the regalia road
+            # riders making good on the threat). Period filter recasts the
+            # attackers medieval like any other road event.
+            effects.append(Effect("DialogueEffect_TSC_CaravanAmbush", {}))
         elif name == "npc_hostile":
             # The npc turns on the party; optional arg = a HediffDef applied
             # first (npc_hostile(TSC_Hediff_ElderBlood) for boss fights).

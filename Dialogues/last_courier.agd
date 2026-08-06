@@ -11,13 +11,13 @@
 dialogue TSC_Dialogue_LastCourier
 
 == start ==
-He comes up the last of the slope while the company is still looking at the stone throat. He does not hurry. Hurrying stopped meaning anything to him a long time ago.
+He comes up the last of the slope while the company is still looking at the stone throat. He does not hurry.
 
 A courier's satchel, worn through and mended and worn through again. A road warrant from a chancery that has not existed in eight centuries. Boots that have been resoled by people whose grandchildren are dust.
 
 He stops when he sees the mound. Actually stops, mid-step, like a man walking into a wall of water.
 
-"Oh," he says. "It IS here. I did wonder."
+"Oh," he says. "It *is* here. I did wonder."
 
 * "Who are you?" -> who
 * "You are the fifth rider." -> who
@@ -35,7 +35,7 @@ The satchel is eight hundred years old and mended a hundred times. The boots are
 
 And his hands are wrong. Not old: *worn*. The calluses of a man who has gripped the same strap for longer than calluses last, laid over each other until the skin gave up and became leather.
 
-Whatever he is, he did not get that way in a lifetime, and he is not pretending.
+Whatever he is, he did not get that way in a single lifetime.
 
 * "Who are you?" -> who
 * "You are the fifth rider." -> who
@@ -48,7 +48,7 @@ He notices, and the noticing makes him laugh: one dry sound with no cruelty in i
 * "Who are you?" -> who
 
 == who ==
-"Aled. Courier of the crown of Aldruin, fifth road, eight hundred and eleven years out from a gate that is not there any more." He says the whole title without any pride at all, the way a man recites an address he has said too many times at too many doors.
+"Aled. Courier of the crown of Aldruin, eight hundred and eleven years out from a gate that is not there any more." He says the whole title without any pride at all, flat and steady.
 
 "They gave five of us a piece each and five directions. The other four had the good luck to stop. Even the one the road killed got to stop."
 

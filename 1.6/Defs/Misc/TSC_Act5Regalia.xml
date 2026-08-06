@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- ================================================================
+       Act 5, the middle it did not have: the king's regalia.
+
+       The men who broke the crown warded the break - the pieces refuse
+       each other, and no living hand joins them. The only hand they
+       answer to is the one they were cut from, and waking THAT requires
+       the three things his undeath runs on: his ring, his amulet, his
+       staff, divided three ways when the barrow was sealed so that no
+       one place held the waking of him.
+
+       Three sites near the barrow, one piece each. The sarcophagus
+       (TSC_BarrowAct.cs) refuses to open until all three are in the
+       party's hands, and takes them when it does.
+       ================================================================ -->
+
+  <!-- ============================================ the three pieces -->
+  <!-- All three: tradeability None, the same "the world does not deal
+       in this" flag the Kingsblade carries. It keeps them out of the
+       enchanter's loot rolls, out of shops, and off the sweep. Fire
+       cannot eat them and weather cannot rot them: a required story
+       item that can burn is a campaign that can softlock. -->
+
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_KingsRing</defName>
+    <label>the first king's ring</label>
+    <description>A gold band too heavy for comfort, set with a stone the color of dried blood. It was on his hand for every oath he ever took, and it went home with his bride from his funeral, and stayed on her hilltop long after her house did not.\n\nIt is warm. It has been in a ruin for nine hundred years, and it is warm.</description>
+    <graphicData>
+      <texPath>Things/Item/TSC_KingsRing</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <stackLimit>1</stackLimit>
+    <tradeability>None</tradeability>
+    <statBases>
+      <MaxHitPoints>250</MaxHitPoints>
+      <Mass>0.3</Mass>
+      <MarketValue>800</MarketValue>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+  </ThingDef>
+
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_KingsAmulet</defName>
+    <label>the first king's amulet</label>
+    <description>A gold medallion on a chain, struck with an eight-rayed sun. The king wore it under his shirt, against the skin, and the priests of the roadside chantry kept it after, because somebody had to and they asked for the duty.\n\nHeld to the ear, very faintly, it keeps time. Nothing in it moves.</description>
+    <graphicData>
+      <texPath>Things/Item/TSC_KingsAmulet</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <stackLimit>1</stackLimit>
+    <tradeability>None</tradeability>
+    <statBases>
+      <MaxHitPoints>250</MaxHitPoints>
+      <Mass>0.5</Mass>
+      <MarketValue>800</MarketValue>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+  </ThingDef>
+
+  <ThingDef ParentName="ResourceBase">
+    <defName>TSC_KingsStaff</defName>
+    <label>the first king's staff</label>
+    <description>Blackthorn shod in gold, headed with an open crescent holding a stone. This is the tool the crown was worked with, in the hill, before the man buried under the mound dug it out - and the warden order carried it from his funeral to the deepest room they had.\n\nThe crescent is the shape the shards keep trying to make. Held near them, they lean.</description>
+    <graphicData>
+      <texPath>Things/Item/TSC_KingsStaff</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <stackLimit>1</stackLimit>
+    <tradeability>None</tradeability>
+    <statBases>
+      <MaxHitPoints>250</MaxHitPoints>
+      <Mass>2</Mass>
+      <MarketValue>800</MarketValue>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0</DeteriorationRate>
+    </statBases>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+  </ThingDef>
+
+  <!-- ============================================ 1. the bride's tower -->
+  <!-- The ring. Beasts have denned in the tower; nothing human has held
+       it for centuries, which is the only reason the ring is still there. -->
+  <SitePartDef>
+    <defName>TSC_RegaliaTower</defName>
+    <label>the bride's tower</label>
+    <description>A watchtower on high ground, older than any of the roads to it. The first king's queen kept a vigil here once, and her house kept his ring after her. The house is long gone. Something with paws has the tower now.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Approach {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>150</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_RegaliaTower</li>
+    </tags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Act5_Regalia</whileQuestActive>
+        <noDetectionRaids>true</noDetectionRaids>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_RegaliaTower_Structure</defName>
+    <linkWithSite>TSC_RegaliaTower</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Watchtower</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_RegaliaTower_Ring</defName>
+    <linkWithSite>TSC_RegaliaTower</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceInStructure">
+      <thingDef>TSC_KingsRing</thingDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_RegaliaTower_Den</defName>
+    <linkWithSite>TSC_RegaliaTower</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <faction>wild</faction>
+      <manhunter>true</manhunter>
+      <kinds>
+        <li>Warg</li>
+      </kinds>
+      <count>3~4</count>
+      <scaledClamp>2~6</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
+  <!-- What Search and a careful eye get: the den can be bought off with a
+       carcass instead of fought (TSC_WargDen -> calm_beasts), and the
+       tower top still holds the vigil chair, which the First King will
+       hear about if somebody reads it right. -->
+  <GenStepDef>
+    <defName>TSC_RegaliaTower_Spots</defName>
+    <linkWithSite>TSC_RegaliaTower</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_WargDen</def><count>1~1</count></li>
+        <li><def>TSC_VigilChair</def><count>1~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The den mouth: the quiet way past the pack. -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_WargDen</defName>
+    <label>warg den mouth</label>
+    <description>Bones, scat, and a floor of old fur where the tower's ground room used to be. The pack dens here, heaped around whatever glitters in the sweepings, and something about the room keeps them close to it.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BeastTracks</texPath>
+      <drawSize>(1.2,1.2)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Nature</proficiency>
+            <dc>9</dc>
+            <label>Read the den</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>40</successXp>
+            <successDialogue>TSC_Dialogue_WargDen</successDialogue>
+            <successMessage>The pack is fed but anxious: they den ON the sweepings and will not range. They are not guarding the tower. They are sitting on something they cannot eat and cannot leave.</successMessage>
+            <failMessage>A den like any den. The way past it is the usual way: over the pack.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- The vigil chair, at the top of the bride's tower. -->
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_VigilChair</defName>
+    <label>rotted chair</label>
+    <description>A chair gone to shape and grain, set at the tower's best window. Somebody sat here long enough to wear the stone floor smooth beneath it.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_WatchPost</texPath>
+      <drawSize>(1.15,1.15)</drawSize>
+      <color>(210,200,185)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Perception</proficiency>
+            <dc>8</dc>
+            <label>Sit where she sat</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>35</successXp>
+            <successFlag>TSC_VigilRead</successFlag>
+            <successDialogue>TSC_Dialogue_VigilChair</successDialogue>
+            <successMessage>The chair faces none of the things a watcher watches.</successMessage>
+            <failMessage>An old chair at a window with a view of everything. Whatever it was set to face, the room is not saying.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>9</dc>
+            <label>Read the room</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>35</successXp>
+            <successFlag>TSC_VigilRead</successFlag>
+            <successDialogue>TSC_Dialogue_VigilChair</successDialogue>
+            <successMessage>A vigil room, kept per the old rite.</successMessage>
+            <failMessage>An old chair, an old window. The furniture of somebody else's patience.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- ============================================ 2. the roadside chantry -->
+  <!-- The amulet. Grave robbers heard the same stories the party did,
+       and got there first. They have not found it yet: that is the
+       hurry, written into the fiction. -->
+  <SitePartDef>
+    <defName>TSC_RegaliaChantry</defName>
+    <label>the roadside chantry</label>
+    <description>A wayhouse of the king's own priests, on the old pilgrim road below the barrow. His amulet was left in their keeping at his funeral. There are fresh boot prints on the pilgrim road, going in, and pick marks on the chantry floor: somebody else has heard what is kept here, and is looking for it right now.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Approach {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>180</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_RegaliaChantry</li>
+    </tags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Act5_Regalia</whileQuestActive>
+        <noDetectionRaids>true</noDetectionRaids>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_RegaliaChantry_Structure</defName>
+    <linkWithSite>TSC_RegaliaChantry</linkWithSite>
+    <order>470</order>
+    <genStep Class="GenStep_AncientRuins">
+      <layoutDef>TSC_Waystation</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The amulet sits in a sealed sanctum cell (order 484: after the
+       robbers spawn, so the walls can never trap a pawn). The seal is
+       the TSC_SealedDoor check spot: it answers skill, not picks, which
+       is why six days of grave robbers got nowhere. -->
+  <GenStepDef>
+    <defName>TSC_RegaliaChantry_Amulet</defName>
+    <linkWithSite>TSC_RegaliaChantry</linkWithSite>
+    <order>484</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_ChantrySanctum" />
+  </GenStepDef>
+
+  <!-- A PARLEY crew, not a garrison: they meet the party at the door with
+       words first (chantry_robbers.agd), and every exit either clears the
+       chantry or starts the fight. The amulet itself stays a floor find
+       inside - they have not got it yet, which is both the hurry and the
+       captain's problem: the thing they are digging for ticks all night. -->
+  <GenStepDef>
+    <defName>TSC_RegaliaChantry_Robbers</defName>
+    <linkWithSite>TSC_RegaliaChantry</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_ChantryRobbers">
+      <count>4~6</count>
+    </genStep>
+  </GenStepDef>
+
+  <!-- ============================================ 3. the wardens' hall -->
+  <!-- The staff. The hall of the men who warded the shards, and the
+       deepest of the three jobs: the undercroft has new tenants with
+       too many legs. -->
+  <SitePartDef>
+    <defName>TSC_RegaliaHall</defName>
+    <label>the wardens' hall</label>
+    <description>The hall of the men who broke the crown and warded the break. Their order kept the king's staff, and their order is eight hundred years gone: the walls stand, the cellars hold, and what lives in the undercroft now was never sworn to anything. The staff will be in the deepest room. It always is.</description>
+    <siteTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</siteTexture>
+    <expandingIconTexture>World/WorldObjects/TSC_Sites/TSC_SiteRuin</expandingIconTexture>
+    <approachOrderString>Approach {0}</approachOrderString>
+    <approachingReportString>Traveling to {0}.</approachingReportString>
+    <arrivedLetterDef>NeutralEvent</arrivedLetterDef>
+    <wantsThreatPoints>true</wantsThreatPoints>
+    <minThreatPoints>200</minThreatPoints>
+    <gravShipsCanLandOn>true</gravShipsCanLandOn>
+    <considerEnteringAsAttack>false</considerEnteringAsAttack>
+    <tags>
+      <li>TSC_RegaliaHall</li>
+    </tags>
+    <modExtensions>
+      <li Class="TheShatteredCrown.TSC_PersistentSiteExtension">
+        <whileQuestActive>TSC_Act5_Regalia</whileQuestActive>
+        <noDetectionRaids>true</noDetectionRaids>
+      </li>
+    </modExtensions>
+  </SitePartDef>
+
+  <GenStepDef>
+    <defName>TSC_RegaliaHall_Structure</defName>
+    <linkWithSite>TSC_RegaliaHall</linkWithSite>
+    <order>470</order>
+    <!-- The Large variant: vanilla's 15-30% ruin fill sometimes has no
+         room for the castle layout's required great hall. -->
+    <genStep Class="TheShatteredCrown.GenStep_TSC_AncientRuinsLarge">
+      <layoutDef>TSC_Castle</layoutDef>
+    </genStep>
+  </GenStepDef>
+
+  <!-- "In the deepest room they had": the staff goes in the room of the
+       castle sketch farthest from the outer walls, asked of the layout
+       itself rather than inferred from the region grid. -->
+  <GenStepDef>
+    <defName>TSC_RegaliaHall_Staff</defName>
+    <linkWithSite>TSC_RegaliaHall</linkWithSite>
+    <order>480</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceInDeepestRoom">
+      <thingDef>TSC_KingsStaff</thingDef>
+    </genStep>
+  </GenStepDef>
+
+  <GenStepDef>
+    <defName>TSC_RegaliaHall_Tenants</defName>
+    <linkWithSite>TSC_RegaliaHall</linkWithSite>
+    <order>483</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_BanditGuards">
+      <faction>insects</faction>
+      <kinds>
+        <li>Megascarab</li>
+        <li>Spelopede</li>
+      </kinds>
+      <count>4~6</count>
+      <scaledClamp>3~8</scaledClamp>
+    </genStep>
+  </GenStepDef>
+
+  <!-- The last warden, at his post, with the confession that waives the
+       ward's fee (TSC_WardKeystone - see MapComponent_TSC_HallWard). -->
+  <GenStepDef>
+    <defName>TSC_RegaliaHall_Spots</defName>
+    <linkWithSite>TSC_RegaliaHall</linkWithSite>
+    <order>485</order>
+    <genStep Class="TheShatteredCrown.GenStep_TSC_PlaceCheckSpots">
+      <spots>
+        <li><def>TSC_WardenConfession</def><count>1~1</count></li>
+      </spots>
+    </genStep>
+  </GenStepDef>
+
+  <ThingDef ParentName="TSC_CheckSpotBase">
+    <defName>TSC_WardenConfession</defName>
+    <label>the last warden's confession</label>
+    <description>A skeleton in the rags of an order's habit, seated against the wall with its back straight, and a wax-boarded book in its lap that the damp never reached. Whoever he was, he died at a post nobody was ever coming to relieve.</description>
+    <graphicData>
+      <graphicClass>Graphic_Single</graphicClass>
+      <texPath>Things/Building/TSC_BanditLedger</texPath>
+      <drawSize>(1.15,1.15)</drawSize>
+      <color>(195,185,170)</color>
+    </graphicData>
+    <comps>
+      <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
+        <approaches>
+          <li>
+            <proficiency>TSC_Prof_Lore</proficiency>
+            <dc>7</dc>
+            <label>Read the confession</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>45</successXp>
+            <successFlag>TSC_WardKeystone</successFlag>
+            <successDialogue>TSC_Dialogue_WardenConfession</successDialogue>
+            <successMessage>The wax boards hold the order's last writing: why they broke the crown, what they set on the pieces, and the word that stands the vault's ward down.</successMessage>
+            <failMessage>An old order's script, abbreviated the way men write when they know their reader. It wants a steadier grounding in the old hands than anyone here has.</failMessage>
+          </li>
+          <li>
+            <proficiency>TSC_Prof_Insight</proficiency>
+            <dc>9</dc>
+            <label>Read the man, then the book</label>
+            <failAllowsRetry>true</failAllowsRetry>
+            <successXp>45</successXp>
+            <successFlag>TSC_WardKeystone</successFlag>
+            <successDialogue>TSC_Dialogue_WardenConfession</successDialogue>
+            <successMessage>He sat down facing the vault, not the door: the book was left FOR whoever came, not against them. Read that way, the abbreviations open up - and so does the word that stands the ward down.</successMessage>
+            <failMessage>A dead man and a book of strokes and dots. It keeps its counsel.</failMessage>
+          </li>
+        </approaches>
+      </li>
+    </comps>
+  </ThingDef>
+
+</Defs>

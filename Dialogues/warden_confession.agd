@@ -1,0 +1,38 @@
+# The wardens' hall: the last warden's wax-boarded book, read at his
+# side (TSC_WardenConfession check spot). The primary source for the
+# whole ward lore - why they broke the crown, what they set on the
+# pieces - and the word that stands the vault's ward down (the check
+# spot sets TSC_WardKeystone; MapComponent_TSC_HallWard honors it).
+
+dialogue TSC_Dialogue_WardenConfession
+
+== start ==
+The wax has kept every stroke. The hand is steady at the start and gets less so, and the entries get shorter as they go, and the last ones are dated by nothing but "later."
+
+_To whoever comes for the staff, at the end. Somebody will. We built all of this knowing somebody would._
+
+* [Read it through.] -> read
+
+== read ==
+_We broke the crown because we could not kill it. Understand that first. Twelve reigns we served it, and it served them, and it ate them, and the twelfth burned her own hall to be free of it, and even in five pieces every piece still WANTS._
+
+_So we warded the break. Each piece set against its brothers, that no living hand might press them whole again. Only the hand they were cut from may join them, and that hand is under the mound, and we have prayed it stays there._
+
+* [Continue.] -> read2
+
+== read2 ==
+_But we were servants, not gods, and we did not dare unmake what we did not understand. If the day comes that the thing MUST be whole - and the abbot argued to my face that such a day can come - then the king must be woken to do it, and his waking wants his ring, his amulet, and this staff, which we hold last because it is worst._
+
+_The ward on the vault is ours and it charges as the crown taught us to charge: in time, off a life. To you at the end, whoever you are: the waiving word is BELOW, and I am sorry for the men who came before you learned it._
+
+Below, in a hand gone very careful, one word in the old tongue.
+
+* [Learn the word.] -> word
+
+== word ==
+It is a small word. It means, as near as the old tongue translates, "relieved" - in the sense of a watch: the thing you say to the man at the post when you have come to take his place.
+
+The warden sat down facing the vault, and said it to nobody.
+
+* [Say it to him now, and take the book.] -> end
+    do grant_xp(30)

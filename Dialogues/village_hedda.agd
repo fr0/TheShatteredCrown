@@ -22,7 +22,7 @@ entry bry_lost if flag(TSC_SuretyGiven)
 entry after_tribute if flag(TSC_TributeAnswered)
 
 == start ==
-The reeve of Thornden is a small grey woman with a ledger under her arm. She looks your company over once, carefully.
+The reeve of Thornden is a small gray woman with a ledger under her arm. She looks your company over once, carefully.
 
 "Armed, provisioned, and not the Brand's. We don't see that here." She keeps her voice low. "You've picked a bad day to visit. It's tribute day."
 

@@ -1,5 +1,5 @@
 # Party banter: overheard, not joined. Speaker lines use the "Name:" prefix
-# that Dialog_Conversation renders as a coloured tag.
+# that Dialog_Conversation renders as a colored tag.
 dialogue TSC_Banter_Gerald
 
 == start ==

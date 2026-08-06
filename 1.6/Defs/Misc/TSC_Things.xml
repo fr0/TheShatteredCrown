@@ -321,7 +321,7 @@
     </comps>
   </ThingDef>
 
-  <!-- The generic reliquary chest: the same honours, WITHOUT the unique
+  <!-- The generic reliquary chest: the same honors, WITHOUT the unique
        blade. The Kingsblade chest above is placed by one thing only
        (MapComponent_TSC_Reliquary, Act 2 floor 3); anything a layout drops
        gets this instead, or the mod's one irreplaceable weapon turns up in

@@ -77,7 +77,172 @@ namespace TheShatteredCrown
     }
 
     /// <summary>
-    /// The throne room at the bottom of the King's Barrow: a walled chamber
+    /// The barrow's interior, reshaped as a PROCESSION: one long hall from
+    /// the stair to the king, the five road panels set in wall niches along
+    /// it, and nothing hostile anywhere before the throne room's door. The
+    /// old catacombs layout made the last descent a maze with the story
+    /// scattered through it; a funeral road walks better. The throne-room
+    /// genstep runs after this one and places the chamber at the point
+    /// farthest from the stair, which in a hall is exactly the far end.
+    /// </summary>
+    public class GenStep_TSC_KingsHall : GenStep
+    {
+        /// <summary>Total corridor width, including the centerline.</summary>
+        public int hallWidth = 7;
+
+        /// <summary>The wall pieces, stair to door: the dust line first, then the five roads in order.</summary>
+        private static readonly string[] PanelDefNames =
+        {
+            "TSC_Spot_DustLine", "TSC_Road_Grave", "TSC_Road_Reliquary",
+            "TSC_Road_Hoard", "TSC_Road_Quiet", "TSC_Road_Last",
+        };
+
+        public override int SeedPart => 862914035;
+
+        public override void Generate(Map map, GenStepParams parms)
+        {
+            // The hall OWNS its stair. If some earlier genstep already
+            // placed an exit, anchor on it; otherwise pick a spot off one
+            // edge, and spawn the portal's TSC_StairsUp there ourselves -
+            // generation runs with PocketMapUtility.currentlyGeneratingPortal
+            // set, so the exit binds to the mouth the vanilla way. Without
+            // this, the mouth's later self-heal dropped a SECOND stair at
+            // map center because vanilla PlaceCaveExit had spawned a generic
+            // CaveExit instead of the def the portal asked for.
+            Thing wayUp = TSC_KeepCellar.FindWayUp(map);
+            IntVec3 start;
+            if (wayUp != null)
+            {
+                start = wayUp.Position;
+            }
+            else
+            {
+                start = new IntVec3(14, 0, map.Size.z / 2);
+                Carve(map, CellRect.CenteredOn(start, 5, 5));
+                ThingDef stairsDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_StairsUp");
+                if (stairsDef != null)
+                {
+                    GenSpawn.Spawn(ThingMaker.MakeThing(stairsDef), start, map);
+                }
+                MapGenerator.PlayerStartSpot = start;
+            }
+            // Run the hall down whichever compass direction has the most
+            // rock in front of it, and stop well short of the edge so the
+            // throne genstep has room for its 15x15 chamber.
+            IntVec3 dir = LongestRun(map, start);
+            // 20 off the far edge, not 13: the throne room (15x15) sits
+            // BEYOND the hall's end now, and needs the depth.
+            int run = RunLength(map, start, dir) - 20;
+            if (run < 20)
+            {
+                // A stair placed absurdly near the far edge: fall back to
+                // whatever direction faces the map's middle.
+                dir = (map.Center - start).x * dir.x + (map.Center - start).z * dir.z >= 0
+                    ? dir : new IntVec3(-dir.x, 0, -dir.z);
+                run = Mathf.Max(20, RunLength(map, start, dir) - 20);
+            }
+            IntVec3 end = start + new IntVec3(dir.x * run, 0, dir.z * run);
+            // Hand the throne genstep its anchor: room center a half-room
+            // past the hall's last cell, so the near wall meets the hall
+            // and the door opens onto it.
+            map.GetComponent<MapComponent_TSC_Barrow>()?.SetThroneAnchor(
+                end + new IntVec3(dir.x * 7, 0, dir.z * 7));
+
+            // The landing: breathing room around the stair.
+            Carve(map, CellRect.CenteredOn(start, 9, 9));
+
+            int half = hallWidth / 2;
+            CellRect hall = CellRect.FromLimits(start, end).ExpandedBy(half);
+            // Expand only ACROSS the hall, not along it: FromLimits+Expand
+            // widens both axes, so trim the overshoot at the ends.
+            hall = dir.x != 0
+                ? new CellRect(Mathf.Min(start.x, end.x), hall.minZ, run + 1, hallWidth)
+                : new CellRect(hall.minX, Mathf.Min(start.z, end.z), hallWidth, run + 1);
+            Carve(map, hall);
+            TerrainDef floor = DefDatabase<TerrainDef>.GetNamedSilentFail("FlagstoneGranite");
+            if (floor != null)
+            {
+                foreach (IntVec3 cell in hall)
+                {
+                    if (cell.GetEdifice(map) == null)
+                    {
+                        map.terrainGrid.SetTerrain(cell, floor);
+                    }
+                }
+            }
+
+            // The panels, in niches: one wall bay per piece, alternating
+            // sides, spaced down the processional order the roads were
+            // ridden in. A niche is a one-deep, three-long recess cut past
+            // the hall wall, with the stone standing in its middle - close
+            // enough to read from the hall, out of the walking line.
+            for (int i = 0; i < PanelDefNames.Length; i++)
+            {
+                ThingDef panel = DefDatabase<ThingDef>.GetNamedSilentFail(PanelDefNames[i]);
+                if (panel == null)
+                {
+                    continue;
+                }
+                float t = (i + 1f) / (PanelDefNames.Length + 1f);
+                IntVec3 along = start + new IntVec3(
+                    Mathf.RoundToInt(dir.x * run * t), 0, Mathf.RoundToInt(dir.z * run * t));
+                int side = i % 2 == 0 ? 1 : -1;
+                IntVec3 across = dir.x != 0 ? new IntVec3(0, 0, side) : new IntVec3(side, 0, 0);
+                IntVec3 nicheMid = along + new IntVec3(across.x * (half + 1), 0, across.z * (half + 1));
+                CellRect niche = dir.x != 0
+                    ? new CellRect(nicheMid.x - 1, nicheMid.z, 3, 1)
+                    : new CellRect(nicheMid.x, nicheMid.z - 1, 1, 3);
+                Carve(map, niche);
+                if (floor != null)
+                {
+                    foreach (IntVec3 cell in niche)
+                    {
+                        map.terrainGrid.SetTerrain(cell, floor);
+                    }
+                }
+                if (nicheMid.InBounds(map) && nicheMid.GetEdifice(map) == null)
+                {
+                    GenSpawn.Spawn(ThingMaker.MakeThing(panel), nicheMid, map);
+                }
+            }
+        }
+
+        private static void Carve(Map map, CellRect rect)
+        {
+            foreach (IntVec3 cell in rect.ClipInsideMap(map))
+            {
+                GenStep_TSC_CellarLevel.CarveCell(map, cell);
+            }
+        }
+
+        /// <summary>The cardinal direction with the most map in front of the start.</summary>
+        private static IntVec3 LongestRun(Map map, IntVec3 start)
+        {
+            IntVec3 best = IntVec3.North;
+            int bestRun = -1;
+            foreach (IntVec3 dir in new[] { IntVec3.North, IntVec3.South, IntVec3.East, IntVec3.West })
+            {
+                int run = RunLength(map, start, dir);
+                if (run > bestRun)
+                {
+                    bestRun = run;
+                    best = dir;
+                }
+            }
+            return best;
+        }
+
+        private static int RunLength(Map map, IntVec3 start, IntVec3 dir)
+        {
+            return dir.x > 0 ? map.Size.x - 1 - start.x
+                : dir.x < 0 ? start.x
+                : dir.z > 0 ? map.Size.z - 1 - start.z
+                : start.z;
+        }
+    }
+
+    /// <summary>
+    /// The throne room at the bottom of the Barrow of Kings: a walled chamber
     /// at the deepest point holding the first king's sarcophagus and the
     /// Honor Guard still standing around it.
     ///
@@ -97,19 +262,30 @@ namespace TheShatteredCrown
         {
             Thing wayUp = TSC_KeepCellar.FindWayUp(map);
             IntVec3 anchor = wayUp?.Position ?? map.Center;
-            IntVec3 center = IntVec3.Invalid;
-            float best = -1f;
-            foreach (IntVec3 cell in map.AllCells)
+            // The hall's word beats the guesswork: when the hall genstep has
+            // said where it ends, the chamber goes there, at the end of the
+            // procession. The farthest-cell scan below is only for maps
+            // without a hall (legacy saves, other users of this genstep).
+            IntVec3 center = map.GetComponent<MapComponent_TSC_Barrow>()?.ThroneAnchor ?? IntVec3.Invalid;
+            if (center.IsValid && center.DistanceToEdge(map) < 9)
             {
-                if (cell.DistanceToEdge(map) < 9 || !cell.Standable(map))
+                center = IntVec3.Invalid;
+            }
+            if (!center.IsValid)
+            {
+                float best = -1f;
+                foreach (IntVec3 cell in map.AllCells)
                 {
-                    continue;
-                }
-                float dist = cell.DistanceTo(anchor);
-                if (dist > best)
-                {
-                    best = dist;
-                    center = cell;
+                    if (cell.DistanceToEdge(map) < 9 || !cell.Standable(map))
+                    {
+                        continue;
+                    }
+                    float dist = cell.DistanceTo(anchor);
+                    if (dist > best)
+                    {
+                        best = dist;
+                        center = cell;
+                    }
                 }
             }
             if (!center.IsValid)
@@ -165,7 +341,11 @@ namespace TheShatteredCrown
             }
             if (doorCell.IsValid && doorCell.GetEdifice(map) == null)
             {
-                GenSpawn.Spawn(ThingMaker.MakeThing(ThingDefOf.Door, granite), doorCell, map);
+                // The king's door: sealed until the regalia is carried, and
+                // the bearer of the riddle that starts that errand.
+                ThingDef doorDef = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_KingsDoor") ?? ThingDefOf.Door;
+                GenSpawn.Spawn(ThingMaker.MakeThing(doorDef, granite), doorCell, map);
+                map.GetComponent<MapComponent_TSC_Barrow>()?.SetThroneDoor(doorCell);
             }
             foreach (IntVec3 cell in room)
             {
@@ -565,6 +745,94 @@ namespace TheShatteredCrown
             throneRadius = Mathf.Max(room.Width, room.Height) / 2 + 2;
         }
 
+        /// <summary>The unmaking component builds its annex off this.</summary>
+        public IntVec3 ThroneCenter => throneCenter;
+
+        /// <summary>
+        /// Where the hall says the throne room belongs: just past its far
+        /// end. The throne genstep's own heuristic (farthest standable cell
+        /// from the stairs) loses to natural cave tips on this generator,
+        /// which hung the crypt off a side tunnel instead of the hall's end.
+        /// The hall knows where it ends; the guesswork does not.
+        /// </summary>
+        private IntVec3 throneAnchor = IntVec3.Invalid;
+
+        public IntVec3 ThroneAnchor => throneAnchor;
+
+        public void SetThroneAnchor(IntVec3 anchor)
+        {
+            throneAnchor = anchor;
+        }
+
+        /// <summary>The king's door: the riddle fires when somebody walks up to it.</summary>
+        private IntVec3 throneDoor = IntVec3.Invalid;
+
+        public void SetThroneDoor(IntVec3 cell)
+        {
+            throneDoor = cell;
+        }
+
+        /// <summary>
+        /// A gold crown over the king's door, drawn in screen space so it
+        /// rides above fog-of-war mods the same as the search rings do.
+        /// Shown from the moment the door's cell is uncovered until the
+        /// king has spoken: the whole act points at this door, so the map
+        /// should too.
+        /// </summary>
+        public override void MapComponentOnGUI()
+        {
+            if (!throneDoor.IsValid || Find.CurrentMap != map
+                || TSC_BarrowTex.DoorMark == null
+                || map.fogGrid.IsFogged(throneDoor))
+            {
+                return;
+            }
+            DialogueStateManager state = DialogueStateManager.Current;
+            if (state == null || state.IsSet("TSC_KingSpoke"))
+            {
+                return;
+            }
+            Vector2 screen = GenMapUI.LabelDrawPosFor(throneDoor);
+            const float size = 26f;
+            Rect rect = new Rect(screen.x - size / 2f, screen.y - size - 34f, size, size);
+            float pulse = 0.7f + 0.3f * Mathf.Sin(Time.realtimeSinceStartup * 2.2f);
+            GUI.color = new Color(1f, 1f, 1f, pulse);
+            GUI.DrawTexture(rect, TSC_BarrowTex.DoorMark);
+            GUI.color = Color.white;
+        }
+
+        /// <summary>
+        /// The regalia errand starts HERE, not at arrival: the party reaches
+        /// the sealed door, reads the sealers' riddle, and the quest lands
+        /// with the answer half-formed. Skipped when the quest already
+        /// exists by any other road (the debug grant, old arrival saves).
+        /// </summary>
+        private void TryDoorRiddle()
+        {
+            DialogueStateManager state = DialogueStateManager.Current;
+            if (!throneDoor.IsValid || state == null
+                || state.IsSet("TSC_DoorRiddleSeen") || state.IsSet("TSC_RegaliaNeeded")
+                || state.IsSet("TSC_RegaliaGathered") || state.IsSet("TSC_KingSpoke"))
+            {
+                return;
+            }
+            foreach (Pawn colonist in map.mapPawns.FreeColonistsSpawned)
+            {
+                if (colonist.Downed || !colonist.Position.InHorDistOf(throneDoor, 3.9f))
+                {
+                    continue;
+                }
+                state.Set("TSC_DoorRiddleSeen");
+                DialogueDef def = DefDatabase<DialogueDef>.GetNamedSilentFail("TSC_Dialogue_KingsDoor");
+                if (def != null)
+                {
+                    CameraJumper.TryJump(new TargetInfo(throneDoor, map));
+                    Find.WindowStack.Add(new Dialog_Conversation(def, colonist, colonist));
+                }
+                return;
+            }
+        }
+
         /// <summary>
         /// Living oath-keepers, standing, HERE.
         ///
@@ -716,6 +984,38 @@ namespace TheShatteredCrown
             TSC_QuestSignals.Send("TSC_Act5_Crown", "TSC_CrownResolved");
         }
 
+        /// <summary>
+        /// Saves generated while vanilla PlaceCaveExit was in the interior's
+        /// genstep list hold a stray generic CaveExit in some side cave, on
+        /// top of the real TSC_StairsUp: two ways up, one of them a lie.
+        /// Once the real stair exists, the stray goes.
+        /// </summary>
+        private bool caveExitHealed;
+
+        private void HealStrayCaveExit()
+        {
+            if (caveExitHealed)
+            {
+                return;
+            }
+            caveExitHealed = true;
+            ThingDef stairs = DefDatabase<ThingDef>.GetNamedSilentFail("TSC_StairsUp");
+            ThingDef stray = DefDatabase<ThingDef>.GetNamedSilentFail("CaveExit");
+            if (stairs == null || stray == null
+                || map.listerThings.ThingsOfDef(stairs).Count == 0)
+            {
+                return;
+            }
+            List<Thing> strays = new List<Thing>(map.listerThings.ThingsOfDef(stray));
+            foreach (Thing thing in strays)
+            {
+                if (!thing.Destroyed)
+                {
+                    thing.Destroy(DestroyMode.Vanish);
+                }
+            }
+        }
+
         /// <summary>Puts a set of loose guards back under one defend lord.</summary>
         private void Regroup(List<Pawn> loose)
         {
@@ -864,6 +1164,10 @@ namespace TheShatteredCrown
             ReconcileGuard();
             EnsureGuardLord();
             HealWearEnding();
+            HealStrayCaveExit();
+            // The fifth ending's gate, recomputed like TSC_HonorGuardStands:
+            // dialogue options can only branch on flags, so the gate IS one.
+            TSC_Unmaking.MaintainReadyFlag();
             if (map.mapPawns.FreeColonistsSpawnedCount == 0)
             {
                 return;
@@ -886,6 +1190,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            TryDoorRiddle();
             TryTempt();
             TryChallenge();
         }
@@ -965,6 +1270,15 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            // The guard challenges CLAIMANTS, and only claimants who have
+            // actually come THROUGH the king's door: no regalia, no
+            // challenge (the sealed door and its riddle do the redirecting),
+            // and standing outside the threshold does not count as arriving.
+            DialogueStateManager state = DialogueStateManager.Current;
+            if (state.IsSet("TSC_RegaliaNeeded") && !state.IsSet("TSC_RegaliaGathered"))
+            {
+                return;
+            }
             bool anyGuard = false;
             foreach (Pawn unused in LivingGuard)
             {
@@ -977,10 +1291,15 @@ namespace TheShatteredCrown
                 DialogueStateManager.Current.Set("TSC_HonorGuardYielded"); // nobody left to object
                 return;
             }
+            // INSIDE the chamber, not merely near it: the throne radius
+            // reaches through the walls, and the challenge belongs to the
+            // moment somebody actually crosses the king's threshold.
+            Room throne = throneCenter.GetRoom(map);
             Pawn near = null;
             foreach (Pawn colonist in map.mapPawns.FreeColonistsSpawned)
             {
-                if (!colonist.Downed && colonist.Position.InHorDistOf(throneCenter, throneRadius))
+                if (!colonist.Downed && throne != null
+                    && colonist.Position.GetRoom(map) == throne)
                 {
                     near = colonist;
                     break;
@@ -1019,8 +1338,11 @@ namespace TheShatteredCrown
             base.ExposeData();
             Scribe_Collections.Look(ref guard, "guard", LookMode.Reference);
             Scribe_Values.Look(ref throneCenter, "throneCenter", IntVec3.Invalid);
+            Scribe_Values.Look(ref throneAnchor, "throneAnchor", IntVec3.Invalid);
             Scribe_Values.Look(ref throneRadius, "throneRadius");
             Scribe_Values.Look(ref wearHealed, "wearHealed");
+            Scribe_Values.Look(ref caveExitHealed, "caveExitHealed");
+            Scribe_Values.Look(ref throneDoor, "throneDoor", IntVec3.Invalid);
             Scribe_Values.Look(ref temptedYet, "temptedYet");
             Scribe_Values.Look(ref enteredTick, "enteredTick", -1);
             if (Scribe.mode == LoadSaveMode.PostLoadInit && guard == null)
@@ -1171,6 +1493,20 @@ namespace TheShatteredCrown
             {
                 return null;
             }
+            // "Eight hundred and eleven years out from a gate that is not
+            // there any more" - and the character card should agree with
+            // the man: 27 when the chancery sealed his warrant, 811 on the
+            // road since. Biological AND chronological: the road did not
+            // preserve him, it just refused to let him finish. Safe to set
+            // this high - age-driven disease rolls happen at generation
+            // (before this) and on birthdays (which he will not live to
+            // see), so the number is cosmetic everywhere except the soul.
+            if (aled.ageTracker != null && aled.ageTracker.AgeBiologicalYears < 800)
+            {
+                long ageTicks = (811L + 27L) * GenDate.TicksPerYear;
+                aled.ageTracker.AgeBiologicalTicks = ageTicks;
+                aled.ageTracker.AgeChronologicalTicks = ageTicks;
+            }
             if (aled.Spawned)
             {
                 return aled.Map == map ? aled : null;
@@ -1308,6 +1644,33 @@ namespace TheShatteredCrown
         }
     }
 
+    /// <summary>Textures for the barrow's GUI marks, loaded on the main thread.</summary>
+    [StaticConstructorOnStartup]
+    public static class TSC_BarrowTex
+    {
+        public static readonly Texture2D DoorMark =
+            ContentFinder<Texture2D>.Get("UI/TSC_DoorMark", reportFailure: false);
+    }
+
+    /// <summary>
+    /// The king's door: sealed until the answer to its riddle is carried.
+    /// No bar and no lock to pick - it was not made to be forced, it was
+    /// made to be answered. Opens like any door once the regalia is
+    /// gathered (or, legacy-safe, once the king has already spoken).
+    /// </summary>
+    public class Building_TSC_KingsDoor : Building_Door
+    {
+        public override bool PawnCanOpen(Pawn p)
+        {
+            DialogueStateManager state = DialogueStateManager.Current;
+            if (state != null && !state.IsSet("TSC_RegaliaGathered") && !state.IsSet("TSC_KingSpoke"))
+            {
+                return false;
+            }
+            return base.PawnCanOpen(p);
+        }
+    }
+
     /// <summary>
     /// The first king's sarcophagus. Opening it is the end of the campaign,
     /// so it is gated on the guard being settled one way or the other: the
@@ -1340,6 +1703,23 @@ namespace TheShatteredCrown
                 yield return new FloatMenuOption("Open the sarcophagus (the Honor Guard is between you and it)", null);
                 yield break;
             }
+            // The regalia gate. Possession, not the quest flag: a piece
+            // dropped in a river after the quest closed is still not on the
+            // stone. TSC_RegaliaNeeded arms the gate at barrow arrival, so
+            // saves from before the regalia existed keep the old, open tomb;
+            // TSC_KingSpoke disarms it - once the pieces are laid, they are
+            // consumed, and the gate must not demand them a second time.
+            if (DialogueStateManager.Current.IsSet("TSC_RegaliaNeeded")
+                && !DialogueStateManager.Current.IsSet("TSC_KingSpoke"))
+            {
+                string missing = MissingRegalia();
+                if (missing != null)
+                {
+                    yield return new FloatMenuOption(
+                        $"Open the sarcophagus (the king will not wake without {missing})", null);
+                    yield break;
+                }
+            }
             if (DialogueStateManager.Current.IsSet("TSC_CrownClaimed"))
             {
                 yield break;
@@ -1353,6 +1733,92 @@ namespace TheShatteredCrown
                 }
             });
             yield return FloatMenuUtility.DecoratePrioritizedTask(open, selPawn, this);
+        }
+
+        /// <summary>The three keepings, in the order the quest names them.</summary>
+        public static readonly string[] RegaliaDefNames =
+        {
+            "TSC_KingsRing", "TSC_KingsAmulet", "TSC_KingsStaff",
+        };
+
+        /// <summary>Labels of the pieces the party does not hold, or null when all three are in hand.</summary>
+        public static string MissingRegalia()
+        {
+            List<string> missing = null;
+            foreach (string defName in RegaliaDefNames)
+            {
+                ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(defName);
+                if (def != null && TSC_Possession.Count(def) < 1)
+                {
+                    (missing = missing ?? new List<string>()).Add(def.label);
+                }
+            }
+            return missing == null ? null : string.Join(", ", missing);
+        }
+
+        /// <summary>
+        /// The waking: one of each piece leaves the party's hands for the
+        /// stone. This is what the fetch was FOR, so they are consumed, not
+        /// pocketed - a king woken by his own regalia does not hand it back.
+        /// </summary>
+        public static void LayRegalia(Pawn opener)
+        {
+            foreach (string defName in RegaliaDefNames)
+            {
+                ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(defName);
+                if (def == null)
+                {
+                    continue;
+                }
+                Thing piece = FindHeld(def);
+                if (piece != null)
+                {
+                    piece.holdingOwner?.Remove(piece);
+                    if (!piece.Destroyed)
+                    {
+                        piece.Destroy(DestroyMode.Vanish);
+                    }
+                }
+            }
+            Messages.Message("The ring, the amulet and the staff are laid on the stone. Something under the lid takes a breath it has been owed for nine hundred years.",
+                opener, MessageTypeDefOf.NeutralEvent, historical: false);
+        }
+
+        /// <summary>One held instance of the def, anywhere in the party: inventory, equipment, or loose on the opener's map.</summary>
+        private static Thing FindHeld(ThingDef def)
+        {
+            foreach (Pawn pawn in PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_FreeColonists)
+            {
+                if (pawn.inventory?.innerContainer != null)
+                {
+                    foreach (Thing thing in pawn.inventory.innerContainer)
+                    {
+                        if (thing.def == def)
+                        {
+                            return thing;
+                        }
+                    }
+                }
+                if (pawn.equipment?.AllEquipmentListForReading != null)
+                {
+                    foreach (Thing thing in pawn.equipment.AllEquipmentListForReading)
+                    {
+                        if (thing.def == def)
+                        {
+                            return thing;
+                        }
+                    }
+                }
+            }
+            foreach (Map map in Find.Maps)
+            {
+                List<Thing> loose = map.listerThings.ThingsOfDef(def);
+                if (loose.Count > 0)
+                {
+                    return loose[0];
+                }
+            }
+            return null;
         }
     }
 
@@ -1375,7 +1841,23 @@ namespace TheShatteredCrown
             {
                 if (DialogueStateManager.Current.IsSet("TSC_KingSpoke"))
                 {
+                    // Refusal-with-retry: until an ending is actually chosen,
+                    // lifting the lid resumes the conversation. Also mends
+                    // the older soft-lock where closing the window mid-scene
+                    // orphaned the campaign's last choice.
+                    if (!DialogueStateManager.Current.IsSet("TSC_CrownClaimed"))
+                    {
+                        DialogueDef again = DefDatabase<DialogueDef>.GetNamedSilentFail("TSC_Dialogue_FirstKing");
+                        if (again != null)
+                        {
+                            Find.WindowStack.Add(new Dialog_Conversation(again, pawn, pawn));
+                        }
+                    }
                     return;
+                }
+                if (DialogueStateManager.Current.IsSet("TSC_RegaliaNeeded"))
+                {
+                    Building_TSC_KingsTomb.LayRegalia(pawn);
                 }
                 DialogueStateManager.Current.Set("TSC_KingSpoke");
                 DialogueDef def = DefDatabase<DialogueDef>.GetNamedSilentFail("TSC_Dialogue_FirstKing");
@@ -1422,7 +1904,16 @@ namespace TheShatteredCrown
             string big = kind == "wear" ? "A New King"
                 : kind == "scatter" ? "Five New Roads"
                 : kind == "entomb" ? "The Quiet Grave"
+                : kind == "unmake" ? "A Thing That Wanted"
                 : "The Road Home";
+            if (kind == "unmake")
+            {
+                Find.LetterStack.ReceiveLetter("The unmaking",
+                    "The crown is not broken. Broken was tried, and it waited out broken for eight hundred years. The crown is GONE: unmade in the room it was made in, by the hand it was made for, and the silence where the wanting used to be goes down past the bottom of anything.\n\n"
+                    + "The king asked for one thing afterward, and the company did it: the ring, the amulet and the staff came off the stone lid. He was still saying thank you when he stopped.\n\n"
+                    + "Somewhere under a city, a white room has gone quiet. Somewhere on five roads, nothing at all is being carried.",
+                    LetterDefOf.PositiveEvent);
+            }
             TSC_TitleCardManager.Show(small, big);
             TSC_QuestSignals.Send("TSC_Act5_Crown", "TSC_CrownResolved");
         }
