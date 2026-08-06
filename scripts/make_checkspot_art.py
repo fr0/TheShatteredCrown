@@ -186,17 +186,32 @@ def make_grisly_remains():
 
 
 def make_watch_post():
+    # A stand of watch, abandoned: spear planted in the ground with the
+    # pennant still on it, shield leaning against the shaft, log seat.
     img, d = canvas()
     _shadow(d)
-    d.polygon([(W(0.30), W(0.62)), (W(0.62), W(0.62)), (W(0.58), W(0.70)), (W(0.34), W(0.70))],
-              fill=WOOD, outline=OUTLINE, width=LW)
-    for x in (0.34, 0.56):
-        d.line([W(x), W(0.70), W(x + 0.02), W(0.88)], fill=WOOD_DARK, width=int(LW * 1.6))
-    d.line([W(0.74), W(0.14), W(0.68), W(0.88)], fill=WOOD_DARK, width=int(LW * 1.5))
-    d.polygon([(W(0.74), W(0.10)), (W(0.79), W(0.24)), (W(0.70), W(0.24))],
+    # log seat, lying on its side: body + end cap with rings
+    d.polygon([(W(0.12), W(0.66)), (W(0.38), W(0.62)), (W(0.40), W(0.78)),
+               (W(0.14), W(0.82))], fill=WOOD, outline=OUTLINE, width=LW)
+    d.ellipse([W(0.34), W(0.61), W(0.46), W(0.79)], fill=WOOD_DARK,
+              outline=OUTLINE, width=LW)
+    d.ellipse([W(0.375), W(0.665), W(0.405), W(0.735)], fill=OUTLINE)
+    # planted spear, leaning a touch: butt in the ground, iron head up top
+    d.line([W(0.72), W(0.90), W(0.66), W(0.14)], fill=WOOD_DARK, width=int(LW * 1.6))
+    d.polygon([(W(0.66), W(0.06)), (W(0.71), W(0.20)), (W(0.61), W(0.20))],
               fill=IRON, outline=OUTLINE, width=LW)
-    d.polygon([(W(0.24), W(0.40)), (W(0.42), W(0.36)), (W(0.44), W(0.64)), (W(0.22), W(0.66))],
+    # pennant tied under the head, hanging in a dead-air droop
+    d.polygon([(W(0.665), W(0.22)), (W(0.44), W(0.28)), (W(0.50), W(0.34)),
+               (W(0.44), W(0.40)), (W(0.675), W(0.34))],
               fill=CLOTH, outline=OUTLINE, width=LW)
+    d.line([W(0.665), W(0.28), W(0.52), W(0.31)], fill=CLOTH_DARK, width=int(LW * 0.9))
+    # round shield leaning against the shaft: rim, field, boss
+    d.ellipse([W(0.46), W(0.46), W(0.76), W(0.84)], fill=WOOD,
+              outline=OUTLINE, width=int(LW * 1.3))
+    d.chord([W(0.46), W(0.46), W(0.76), W(0.84)], 90, 270, fill=WOOD_DARK)
+    d.ellipse([W(0.50), W(0.51), W(0.72), W(0.79)], outline=OUTLINE, width=LW)
+    d.ellipse([W(0.565), W(0.59), W(0.655), W(0.71)], fill=IRON,
+              outline=OUTLINE, width=LW)
     save(img, "TSC_WatchPost")
 
 
@@ -276,37 +291,89 @@ def make_sealed_door():
 
 
 def make_prisoners_marks():
+    """Proper tally groups scratched into a cell wall: four strokes and a
+    fifth crossing slash, group after group, hand-jittered - and the last
+    group unfinished, because that is how a prisoner's count ends."""
     img, d = canvas()
     _shadow(d)
     d.polygon([(W(0.10), W(0.12)), (W(0.90), W(0.12)), (W(0.90), W(0.88)), (W(0.10), W(0.88))],
               fill=STONE_DARK, outline=OUTLINE, width=LW)
-    n = 0
-    for row in range(3):
-        for col in range(7):
-            if n >= 19:
-                break
-            x = 0.18 + col * 0.10
-            y = 0.26 + row * 0.22
-            d.line([W(x), W(y), W(x - 0.02), W(y + 0.14)], fill=MARBLE, width=int(LW * 1.1))
-            n += 1
-        if row < 2:
-            d.line([W(0.16), W(0.28 + row * 0.22), W(0.62), W(0.42 + row * 0.22)],
-                   fill=MARBLE, width=int(LW * 1.1))
+    lw = int(LW * 1.1)
+    jit = [0.006, -0.004, 0.008, -0.006, 0.002, -0.008, 0.005, -0.002,
+           0.007, -0.005, 0.003, -0.007, 0.004, -0.003, 0.006, -0.006]
+    ji = 0
+
+    def stroke(x, y):
+        nonlocal ji
+        jx, jy = jit[ji % len(jit)], jit[(ji + 5) % len(jit)]
+        ji += 1
+        d.line([W(x + jx), W(y + jy), W(x + jx - 0.022), W(y + jy + 0.14)],
+               fill=MARBLE, width=lw)
+
+    # (row y, complete groups in the row)
+    for y, groups in ((0.24, 2), (0.54, 1)):
+        gx = 0.20
+        for g in range(groups):
+            for i in range(4):
+                stroke(gx + i * 0.048, y)
+            # the fifth mark: a slash crossing the four
+            d.line([W(gx - 0.045), W(y + 0.125), W(gx + 0.155), W(y + 0.015)],
+                   fill=MARBLE, width=lw)
+            gx += 0.33
+    # the count stops mid-group: three strokes, no slash
+    for i in range(3):
+        stroke(0.53 + i * 0.048, 0.54)
     save(img, "TSC_PrisonersMarks")
 
 
 def make_minstrels_grave():
+    # A turf mound with a carved wooden marker, and the lute laid on the
+    # grass the way you leave a sword on a soldier's grave: pale soundboard,
+    # rosette, bent-back pegbox, strings that actually run bridge to nut.
     img, d = canvas()
     _shadow(d)
-    d.chord([W(0.12), W(0.50), W(0.88), W(0.94)], 180, 360, fill=DIRT, outline=OUTLINE, width=LW)
-    d.ellipse([W(0.30), W(0.40), W(0.62), W(0.72)], fill=WOOD, outline=OUTLINE, width=LW)
-    d.ellipse([W(0.42), W(0.52), W(0.50), W(0.60)], fill=OUTLINE)
-    d.line([W(0.58), W(0.52), W(0.86), W(0.22)], fill=WOOD_DARK, width=int(LW * 2))
-    d.polygon([(W(0.82), W(0.26)), (W(0.90), W(0.16)), (W(0.94), W(0.22)), (W(0.86), W(0.32))],
+    # wooden marker first, so the mound overlaps its base
+    d.polygon([(W(0.14), W(0.62)), (W(0.14), W(0.34)), (W(0.17), W(0.27)),
+               (W(0.24), W(0.27)), (W(0.27), W(0.34)), (W(0.27), W(0.62))],
               fill=WOOD, outline=OUTLINE, width=LW)
-    for i in range(3):
-        d.line([W(0.36 + i * 0.02), W(0.44), W(0.84 + i * 0.02), W(0.24)],
-               fill=(230, 226, 214, 200), width=max(1, int(LW * 0.5)))
+    d.line([W(0.175), W(0.30), W(0.175), W(0.56)], fill=WOOD_DARK, width=int(LW * 0.8))
+    # carved note on the marker
+    d.ellipse([W(0.195), W(0.46), W(0.225), W(0.49)], fill=RUNE)
+    d.line([W(0.222), W(0.475), W(0.222), W(0.375)], fill=RUNE, width=int(LW * 0.8))
+    d.line([W(0.222), W(0.375), W(0.245), W(0.40)], fill=RUNE, width=int(LW * 0.8))
+    # turf mound
+    d.chord([W(0.12), W(0.50), W(0.88), W(0.94)], 180, 360, fill=DIRT,
+            outline=OUTLINE, width=LW)
+    for x, y in ((0.22, 0.645), (0.31, 0.575), (0.70, 0.585), (0.79, 0.655)):
+        for k in (-1, 0, 1):
+            d.line([W(x), W(y + 0.02), W(x + 0.018 * k), W(y - 0.035)],
+                   fill=GRASS, width=max(1, int(LW * 0.7)))
+    # lute body: dark rim, pale spruce soundboard
+    d.ellipse([W(0.34), W(0.50), W(0.64), W(0.76)], fill=WOOD, outline=OUTLINE, width=LW)
+    d.ellipse([W(0.375), W(0.53), W(0.615), W(0.735)], fill=BONE_DARK)
+    # neck, tapering slightly toward the nut
+    d.polygon([(W(0.584), W(0.534)), (W(0.616), W(0.566)), (W(0.831), W(0.341)),
+               (W(0.809), W(0.319))], fill=WOOD_DARK, outline=OUTLINE,
+              width=max(1, int(LW * 0.8)))
+    # pegbox bent back off the neck line, two pegs
+    d.polygon([(W(0.809), W(0.319)), (W(0.831), W(0.341)), (W(0.92), W(0.295)),
+               (W(0.905), W(0.25))], fill=WOOD, outline=OUTLINE,
+              width=max(1, int(LW * 0.8)))
+    for px, py in ((0.865, 0.285), (0.893, 0.276)):
+        d.ellipse([W(px - 0.008), W(py - 0.008), W(px + 0.008), W(py + 0.008)], fill=OUTLINE)
+    # rosette between bridge and neck joint
+    d.ellipse([W(0.485), W(0.57), W(0.575), W(0.66)], fill=OUTLINE)
+    # bridge, then strings from it up the neck to the nut
+    d.line([W(0.42), W(0.675), W(0.465), W(0.72)], fill=RUNE, width=int(LW * 1.2))
+    for (sx, sy), (ex, ey) in (((0.428, 0.684), (0.815, 0.322)),
+                               ((0.443, 0.698), (0.820, 0.330)),
+                               ((0.458, 0.712), (0.825, 0.338))):
+        d.line([W(sx), W(sy), W(ex), W(ey)], fill=(232, 228, 214, 225),
+               width=max(1, int(LW * 0.45)))
+    # frets
+    for fx, fy in ((0.68, 0.47), (0.73, 0.42), (0.78, 0.37)):
+        d.line([W(fx + 0.014), W(fy + 0.014), W(fx - 0.014), W(fy - 0.014)],
+               fill=OUTLINE, width=max(1, int(LW * 0.6)))
     save(img, "TSC_MinstrelsGrave")
 
 
@@ -351,16 +418,63 @@ def make_hunters_blind():
 
 
 def make_strewn_baggage():
+    # Somebody left in a hurry: chest thrown open with cloth hanging out of
+    # it, sack burst at the mouth, and the coins on the GROUND where they
+    # spilled, not floating in the air.
     img, d = canvas()
     _shadow(d)
-    d.polygon([(W(0.14), W(0.52)), (W(0.48), W(0.46)), (W(0.52), W(0.82)), (W(0.18), W(0.88))],
-              fill=CLOTH_DARK, outline=OUTLINE, width=LW)
-    d.polygon([(W(0.46), W(0.56)), (W(0.86), W(0.50)), (W(0.88), W(0.84)), (W(0.50), W(0.88))],
-              fill=WOOD, outline=OUTLINE, width=LW)
-    d.line([W(0.46), W(0.68), W(0.88), W(0.64)], fill=WOOD_DARK, width=int(LW * 1.4))
-    for x, y in ((0.30, 0.30), (0.62, 0.26), (0.78, 0.36)):
-        d.ellipse([W(x - 0.05), W(y - 0.04), W(x + 0.05), W(y + 0.04)],
-                  fill=GOLD, outline=OUTLINE, width=max(1, int(LW * 0.8)))
+    # chest lid, flung open and back off the hinge line
+    d.polygon([(W(0.48), W(0.455)), (W(0.86), W(0.415)), (W(0.81), W(0.24)),
+               (W(0.43), W(0.28))], fill=WOOD_DARK, outline=OUTLINE, width=LW)
+    d.line([W(0.655), W(0.435), W(0.62), W(0.26)], fill=IRON, width=int(LW * 1.3))
+    # chest base with a strip of dark interior showing
+    d.polygon([(W(0.48), W(0.46)), (W(0.86), W(0.42)), (W(0.88), W(0.70)),
+               (W(0.50), W(0.74))], fill=WOOD, outline=OUTLINE, width=LW)
+    d.polygon([(W(0.50), W(0.475)), (W(0.845), W(0.437)), (W(0.85), W(0.487)),
+               (W(0.505), W(0.525))], fill=(48, 42, 38, 255))
+    d.line([W(0.665), W(0.45), W(0.678), W(0.72)], fill=IRON, width=int(LW * 1.3))
+    # red cloth dragged half out of the chest, over the front edge
+    d.polygon([(W(0.56), W(0.50)), (W(0.68), W(0.485)), (W(0.70), W(0.83)),
+               (W(0.60), W(0.80)), (W(0.575), W(0.85))],
+              fill=CLOTH, outline=OUTLINE, width=LW)
+    d.line([W(0.615), W(0.53), W(0.635), W(0.79)], fill=CLOTH_DARK, width=int(LW * 0.9))
+    # burst burlap sack in front: slumped and lumpy, flat where it meets the
+    # ground, mouth flared open toward the spill (red + round read as a
+    # boxing glove; tan + slumped reads as a sack)
+    BURLAP = (172, 148, 108, 255)
+    BURLAP_DARK = (140, 118, 82, 255)
+    d.polygon([(W(0.09), W(0.79)), (W(0.05), W(0.68)), (W(0.07), W(0.57)),
+               (W(0.13), W(0.49)), (W(0.22), W(0.46)), (W(0.31), W(0.48)),
+               (W(0.37), W(0.54)), (W(0.41), W(0.62)), (W(0.45), W(0.655)),
+               (W(0.455), W(0.74)), (W(0.40), W(0.77)), (W(0.33), W(0.81)),
+               (W(0.23), W(0.83)), (W(0.14), W(0.82))],
+              fill=BURLAP, outline=OUTLINE, width=LW)
+    # slump folds
+    d.arc([W(0.08), W(0.52), W(0.34), W(0.86)], 300, 380, fill=BURLAP_DARK,
+          width=max(1, int(LW * 0.8)))
+    d.arc([W(0.14), W(0.44), W(0.44), W(0.80)], 320, 390, fill=BURLAP_DARK,
+          width=max(1, int(LW * 0.8)))
+    # stitched patch
+    d.polygon([(W(0.13), W(0.60)), (W(0.19), W(0.585)), (W(0.205), W(0.645)),
+               (W(0.145), W(0.665))], fill=BURLAP_DARK, outline=OUTLINE,
+              width=max(1, int(LW * 0.6)))
+    # crimp folds radiating back from the mouth
+    for ex, ey in ((0.385, 0.635), (0.375, 0.685), (0.385, 0.73)):
+        d.line([W(0.45), W(0.695), W(ex), W(ey)], fill=BURLAP_DARK,
+               width=max(1, int(LW * 0.7)))
+    # flared-open mouth with dark interior, facing the coins
+    d.polygon([(W(0.445), W(0.65)), (W(0.525), W(0.625)), (W(0.545), W(0.75)),
+               (W(0.45), W(0.745))], fill=BURLAP, outline=OUTLINE, width=LW)
+    d.ellipse([W(0.505), W(0.628), W(0.555), W(0.752)], fill=(48, 42, 38, 255),
+              outline=OUTLINE, width=max(1, int(LW * 0.7)))
+    # the spill: coins scattering away from the sack mouth
+    for x, y, r in ((0.545, 0.70, 0.036), (0.60, 0.765, 0.034), (0.665, 0.72, 0.030),
+                    (0.635, 0.835, 0.032), (0.72, 0.80, 0.030), (0.79, 0.755, 0.028)):
+        d.ellipse([W(x - r), W(y - r * 0.72), W(x + r), W(y + r * 0.72)],
+                  fill=GOLD, outline=OUTLINE, width=max(1, int(LW * 0.7)))
+    # two on edge, mid-roll
+    for x0, y0, x1, y1 in ((0.755, 0.865, 0.805, 0.855), (0.545, 0.845, 0.595, 0.855)):
+        d.line([W(x0), W(y0), W(x1), W(y1)], fill=GOLD, width=int(LW * 1.3))
     save(img, "TSC_StrewnBaggage")
 
 
