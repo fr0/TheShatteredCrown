@@ -65,20 +65,17 @@ Under the iron the reading is plain. This is not a last stand for gold. He has b
 * [Give him the death he picked.] -> resolve
 
 == resolve ==
-Around the hall, the last of the Iron Brand set their feet: men on the stairs, men at the doors, steel out. Every one of them is watching the Baron and the company by turns, thinking the same thoughts the whole keep has been thinking since the gate.
+Around the hall, the last of the Iron Brand set their feet: men on the stairs, men at the doors, steel out. Every one of them is watching the Baron and the company, thinking the same thoughts the whole keep has been thinking since the gate.
 
 There is a beat where the room could still be spoken to.
 
-* "Your Baron dies for a haunted trinket. The Brand doesn't have to die with him. Anyone still standing when it's done walks out of these hills." -> spoken
+* "Your Baron dies for a haunted trinket. The Brand doesn't have to die with him. Anyone still standing when it's done walks out of these hills."
     check Persuasion 8 -> broken | unmoved
 * [Let the steel answer.] -> fight
 
-== spoken ==
+== broken ==
 The words go out over the Baron's head to the men on the stairs.
 
-* [And now the steel.] -> fight
-
-== broken ==
 Nobody drops a sword. Nobody was ever going to drop a sword in front of him. But the words land where the Baron cannot see them land: a grip shifted, a glance traded across the hall, half a step backward at the doors. The Brand will fight for their Baron.
 
 They have just stopped planning to die for him.
@@ -87,6 +84,8 @@ They have just stopped planning to die for him.
     do demoralize(); grant_xp(50); flag(TSC_BaronParleyDone)
 
 == unmoved ==
+The words go out over the Baron's head to the men on the stairs.
+
 "They heard the same offer twice already," the Baron says, level. "Once from the guild's men, once from the company I took this keep from. The men who took those offers are the reason the road here was so quiet."
 
 Nothing moves in the hall except firelight.

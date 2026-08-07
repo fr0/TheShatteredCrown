@@ -108,7 +108,7 @@
           <node Class="QuestNode_Letter">
             <letterDef>PositiveEvent</letterDef>
             <label TKey="LetterLabelCellarsSilent">The cellars fall silent</label>
-            <text TKey="LetterTextCellarsSilent">The last of the nesting things lies still. The catacombs of Aldwick belong to the dead again, and to whoever claims the reliquary.</text>
+            <text TKey="LetterTextCellarsSilent">The last of the nesting things is dead. The catacombs of Aldwick are clear, and the reliquary is unguarded.</text>
           </node>
         </li>
 

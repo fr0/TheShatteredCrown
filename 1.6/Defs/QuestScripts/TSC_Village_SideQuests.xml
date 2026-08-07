@@ -127,7 +127,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelWetPlot">The culvert, cleared</label>
-                <text TKey="LetterTextWetPlot">The culvert runs clear for the first time in years, and Wilf's field is merely damp, which for Wilf constitutes rapture.\n\nWhat was blocking it is more interesting: a carved stone that was never farmwork. It washed DOWN from the hills.</text>
+                <text TKey="LetterTextWetPlot">The culvert runs clear and Wilf's field is draining.\n\nWhat was blocking it: a carved stone that was never farmwork. It washed DOWN from the hills.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>150</xp>
@@ -219,7 +219,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelRidgeDone">The ridge, dark</label>
-                <text TKey="LetterTextRidgeDone">The ridge camp is finished and its signal fire is out.\n\nCol will want to know. He may even use whole sentences.</text>
+                <text TKey="LetterTextRidgeDone">The ridge camp is destroyed and its signal fire is out.\n\nCol will want to know.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>200</xp>
@@ -380,7 +380,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>NegativeEvent</letterDef>
                 <label TKey="LetterLabelPipDead">Pip Root is dead</label>
-                <text TKey="LetterTextPipDead">Pip Root wanted to be an adventurer. The hills obliged him the way hills do.\n\nHarrowfield will not be the same village after this.</text>
+                <text TKey="LetterTextPipDead">Pip Root is dead in the hills.\n\nHarrowfield will not be the same village after this.</text>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Fail</outcome>
@@ -395,7 +395,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>NegativeEvent</letterDef>
                 <label TKey="LetterLabelNellDead">Nell Root is dead</label>
-                <text TKey="LetterTextNellDead">Nell Root followed her brother into the hills because that is what little sisters do.\n\nHarrowfield will not be the same village after this.</text>
+                <text TKey="LetterTextNellDead">Nell Root is dead in the hills, following her brother.\n\nHarrowfield will not be the same village after this.</text>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Fail</outcome>
@@ -410,7 +410,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelKidsFound">The two loud things</label>
-                <text TKey="LetterTextKidsFound">Found: one adventurer, one accomplice, both intact and marched home under protest.\n\nWhatever Pip found up there, Old Wick went very quiet about it.</text>
+                <text TKey="LetterTextKidsFound">Pip and Nell are found, intact, and marched home under protest.\n\nWhatever Pip found up there, Old Wick went very quiet about it.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>200</xp>
@@ -447,7 +447,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelStoryTold">One true story</label>
-                <text TKey="LetterTextStoryTold">The story landed. By evening Bryn had retold it twice with improvements, and Harrowfield's opinion of you rose with each version.\n\n(All the villagers think a little better of you now.)</text>
+                <text TKey="LetterTextStoryTold">The story landed, and Bryn is already retelling it.\n\n(All the villagers think a little better of you now.)</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>150</xp>
@@ -484,7 +484,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelPatch">What grows back</label>
-                <text TKey="LetterTextPatch">The patch is dealt with, one way or another. Mara returned to her rows without ceremony, which from Mara is a parade.\n\nWhat it WAS is the more interesting question, and it does not have a farming answer.</text>
+                <text TKey="LetterTextPatch">The patch is dealt with, and Mara is back at her rows.\n\nWhat it WAS is the harder question, and it does not have a farming answer.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>150</xp>

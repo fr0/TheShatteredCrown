@@ -31,7 +31,7 @@ The guild's factor works from a table near the middle of town: ledger, ink, a st
 == dispatch ==
 He reads the direction, then the seal, and his face does the small work of a man recognizing a dead colleague's handwriting.
 
-"That rider was due in the spring." He sets the packet unopened in the strongbox and counts silver onto the table without being asked. "The guild pays for its mail, delivered by whoever delivers it. That's the whole of the custom, and it's a good one. Where you found this - I won't ask. The roads keep what they keep."
+"That rider was due in the spring." He sets the packet unopened in the strongbox and counts silver onto the table without being asked. "The guild pays for its mail, delivered by whoever delivers it. That's the custom, and it's a good one. Where you found this - I won't ask. The roads keep what they keep."
 
 * "The roads keep what they keep." -> start
 * "That's all our business today." -> end
@@ -42,7 +42,7 @@ He reads the direction, then the seal, and his face does the small work of a man
 # The node is written for that moment: continuations, not an invitation
 # to do what was just done.
 == board ==
-He lets you read as long as you care to, working his ledger the while.
+He lets you read as long as you care to, working his ledger all the while.
 
 "Take what suits. Pay is on completion, as chartered."
 
@@ -71,7 +71,7 @@ He is quiet for a moment. When he speaks again the professional manner is gone.
 == ledger_in ==
 He takes the book carefully and puts it in the chained strongbox rather than a drawer.
 
-"It goes up the road tonight, and I will not be told what happens after that." He picks the pen back up. "For what it is worth: there are riders who would have sold me that, and I would have paid."
+"It goes up the road tonight, and I will not be involved in what happens after that." He picks the pen back up. "For what it is worth: there are riders who would have sold me that, and I would have paid."
 
 He looks at you properly for the first time since you came in.
 
@@ -100,7 +100,7 @@ He reaches past the chained strongbox and brings up a flat iron case that opens 
 * "Another time." -> start
 
 == hire ==
-"There is always somebody in a town like this wanting out of it." He runs a finger down the ledger without looking. "The guild checks them enough to know which end of the work they hold. The rest you find out on the road."
+"There is always somebody in a town like this wanting out of it." He runs a finger down the ledger without looking. "The guild checks them enough to know they're useful. The rest you find out on the road."
 
 * "Understood." -> start
 

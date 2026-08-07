@@ -40,15 +40,12 @@ He turns his hand over and studies it with mild professional interest.
 
 * "Why not?" -> holding
 * "What are you doing to it?" -> holding
-* [Look at what he is actually doing.] -> read
+* [Look at what he is actually doing.]
     check Arcana 9 -> read_ok | read_bad
 
-== read ==
-{PLAYER} looks at the fire the way Madoc taught: not at the flame, at the hand.
-
-* [Continue.] -> read_ok
-
 == read_ok ==
+{PLAYER} looks at the fire the way Madoc taught: not at the flame, at the hand that conjures it.
+
 You sense Madoc's concentration, emanating from the fire. But it is broken and haphazard.
 
 And behind it, much fainter and much further off, there is a second one. Older. Channeled without a break for a very long time.
@@ -59,6 +56,8 @@ This is not the fire itself. All of it is Madoc, and he has been doing it every 
     do grant_xp(40)
 
 == read_bad ==
+{PLAYER} looks at the fire the way Madoc taught: not at the flame, at the hand.
+
 It is a fire, and then it is a still fire, and then it is a fire again. Whatever is being done to it is being done somewhere {PLAYER} cannot follow.
 
 * "What are you doing to it?" -> holding
@@ -111,14 +110,14 @@ Then: two names. One ford. The number of arrows and the day of the week. That th
 == release_helped ==
 He gets as far as *they are dead* and stops there, and the silence goes on long enough to be a problem.
 
-{PLAYER} says the rest of it with him, quietly, until his voice comes back and takes the last few words. They are the ones about the day of the week.
+{PLAYER} says the rest of it with him, quietly, until his voice comes back and takes the last few words. They are the ones about the day of the week when it happened.
 
 * [Continue.] -> release
 
 == release ==
 He opens his hand.
 
-There is no sound and no sign. The campfire in front of him crackles and sags and spits and behaves exactly like a campfire. East, a small flame that has burned flat and unmoving over two men since the ford is simply not there any more.
+There is no sound and no sign. The campfire in front of him crackles and sags and spits and behaves exactly like a campfire. Somewhere distant, a small flame that has burned flat and unmoving over two men since the ford is simply not there any more.
 
 He cannot see it happen. He knows the moment it does.
 

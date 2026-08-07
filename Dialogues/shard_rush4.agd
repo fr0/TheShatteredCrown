@@ -58,17 +58,14 @@ Somewhere out there a man is walking a road with the last piece of this thing, a
 
 * "Wren. It showed us a man this time." -> wren
     if in_party(TSC_Npc_Bard)
-* [Think about the country it showed, not the man.] -> country
+* [Think about the country it showed, not the man.]
     check Nature 9 -> country_read | country_blank
 * [Take the road.] -> end
     do grant_xp(25)
 
-== country ==
+== country_read ==
 {PLAYER} sets the man aside and looks at what was around him.
 
-* [Continue.] -> country_read
-
-== country_read ==
 Scrub going to thorn, the way land goes when nothing grazes it. Old field walls with trees grown through them. A pass through the mountains that the vision showed from above, and the shape of the ground on the far side.
 
 That is not wilderness. That is farmland that stopped being farmed a long time ago and has been quietly returning to itself ever since, and it goes on for days in every direction the vision showed.
@@ -79,6 +76,8 @@ Whatever emptied that country, it emptied all of it. The party is not walking to
     do grant_xp(50)
 
 == country_blank ==
+{PLAYER} sets the man aside and looks at what was around him.
+
 Hills, scrub, a gap in the mountains. It is country, and it is east, and beyond that it declines to be read.
 
 * [Take the road.] -> end

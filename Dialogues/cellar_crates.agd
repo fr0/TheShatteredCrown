@@ -20,7 +20,7 @@ entry armed if flag(TSC_KeepCratesPlanned)
 entry alone if party_size(<2)
 
 == start ==
-Barrels and crates, stacked four high against the wall where the stair goes up. Salt fish, by the smell, and something that was flour once. The Brand puts its stores where its stores have always gone.
+Barrels and crates, stacked four high against the wall where the stair goes up. Salt fish, by the smell, and something that was flour once. The Brand puts its stores down in this cellar.
 
 {PLAYER} stops walking. Looks at the stack. Looks up the stair. Looks back at the stack.
 
@@ -51,7 +51,7 @@ A hand on the top crate. Not pushing yet.
 == rigged ==
 {PLAYER} spends a minute on it first: a barrel set on its shoulder against the stack, a line of twine, the whole thing balanced to go over on one pull from a safe corner.
 
-"Rigged. They will arrive to a room that is already ours. Put everyone where you want them, then give the word."
+"Rigged. They will arrive to a room that is already ours. Take up positions, then give the word."
 
 * [Take positions first.] -> end
     do flag(TSC_KeepCratesPlanned); flag(TSC_KeepCratesRigged)
@@ -70,7 +70,7 @@ Alone, that is either the best idea available or the last one. There is no third
 * [Leave it. Go up quiet.] -> end
 
 == ready_alone ==
-The stack stays standing, one crate worked loose at the shoulder, a shove away from loud.
+The stack stays standing, one crate worked loose at the shoulder, a shove away from coming down loudly.
 
 Find the angle first. Then the noise.
 
@@ -80,12 +80,12 @@ Find the angle first. Then the noise.
 == rigged_alone ==
 A minute of work: a barrel set on its shoulder against the stack, a line of twine, the whole thing balanced to go over on one pull from a safe corner.
 
-They will arrive to a corridor that is already an ambush. Pick the corner first.
+They will arrive to a corridor that is already an ambush.
 
 * [Take a position first.] -> end
     do flag(TSC_KeepCratesPlanned); flag(TSC_KeepCratesRigged)
 
 == armed ==
-The stack stands where it was left: one push from loud, the plan already made. It only wants the word.
+The stack stands where it was left: one push from coming down loudly, the plan already made. It only waits on the word.
 
 * [Not yet.] -> end

@@ -61,7 +61,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelMadocMet">The man at the fire</label>
-                <text TKey="LetterTextMadocMet">Madoc Emberlow, sorcerer, planning to storm the Iron Brand keep with an army of two dead men. Out of that ruin of a mind came one whole, bright fact: a drain under the keep's east wall, into the cellars. Gille found it.\n\nThe keep has a back way. The Brand does not know it is spoken for.</text>
+                <text TKey="LetterTextMadocMet">Madoc Emberlow, sorcerer, was planning his own assault on the Iron Brand keep, and he knows something the Brand does not: a drain under the keep's east wall leads into the cellars. Gille found it.\n\nThe keep has a back way.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>400</xp>
@@ -139,7 +139,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelCollectorsFled">Empty-handed</label>
-                <text TKey="LetterTextCollectorsFled">The Brand's collectors left Thornden at a walk that kept trying to be a run, and left the tribute behind them. The village breathes. The Baron will hear of it by nightfall.\n\nNobody in the square will speak first. The old man on the well curb has not moved through any of it, and he is looking at you.</text>
+                <text TKey="LetterTextCollectorsFled">The Brand's collectors left Thornden empty-handed. The Baron will hear of it by nightfall.\n\nThe old man on the well curb is looking at you. Speak with him.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>600</xp>
@@ -162,7 +162,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelCollectorsDead">The tribute stays</label>
-                <text TKey="LetterTextCollectorsDead">The Brand's collectors will not be reporting back. Thornden keeps its grain, and gains a war it did not ask for; the village is with you now because it has no other direction left.\n\nThe square empties, then fills again. The old man on the well curb has not moved through any of it, and he is looking at you.</text>
+                <text TKey="LetterTextCollectorsDead">The Brand's collectors are dead. Thornden keeps its grain, and the village is committed to your fight now, asked for or not.\n\nThe old man on the well curb is looking at you. Speak with him.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>600</xp>
@@ -237,7 +237,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>NegativeEvent</letterDef>
                 <label TKey="LetterLabelSuretyLost">The surety is gone</label>
-                <text TKey="LetterTextSuretyLost">The outpost scattered before the company reached the boy. Wherever the Brand moved him, it is behind the keep's walls now, or nowhere.\n\nNothing is left between the company and the Baron but the walls themselves.</text>
+                <text TKey="LetterTextSuretyLost">The outpost scattered before the company reached the boy. Wherever the Brand moved him, it is behind the keep's walls now, or nowhere.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
                 <questDef>TSC_Act3_IronBrand</questDef>
@@ -256,7 +256,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelSuretyFreed">The smith's son</label>
-                <text TKey="LetterTextSuretyFreed">Bry Coalhand is out of the Brand's hands and on the road home to Thornden, where his father is going to shoe the company's horses free for life whether anyone wants it or not.\n\nThe Brand has nothing left to squeeze and nowhere left to reach. All that remains of the Iron Brand is the keep it hides in.</text>
+                <text TKey="LetterTextSuretyFreed">Bry Coalhand is free and on the road home to Thornden.\n\nThe Brand has no hostages left. All that remains of the Iron Brand is the keep it hides in.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
                 <flag>TSC_BryFreed</flag>
@@ -337,7 +337,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelHoardShard">Three of five</label>
-                <text TKey="LetterTextHoardShard">The Iron Brand is broken, and out of the coin and church-silver at the bottom of their hoard comes the third shard of the shattered crown.\n\nThree of five. The cold weight behind the breastbone is heavier now, and the pull toward the last two pieces is no longer subtle.</text>
+                <text TKey="LetterTextHoardShard">The Iron Brand is broken. At the bottom of the Baron's hoard: the third shard of the shattered crown.\n\nThree of five. The pull toward the last two pieces is no longer subtle.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>1000</xp>

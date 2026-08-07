@@ -19,7 +19,7 @@ The lid grinds back. Inside is a small dry man in the remains of very good cloth
 
 On the lid where the party laid them: the ring, gone past warm; the staff, its crescent turned some invisible force to face the man below; and the amulet, silent. Whatever it has been counting toward since the funeral, that moment has arrived.
 
-He is nine hundred years dead, and nothing in him moves. Then the ring flares once, like a held breath let go, and he opens his eyes.
+He is nine hundred years dead, and nothing in him moves. Then the ring flares once, and he opens his eyes.
 
 * [Wait.] -> woke
 * "Can you hear me?" -> woke
@@ -271,7 +271,7 @@ The wanting follows them up the throat and out into the daylight, and then it st
 
 Behind them, the mound is just a hill with good grass.
 
-"Someone will find it," Wren says, eventually. Nobody argues. But it will not be them, and it will not be soon, and after five acts of this that turns out to be worth more than a better ending.
+"Someone will find it," somebody says, eventually. Nobody argues. But it will not be them, and it will not be soon, and after five acts of this that turns out to be worth more than a better ending.
 
 * [The Shattered Crown.] -> end
     do crown_ending(leave)

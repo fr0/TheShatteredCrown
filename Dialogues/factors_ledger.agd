@@ -5,7 +5,7 @@
 dialogue TSC_Dialogue_FactorsLedger
 
 == start ==
-The entries are the wrong shape for banditry. Every caravan this crew took is written in days BEFORE they took it: route, escort count, load itemized down to the barrel.
+The entries are the wrong shape for banditry. Every caravan this crew took is written in days *before* they took it: route, escort count, load itemized down to the barrel.
 
 They did not scout. They were told.
 
@@ -19,7 +19,7 @@ One hand has initialed every page, cramped in the margin beside the crew's spraw
 * "A toll crew that gets audited." -> audited
 
 == audited ==
-Bandits do not keep books. Men who must SHOW their books keep them, and show them to whoever signs the margin - and this margin is signed from inside the guild.
+Bandits do not keep books. Men who must *show* their books keep them, and show them to whoever signs the margin - and this margin is signed from inside the guild.
 
 The pages come out of the stitching clean. The signature now belongs to somebody who can be found.
 

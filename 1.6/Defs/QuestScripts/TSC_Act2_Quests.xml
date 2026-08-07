@@ -59,7 +59,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>NegativeEvent</letterDef>
                 <label TKey="LetterLabelBardDead">The singer is dead</label>
-                <text TKey="LetterTextBardDead">The bard of [bardCity_label] is dead, and the verses with her. Whatever she knew about the forgotten crown goes unsung.\n\nThe lead is lost. Others will surface; songs like that do not stay buried.</text>
+                <text TKey="LetterTextBardDead">The bard of [bardCity_label] is dead. Whatever she knew about the forgotten crown died with her.\n\nThe lead is lost.</text>
               </li>
               <li Class="QuestNode_End">
                 <outcome>Fail</outcome>
@@ -162,7 +162,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelKingsblade">The Kingsblade</label>
-                <text TKey="LetterTextKingsblade">Eight hundred years in a flooded reliquary and the edge is still true. The sword of the last crowned king of Aldruin rides with the company now, and so does the second shard of his crown.\n\nTwo of five. And the fifth verse is out of the cellar for good.</text>
+                <text TKey="LetterTextKingsblade">The Kingsblade is recovered from the flooded reliquary, and with it the second shard of the crown.\n\nTwo of five.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>600</xp>

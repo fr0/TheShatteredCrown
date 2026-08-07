@@ -121,7 +121,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>NegativeEvent</letterDef>
                 <label TKey="LetterLabelBranDead">Bran Underhill is dead</label>
-                <text TKey="LetterTextBranDead">Bran Underhill, scout of the Wayfarer party, is dead. The guild contract asked for the party alive or dead; this is the second kind of answer.\n\nAmong his effects: a strip of bark scratched over with a scout's shorthand, marking the company's campsite deeper in the pass. His last work, and it still points the way.</text>
+                <text TKey="LetterTextBranDead">Bran Underhill, scout of the Wayfarer party, is dead.\n\nAmong his effects: a strip of bark scratched with scout's shorthand, marking the company's campsite deeper in the pass.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveQuest">
                 <questDef>TSC_Act1_Camp</questDef>
@@ -160,7 +160,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelBranFound">One found: Bran Underhill</label>
-                <text TKey="LetterTextBranFound">The party's scout, alive: Bran Underhill, holed up in the border ruin. The rest of the company is camped deeper in the pass; he's marked the site on your maps.\n\nOne found. Now for the others.</text>
+                <text TKey="LetterTextBranFound">Bran Underhill, the party's scout, is alive and holed up in the border ruin. The rest of the company is camped deeper in the pass; he has marked the site on your maps.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_UpdateDescription">
                 <description>You found Bran Underhill, the party's scout, alive in the border ruin, and he's marked the company's campsite on your maps.\n\nTravel to the Wayfarers' camp and find the rest of Serra Voss's party.</description>

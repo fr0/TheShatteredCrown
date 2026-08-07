@@ -15,22 +15,19 @@ He comes up the last of the slope while the company is still looking at the ston
 
 A courier's satchel, worn through and mended and worn through again. A road warrant from a chancery that has not existed in eight centuries. Boots that have been resoled by people whose grandchildren are dust.
 
-He stops when he sees the mound. Actually stops, mid-step, like a man walking into a wall of water.
+He stops when he sees the mound. Actually stops, mid-step.
 
 "Oh," he says. "It *is* here. I did wonder."
 
 * "Who are you?" -> who
 * "You are the fifth rider." -> who
-* [Look at him properly before anyone speaks.] -> look
+* [Look at him properly before anyone speaks.]
     check Perception 9 -> looked | who
 * [Put a hand near a weapon and wait.] -> wary
 
-== look ==
+== looked ==
 {PLAYER} takes the extra breath, and looks.
 
-* [Continue.] -> looked
-
-== looked ==
 The satchel is eight hundred years old and mended a hundred times. The boots are new, and cheap, and the wrong size. The seal on his warrant is one no living clerk could forge, because no living clerk has seen one.
 
 And his hands are wrong. Not old: *worn*. The calluses of a man who has gripped the same strap for longer than calluses last, laid over each other until the skin gave up and became leather.

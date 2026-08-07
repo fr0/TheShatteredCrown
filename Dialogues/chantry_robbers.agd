@@ -8,7 +8,7 @@
 dialogue TSC_Dialogue_ChantryRobbers
 
 == start ==
-The picks stop. A man comes out of the chantry door with a drawn face and a hand on his sword, and the crew behind him spreads without being told.
+The picks stop. A man comes out of the chantry door with a drawn face and a hand on his sword, and the crew behind him spreads out without being told.
 
 "Claimed," he says. "Whole site. We have been breaking this floor for six days and whatever the priests buried is ours when it comes up. Walk on."
 
@@ -28,7 +28,7 @@ He does not look like a man six days into easy work. He looks like a man who has
 == nights ==
 The hand on the sword loosens a little.
 
-"Nights are long," he says, flat. "Something in that floor keeps time. Tick, tick, tick, all dark, every dark. The men sleep outside now. They think I have not noticed that they have moved the fire twice."
+"Nights are long," he says, flat. "Something in that floor keeps time. Tick, tick, tick, all the time. The men sleep outside now. They think I have not noticed that they have moved the fire twice."
 
 He looks back at the chantry door once, quick.
 
@@ -49,14 +49,14 @@ He looks back at the chantry door once, quick.
     on success do parley_flee(); grant_xp(40)
 
 == paid ==
-The silver changes hands at arm's length and the crew is packed inside the half hour, faster than six days of camp should strike.
+The silver changes hands at arm's length and the crew is packed inside the half hour, faster than six days of camp should allow.
 
-The captain pauses at the head of the track. "The little sealed door behind the altar," he says, not turning around. "Six days of floor and we never got under it. Whatever ticks is on the other side of that seal, and it does not answer picks. I would finish before dark."
+The captain pauses at the head of the track. "The little sealed door behind the altar," he says, not turning around. "Six days and we never got under it. Whatever ticks is on the other side of that seal, and it does not answer to our picks. If I were you, I would finish before dark."
 
 * [Let them go.] -> end
 
 == count ==
-Four shovels, two bows, a crew that has dug for six days and camps OUTSIDE the roof they are robbing. They are more afraid of the chantry than of you, and their captain knows the numbers of the party in front of him.
+Four shovels, two bows, a crew that has dug for six days and camps *outside* the roof they are robbing. They are more afraid of the chantry than of you, and their captain knows the numbers of the party in front of him.
 
 * "You are outnumbered and out of sleep. Go." -> scared
     if party_size(>=4)
@@ -67,7 +67,7 @@ Four shovels, two bows, a crew that has dug for six days and camps OUTSIDE the r
     do parley_hostile()
 
 == scared ==
-Something goes through the crew, and it is relief wearing a scowl.
+Relief goes through the crew.
 
 "Keep it," the captain says. "Keep the whole ticking house." He is already walking. "Six days. Tell the priests' ghosts we broke honest floor."
 

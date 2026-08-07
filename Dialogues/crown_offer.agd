@@ -9,7 +9,7 @@
 dialogue TSC_Dialogue_CrownOffer
 
 == start ==
-The pieces have gone quiet. Not silent: attentive: the hush before somebody important speaks.
+The pieces have gone quiet. Not silent; attentive: the hush before somebody important speaks.
 
 And then it does speak, and it is not visions any more. It is words, in {PLAYER}'s own voice, using {PLAYER}'s own mannerisms. It is the most frightening thing that has happened on this journey.
 
@@ -54,7 +54,7 @@ That is the entire price and it is offered without any attempt to hide it. Someh
 * "No." -> refuse
 
 == refuse ==
-The offer withdraws. It does not sulk and it does not threaten; it simply files the answer away, creditor-patient, and moves on.
+The offer withdraws. It does not sulk and it does not threaten; it simply files the answer away, patiently, and moves on.
 
 Then, mildly, as a last remark rather than a bargain:
 

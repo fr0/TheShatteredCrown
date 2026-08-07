@@ -18,11 +18,11 @@ The nearest one speaks, and his voice is the sound of a man who has had this sen
 "Name yourself, and say by what right you come to the king's rest."
 
 * "We carry four pieces of his crown. We came to finish it." -> claim
-* "We came because the crown pointed us here. That is the whole truth." -> truth
+* "We came because the crown pointed us here." -> truth
 * "Stand aside." -> refuse
-* [Answer with the chronicle: name the five roads and the five riders.] -> chronicle
+* [Answer with the chronicle: name the five roads and the five riders.]
     check Lore 15 -> chronicle_ok | chronicle_bad
-* [Sing them the five roads, as a lay, as it was meant to be carried.] -> sung
+* [Sing them the five verses.]
     check Performance 12 -> sung_ok | sung_bad
 
 == claim ==
@@ -45,7 +45,7 @@ The spear comes up a hand's width.
 
 "You at least know you were pointed. Whether that makes you better company than the ones who never arrived, I could not say. It is not, by itself, a right."
 
-* [Answer with the chronicle: name the five roads and the five riders.] -> chronicle
+* [Answer with the chronicle: name the five roads and the five riders.]
     check Lore 15 -> chronicle_ok | chronicle_bad
 * "Then judge us on what we do next." -> honest
 * "Enough. Stand aside." -> refuse
@@ -53,48 +53,44 @@ The spear comes up a hand's width.
 == honest ==
 "An honest answer." He looks at the company a while. "That is not what we were braced for."
 
-* [Answer with the chronicle: name the five roads and the five riders.] -> chronicle
+* [Answer with the chronicle: name the five roads and the five riders.]
     check Lore 15 -> chronicle_ok | chronicle_bad
-* [Sing them the five roads, as a lay, as it was meant to be carried.] -> sung
+* [Sing them the five verses.]
     check Performance 12 -> sung_ok | sung_bad
-* "We were not sent, and we are not owed. Let us past anyway." -> plead
+* "We were not sent, and we are not owed. Let us past anyway."
     check Persuasion 15 -> plead_ok | plead_bad
 * [Enough talking.] -> refuse
 
-== chronicle ==
+== chronicle_ok ==
 {PLAYER} answers as the chronicle does: not with a claim, but with the roads.
 
-* [Continue.] -> chronicle_ok
-
-== chronicle_ok ==
 The north road and the hill grave. The road under the city and the man told to sing. The east road and the hands the piece fell through. The winter road and the house that barred its own gate. And the fifth, which the carvers left unfinished, because its rider has not stopped walking.
 
 Five roads, five riders, and what each of them cost. Nobody who was merely greedy could recite it.
 
 The oath-keeper listens to the end. Then he does something none of them have done in nine hundred years: he lowers his spear.
 
-"You have carried it and you have read it, and you came anyway. So did we." He steps back from the tomb. "Go and see him, then. He has been waiting for somebody who knew the whole of it."
+"You have carried it and you have read it, and you came anyway. So did we." He steps back from the tomb. "Go and see him, then. He has been waiting."
 
 * [Approach the sarcophagus.] -> end
     do guard_yield(); grant_xp(200); flag(TSC_HonorGuardChronicle)
 
 == chronicle_bad ==
+{PLAYER} answers as the chronicle does: not with a claim, but with the roads.
+
 {PLAYER} has the understanding of it and loses the order: the roads tangle, a rider goes to the wrong grave, the winter house arrives two centuries early.
 
 The oath-keeper waits it out with the patience of stone.
 
 "Pieces of it," he says. "You have pieces of everything, it seems." The spear stays level. "Try again with something truer, or try the other way."
 
-* "We were not sent, and we are not owed. Let us past anyway." -> plead
+* "We were not sent, and we are not owed. Let us past anyway."
     check Persuasion 15 -> plead_ok | plead_bad
 * [Enough talking.] -> refuse
 
-== plead ==
+== plead_ok ==
 {PLAYER} stops arguing rights and says the plain thing instead.
 
-* [Continue.] -> plead_ok
-
-== plead_ok ==
 "We have no writ and no blood claim, and the thing in our packs wants us here, which we know is the worst possible reason to be standing in a doorway. Every man who kept a piece of it died keeping it, and we have read all their handwriting. We are not here to be kings. We are here because somebody has to be the last ones to touch it, and it might as well be people who understand what that costs."
 
 Silence in the plate.
@@ -107,18 +103,17 @@ He grounds his spear and stands aside.
     do guard_yield(); grant_xp(150)
 
 == plead_bad ==
+{PLAYER} stops arguing rights and says the plain thing instead.
+
 The words come out and they are the wrong words: too certain, too smooth, a claim after all. Behind the visor, whatever was listening stops.
 
 "No," the oath-keeper says, almost gently. "That one we have had ready since before your language existed."
 
 * [Then it is spears.] -> refuse
 
-== sung ==
-Not a speech. A lay, in the old measure: five roads, five riders, one verse each.
-
-* [Continue.] -> sung_ok
-
 == sung_ok ==
+Not a speech. A song, in the old measure: five roads, five riders, one verse each.
+
 The north road and the man who lay down in the grave he dug. The road under the city and the singer left with an order and no relief. The east road and the piece that fell through eight hundred years of hands. The winter road and the house that barred its own gate. And the fifth, held back at the end where the tune wants resolving and does not get it, because that rider has not stopped walking.
 
 Somewhere in the third verse, something happens that nobody expects.
@@ -178,13 +173,15 @@ He steps out of the doorway.
     do guard_yield(); grant_xp(350); flag(TSC_HonorGuardSung); flag(TSC_WrenSangFifth); affinity(TSC_Npc_Bard, +15)
 
 == sung_bad ==
+Not a speech. A song, in the old measure: five roads, five riders, one verse each.
+
 The measure slips. The verses come out in the wrong order, the fourth road takes the third road's ending, and the tune that should resolve on the fifth simply stops.
 
 The oath-keeper waits it out with the patience of stone, and something in the plate has gone stiff.
 
 "I knew those men," he says quietly. "Try that again properly, or try another way."
 
-* "We were not sent, and we are not owed. Let us past anyway." -> plead
+* "We were not sent, and we are not owed. Let us past anyway."
     check Persuasion 15 -> plead_ok | plead_bad
 * [Enough talking.] -> refuse
 

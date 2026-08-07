@@ -7,7 +7,7 @@
 dialogue TSC_Dialogue_Surveyor
 
 == start ==
-The camp is neat as a ledger: fire ringed with counted stones, bedroll squared, a measuring chain hung in a coil on a branch like it retired too. The surveyor watches you come up the slope and does not reach for anything.
+The camp is neat as a ledger: fire ringed with counted stones, bedroll squared, a measuring chain hung in a coil on a branch. The surveyor watches you come up the slope and does not reach for anything.
 
 "Took the guild three weeks to miss me," they say. "You'd be the finders. Sit if you like. I know how this part goes: I go quiet, somebody pays somebody to learn why."
 
@@ -18,9 +18,9 @@ The camp is neat as a ledger: fire ringed with counted stones, bedroll squared, 
 == why ==
 The surveyor feeds the fire a stick and gives it the same full consideration as everything else.
 
-"Nine years I measured roads for other men to walk. Every mile marked, every report on time. Then one morning by that stream I couldn't remember a single mile I'd walked for myself." A shrug, unhurried. "So I stopped. Fish in the stream, hives up the bank. First spring I've SEEN in nine years, and I laid half of them on the guild's maps."
+"Nine years I measured roads for other men to walk. Every mile marked, every report on time. Then one morning by that stream I couldn't remember a single mile I'd walked for myself." A shrug, unhurried. "So I stopped. Fish in the stream, hives up the bank. First spring I've actually *seen* in nine years, and I laid half of them on the guild's maps."
 
-"The guild owns my chain. It doesn't own my feet. The question is what you tell them, and I've no vote in it."
+"The guild owns my chain. It doesn't own my feet. The question is what you tell them, and I've no say in it."
 
 * "The road's stopped behind you. People walk it, not just maps." -> refused
     check Persuasion 8 -> returns | refused
@@ -30,7 +30,7 @@ The surveyor feeds the fire a stick and gives it the same full consideration as 
 == bristle ==
 The surveyor looks at you for a moment, then at the hung chain, and something settles rather than sharpens.
 
-"No," they say, not unkindly. "You've the blades for it and I've a fish knife. But you'd be carrying me, not bringing me, and the guild pays for surveyors, not sacks." He gestures at the fire. "Sit. Hear it out. Then decide what you tell them."
+"No," they say, not unkindly. "You've the blades for it and I've a fish knife. But you'd be carrying me, not bringing me, and the guild will pay for a surveyor, not a sack." He gestures at the fire. "Sit. Hear it out. Then decide what you tell them."
 
 * "Go on, then." -> why
 
@@ -45,9 +45,9 @@ The surveyor is quiet for a long time. The fire cracks twice.
     do signal(TSC_Contract_Surveyor, SurveyorReturns); npc_leave(); grant_xp(40)
 
 == refused ==
-The surveyor hears you out and shakes their head, patient as a corrected sum.
+The surveyor hears you out and shakes their head, patiently.
 
-"Almost," they say. "But I counted that argument myself, going the other way, every night for a year. The road matters. It doesn't matter MORE than the one who walks it." They sit back. "So: what do you tell them? Cold trail, or the truth? I'll live with either. That's rather the point of me."
+"Almost," they say. "But I counted that argument myself, going the other way, every night for a year. The road matters. But, it doesn't matter *more* than the one who walks it." They sit back. "So: what do you tell them? Cold trail, or the truth? I'll live with either."
 
 * "Then we never found you." -> stays
 * "The truth: alive, well, and finished." -> reported
@@ -63,13 +63,13 @@ Something goes out of their shoulders that was there even in this quiet place.
     do signal(TSC_Contract_Surveyor, SurveyorStays); affinity(+3)
 
 == reported ==
-They consider that longer than either lie.
+The surveyor considers that.
 
-"The truth," they say finally, and laugh once, short. "Nine years of accurate reports and the last one's the only one that'll surprise anybody." A nod, decided. "Aye. Tell it straight: alive, well, done. Let the guild put THAT in a ledger and see how it files."
+"The truth," they say finally, and laugh once, short. "Nine years of accurate reports and the last one's the only one that'll surprise anybody." A nod, decided. "Aye. Tell it straight: alive, well, done. Let the guild put *that* in a ledger and see how it files."
 
 They walk you to the edge of the camp, which takes four steps.
 
-"They'll pay you the full fee, you know. Answers are answers. It's the only honest thing about them."
+"They'll pay you the full fee, you know. Answers are answers."
 
 * "It'll be filed by morning." -> end
     do signal(TSC_Contract_Surveyor, SurveyorReported)

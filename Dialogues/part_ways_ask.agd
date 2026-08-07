@@ -51,17 +51,14 @@ They think about that properly, which is the first hopeful thing in this convers
 
 "I do not know. That is the honest answer. If you have something, say it now, because I have already packed once in my head and the second time is easier."
 
-* [Say the thing that keeps them.] -> plead
+* [Say the thing that keeps them.]
     check Persuasion 13 -> stay | plead_bad per_npc
 * "I do not have anything. You have the right to do as you please." -> release
 * [Say nothing, and let them decide.] -> release
 
-== plead ==
+== stay ==
 {PLAYER} does not argue the case. Arguing would lose it.
 
-* [Continue.] -> stay
-
-== stay ==
 Whatever gets said, it is not a promise and it is not flattery, and it lands.
 
 {NPC} looks at the ground for a while.
@@ -76,6 +73,8 @@ They pick their pack back up.
     do flag(TSC_PartWaysTalkedRound); affinity(+10); grant_xp(50)
 
 == plead_bad ==
+{PLAYER} does not argue the case. Arguing would lose it.
+
 It is the wrong thing, said in the wrong order, and everyone standing there hears it land badly.
 
 {NPC} nods, slowly, the way people do when a decision stops being difficult.

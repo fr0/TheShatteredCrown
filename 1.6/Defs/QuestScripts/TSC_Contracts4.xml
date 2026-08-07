@@ -95,7 +95,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelQuietClean">Contract complete, quietly</label>
-                <text TKey="LetterTextQuietClean">The seal is unbroken and so, remarkably, is everything else: no alarm, no blood, no story for the garrison to tell. The factor pays double and asks no questions at all.</text>
+                <text TKey="LetterTextQuietClean">The seal is unbroken and no alarm was ever raised. The factor pays double.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>340</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>640</amount><coins>8</coins></li>
@@ -111,7 +111,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelQuietLoud">Contract complete, loudly</label>
-                <text TKey="LetterTextQuietLoud">The ledger is home, and so is the story of how it left. The factor pays the base fee and notes that the bonus was for the quieter version.</text>
+                <text TKey="LetterTextQuietLoud">The ledger is delivered, but the garrison knows it was taken. The factor pays the base fee; the bonus was for silence.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>220</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>320</amount><coins>4</coins></li>
@@ -184,7 +184,7 @@
             <nodes>
               <li Class="QuestNode_Letter">
                 <label TKey="LetterLabelSurveyorDead">Found: the hard answer</label>
-                <text TKey="LetterTextSurveyorDead">The surveyor is where the country left them, weeks gone, the measuring chain still coiled at their belt. The party takes the guild signet and marks the place. It is not the answer anyone hoped for, but it is the answer, and the guild pays for answers.</text>
+                <text TKey="LetterTextSurveyorDead">The surveyor is dead, weeks gone. The party takes the guild signet and marks the place.\n\nIt is not the answer anyone hoped for, but the guild pays for answers.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>240</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>320</amount><coins>4</coins></li>
@@ -200,7 +200,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelSurveyorFreed">Found: alive, and owed</label>
-                <text TKey="LetterTextSurveyorFreed">The surveyor was nobody's guest. Cut loose, fed, and standing straighter by the hour, they throw in with the company for now - the guild counts its surveyor found, pays in full, and adds a line of thanks in a hand that does not usually bother.</text>
+                <text TKey="LetterTextSurveyorFreed">The surveyor is found alive, held captive, and cut loose. They throw in with the company for now. The guild counts its surveyor found and pays in full.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>280</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>380</amount><coins>5</coins></li>
@@ -216,7 +216,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelSurveyorReturns">Found: coming home</label>
-                <text TKey="LetterTextSurveyorReturns">The surveyor argued, and then packed, and set off down the road they themselves had marked, toward the guild that pays for it. Full fee, and the road moves again.</text>
+                <text TKey="LetterTextSurveyorReturns">The surveyor packed and set off down their own marked road, back to the guild. Full fee, and the road moves again.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>280</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>380</amount><coins>5</coins></li>
@@ -231,7 +231,7 @@
             <nodes>
               <li Class="QuestNode_Letter">
                 <label TKey="LetterLabelSurveyorReported">Found: the true report</label>
-                <text TKey="LetterTextSurveyorReported">Alive, well, and finished - and that is what the guild is told, word for word. The factor reads it twice, files it, and pays the full fee for an honest answer. Somewhere in the hills, a surveyor goes on being free.</text>
+                <text TKey="LetterTextSurveyorReported">The guild is told the truth: alive, well, and finished. The factor pays the full fee for an honest answer.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>240</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>380</amount><coins>4</coins></li>
@@ -246,7 +246,7 @@
             <nodes>
               <li Class="QuestNode_Letter">
                 <label TKey="LetterLabelSurveyorStays">Never found</label>
-                <text TKey="LetterTextSurveyorStays">The report reads: no trace. The factor pays the half-fee a cold trail earns and closes the file. The party carries the rest of it - a fire in the hills, a handshake apiece, and a road that will need a new surveyor.</text>
+                <text TKey="LetterTextSurveyorStays">The report reads: no trace. The factor pays the half-fee a cold trail earns and closes the file.\n\nThe truth stays with the party.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp"><xp>240</xp></li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GiveSilver"><amount>190</amount><coins>2</coins></li>
@@ -295,7 +295,7 @@
             <nodes>
               <li Class="QuestNode_Letter">
                 <label TKey="LetterLabelEscortNoRoad">Contract void: [resolvedQuestName]</label>
-                <text TKey="LetterTextEscortNoRoad">There are no friendly gates within a sensible ride of here, and the guild does not pay people to walk its clerk in circles. The contract is voided before it starts: no charge, no fee, no penalty.</text>
+                <text TKey="LetterTextEscortNoRoad">There are no friendly gates within a sensible ride of here. The contract is voided before it starts: no charge, no fee, no penalty.</text>
               </li>
               <li Class="QuestNode_End"><outcome>Fail</outcome></li>
             </nodes>

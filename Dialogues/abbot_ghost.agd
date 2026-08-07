@@ -21,10 +21,10 @@ He is at the altar as if he had never left it: an old man in an abbot's habit, h
 
 * "Say yours." -> defense
 * "You killed them. Your own brothers." -> accuse
-* [Say nothing. Let the silence work on HIM for once.] -> silence
+* [Say nothing. Let the silence work on *him* for once.] -> silence
 
 == accuse ==
-"No." No heat in it. "The thing in the courier's pack killed them. I decided where they would die, and how much of the world they would take with them. Those were the choices on my desk. Show me the better choice I couldn't see and I will beg your pardon."
+"No." Unconvincing. "The thing in the courier's pack killed them. I decided where they would die, and how much of the world they would take with them. Those were the choices on my desk. Show me the better choice I couldn't see and I will beg your pardon."
 
 He turns to the altar, and back.
 
@@ -58,7 +58,7 @@ He looks at {PLAYER}.
 == absolve ==
 Something goes out of the old shoulders.
 
-"Well done," he repeats, quietly, testing the words. "There was no one left to say it." He straightens. "Then finish it. The rule was mine to give and it is yours to break, and it breaks one way: the truth, said out loud, in this room. We could not. Do it for us."
+"Well done," he repeats, quietly, testing the words. "There was no one left to say it." He straightens. "Then finish it. The rule was mine to give and it is yours to break, and it breaks only one way: the truth, said out loud, in this room. We could not. Do it for us."
 
 * [Speak the truth of the house.] -> rite
 
@@ -83,20 +83,17 @@ The candles are puddles and the light is the color of snow, but the room was bui
 
 How should it be said?
 
-* [Say it plainly, as to a room of brothers.] -> spoken
+* [Say it plainly, as to a room of brothers.]
     check Persuasion 8 -> spoken_well | spoken_rough
 * "Wren. The fourth verse has been wrong for eight hundred years. Sing it right." -> sung
     if in_party(TSC_Npc_Bard)
-* [Read the abbot's own letter aloud.] -> letter
+* [Read the abbot's own letter aloud.]
     check Lore 8 -> letter_well | spoken_rough
     if flag(TSC_MonWriting_AbbotLetter)
 
-== spoken ==
+== spoken_well ==
 {PLAYER} stands where the reader stood at meals and says it.
 
-* [Continue.] -> spoken_well
-
-== spoken_well ==
 It comes out plain and whole: the courier and his burden. The humming each man hid from every other. The rule that made the hiding holy. The tallies wound down on purpose, the rope cut high, the gate barred, the last three niches sealed from inside. Said in order, in the room where words were owed, it is not a horror story. It is a garrison's honor roll.
 
 The house listens to the end.
@@ -104,7 +101,7 @@ The house listens to the end.
 * [And the last word.] -> broken
 
 == spoken_rough ==
-It does not come out whole. The order tangles, names are missing, the middle has to be said twice. But it gets said, every hard part of it, out loud, by a living voice in this room. That turns out to be the entire requirement. The dead were monks, not critics.
+It does not come plainly. The order tangles, names are missing, the middle has to be said twice. But it gets said, every hard part of it, out loud, by a living voice in this room. That turns out to be the entire requirement. The dead were monks, not critics.
 
 The house listens to the end.
 
@@ -119,13 +116,10 @@ Four verses of the five, whole and true, in the house the fourth one is about. T
 
 * [And the last word.] -> broken
 
-== letter ==
+== letter_well ==
 {PLAYER} unfolds the letter the abbot sealed and never sent, and reads it aloud to the room it was always about.
 
-* [Continue.] -> letter_well
-
-== letter_well ==
-"Your Grace. I will never send this letter. I am writing it so that the truth exists somewhere, in my own hand." The abbot's own words, in a living voice, eight hundred years past their address. At the line about the bell rope, somewhere far above, metal shifts against wood. At "the house will die around it," the room is very quiet. At "I am doing it on purpose," the letter is finished, and so is the post it was written from.
+"Your Grace. I will never send this letter. I am writing it so that the truth exists somewhere, in my own hand." The abbot's own words, in a living voice, eight hundred years past. At the line about the bell rope, somewhere far above, metal shifts against wood. At "the house will die around it," the room is very quiet. At "I am doing it on purpose," the letter is finished, and so is the post it was written from.
 
 The abbot stands with his head bowed, hearing his own hand.
 

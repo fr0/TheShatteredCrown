@@ -8,7 +8,7 @@ entry asleep if sleeping()
 entry hub if flag(TSC_MetWilf)
 
 == start ==
-A long, thin man leans on his hoe like it holds him up. Everything droops: shoulders, mustache, a hat worn shapeless. His eyes are sharp.
+A long, thin man leans on his hoe. Everything droops: shoulders, mustache, a hat worn shapeless. His eyes are sharp.
 
 "Wilf Thistledown," he says, in the tone of a man confessing to something. "I farm the middle plot. The wet one. Mara will tell you it's good land, and Mara is right about everything except that."
 
@@ -63,7 +63,7 @@ Wilf leans harder on his hoe.
 * "I see." -> hub
 
 == wetplot_offer ==
-Wilf looks at you like a drowning man looking at a rope.
+Wilf looks at you, clearly sizing you up.
 
 "Work. Well. There's the culvert." He gestures at the wet plot with his whole arm, in despair. "Old kingdom drain, feeds past my field, blocked for years. Clear it and the plot merely seeps instead of floods. I'd do it myself, but I did, twice, and the culvert won."
 

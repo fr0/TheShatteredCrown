@@ -17,7 +17,7 @@
 dialogue TSC_Dialogue_BranCellar
 
 == start ==
-The north end of the ruin is a heap. Slate, laths, a gable's worth of it, in a pile the height of a man.
+The north end of the ruin is a heap. Slate, laths, a gable's worth of it, in a pile as tall as a man.
 
 Bran stands at the edge of the pile with his hands at his sides.
 
@@ -43,11 +43,11 @@ Whatever barred that door barred it from up here, and it was not a person.
 * [Shift it.] -> open
 
 == open ==
-One end lifts on a lath used as a lever. The other walks sideways with a shoulder against it. It is heavy and awkward and one determined man could have done it in a quarter of an hour.
+One end lifts on a lath used as a lever. The other moves sideways with a shoulder against it. It is heavy and awkward, but one determined man could have done it in a quarter of an hour.
 
-The door swings out easily. It would have done on any day since, for one man with a lath and a shoulder.
+The door swings out easily.
 
-Bran does not go down first. He goes down third.
+Bran walks down.
 
 * [Follow him.] -> below
 
@@ -58,38 +58,34 @@ He has been dead a long while and the cold has kept him tidy. He is sitting with
 
 Not one of them speaks.
 
-* [Read the marks on the inside of the door.] -> marks
+* [Read the marks on the inside of the door.]
     check Perception 9 -> marks_ok | marks_bad
-* [Look at his kit.] -> kit
+* [Look at his kit.]
     check Lore 9 -> kit_ok | kit_bad
 * [Go to Bran.] -> bran
 
-== marks ==
+== marks_ok ==
 {PLAYER} takes the lamp to the inside face of the door.
 
-* [Continue.] -> marks_ok
-
-== marks_ok ==
 The inside of the door is scored to a depth of a finger. Boot heels, a knife, and then, lower down, hands.
 
 There is a tally cut into the frame beside it. Six strokes. Then a seventh, half finished.
 
-Six days. He was down there four days before he started hitting the door, and he kept at it for two, and then for one more day he was alive and not hitting anything.
+Six days. He was down there four days before he started hitting the door, and he kept at it for two, and then for one more day he was barely alive and not hitting anything.
 
 * [Go to Bran.] -> bran
     do grant_xp(40)
 
 == marks_bad ==
-The inside of the door is scored and battered and it is impossible to say for how long, or in what order, or by a man who still believed he would be heard.
+{PLAYER} takes the lamp to the inside face of the door.
+
+The inside of the door is scored and battered and it is impossible to say for how long, or in what order.
 
 * [Go to Bran.] -> bran
 
-== kit ==
+== kit_ok ==
 {PLAYER} crouches by the kit.
 
-* [Continue.] -> kit_ok
-
-== kit_ok ==
 A Thornden bow, the cheap kind, kept far better than it deserved. A guild tally-stick, stamped with the year he was taken on. And a linen map case, empty, with a note pushed into it that has gone almost to lace.
 
 What survives of the note is four words in a bad hand: *tell serra i tried*.
@@ -100,7 +96,9 @@ He was not writing to whoever might find him. He was writing to somebody he expe
     do flag(TSC_BranHeskNote); grant_xp(40)
 
 == kit_bad ==
-A bow, a tally-stick, a map case with nothing in it. The kind of kit that tells you what a man did and nothing about what he was.
+{PLAYER} crouches by the kit.
+
+A bow, a tally-stick, a map case with nothing in it.
 
 * [Go to Bran.] -> bran
 
@@ -111,7 +109,7 @@ Bran has not moved off the bottom step.
 
 He looks back up the steps at the beam, lying in the grass where it took one lath and one shoulder to move.
 
-"It was not raiders. It was a roof." A long pause. "And I never went and looked. That is the whole of it. Not that I could not lift it. That I sat forty feet away for two days and never once walked over to the pile."
+"It was not raiders. It was a roof." A long pause. "And I never went and looked. Not that I could not lift it. That I sat forty feet away for two days and never once walked over to the pile."
 
 * "You could not have known." -> couldnt
 * "No. You could not." -> couldnt

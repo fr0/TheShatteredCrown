@@ -14,13 +14,13 @@ entry confessed if flag(TSC_WickConfessed)
 == start ==
 "That box you're standing over," says a dry voice from the dark, "is mine."
 
-Old Wick walks into the lamplight. He carries a sword now, and he carries it like a man who always has. He does not look tired anymore.
+Old Wick walks into the lamplight. He carries a sword now, and he carries it with ease. He does not look tired anymore.
 
 "The survey story was true, courier, or at least part of it. The crew cut into this place sixty years ago. Three of them swore and went home. The fourth was me."
 
 "I was already in the box when they broke the seal." He taps the coffin lid, once. "I walked out with them anyway, and learned their names, and buried them one by one as old men. Wick Alderman, sixty years in the valley. I have had other names. I served the king who wore that crown whole. When they shattered it, each shard was buried where no thief would find it. This was one of the places."
 
-"The thing you seek is not in my box, courier. Deeper. Behind the warm door, laid at the head of a black sarcophagus, and the thing that made me is sealed inside that sarcophagus, because nothing else in the world would guard a shard well enough."
+"The thing you seek is not in my box, courier. Deeper. Behind the warm door, laid at the head of a black sarcophagus, and the thing that made me is sealed inside that sarcophagus, because nothing else in the world could guard a shard better."
 
 * "The journal in the well caves. That was you." -> journal_owned
     if flag(TSC_WeatheredJournalRead)
@@ -48,13 +48,13 @@ Old Wick is standing by the coffin when you reach it, sword at his side, hands f
 * "Enough. Finish it." -> choice
 
 == victim_owned ==
-"A shepherd. Forty years ago, in a bad winter, when I had gone too long." The words come out level, each one placed like a stone. "I carried them down where the water is, and I laid them out, and I left everything I owned worth leaving. It did not help them. It was not supposed to help me."
+"A shepherd. Forty years ago, in a bad winter, when I had gone too long and the thirst took over." The words come out level, placed like a row of stones. "I carried them down where the water is, and I laid them out, and I left everything I owned worth leaving next to them. It did not help them. It was not supposed to help me."
 
 * "What is behind the warm door?" -> door_q
 * "Enough. Finish it." -> choice
 
 == accounting ==
-"I served. That is the whole of it, and the whole crime." He does not raise his voice. "I put down the rising at the weirs. They were farmers. I held this pass for kings who never asked how. And forty years ago, in a bad winter, when I had gone too long, I killed a shepherd of this village and told the searchers where not to look."
+"I served." He does not raise his voice. "I put down the rising at the weirs. They were farmers. I held this pass for kings who never asked how. And forty years ago, in a bad winter, when I had gone too long, I killed a shepherd of this village and told the searchers where not to look."
 
 "There are caves below the village well. The shepherd is in them, and beside them a chest with a journal. Three hundred years of accounting, unsigned. If you want to check my ledger before you rule on it, courier, it is all written down."
 
@@ -62,7 +62,7 @@ Old Wick is standing by the coffin when you reach it, sword at his side, hands f
 * "Enough. Finish it." -> choice
 
 == door_q ==
-"The one who made me what I am. The one I served before I served kings." He does not turn his head toward it. "It does not die. It only sleeps, and it sleeps holding your shard, because they knew no lock would hold it and no guard would stay."
+"The one who made me what I am. The one I served before I served kings." He does not turn his head toward it. "It does not die. It only sleeps, and it sleeps holding your shard, because they knew no lock would hold it."
 
 "Understand what you are walking into, courier. The shard lies against its box, close enough that the stone stays warm. Lift it and it wakes, and there is no word you can say to it afterward. I have tried. I had three hundred years to think of the word. And courier - do not open the box yourself. That is the one mercy the arrangement allows you."
 

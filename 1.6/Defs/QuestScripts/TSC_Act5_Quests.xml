@@ -63,7 +63,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>PositiveEvent</letterDef>
                 <label TKey="LetterLabelAct5Rescued">Out of the camp</label>
-                <text TKey="LetterTextAct5Rescued">They are on their feet, more or less, and they are coming along. Neither of them asks what the company is carrying, which means both of them already know.\n\nThe road east is long, and it is better walked with them than without.</text>
+                <text TKey="LetterTextAct5Rescued">Serra and Oswin are out of the camp, on their feet, and traveling with the company again.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
                 <flag>TSC_Act5_Rescued</flag>
@@ -138,7 +138,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>NeutralEvent</letterDef>
                 <label TKey="LetterLabelBarrowArrived">The mound</label>
-                <text TKey="LetterTextBarrowArrived">The barrow is exactly where four pieces of a crown said it would be: a long green mound on the high ground, turf grown over stonework older than any kingdom on the maps, and a throat of dressed rock facing the sunrise.\n\nThe humming stops at the threshold, and here, at the door, the pieces finally show what has been done to them: held together they refuse each other, like the same poles of two lodestones. The men who broke this crown warded the break. No living hand joins it again. The only hand the wards answer to is the one the pieces were cut from, and that hand is under the mound.\n\nWhatever the mound wants brought, it will say so itself. Go down and ask.</text>
+                <text TKey="LetterTextBarrowArrived">The barrow is found, exactly where the four pieces pointed.\n\nAt the threshold, the shards' humming stops, and held together the pieces refuse each other: the men who broke this crown warded the break. No living hand joins it again. The only hand the wards answer to is under the mound.\n\nWhatever the mound wants brought, it will say so itself. Go down and ask.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_GrantXp">
                 <xp>600</xp>
@@ -277,7 +277,7 @@
               <li Class="QuestNode_Letter">
                 <letterDef>NeutralEvent</letterDef>
                 <label TKey="LetterLabelRegaliaRing">The ring</label>
-                <text TKey="LetterTextRegaliaRing">The first king's ring is in the company's keeping - and the moment it came off the tower stones, every shard in the party's packs went warm at once, the way they have not done since the barrow's door.</text>
+                <text TKey="LetterTextRegaliaRing">The first king's ring is in the company's keeping. The moment it came off the tower stones, every shard in the party's packs went warm at once.</text>
               </li>
               <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
                 <flag>TSC_RingTaken</flag>
@@ -289,7 +289,7 @@
                     <li Class="QuestNode_Letter">
                       <letterDef>NeutralEvent</letterDef>
                       <label TKey="LetterLabelRegaliaAmulet">The amulet</label>
-                      <text TKey="LetterTextRegaliaAmulet">The first king's amulet is in the company's keeping. Held to the ear it keeps time, patiently, like something that has been counting for a very long while and is nearly done.</text>
+                      <text TKey="LetterTextRegaliaAmulet">The first king's amulet is in the company's keeping. Held to the ear, it keeps time, like something nearly done counting.</text>
                     </li>
                     <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
                       <flag>TSC_AmuletTaken</flag>
@@ -301,7 +301,7 @@
                           <li Class="QuestNode_Letter">
                             <letterDef>PositiveEvent</letterDef>
                             <label TKey="LetterLabelRegaliaDone">The regalia, gathered</label>
-                            <text TKey="LetterTextRegaliaDone">Ring, amulet, staff: everything the king's undeath was built to run on, together for the first time since his funeral.\n\nCarried side by side they have begun answering each other, a low three-part note that nobody in the company can quite stop hearing. The shards have gone silent altogether.\n\nTake the regalia down the stone throat and lay it on the sarcophagus.</text>
+                            <text TKey="LetterTextRegaliaDone">Ring, amulet, staff: everything the king's undeath was built to run on, together for the first time since his funeral. The shards have gone silent.\n\nTake the regalia down the stone throat and lay it on the sarcophagus.</text>
                           </li>
                           <li Class="TheShatteredCrown.QuestNode_TSC_SetFlag">
                             <flag>TSC_StaffTaken</flag>

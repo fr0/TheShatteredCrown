@@ -581,10 +581,45 @@ def validate(dlg: Dialogue, path: Path):
             if opt.check:
                 check_link(opt.check.success_link, f"node '{node.name}' check success")
                 check_link(opt.check.fail_link, f"node '{node.name}' check fail")
+                # The runtime always follows the check's links when a check is
+                # present, so an option-line '->' target is dead code. A target
+                # that merely repeats one of the check's links is a harmless
+                # authoring idiom; a target the check never goes to is authored
+                # content no player will see (honor_guard shipped an
+                # unreachable node this way once).
+                if opt.link_to and opt.link_to not in (opt.check.success_link, opt.check.fail_link):
+                    errors.append(
+                        f"node '{node.name}' option '{opt.text[:30]}' targets "
+                        f"'-> {opt.link_to}' but its check goes to "
+                        f"'{opt.check.success_link} | {opt.check.fail_link}'; the check's "
+                        f"links always win, so '{opt.link_to}' is never reached from here.")
     if errors:
         for e in sorted(set(errors)):
             print(f"  ERROR: {path.name}: {e}")
         raise SystemExit(1)
+
+    # Reachability: walk every link from the fallback start and all entries.
+    # An unvisited node is authored content no player can ever see. A warning
+    # rather than an error: dialogue under construction may stage nodes first.
+    roots = {dlg.start_node} | {e.node for e in dlg.entries}
+    by_name = {n.name: n for n in dlg.nodes}
+    seen = set()
+    frontier = [r for r in roots if r in by_name]
+    while frontier:
+        node = by_name[frontier.pop()]
+        if node.name in seen:
+            continue
+        seen.add(node.name)
+        for opt in node.options:
+            for link in (opt.link_to,
+                         opt.check.success_link if opt.check else "",
+                         opt.check.fail_link if opt.check else ""):
+                if link and link in by_name and link not in seen:
+                    frontier.append(link)
+    for name in names:
+        if name not in seen:
+            print(f"  WARNING: {path.name}: node '{name}' is unreachable "
+                  f"(no path from start or any entry)")
 
 
 # ---------------------------------------------------------------- emission

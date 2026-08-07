@@ -28,17 +28,14 @@ Outside is where it shows.
 == beds ==
 The beds have not died. That would be simpler. They have gone *wild*: sagewort seeded through everything, the mint over the path, and something with a red stem that she did not plant taking over the south end.
 
-* [Read what is salvageable.] -> beds_check
+* [Read what is salvageable.]
     check Nature 9 -> beds_ok | beds_bad
 * [Look at the hives.] -> hives
 * [Watch Maewyn.] -> watch
 
-== beds_check ==
+== beds_ok ==
 {PLAYER} works down the rows.
 
-* [Continue.] -> beds_ok
-
-== beds_ok ==
 Two beds are gone past saving and would need breaking and starting again. Four are recoverable by someone that knows what they are looking at and is willing to spend a week on their knees.
 
 The ninth bed, the one at the top with the black soil, is untouched and thriving. Whatever is in it, nothing else will grow near it and nothing has tried.
@@ -49,6 +46,8 @@ The ninth bed, the one at the top with the black soil, is untouched and thriving
     do grant_xp(40)
 
 == beds_bad ==
+{PLAYER} works down the rows.
+
 Green, brown, dead, alive. Somebody who knows plants could tell you which of it matters. Not you.
 
 * [Look at the hives.] -> hives

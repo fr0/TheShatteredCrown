@@ -47,7 +47,7 @@ The lamplight finds them all at once: skulls, stacked rank on rank from flagston
 
 They are not piled. They are placed - every one of them set level, every one of them facing the same way, down the passage toward the deep floor. Toward the chamber where the singing used to come from.
 
-An audience in rows, kept for eight hundred years. The party has already met their singer. Whatever this recital was, it has had its last verse, and the dead are still leaning in to listen.
+An audience in rows, kept for eight hundred years. The party has already met their singer. The recital is over now, and it ended the way the verse ends: unfinished. The dead are still leaning in, waiting for the rest of it.
 
 * [Move on.] -> end
     do grant_xp(10)

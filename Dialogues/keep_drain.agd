@@ -8,21 +8,21 @@ dialogue TSC_Dialogue_KeepDrain
 == start ==
 The grate is where Madoc said it would be: a stone throat in the hillside, well east of the walls, half-choked with a century of leaf mold. The bars across it gave up at one corner a long time ago, and the gap they left is exactly a body wide.
 
-The air coming up out of it is colder than the day, and it smells of standing water and old smoke.
+The air coming up out of it is cold, and it smells of standing water and old smoke.
 
 * [Look into the gap.] -> look
 * "Not this way." -> end
 
 == look ==
-Steps. Cut ones, going down further than the light does, into water at the bottom that is not moving.
+Steps. Cut ones, going down into the darkness, into standing water at the bottom.
 
-Somewhere down there the drain runs under the curtain wall and comes up inside it. The old kingdom built its cellars before its defenses and never thought about what that meant. The Brand has held this hill for five years and it has plainly never once occurred to them either.
+Somewhere down there the drain runs under the curtain wall and comes up inside it. The old kingdom built its cellars before its defenses and never thought about the outcome. The Brand has held this hill for five years and it has plainly never once occurred to them either.
 
 * [Go down.] -> warn
 * [Leave it.] -> end
 
 == warn ==
-Look at the drop before anyone commits to it.
+One look at the drop before anyone commits to it proves that it will be one-way.
 
 A body fits going down. Nothing fits coming back up: the last dry step is well over head height above the water, and there is nothing to climb. Whoever goes into this comes out the other end, inside the walls, with the whole garrison between them and the gate.
 

@@ -14,7 +14,7 @@ The cottage door opens before you knock. The woman in it has gray-green eyes, a 
 
 She looks at your boots. At your sword. At the guild's ink stains on your cuff. The raven clicks its beak.
 
-"Business, rider. Mind the beds."
+"Business, rider. Mind the flower beds."
 
 * "Serra Voss's company needs a message carried to the Wayfarers' Guild." -> message
 * "Your bees are wintering early. That's a hard-cold sign, this far from frost." -> bees
@@ -122,7 +122,7 @@ She pulls the door shut behind her without locking it and falls in beside you.
 
 It is the most words you will get out of her at once for some time.
 
-* "This way, Maewyn."
+* "This way, Maewyn." -> end
 
 == sent ==
 Maewyn is in her garden, unsurprised as ever. She doesn't stop working.
@@ -147,7 +147,7 @@ A beat.
     if affinity(>=10) and not flag(TSC_MaewynGroveTalk)
 * "About your cellar, Maewyn..." -> cellar_caught
     if flag(TSC_MaewynCellarTheft) and not flag(TSC_MaewynCellarAired)
-* "Carry on, Maewyn."
+* "Carry on, Maewyn." -> end
 
 == cellar_caught ==
 Maewyn doesn't look at you. Corvus does, unblinking.
