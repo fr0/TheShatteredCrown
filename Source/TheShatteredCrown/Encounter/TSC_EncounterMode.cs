@@ -3618,7 +3618,13 @@ namespace TheShatteredCrown
                 }
             }
             // Stack below the colonist bar (portraits + name labels), not on it.
-            float topY = 8f;
+            // Empty DrawLocs does NOT mean the top of the screen is clear: bar
+            // replacement mods (Colony Groups' "task force" bar) hide the
+            // vanilla bar and draw their own portraits in the same place,
+            // which the old 8px fallback sat straight on top of. During an
+            // encounter there are always colonists, so an empty vanilla bar
+            // means SOME mod owns that strip - leave it a bar's worth of room.
+            float topY = 140f;
             ColonistBar colonistBar = Find.ColonistBar;
             if (colonistBar != null && colonistBar.DrawLocs.Count > 0)
             {
