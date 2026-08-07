@@ -104,8 +104,13 @@
 
 
   <!-- The player faction: the guild itself, fixed name (no "New Arrivals").
-       A clone of vanilla PlayerColony with identity swapped - techLevel and
-       research tags deliberately untouched (a rename, not a rebalance). -->
+       A clone of vanilla PlayerColony with identity swapped; research tags
+       deliberately untouched (a rename, not a rebalance). techLevel is
+       Medieval: it is what the fiction says, scenario pickers that bucket
+       by tech level (Progression: Scenarios reads the player faction def)
+       file us under Medieval, and the vanilla research-cost penalty for
+       above-era projects points the same direction as the mod's own
+       medieval catalogs. -->
   <FactionDef ParentName="PlayerFactionBase">
     <defName>TSC_PlayerGuild</defName>
     <label>wayfarers' guild</label>
@@ -115,7 +120,7 @@
     <basicMemberKind>Colonist</basicMemberKind>
     <pawnSingular>adventurer</pawnSingular>
     <pawnsPlural>adventurers</pawnsPlural>
-    <techLevel>Industrial</techLevel>
+    <techLevel>Medieval</techLevel>
     <factionNameMaker>NamerFactionOutlander</factionNameMaker>
     <settlementNameMaker>NamerSettlementOutlander</settlementNameMaker>
     <allowedCultures><li>Astropolitan</li></allowedCultures>
