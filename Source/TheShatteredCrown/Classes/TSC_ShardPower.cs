@@ -1421,13 +1421,21 @@ namespace TheShatteredCrown
         }
     }
 
-    /// <summary>Cannot be staggered: a hit does not so much as slow the walk.</summary>
-    [HarmonyPatch(typeof(Pawn_StanceTracker), nameof(Pawn_StanceTracker.StaggerFor))]
+    /// <summary>
+    /// Cannot be staggered: a hit does not so much as slow the walk.
+    ///
+    /// Target is StaggerHandler, not Pawn_StanceTracker.StaggerFor: the
+    /// tracker method is an [Obsolete] forwarding shim, and vanilla damage
+    /// code calls pawn.stances.stagger.StaggerFor directly - a prefix on
+    /// the shim never saw a real hit (and HugsLib flagged the obsolete
+    /// patch in the log). Patching the handler catches both routes.
+    /// </summary>
+    [HarmonyPatch(typeof(StaggerHandler), nameof(StaggerHandler.StaggerFor))]
     public static class Patch_StaggerFor_ErrandHolds
     {
-        public static bool Prefix(Pawn_StanceTracker __instance)
+        public static bool Prefix(StaggerHandler __instance)
         {
-            return TSC_ErrandHolds.On(__instance.pawn) == null;
+            return !(__instance.parent is Pawn pawn) || TSC_ErrandHolds.On(pawn) == null;
         }
     }
 
