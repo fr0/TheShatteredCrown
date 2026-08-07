@@ -22,7 +22,7 @@
   <ScenarioDef ParentName="ScenarioBase">
     <defName>TSC_FreeCompany</defName>
     <label>Wayfarers' Guild: Free Company</label>
-    <description>Some riders come to the guild alone. Some arrive as a company already sworn: four names on one charter, debts and histories included.\n\nYou hold an open charter of the Wayfarers' Guild for a company of four. Contracts will find you wherever the road takes you; pay is in silver and guild coin, and the guild asks no questions about method. Rumor says shards of the shattered crown still lie hidden in the world, for a company good enough to follow the whispers.\n\nAt the founding you may start up to four of your riders already trained in a class of your choosing. The rest learn on the road, as everyone does.</description>
+    <description>Some riders come to the guild alone. Some arrive as a company already sworn: four names on one charter, debts and histories included.\n\nYou hold an open charter of the Wayfarers' Guild for a company of four. Contracts will find you wherever the road takes you; pay is in silver and guild coin, and the guild asks no questions about method.\n\nAt the founding you may start up to four of your riders already trained in a class of your choosing. The rest learn on the road, as everyone does.</description>
     <scenario>
       <summary>An open guild charter for a company of four, with up to four classes chosen at the founding. The gentler start.</summary>
       <playerFaction>

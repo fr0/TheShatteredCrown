@@ -17,7 +17,7 @@
     <label>The Shattered Crown</label>
     <description>The Wayfarers' Guild has hunted the shattered crown of Aldruin, the last king, for generations. At last their search got a hit: a clue that sent a party of adventurers into a mountain pass, chasing a shard of the crown or the trail of one.\n\nThat party has been gone too long. No communiqué in weeks.\n\nThis is where you come in: ride out, locate their camp, and find the party, whether they're alive or dead. You start alone, with a horse, crude gear, and basic supplies.\n\nNote: starting with a single character makes the early game challenging.</description>
     <scenario>
-      <summary>One rider, one horse, and a missing party somewhere in the pass. Difficult at first.</summary>
+      <summary>One rider, one horse, and a missing party somewhere in the pass. RimWorld as an RPG.</summary>
       <playerFaction>
         <def>PlayerFaction</def>
         <factionDef>TSC_PlayerGuild</factionDef>

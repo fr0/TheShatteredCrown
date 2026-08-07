@@ -17,7 +17,7 @@
   <ScenarioDef ParentName="ScenarioBase">
     <defName>TSC_AdventureMode</defName>
     <label>Wayfarers' Guild: Adventure Mode</label>
-    <description>Not every rider chases the crown. Most carry a guild charter and take the work as it comes: camps to clear, ruins to delve, beasts with a price on their hide.\n\nYou hold an open charter of the Wayfarers' Guild. Contracts will find you wherever the road takes you; pay is in silver and the guild asks no questions about method. Rumor says shards of the shattered crown still lie hidden in the world, for anyone good enough to follow the whispers to one.\n\nYou start alone, with a horse, crude gear, and basic supplies. Take contracts, grow into your classes, and hire the company you can afford.\n\nNote: starting with a single character makes the early game challenging.</description>
+    <description>Not every rider chases the crown. Most carry a guild charter and take the work as it comes: camps to clear, ruins to delve, beasts with a price on their hide.\n\nYou hold an open charter of the Wayfarers' Guild. Contracts will find you wherever the road takes you; pay is in silver and the guild asks no questions about method.\n\nYou start alone, with a horse, crude gear, and basic supplies. Take contracts, grow into your classes, and hire the company you can afford.\n\nNote: starting with a single character makes the early game challenging.</description>
     <scenario>
       <summary>An open guild charter: endless generated contracts, a party built on the road, and shards hidden in the world. Difficult at first.</summary>
       <playerFaction>
