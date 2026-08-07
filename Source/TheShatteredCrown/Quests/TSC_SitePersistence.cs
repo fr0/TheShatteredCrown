@@ -92,7 +92,28 @@ namespace TheShatteredCrown
         public static bool CooldownExempt(WorldObject worldObject)
         {
             TSC_PersistentSiteExtension ext = ExtensionOf(worldObject);
-            return ext != null && ext.noEnterCooldown;
+            return (ext != null && ext.noEnterCooldown) || FriendlyTownExempt(worldObject);
+        }
+
+        /// <summary>
+        /// Vanilla starts the "Too dangerous to enter for X" clock when the
+        /// last pawn leaves ANY generated settlement map - including a town
+        /// the party just traded in. That cooldown is an anti-farming measure
+        /// for raiding; on a friendly or neutral town it reads as the town
+        /// barring its own customers. Checked live, so a town the player
+        /// turns hostile (mid-robbery relations drop) locks up like vanilla.
+        /// RPG mode only: ordinary colony saves keep vanilla behavior.
+        /// </summary>
+        public static bool FriendlyTownExempt(WorldObject worldObject)
+        {
+            if (!TSC_RpgMode.Active)
+            {
+                return false;
+            }
+            return worldObject is Settlement settlement
+                && settlement.Faction != null
+                && !settlement.Faction.IsPlayer
+                && !settlement.Faction.HostileTo(Faction.OfPlayer);
         }
 
         private static bool QuestOngoing(QuestScriptDef script)
@@ -197,6 +218,20 @@ namespace TheShatteredCrown
                 if (TSC_PersistentSiteExtension.CooldownExempt(sites[i]))
                 {
                     EnterCooldownComp cooldown = sites[i].GetComponent<EnterCooldownComp>();
+                    if (cooldown != null && cooldown.Active)
+                    {
+                        cooldown.Stop();
+                    }
+                }
+            }
+            // Friendly/neutral towns: clear clocks already ticking (existing
+            // saves, or a town that made peace while locked).
+            var settlements = Find.WorldObjects?.Settlements;
+            for (int i = 0; settlements != null && i < settlements.Count; i++)
+            {
+                if (TSC_PersistentSiteExtension.FriendlyTownExempt(settlements[i]))
+                {
+                    EnterCooldownComp cooldown = settlements[i].GetComponent<EnterCooldownComp>();
                     if (cooldown != null && cooldown.Active)
                     {
                         cooldown.Stop();

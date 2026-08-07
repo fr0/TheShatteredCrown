@@ -104,14 +104,6 @@
       <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
         <approaches>
           <li>
-            <proficiency>TSC_Prof_Insight</proficiency>
-            <dc>7</dc>
-            <label>Read what the second column means</label>
-            <successXp>35</successXp>
-            <successMessage>The second column is what they settled for. Every figure is lower than the asking price, and the gap widens down the page. This crew has been failing to get paid for a year and knows it - which changes how you talk to the man in charge.</successMessage>
-            <failMessage>Numbers beside names, and they stay numbers beside names.</failMessage>
-          </li>
-          <li>
             <proficiency>TSC_Prof_Lore</proficiency>
             <dc>8</dc>
             <label>Trace whose seals these are</label>
@@ -154,15 +146,6 @@
             <successHediff>TSC_Hediff_Blessed</successHediff>
             <successMessage>It is a keeping-ward, and a good one - the niche was meant to hold something, not to protect it. You unpick the binding in the order it was made, which is the only order that does not wake it. The room feels larger afterwards.</successMessage>
             <failMessage>You get two turns into it before the pattern stops making sense, and you are fairly sure it noticed.</failMessage>
-          </li>
-          <li>
-            <proficiency>TSC_Prof_Performance</proficiency>
-            <dc>7</dc>
-            <label>Finish the rite nobody came back to finish</label>
-            <successXp>30</successXp>
-            <successHediff>TSC_Hediff_Blessed</successHediff>
-            <successMessage>You do not know the words, so you use the ones you have, and you mean them. The company watches an eight-hundred-year-old errand finally get finished. Everyone walks out of the room lighter.</successMessage>
-            <failMessage>You get about halfway before your voice gives away how little you know. Stopping there is worse than not starting.</failMessage>
           </li>
           <li>
             <proficiency>TSC_Prof_Thievery</proficiency>

@@ -255,7 +255,7 @@ namespace TheShatteredCrown
         public bool includeCaster = true;
         /// <summary>Spell energy granted to each affected pawn (never the caster - no self-refunds).</summary>
         public float energyRestore;
-        /// <summary>Per-pawn fleck on application (the psycast skip distortion). Turn OFF for spells with their own visual identity.</summary>
+        /// <summary>Per-pawn fleck on application (a small glow ring). Turn OFF for spells with their own visual identity.</summary>
         public bool touchMark = true;
 
         public CompProperties_TSC_AreaHediff()
@@ -338,7 +338,14 @@ namespace TheShatteredCrown
                 }
                 if (Props.touchMark && pawn.Spawned)
                 {
-                    FleckMaker.ThrowMetaIcon(pawn.Position, map, Props.enemiesOnly ? FleckDefOf.IncapIcon : FleckDefOf.PsycastSkipInnerExit);
+                    if (Props.enemiesOnly)
+                    {
+                        FleckMaker.ThrowMetaIcon(pawn.Position, map, FleckDefOf.IncapIcon);
+                    }
+                    else if (TSC_Flecks.SpellRing != null)
+                    {
+                        FleckMaker.Static(pawn.Position, map, TSC_Flecks.SpellRing, 0.9f);
+                    }
                 }
             }
             // Encore: the singer is paid too.
@@ -360,12 +367,23 @@ namespace TheShatteredCrown
     // ---------------------------------------------------------------- vfx
 
     /// <summary>
-    /// Visual identity per spell family - the psycast distortion ring reads
+    /// The mod's warp-free spell flecks (TSC_SpellFlecks.xml). Vanilla's
+    /// psycast flecks all carry the background-distortion shader (the
+    /// fish-eye); these are plain tinted glows in the same shapes.
+    /// </summary>
+    public static class TSC_Flecks
+    {
+        public static readonly FleckDef SpellRing = DefDatabase<FleckDef>.GetNamedSilentFail("TSC_SpellRing");
+        public static readonly FleckDef SpellLine = DefDatabase<FleckDef>.GetNamedSilentFail("TSC_SpellLine");
+    }
+
+    /// <summary>
+    /// Visual identity per spell family - a generic ring reads
     /// as "generic magic" and loses meaning when every buff pops it.
     /// </summary>
     public enum TSC_VfxStyle
     {
-        /// <summary>Tinted psycast-style distortion ring (the default).</summary>
+        /// <summary>Tinted glow ring (the default).</summary>
         Ring,
         /// <summary>Leaf swirl and loam puffs: nature magic (Barkskin).</summary>
         Leaves,
@@ -446,8 +464,6 @@ namespace TheShatteredCrown
     {
         public new CompProperties_TSC_Vfx Props => (CompProperties_TSC_Vfx)props;
 
-        // Not surfaced in FleckDefOf; resolved by name once (null if absent).
-        private static readonly FleckDef PsychicLine = DefDatabase<FleckDef>.GetNamedSilentFail("PsycastPsychicLine");
 
         public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
         {
@@ -476,9 +492,9 @@ namespace TheShatteredCrown
             {
                 Burst(casterPos, map);
             }
-            if (Props.line && apart && PsychicLine != null)
+            if (Props.line && apart && TSC_Flecks.SpellLine != null)
             {
-                FleckMaker.ConnectingLine(casterPos, targetPos, PsychicLine, map);
+                FleckMaker.ConnectingLine(casterPos, targetPos, TSC_Flecks.SpellLine, map);
             }
             if (Props.sparks)
             {
@@ -512,7 +528,7 @@ namespace TheShatteredCrown
 
         private void Ring(Vector3 pos, Map map)
         {
-            if (FleckDefOf.PsycastAreaEffect == null)
+            if (TSC_Flecks.SpellRing == null)
             {
                 FleckMaker.ThrowDustPuff(pos, map, 1.2f);
                 return;
@@ -520,7 +536,7 @@ namespace TheShatteredCrown
             // The ring is the player's read on how far a song reached, so it
             // has to grow with the instrument the same way the radius does.
             float scale = Props.scale * TSC_Instruments.SongRadius(parent.pawn, parent.def);
-            FleckCreationData data = FleckMaker.GetDataStatic(pos, map, FleckDefOf.PsycastAreaEffect, scale);
+            FleckCreationData data = FleckMaker.GetDataStatic(pos, map, TSC_Flecks.SpellRing, scale);
             data.rotationRate = Rand.Range(-3f, 3f);
             data.instanceColor = Props.color;
             map.flecks.CreateFleck(data);

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Warp-free spell VFX. The mod's casts used vanilla psycast flecks,
+       which all inherit FleckGlowDistortBackground - a shader that bends
+       the background behind them (the fish-eye). These are the same shapes
+       and timings as plain additive glows: white art, tinted per spell via
+       instanceColor. -->
+
+  <!-- Cast/area ring: timings match vanilla PsycastAreaEffect so the read
+       (quick in, linger, slow fade, growing) stays familiar. -->
+  <FleckDef ParentName="FleckBase">
+    <defName>TSC_SpellRing</defName>
+    <altitudeLayer>MoteLow</altitudeLayer>
+    <fadeInTime>0.02</fadeInTime>
+    <fadeOutTime>0.6</fadeOutTime>
+    <solidTime>0.12</solidTime>
+    <growthRate>1.5</growthRate>
+    <graphicData>
+      <texPath>Things/Mote/TSC_SpellRing</texPath>
+      <shaderType>MoteGlow</shaderType>
+      <drawSize>2.3</drawSize>
+    </graphicData>
+  </FleckDef>
+
+  <!-- Caster-to-target energy line: timings match PsycastPsychicLine. -->
+  <FleckDef ParentName="FleckBase">
+    <defName>TSC_SpellLine</defName>
+    <altitudeLayer>MoteOverhead</altitudeLayer>
+    <fadeInTime>0.04</fadeInTime>
+    <fadeOutTime>0.1</fadeOutTime>
+    <solidTime>0.0</solidTime>
+    <graphicData>
+      <texPath>Things/Mote/TSC_SpellLine</texPath>
+      <shaderType>MoteGlow</shaderType>
+    </graphicData>
+  </FleckDef>
+
+</Defs>

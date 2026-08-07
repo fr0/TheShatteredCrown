@@ -1185,7 +1185,10 @@ namespace TheShatteredCrown
             TSC_ShardTracker.Current?.NoteCast(parent.def);
             if (pawn.Spawned)
             {
-                FleckMaker.ThrowMetaIcon(pawn.Position, pawn.Map, FleckDefOf.PsycastSkipInnerExit);
+                if (TSC_Flecks.SpellRing != null)
+                {
+                    FleckMaker.Static(pawn.Position, pawn.Map, TSC_Flecks.SpellRing, 1.1f);
+                }
                 MoteMaker.ThrowText(pawn.DrawPos, pawn.Map, "Commanded", new UnityEngine.Color(1f, 0.9f, 0.55f));
             }
             Messages.Message($"{pawn.LabelShortCap} hears the crown and obeys.",

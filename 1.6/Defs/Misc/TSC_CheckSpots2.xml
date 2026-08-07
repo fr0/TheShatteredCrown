@@ -64,14 +64,6 @@
             <failMessage>The words come out thin and stop early. It is worse than saying nothing, and everyone present knows it.</failMessage>
           </li>
           <li>
-            <proficiency>TSC_Prof_Investigation</proficiency>
-            <dc>8</dc>
-            <label>Reconstruct what happened</label>
-            <successXp>35</successXp>
-            <successMessage>Gear laid out for a rest, not a fight. A weapon still stowed. They were taken sitting down, by something that came from the direction you are about to walk in, and it was not in a hurry afterwards.</successMessage>
-            <failMessage>Too disturbed to read. Whatever order this scene had is long gone.</failMessage>
-          </li>
-          <li>
             <proficiency>TSC_Prof_Nature</proficiency>
             <dc>7</dc>
             <label>Name what fed here</label>
@@ -107,14 +99,6 @@
             <failMessage>A stool with a view of a corridor. If it told its watcher anything, it does not repeat itself.</failMessage>
           </li>
           <li>
-            <proficiency>TSC_Prof_Insight</proficiency>
-            <dc>8</dc>
-            <label>Work out why they left</label>
-            <successXp>35</successXp>
-            <successMessage>The spear is still here. Nobody walks off a watch and leaves the spear, so they did not walk off: they went somewhere in a hurry, toward something, and they expected to come back for it. Which means whatever they went to deal with, they lost.</successMessage>
-            <failMessage>An empty post. People leave posts for a hundred reasons and this one is keeping its own counsel.</failMessage>
-          </li>
-          <li>
             <proficiency>TSC_Prof_Survival</proficiency>
             <dc>7</dc>
             <label>Track where they went</label>
@@ -147,14 +131,6 @@
             <successXp>35</successXp>
             <successMessage>Shares written down, then crossed out, then written smaller. One name gets its full portion every week while the others shrink. That is not a captain: that is somebody the rest are afraid of, and the numbers say the others have noticed too.</successMessage>
             <failMessage>Numbers and names, and no thread you can follow from one to the other.</failMessage>
-          </li>
-          <li>
-            <proficiency>TSC_Prof_Lore</proficiency>
-            <dc>7</dc>
-            <label>Place the hand and the dates</label>
-            <successXp>30</successXp>
-            <successMessage>Chancery script, badly copied by someone taught to write in a place that no longer teaches. These are not road-born outlaws. They came from somewhere that had schools, and the dates say they have been out here longer than the war has been over.</successMessage>
-            <failMessage>The hand is crabbed and the dating system is nobody's you know.</failMessage>
           </li>
           <li>
             <proficiency>TSC_Prof_Thievery</proficiency>
@@ -199,14 +175,6 @@
             <successMessage>Whoever dug this got the digging right and could not do the rest. You do the rest. It takes four minutes and it costs nothing, and every person standing here walks away carrying it a little differently.</successMessage>
             <failMessage>You start it, lose the meter, and finish quietly because stopping halfway would be worse.</failMessage>
           </li>
-          <li>
-            <proficiency>TSC_Prof_Arcana</proficiency>
-            <dc>8</dc>
-            <label>Check the stone for work</label>
-            <successXp>35</successXp>
-            <successMessage>Cut into the underside of the headstone, where nobody would see it: a binding mark, of the sort used on a grave you want to stay shut. It is old and it is holding. Leave it that way.</successMessage>
-            <failMessage>A rough stone with a rougher mark on it. It could be a ward. It could be a mason's initials.</failMessage>
-          </li>
         </approaches>
       </li>
     </comps>
@@ -244,14 +212,6 @@
             <failDamageDef>Blunt</failDamageDef>
             <failMessage>The course you trusted is not stone any more, it is the memory of stone. You catch the lip on the way past and haul out with skinned hands and nothing to show.</failMessage>
           </li>
-          <li>
-            <proficiency>TSC_Prof_Nature</proficiency>
-            <dc>6</dc>
-            <label>Test whether the water is dead</label>
-            <successXp>25</successXp>
-            <successMessage>No skin, no smell, and something small moving in it. The well is alive, which means it is fed from somewhere and the water is worth having - and it means the shaft connects to more than this hole.</successMessage>
-            <failMessage>Water. Wet. Beyond that, you would be guessing, and guessing about water is how companies die.</failMessage>
-          </li>
         </approaches>
       </li>
     </comps>
@@ -280,15 +240,6 @@
             <successRemoves>true</successRemoves>
             <successMessage>The lead is decoration. The actual closure is a knot of intent laid into the jamb, and knots can be untied by anyone who can see which end is which. The door swings inward on the first push and the room behind it exhales.</successMessage>
             <failMessage>You find the shape of the working and lose it again. It was made by someone better than you, on a day they were taking it seriously.</failMessage>
-          </li>
-          <li>
-            <proficiency>TSC_Prof_Perception</proficiency>
-            <dc>8</dc>
-            <label>Find the way they meant to reopen it</label>
-            <successXp>35</successXp>
-            <successRemoves>true</successRemoves>
-            <successMessage>Nobody seals a door they never intend to open. Third stone left of the frame sits a finger-width proud of its neighbors, and it moves when pushed, and the door moves with it.</successMessage>
-            <failMessage>You go over every stone within reach twice. If there is a catch, it is not within reach.</failMessage>
           </li>
           <li>
             <proficiency>TSC_Prof_Athletics</proficiency>
@@ -321,14 +272,6 @@
     <comps>
       <li Class="TheShatteredCrown.CompProperties_TSC_CheckSpot">
         <approaches>
-          <li>
-            <proficiency>TSC_Prof_Insight</proficiency>
-            <dc>7</dc>
-            <label>Read the hand that cut them</label>
-            <successXp>35</successXp>
-            <successMessage>The first weeks are neat, evenly spaced, cut with care. Then they get deeper and closer together. Then, for a stretch, none at all - and then they start again, shallow, in a different corner, as if beginning a second count was the only thing left to decide. Somebody was still deciding things in here. That is worth knowing about whoever it was.</successMessage>
-            <failMessage>Marks on a wall. However many days it was, the wall is not saying what they were like.</failMessage>
-          </li>
           <li>
             <proficiency>TSC_Prof_Investigation</proficiency>
             <dc>7</dc>
@@ -380,14 +323,6 @@
             <successMessage>A rose cut in the old style and a maker's brand inside the soundhole from a workshop that shut when the kingdom did. This was a court instrument. Whoever ended up out here holding it did not start out here.</successMessage>
             <failMessage>Good work, old work, and no mark you can put a name or a place to.</failMessage>
           </li>
-          <li>
-            <proficiency>TSC_Prof_Persuasion</proficiency>
-            <dc>7</dc>
-            <label>Talk the party into leaving it</label>
-            <successXp>30</successXp>
-            <successMessage>Somebody has already reached for it, and the argument for taking it is a good one: it is worth money and its owner is past caring. You make the other argument, and you make it well enough that the hand comes back empty and nobody resents you for it.</successMessage>
-            <failMessage>You say your piece. It is not enough, and the lute goes in a pack, and the mood does not recover for a while.</failMessage>
-          </li>
         </approaches>
       </li>
     </comps>
@@ -413,14 +348,6 @@
             <successXp>30</successXp>
             <successMessage>Cold through, but the crust has not been rained on: under two days. Wood chosen badly by someone who did not want smoke and did not know how to avoid it. Six or seven of them, and they were not confident enough to cook.</successMessage>
             <failMessage>Cold ash. It could be two days or two months; the weather here has been kind to it either way.</failMessage>
-          </li>
-          <li>
-            <proficiency>TSC_Prof_Perception</proficiency>
-            <dc>7</dc>
-            <label>Check the ring of dark beyond it</label>
-            <successXp>30</successXp>
-            <successMessage>Everyone sat facing in except one, and that one sat with their back to the fire looking at the same stretch of dark you are looking at now. There is a reason they picked that direction, and it is still out there.</successMessage>
-            <failMessage>A circle of stones and a lot of darkness past it, all of it looking much the same.</failMessage>
           </li>
           <li>
             <proficiency>TSC_Prof_Insight</proficiency>
@@ -465,14 +392,6 @@
             <successMessage>Fresh chips off the top edge, struck deliberately, by somebody who wanted the hands defaced and did not want to be seen taking the time to finish. Whoever holds this ground now knows exactly what the stone means and would rather nobody else remembered.</successMessage>
             <failMessage>An old stone with old damage. Weather does that. So do people.</failMessage>
           </li>
-          <li>
-            <proficiency>TSC_Prof_Performance</proficiency>
-            <dc>7</dc>
-            <label>Tell them what these stones were</label>
-            <successXp>30</successXp>
-            <successMessage>You tell it as a story rather than a fact, which is the only way anybody remembers anything: the roads, the marker, the rule, and the century it held for. By the end even the mercenaries are looking at the thing differently, which is a small piece of a dead kingdom brought back for the length of one telling.</successMessage>
-            <failMessage>You get the shape of it out and lose the room halfway. Somebody asks if you are finished. You are.</failMessage>
-          </li>
         </approaches>
       </li>
     </comps>
@@ -499,14 +418,6 @@
             <successHediff>TSC_Hediff_HuntersEye</successHediff>
             <successMessage>The trail is still in use and the use has changed: what walks it now is heavier than what it was cut for, and it comes through at the same hour, from the same side. The blind is pointed at the right place. Its builder simply wanted a different animal than the one using it.</successMessage>
             <failMessage>A trail through the brush with a lot of traffic on it and nothing that separates out.</failMessage>
-          </li>
-          <li>
-            <proficiency>TSC_Prof_Survival</proficiency>
-            <dc>7</dc>
-            <label>Judge whether it is still good</label>
-            <successXp>30</successXp>
-            <successMessage>Wind runs the right way across it for another hour yet, the sightline is clean, and the stakes will take weight. If anybody in this company wanted to take something on this trail from cover, this is where they would do it and now is when.</successMessage>
-            <failMessage>Brush and sticks. Whether it still works is a question you would be answering with optimism.</failMessage>
           </li>
           <li>
             <proficiency>TSC_Prof_Perception</proficiency>
@@ -541,14 +452,6 @@
             <successXp>35</successXp>
             <successMessage>Coin gone, food gone, and a set of empty straps cut rather than unbuckled: they took something long and heavy and did not have time to work out the fastenings. Everything actually valuable is still here. They were not robbing this party. They were disarming it.</successMessage>
             <failMessage>Somebody's belongings, thoroughly disordered. What is missing from a stranger's pack is a hard thing to say.</failMessage>
-          </li>
-          <li>
-            <proficiency>TSC_Prof_Survival</proficiency>
-            <dc>7</dc>
-            <label>Judge how far they got</label>
-            <successXp>30</successXp>
-            <successMessage>Rations for eight days packed for a journey of three. Whoever set out with this was going somewhere far past here, expected it to be hard, and got no further than this spot.</successMessage>
-            <failMessage>Wet cloth and spoiled stores, telling you only that time has passed.</failMessage>
           </li>
           <li>
             <proficiency>TSC_Prof_Persuasion</proficiency>

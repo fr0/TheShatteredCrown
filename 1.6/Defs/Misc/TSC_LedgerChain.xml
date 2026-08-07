@@ -55,15 +55,6 @@
             <successMessage>Somebody audits this crew. The book goes into your coat.</successMessage>
             <failMessage>You look for the shape of it and find only a tidy crew with tidy habits.</failMessage>
           </li>
-          <li>
-            <proficiency>TSC_Prof_Thievery</proficiency>
-            <dc>8</dc>
-            <label>Lift the countersigned pages</label>
-            <successXp>35</successXp>
-            <successFlag>TSC_LedgerRead</successFlag>
-            <successMessage>You only need the signed pages. They come out of the stitching clean and go into your coat, and the signature now belongs to somebody you can find.</successMessage>
-            <failMessage>The stitching holds and the paper does not. You come away with half a page and no signature.</failMessage>
-          </li>
         </approaches>
       </li>
     </comps>

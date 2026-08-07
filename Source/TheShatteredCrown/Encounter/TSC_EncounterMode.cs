@@ -1195,6 +1195,13 @@ namespace TheShatteredCrown
             if (activeGroup.Count == 0 || elapsed >= MaxTurnTicks
                 || tm.TicksGame - groupLastMoveTick >= IdleGraceTicks)
             {
+                // A volley the group loosed belongs to the group's phase. The
+                // next turn may pause for player orders, which would hang the
+                // arrows mid-air until the next unpause.
+                if (HoldForShots())
+                {
+                    return;
+                }
                 foreach (Pawn p in activeGroup)
                 {
                     SettleSprite(p);
@@ -1817,6 +1824,41 @@ namespace TheShatteredCrown
         }
 
         /// <summary>
+        /// Shared gate for every pause or turn/phase transition: while a shot
+        /// is in the air, keep time running so it lands in the turn that
+        /// fired it. AdvanceTurn has its own richer hold (aiming and cast
+        /// jobs); this is for the OTHER two freeze points - the XCOM re-pause
+        /// after a player action, and the enemy group phase handing off to a
+        /// paused player turn. Long-range shots outlive the shooter's
+        /// cooldown stance, which is why "the swing resolved" was never
+        /// enough. Same runaway cap as the turn-end hold; StartTurn resets it.
+        /// </summary>
+        private bool HoldForShots()
+        {
+            TickManager tm = Find.TickManager;
+            if (!ProjectilesInFlight())
+            {
+                projectileHoldCapTick = -1;
+                return false;
+            }
+            if (projectileHoldCapTick < 0)
+            {
+                projectileHoldCapTick = tm.TicksGame + MaxProjectileHoldTicks;
+            }
+            if (tm.TicksGame >= projectileHoldCapTick)
+            {
+                projectileHoldCapTick = -1;
+                return false; // something is never landing; don't hold the battle hostage
+            }
+            if (tm.Paused)
+            {
+                tm.CurTimeSpeed = TimeSpeed.Normal;
+                autoPause = false;
+            }
+            return true;
+        }
+
+        /// <summary>
         /// The active pawn is mid-warmup on an attack that has ALREADY been
         /// charged: AP is spent at cast start, but the arrow only exists
         /// once the aim completes. Ending the turn in between cancels the
@@ -2310,7 +2352,9 @@ namespace TheShatteredCrown
             {
                 // XCOM loop: an idle player pawn with AP left goes BACK TO ORDERS,
                 // not to the next combatant. End turn (or running dry) passes.
-                if (elapsed >= RePauseGraceTicks)
+                // But not with a shot still flying: a long-range arrow outlives
+                // the cooldown stance, and pausing here hangs it mid-air.
+                if (elapsed >= RePauseGraceTicks && !HoldForShots())
                 {
                     turnStartTick = -1; // re-anchor on next resume
                     tm.Pause();
