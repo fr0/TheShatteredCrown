@@ -13,7 +13,7 @@ OUT = os.path.join(os.path.dirname(__file__), "..", "Textures", "Things", "Mote"
 os.makedirs(OUT, exist_ok=True)
 
 
-def ring(size=256, radius=0.80, thickness=0.10):
+def ring(size=512, radius=0.80, thickness=0.05):
     """Soft annulus, gaussian-feathered. Two constraints that are not
     cosmetic: RGB is WHITE everywhere including fully transparent pixels
     (transparent black + DXT alpha noise veiled the whole quad dark - the
@@ -40,7 +40,7 @@ def ring(size=256, radius=0.80, thickness=0.10):
     print("wrote TSC_SpellRing.png")
 
 
-def line(w=256, h=64):
+def line(w=512, h=128):
     """Horizontal beam: bright core, feathered edges and ends. Same rules
     as ring(): white RGB under zero alpha, and alpha snaps to exact 0."""
     img = Image.new("RGBA", (w, h), (255, 255, 255, 0))
