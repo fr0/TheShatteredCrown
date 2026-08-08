@@ -4,9 +4,9 @@ The Shattered Crown turns RimWorld into a medieval party RPG. You do not build a
 
 [img]{{IMG_H_WHAT}}[/img]
 
-[b]A party, not a colony.[/b] You start alone on the road. Companions are found and recruited. Each one is a written character with their own voice, their own opinion of you, and their own reasons for coming along.
+[b]A party, not a colony.[/b] You start alone on the road. Companions are found and recruited.
 
-[b]Conversations that matter.[/b] Hand-written dialogue scenes.
+[b]Conversations that matter.[/b] Over 50,000 words of dialogue.
 
 [img]{{IMG_DIALOGUE}}[/img]
 
@@ -28,7 +28,7 @@ The Shattered Crown turns RimWorld into a medieval party RPG. You do not build a
 
 [b]The Shattered Crown[/b] - the authored campaign. A full quest chain with a written story.
 
-[b]Wayfarers' Guild: Adventure Mode[/b] - the sandbox. No story rails. Take procedural contracts from guild halls in any friendly town, discover wilderness locations as you travel (caves, shrines, dens, bandit holes, ruined castles), hire on help, rescue captives, and hunt the crown on your own schedule.
+[b]Wayfarers' Guild: Adventure Mode[/b] - the sandbox. No story rails. Take procedural contracts from guild halls in any friendly town, discover wilderness locations as you travel (caves, shrines, dens, bandit holes, ruined castles), hire on help, and rescue captives.
 
 Both modes share every system. Both are started as scenarios from the normal new-game screen.
 
@@ -36,11 +36,9 @@ Both modes share every system. Both are started as scenarios from the normal new
 
 [b]Requires:[/b] [url=https://steamcommunity.com/workshop/filedetails/?id=2009463077]Harmony[/url] and the Odyssey expansion (openable containers, tile mutators, underground structures).
 
-[b]Medieval Overhaul[/b] - supported. With MO installed, village blacksmiths and guild vendors stock MO weapons and armor, and MO gear turns up as quest loot. Nothing from MO is required.
+[b]Suggested mods:[/b] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3391128917](NWN) Real Fog of War (Continued)[/url] or [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3673768803]CAI-5000[/url], and [url=https://steamcommunity.com/workshop/filedetails/?id=3219596926]Medieval Overhaul[/url]
 
 [b]Combat Extended[/b] - supported.
-
-[b]Suggested mods:[/b] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3391128917](NWN) Real Fog of War (Continued)[/url]
 
 [b]Safe to add[/b] to an existing save, though the campaign is designed to be started from its own scenario. [b]Not safe to remove[/b] mid-save.
 

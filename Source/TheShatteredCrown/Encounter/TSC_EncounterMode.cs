@@ -112,7 +112,7 @@ namespace TheShatteredCrown
             autoPause = false;
         }
         private const int ApproachRecheckTicks = 30; // approach mode: how often to look for engagement
-        private const float EngageRadius = 40f;     // hostiles beyond this (with no target) stay dormant
+        private const float EngageRadius = 40f;     // beyond this: no engagement (dormant wake AND target-intent both capped)
         // Proximity alone is NOT notice. The old rule started turn-based the
         // moment a colonist crossed EngageRadius with line of sight - and the
         // enemy, whose AI had noticed nothing, spent his opening turn standing
@@ -697,7 +697,17 @@ namespace TheShatteredCrown
             Thing target = p.mindState?.enemyTarget;
             if (target != null && target.Faction == Faction.OfPlayer && !TargetIsHidden(target, m))
             {
-                return true;
+                // Intent alone is not engagement. Vanilla AI acquires
+                // enemyTarget from across the map (raid lords, the 50+ cell
+                // fight-target scan), and treating that as engaged started
+                // turn-based combat with the enemy still a screen away.
+                // The fight also has to be HERE: within EngageRadius of the
+                // party - unless the enemy is literally mid-attack on a
+                // player pawn, which is a fight at any range.
+                if (AttackingPlayerNow(p) || AnyColonistNear(m, p, EngageRadius))
+                {
+                    return true;
+                }
             }
             List<Pawn> colonists = m.mapPawns.FreeColonistsSpawned;
             for (int i = 0; i < colonists.Count; i++)
@@ -716,6 +726,27 @@ namespace TheShatteredCrown
                 }
                 if (p.Position.InHorDistOf(colonists[i].Position, PointBlankEngageRadius)
                     && GenSight.LineOfSight(p.Position, colonists[i].Position, m, skipFirstCell: true))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>Mid-swing or mid-aim at a player pawn right now.</summary>
+        private static bool AttackingPlayerNow(Pawn p)
+        {
+            return p.stances?.curStance is Stance_Busy busy
+                && busy.focusTarg.HasThing
+                && busy.focusTarg.Thing.Faction == Faction.OfPlayer;
+        }
+
+        private static bool AnyColonistNear(Map m, Pawn p, float radius)
+        {
+            List<Pawn> colonists = m.mapPawns.FreeColonistsSpawned;
+            for (int i = 0; i < colonists.Count; i++)
+            {
+                if (p.Position.InHorDistOf(colonists[i].Position, radius))
                 {
                     return true;
                 }
