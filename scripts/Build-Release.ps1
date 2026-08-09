@@ -195,6 +195,8 @@ if ($PrepareUpload) { $InstallToMods = $true }
 # ---------------------------------------------------------------- version
 $aboutFile = Join-Path $root 'About\About.xml'
 $csprojFile = Join-Path $root 'Source\TheShatteredCrown\TheShatteredCrown.csproj'
+# The turn engine builds as its own assembly; keep its version in step too.
+$engineCsprojFile = Join-Path $root 'Source\TSC.TurnBased\TSC.TurnBased.csproj'
 
 if ($SetVersion) {
     if ($SetVersion -notmatch '^\d+\.\d+\.\d+$') {
@@ -209,12 +211,15 @@ if ($SetVersion) {
         $a = $a -replace '(</packageId>)', "`$1`r`n  <modVersion IgnoreIfNoMatchingField=`"True`">$SetVersion</modVersion>"
     }
     Set-Content $aboutFile -Value $a -Encoding utf8 -NoNewline
-    $c = Get-Content $csprojFile -Raw
-    $c = [regex]::Replace($c, '<Version>[^<]*</Version>', "<Version>$SetVersion</Version>")
-    $c = [regex]::Replace($c, '<AssemblyVersion>[^<]*</AssemblyVersion>', "<AssemblyVersion>$SetVersion.0</AssemblyVersion>")
-    $c = [regex]::Replace($c, '<FileVersion>[^<]*</FileVersion>', "<FileVersion>$SetVersion.0</FileVersion>")
-    Set-Content $csprojFile -Value $c -Encoding utf8 -NoNewline
-    Write-Ok 'About.xml and csproj updated'
+    foreach ($proj in @($csprojFile, $engineCsprojFile)) {
+        if (-not (Test-Path $proj)) { continue }
+        $c = Get-Content $proj -Raw
+        $c = [regex]::Replace($c, '<Version>[^<]*</Version>', "<Version>$SetVersion</Version>")
+        $c = [regex]::Replace($c, '<AssemblyVersion>[^<]*</AssemblyVersion>', "<AssemblyVersion>$SetVersion.0</AssemblyVersion>")
+        $c = [regex]::Replace($c, '<FileVersion>[^<]*</FileVersion>', "<FileVersion>$SetVersion.0</FileVersion>")
+        Set-Content $proj -Value $c -Encoding utf8 -NoNewline
+    }
+    Write-Ok 'About.xml and both csprojs updated'
 }
 
 # Read back and require agreement: a mismatch means someone edited one.

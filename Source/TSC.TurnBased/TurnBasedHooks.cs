@@ -1,0 +1,53 @@
+using System;
+using RimWorld;
+using UnityEngine;
+using Verse;
+
+namespace TheShatteredCrown
+{
+    /// <summary>
+    /// The turn engine's only knowledge of the game it is embedded in.
+    ///
+    /// Stage one of the engine split: everything TSC-specific the engine
+    /// used to reach for directly (mod settings, feats, spell energy, ability
+    /// comp classification) arrives through these delegates instead. The
+    /// defaults are self-sufficient - an engine with nothing registered runs
+    /// vanilla-flavored turn combat - and the main assembly registers the
+    /// TSC behaviors in TSC_TurnBasedBridge at startup.
+    /// </summary>
+    public static class TurnBasedHooks
+    {
+        /// <summary>Player turns end on their own when out of AP. Mod setting.</summary>
+        public static Func<bool> AutoEndTurn = () => true;
+
+        /// <summary>Held beat (ticks) after an enemy turn so its result reads.</summary>
+        public static Func<int> EnemyBeatTicks = () => 30;
+
+        /// <summary>Global damage multiplier while turns are running (both sides).</summary>
+        public static Func<float> DamageFactor = () => 1f;
+
+        /// <summary>Final say on a pawn's attack AP price (feat discounts).</summary>
+        public static Func<Pawn, float, float> ModifyAttackApCost = (pawn, cost) => cost;
+
+        /// <summary>(current, max) spell energy for the initiative bar; max &lt;= 0 draws nothing.</summary>
+        public static Func<Pawn, Vector2> EnergyBar = pawn => Vector2.zero;
+
+        /// <summary>Extra tooltip line for a tracked hediff (caster-level magnitude), or null.</summary>
+        public static Func<Hediff, string> HediffExtraTip = hediff => null;
+
+        /// <summary>Is this ability comp a party buff? (Engine knows vanilla's; this adds the mod's.)</summary>
+        public static Func<AbilityCompProperties, bool> CompIsBuff = comp => false;
+
+        /// <summary>Comps that do not make an ability "do something" for pricing (cost/vfx bookkeeping).</summary>
+        public static Func<AbilityCompProperties, bool> CompIsIncidental = comp => false;
+
+        /// <summary>Does casting this ability spend a resource besides AP (spell energy)?</summary>
+        public static Func<AbilityDef, bool> AbilityHasEnergyCost = def => false;
+
+        /// <summary>AP refunded the instant this verb's cast is charged (surge effects).</summary>
+        public static Func<Verb, float> ApRefundFor = verb => 0f;
+
+        /// <summary>Is this pawn's weapon out of ammo (CE-style systems)? Drives the dry-weapon callout.</summary>
+        public static Func<Pawn, bool> OutOfAmmo = pawn => false;
+    }
+}

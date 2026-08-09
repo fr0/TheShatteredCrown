@@ -12,25 +12,32 @@ The Shattered Crown turns RimWorld into a medieval party RPG. You do not build a
 
 [b]Dice-based proficiency checks.[/b] A d10 system across eleven skills - Lore, Arcana, Thievery, Athletics, Persuasion, Survival, Perception, Insight, Investigation, Nature, Performance. Rolls happen in conversation, at locked chests, at shrines, at rotted bridges, and at anything else the world puts in your way.
 
-[b]Eleven classes, over forty spells and abilities.[/b] Barbarian, Bard, Cleric, Druid, Monk, Paladin, Ranger, Rogue, Sorcerer, Warden, Wizard. Multiclass freely: every level-up offers a class level and a proficiency. Spells run on Energy, which recovers with sleep, and scale with your level in the class that granted them.
+[b]Eleven classes, over forty spells and abilities.[/b] Barbarian, Bard, Cleric, Druid, Monk, Paladin, Ranger, Rogue, Sorcerer, Warden, Wizard. Multiclassing is supported; every level-up offers a class level and a proficiency. Spells run on Energy, which recovers with sleep, and scale with your level in the class that granted them.
 
-[b]Turn-based tactical combat (optional).[/b] Flip on Turn-Based Mode and fights become initiative-order, action-point tactics: move, attack, cast, end turn, with a live hit-chance readout, an AP preview on every order, and a combat log that shows the actual numbers. Toggle it off and the game plays like ordinary RimWorld.
+[b]Turn-based tactical combat (optional).[/b] Flip on Turn-Based Mode and fights become initiative-order, action-point tactics: move, attack, cast, end turn, with a live hit-chance readout, an AP preview on every order, and a combat log.
+Toggle it off and the game plays like ordinary RimWorld.
 
 [img]{{IMG_ACTIONPOINTS}}[/img]
 
-[b]Dungeons with floors.[/b] Multi-level underground complexes you descend by finding the stairs: catacombs, flooded undercrofts, ossuaries, bandit-held works, hives. Each floor is generated fresh, and each one has been claimed by something different - so you learn how deep it goes by running out of stairs.
+[b]Dungeons with floors.[/b] Multi-level underground complexes you descend by finding the stairs: catacombs, flooded undercrofts, ossuaries, bandit-held works, hives.
 
 [img]{{IMG_TOWNS}}[/img]
 
-[b]Towns that earn their keep.[/b] Friendly settlements hang six signs: the guild hall posts contracts and hires out help, the tavern sells the company a night off, the smith trades in arms, the temple heals for a silver offering, the training hall drills skills for coin, and the mage guild enchants armor and moves the whole party between towns by circle.
+[b]Towns now provide new services.[/b] Friendly settlements have six new buildings:
+The guild hall posts contracts and hires out help,
+The tavern sells provisions,
+The smith trades in arms and armor,
+The temple heals for a silver offering,
+The training hall drills vanilla skills for a price,
+and the mage guild enchants armor and teleports the whole party between towns.
 
 [img]{{IMG_H_MODES}}[/img]
 
 [b]The Shattered Crown[/b] - the authored campaign. A full quest chain with a written story.
 
-[b]Wayfarers' Guild: Adventure Mode[/b] - the sandbox. No story rails. Take procedural contracts from guild halls in any friendly town, discover wilderness locations as you travel (caves, shrines, dens, bandit holes, ruined castles), hire on help, and rescue captives.
+[b]Wayfarers' Guild: Adventure Mode[/b] - the sandbox. No over-arching story. Take procedural contracts from guild halls in any friendly town, discover wilderness locations as you travel (caves, shrines, dens, bandit holes, ruined castles), hire on help, and rescue captives.
 
-Both modes share every system. Both are started as scenarios from the normal new-game screen.
+Both modes share the same systems, and both are started as scenarios from the normal new-game screen.
 
 [img]{{IMG_H_COMPAT}}[/img]
 

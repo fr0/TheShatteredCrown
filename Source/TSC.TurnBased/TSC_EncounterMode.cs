@@ -139,7 +139,7 @@ namespace TheShatteredCrown
         // enemy (see WHO is acting) and again after they finish (see what it
         // did) - fast turns are good, illegible turns are not. Duration is a
         // mod setting (default 0.5s); 0 disables the beats entirely.
-        private static int EnemyBeatTicks => TSC_Mod.Settings?.EnemyBeatTicks ?? 30;
+        private static int EnemyBeatTicks => TurnBasedHooks.EnemyBeatTicks();
         private int enemyIntroEndTick = -1;
         private int enemyOutroEndTick = -1;
         private int phaseEndTick;
@@ -217,6 +217,21 @@ namespace TheShatteredCrown
         public bool ApproachMode => approachMode;
         public bool ExitRequested => exitRequested;
         public bool ActiveOn(Map m) => active && m != null && m == map;
+
+        /// <summary>
+        /// Turrets are not combatants: no initiative slot, no AP. While turns
+        /// are actually cycling they must not START bursts - a turret firing
+        /// freely through everyone's budgeted actions is unpriced damage. The
+        /// environment phase and approach mode are real time, where firing is
+        /// fair; and only burst STARTS are gated, so cooldowns keep running
+        /// and a burst already rolling finishes naturally (the projectile
+        /// holds wait for its shells). Applies to BOTH sides' turrets - the
+        /// rule is symmetric on purpose.
+        /// </summary>
+        public bool TurretMustHoldFire(Map m)
+        {
+            return ActiveOn(m) && !approachMode && phase == EncounterPhase.Turn;
+        }
         public bool IsCombatant(Pawn p) => combatants.Contains(p);
         public bool IsGroupMover(Pawn p) => activeGroup.Contains(p);
         public int GroupCount => activeGroup.Count;
@@ -351,14 +366,12 @@ namespace TheShatteredCrown
                 {
                     hasBuff = true;
                 }
-                else if (comp is CompProperties_TSC_AreaHediff)
+                else if (TurnBasedHooks.CompIsBuff(comp))
                 {
                     // A ward laid over the whole party is still a ward.
                     hasBuff = true;
                 }
-                else if (!(comp is CompProperties_TSC_EnergyCost)
-                    && !(comp is CompProperties_TSC_Vfx)
-                    && !(comp is CompProperties_TSC_GrantAp))
+                else if (!TurnBasedHooks.CompIsIncidental(comp))
                 {
                     return false; // it does something beyond buffing somebody
                 }
@@ -477,15 +490,10 @@ namespace TheShatteredCrown
         public static float AttackApCostFor(Pawn pawn)
         {
             float cost = AttackApCost(pawn.TryGetAttackVerb(null));
-            // Running Start: a monk who has already moved this turn attacks
-            // for 1 AP less. Read here so every preview, label, and charge
-            // shows the same discounted price.
-            if (Instance != null && Instance.Active && Instance.MovedThisTurn(pawn)
-                && TSC_Feats.Has(pawn, "TSC_Feat_RunningStart"))
-            {
-                cost = Mathf.Max(MinActionAp, cost - 2f);
-            }
-            return cost;
+            // Feat discounts and the like live in the main assembly; the
+            // hook has the final say so every preview, label, and charge
+            // shows the same price.
+            return TurnBasedHooks.ModifyAttackApCost(pawn, cost);
         }
 
         /// <summary>
@@ -704,7 +712,7 @@ namespace TheShatteredCrown
                 // The fight also has to be HERE: within EngageRadius of the
                 // party - unless the enemy is literally mid-attack on a
                 // player pawn, which is a fight at any range.
-                if (AttackingPlayerNow(p) || AnyColonistNear(m, p, EngageRadius))
+                if (AttackingPlayerNow(p) || AnyColonistNear(m, p.Position, EngageRadius))
                 {
                     return true;
                 }
@@ -741,12 +749,12 @@ namespace TheShatteredCrown
                 && busy.focusTarg.Thing.Faction == Faction.OfPlayer;
         }
 
-        private static bool AnyColonistNear(Map m, Pawn p, float radius)
+        private static bool AnyColonistNear(Map m, IntVec3 pos, float radius)
         {
             List<Pawn> colonists = m.mapPawns.FreeColonistsSpawned;
             for (int i = 0; i < colonists.Count; i++)
             {
-                if (p.Position.InHorDistOf(colonists[i].Position, radius))
+                if (pos.InHorDistOf(colonists[i].Position, radius))
                 {
                     return true;
                 }
@@ -817,6 +825,34 @@ namespace TheShatteredCrown
                     return true;
                 }
             }
+            return AnyHostileTurretEngaged(m);
+        }
+
+        /// <summary>
+        /// A hostile turret counts for ENGAGEMENT - it can start the fight -
+        /// but never joins initiative: turrets are not combatants. They hold
+        /// fire during pawn turns and act in the environment phase instead
+        /// (Patch_TurretHoldFire_TurnBased), which gives them roughly one
+        /// burst per cycle - about their fair share, with no AP bookkeeping.
+        /// A turret with no target, or one shooting at somebody else's war,
+        /// starts nothing - same rules as pawns.
+        /// </summary>
+        private static bool AnyHostileTurretEngaged(Map m)
+        {
+            List<Building> buildings = m.listerBuildings.allBuildingsNonColonist;
+            for (int i = 0; i < buildings.Count; i++)
+            {
+                if (buildings[i] is Building_TurretGun turret
+                    && !turret.Destroyed
+                    && turret.Faction != null && turret.Faction.HostileTo(Faction.OfPlayer)
+                    && turret.CurrentTarget.HasThing
+                    && turret.CurrentTarget.Thing.Faction == Faction.OfPlayer
+                    && !TargetIsHidden(turret.CurrentTarget.Thing, m)
+                    && AnyColonistNear(m, turret.Position, EngageRadius))
+                {
+                    return true;
+                }
+            }
             return false;
         }
 
@@ -840,6 +876,12 @@ namespace TheShatteredCrown
                 {
                     engagedHostiles = true;
                 }
+            }
+            // A turret opening up starts the fight even with every hostile
+            // pawn still dormant (mech clusters lead with their autocannons).
+            if (!engagedHostiles && AnyHostileTurretEngaged(map))
+            {
+                engagedHostiles = true;
             }
             if (!engagedHostiles)
             {
@@ -1945,6 +1987,18 @@ namespace TheShatteredCrown
                 {
                     projectileHoldCapTick = tm.TicksGame + MaxProjectileHoldTicks;
                 }
+                // A long aim must not lose to the runaway cap: a sniper-grade
+                // warmup (3.5s = 210 ticks) outlives the flat 150-tick hold,
+                // and capping mid-aim cancels the shot and eats the AP. While
+                // an aim is actually in progress, keep the cap one full hold
+                // beyond its release so the shot both fires AND lands. The
+                // extension stops the moment the warmup stance ends (release,
+                // stagger, death), so the hold stays finite.
+                if (ActivePawnAiming() && activePawn.stances.curStance is Stance_Warmup warmup)
+                {
+                    projectileHoldCapTick = Mathf.Max(projectileHoldCapTick,
+                        tm.TicksGame + warmup.ticksLeft + MaxProjectileHoldTicks);
+                }
                 if (tm.TicksGame < projectileHoldCapTick)
                 {
                     pendingAdvance = true;
@@ -2195,11 +2249,11 @@ namespace TheShatteredCrown
             // Mod setting: with auto-end off, PLAYER turns never end on their
             // own - not dry, not timed out. The re-pause below still hands
             // control back; End turn is always manual. Enemies are unaffected.
-            bool autoEnd = !p.IsColonistPlayerControlled || (TSC_Mod.Settings?.autoEndTurn ?? true);
+            bool autoEnd = !p.IsColonistPlayerControlled || (TurnBasedHooks.AutoEndTurn());
             // Paying 2 AP for the extinguish roll can leave a pawn dry; the
             // roll still finishes THIS turn - ending mid-tumble would freeze
             // them (and their fire) half-done until next round.
-            bool rolling = p.CurJobDef == TSC_DefOf.TSC_BeatFlames;
+            bool rolling = p.CurJobDef == TSC_TurnBasedDefOf.TSC_BeatFlames;
             if (autoEnd && !rolling && (elapsed >= MaxTurnTicks || ((dry || enemySpent) && !aiming && elapsed >= DrySettleTicks)))
             {
                 if (dry)
@@ -2326,14 +2380,14 @@ namespace TheShatteredCrown
             // and started exactly like the player gizmo (forced start:
             // vanilla refuses orders while HasAttachment(Fire)).
             if (!p.IsColonistPlayerControlled && !midSwing && !aiming
-                && p.CurJobDef != TSC_DefOf.TSC_BeatFlames
+                && p.CurJobDef != TSC_TurnBasedDefOf.TSC_BeatFlames
                 && p.HasAttachment(ThingDefOf.Fire) && ApOf(p) >= 2f)
             {
                 p.jobs?.ClearQueuedJobs();
-                Job roll = JobMaker.MakeJob(TSC_DefOf.TSC_BeatFlames, p);
+                Job roll = JobMaker.MakeJob(TSC_TurnBasedDefOf.TSC_BeatFlames, p);
                 p.jobs?.StartJob(roll, JobCondition.InterruptForced,
                     null, resumeCurJobAfterwards: false, cancelBusyStances: true);
-                if (p.CurJobDef == TSC_DefOf.TSC_BeatFlames)
+                if (p.CurJobDef == TSC_TurnBasedDefOf.TSC_BeatFlames)
                 {
                     SpendAp(p, 2f);
                     AddLog($"{p.LabelShortCap} rolls out the flames (2 AP).", LogHostileColor);
@@ -3512,10 +3566,10 @@ namespace TheShatteredCrown
                 GUI.color = Color.white;
                 DrawEffectIcons(p, row);
                 // Spell energy strip for classed pawns (max 0 = no classes, no bar).
-                float maxEnergy = TSC_ProgressionManager.Current.MaxEnergy(p);
+                float maxEnergy = TurnBasedHooks.EnergyBar(p).y;
                 if (maxEnergy > 0f)
                 {
-                    float energy = TSC_ProgressionManager.Current.EnergyOf(p);
+                    float energy = TurnBasedHooks.EnergyBar(p).x;
                     Rect barBg = new Rect(tile.xMax + 5f, row.yMax - 6f, PanelWidth - PortraitSize - EffectAreaWidth - 16f, 3f);
                     GUI.color = new Color(0.08f, 0.12f, 0.2f, 0.9f);
                     GUI.DrawTexture(barBg, BaseContent.WhiteTex);
@@ -3585,9 +3639,10 @@ namespace TheShatteredCrown
                 string label = hediff.LabelBase;
                 Widgets.Label(icon, label.NullOrEmpty() ? "?" : label.Substring(0, 1).ToUpperInvariant());
                 string tip = $"{hediff.LabelCap}\n{timer.ticksToDisappear.ToStringTicksToPeriod()} remaining";
-                if (hediff is TSC_Hediff_Leveled && hediff.Severity > 1.001f)
+                string extraTip = TurnBasedHooks.HediffExtraTip(hediff);
+                if (!extraTip.NullOrEmpty())
                 {
-                    tip += $"\nStrength x{hediff.Severity:0.0#} (caster level)";
+                    tip += "\n" + extraTip;
                 }
                 if (!hediff.def.description.NullOrEmpty())
                 {
@@ -3807,6 +3862,22 @@ namespace TheShatteredCrown
     /// stack traces). Positions get sorted out by the players' own orders
     /// when their turns come; the reflex can wait for the fight to end.
     /// </summary>
+    /// <summary>
+    /// Turrets hold fire during pawn turns (see TurretMustHoldFire). Gating
+    /// the burst STARTER rather than the tick keeps the turret alive as a
+    /// thing - cooldown runs, the top tracks - it just cannot open up until
+    /// the world phase. Patched by name: TryStartShootSomething is protected.
+    /// </summary>
+    [HarmonyPatch(typeof(Building_TurretGun), "TryStartShootSomething")]
+    public static class Patch_TurretHoldFire_TurnBased
+    {
+        public static bool Prefix(Building_TurretGun __instance)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            return ctrl == null || !ctrl.TurretMustHoldFire(__instance.Map);
+        }
+    }
+
     [HarmonyPatch(typeof(Verse.AI.JobGiver_MoveToStandable), "TryGiveJob")]
     public static class Patch_MoveToStandable_TurnFreeze
     {
@@ -4043,11 +4114,11 @@ namespace TheShatteredCrown
                             // for. StartJob skips that gate. AP charges only once
                             // the roll is confirmed running.
                             burning.jobs?.ClearQueuedJobs();
-                            Job job = JobMaker.MakeJob(TSC_DefOf.TSC_BeatFlames, burning);
+                            Job job = JobMaker.MakeJob(TSC_TurnBasedDefOf.TSC_BeatFlames, burning);
                             job.playerForced = true;
                             burning.jobs?.StartJob(job, JobCondition.InterruptForced,
                                 null, resumeCurJobAfterwards: false, cancelBusyStances: true);
-                            if (burning.CurJobDef != TSC_DefOf.TSC_BeatFlames)
+                            if (burning.CurJobDef != TSC_TurnBasedDefOf.TSC_BeatFlames)
                             {
                                 Messages.Message($"{burning.LabelShortCap} can't start the roll right now.",
                                     burning, MessageTypeDefOf.RejectInput, historical: false);
@@ -4958,8 +5029,8 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_Settings settings = TSC_Mod.Settings;
-            if (settings == null || Mathf.Abs(settings.tbDamageFactor - 1f) < 0.005f)
+            float damageFactor = TurnBasedHooks.DamageFactor();
+            if (Mathf.Abs(damageFactor - 1f) < 0.005f)
             {
                 return;
             }
@@ -4973,7 +5044,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            xp *= settings.tbDamageFactor;
+            xp *= damageFactor;
         }
     }
 
@@ -4987,8 +5058,8 @@ namespace TheShatteredCrown
         /// </summary>
         public static void Prefix(Thing __instance, ref DamageInfo dinfo)
         {
-            TSC_Settings settings = TSC_Mod.Settings;
-            if (settings == null || Mathf.Abs(settings.tbDamageFactor - 1f) < 0.005f)
+            float damageFactor = TurnBasedHooks.DamageFactor();
+            if (Mathf.Abs(damageFactor - 1f) < 0.005f)
             {
                 return;
             }
@@ -4998,7 +5069,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            dinfo.SetAmount(dinfo.Amount * settings.tbDamageFactor);
+            dinfo.SetAmount(dinfo.Amount * damageFactor);
         }
 
         public static void Postfix(Thing __instance, DamageInfo dinfo, DamageWorker.DamageResult __result)
@@ -5289,7 +5360,7 @@ namespace TheShatteredCrown
                 // Charge's surge: refunded in the same instant it is charged,
                 // so the offset cannot be lost to a turn boundary while the
                 // ability is still warming up.
-                ctrl.GrantAp(__state.caster, CompAbilityEffect_TSC_GrantAp.AmountOn(__instance));
+                ctrl.GrantAp(__state.caster, TurnBasedHooks.ApRefundFor(__instance));
                 if (__state.caster.IsColonistPlayerControlled)
                 {
                     ctrl.NoteAttackCharged(__state.caster);
@@ -5307,11 +5378,11 @@ namespace TheShatteredCrown
         /// reason given, in a mode where every other refusal is explained.
         /// Only fires when CE's ammo system is actually on for that weapon.
         /// </summary>
-        internal static void ReportDryWeapon(Pawn caster)
+        public static void ReportDryWeapon(Pawn caster)
         {
             TSC_EncounterController ctrl = TSC_EncounterController.Instance;
             if (caster == null || ctrl == null || !ctrl.Active || !ctrl.ActiveOn(caster.Map)
-                || !TSC_AmmoState.OutOfAmmo(caster))
+                || !TurnBasedHooks.OutOfAmmo(caster))
             {
                 return;
             }
@@ -5343,15 +5414,9 @@ namespace TheShatteredCrown
                 return;
             }
             AbilityDef def = castVerb.ability.def;
-            if (def.comps != null)
+            if (TurnBasedHooks.AbilityHasEnergyCost(def))
             {
-                for (int i = 0; i < def.comps.Count; i++)
-                {
-                    if (def.comps[i] is CompProperties_TSC_EnergyCost)
-                    {
-                        return;
-                    }
-                }
+                return;
             }
             if (ctrl.ActiveOn(state.caster.Map))
             {

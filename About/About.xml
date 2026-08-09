@@ -55,14 +55,14 @@
        Steam page version lives in About/WorkshopDescription.txt and is
        pasted onto the item page by hand (RimWorld only sends a description
        when it first CREATES the workshop item, never on updates). -->
-  <description>A medieval party RPG. You do not build a colony: you ride out with a handful of companions, take work from the Wayfarers' Guild, and hunt the nine pieces of a dead king's crown.
+  <description>A medieval fantasy party-based RPG. You do not build a colony: you control a handful of companions, take work from the Wayfarers' Guild, and hunt the five pieces of a dead king's crown.
 
 Features:
-- Companions who are written characters, with their own voices and opinions of you
-- Hand-written dialogue, with options gated behind skill checks that show their odds
+- Companions who are written characters
+- 50,000 words of dialogue, with options gated behind skill checks that show their odds
 - A d10 proficiency system across eleven skills, rolled in conversation and out in the world
-- Eleven classes and forty-one abilities, freely multiclassed, powered by Energy
-- Optional turn-based tactical combat: initiative order, action points, real numbers
+- Eleven classes and over 40 abilities, multiclassing supported, powered by a new resource (Energy) that regenerates during sleep
+- Optional turn-based tactical combat: initiative order, action points
 - Multi-level dungeons you descend by finding the stairs
 - Two scenarios: the authored campaign, or Adventure Mode's procedural contracts
 

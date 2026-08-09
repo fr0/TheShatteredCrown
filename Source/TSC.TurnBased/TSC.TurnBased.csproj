@@ -1,15 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Kept in step with About/About.xml <modVersion> by
-         scripts\Build-Release.ps1 -SetVersion. -->
+    <!-- Kept in step with the main csproj by hand for now; the assembly is
+         internal to this mod (stage one of the turn-engine split). -->
     <Version>1.0.1</Version>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <FileVersion>1.0.1.0</FileVersion>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <!-- SAME root namespace as the main assembly, on purpose: Scribe and
+         GenTypes resolve saved components and XML classes by namespace-
+         qualified name, assembly-agnostic. Keeping the namespace is what
+         makes this split invisible to existing saves. -->
     <RootNamespace>TheShatteredCrown</RootNamespace>
-    <AssemblyName>TheShatteredCrown</AssemblyName>
+    <!-- The 0 prefix is load-bearing: RimWorld loads a mod's assemblies in
+         file-name order, and this one must be in the AppDomain before
+         TheShatteredCrown.dll (which references it) resolves. Same
+         convention as 0Harmony. -->
+    <AssemblyName>0TSC.TurnBased</AssemblyName>
     <OutputPath>..\..\1.6\Assemblies\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DebugType>none</DebugType>
@@ -19,25 +27,10 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
-  <!-- All references come from NuGet, none from the Steam install: the
-       same csproj builds on a machine with no RimWorld at all (GitHub
-       Actions). Krafs.Rimworld.Ref carries Assembly-CSharp and the Unity
-       modules for the pinned game version; Lib.Harmony is compile-only
-       (ExcludeAssets=runtime) because the Harmony MOD provides 0Harmony
-       at runtime and shipping a second copy is the classic mod bug. -->
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
     <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Lib.Harmony" Version="2.*" PrivateAssets="all" ExcludeAssets="runtime" />
-  </ItemGroup>
-
-  <!-- The turn engine (stage one of the engine split): its own assembly,
-       same root namespace (save compat), 0-prefixed so RimWorld loads it
-       first. Private=false: the DLL is already written to 1.6\Assemblies
-       by its own OutputPath; copying it again as a reference output would
-       race the build. -->
-  <ItemGroup>
-    <ProjectReference Include="..\TSC.TurnBased\TSC.TurnBased.csproj" Private="false" />
   </ItemGroup>
 
 </Project>
