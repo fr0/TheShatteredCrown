@@ -20,6 +20,8 @@ namespace TheShatteredCrown
             TurnBasedHooks.AutoEndTurn = () => TSC_Mod.Settings?.autoEndTurn ?? true;
             TurnBasedHooks.EnemyBeatTicks = () => TSC_Mod.Settings?.EnemyBeatTicks ?? 30;
             TurnBasedHooks.DamageFactor = () => TSC_Mod.Settings?.tbDamageFactor ?? 1f;
+            TurnBasedHooks.EngageRadius = () => TSC_Mod.Settings?.tbEngageRadius ?? 40f;
+            TurnBasedHooks.PointBlankRadius = () => TSC_Mod.Settings?.tbPointBlankRadius ?? 6f;
 
             // Running Start: a monk who has already moved this turn attacks
             // for 1 AP less. Registered here so every preview, label, and

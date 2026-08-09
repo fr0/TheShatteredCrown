@@ -21,7 +21,11 @@
 #                        THEN restore, and verify the restored entry count.)
 
 param([switch]$QuickTest, [switch]$AutoClose, [int]$AutoCloseSeconds = 90,
-      [switch]$WithMO, [switch]$WithCE)
+      [switch]$WithMO, [switch]$WithCE,
+      # Test the STANDALONE Turn-Based Combat build (dist\TurnBasedCombat)
+      # WITHOUT The Shattered Crown: installs the dist copy into Mods and
+      # activates it in place of TSC (no RFoW either - minimal surface).
+      [switch]$Standalone)
 
 $gameDir = "X:\SteamLibrary\steamapps\common\RimWorld"
 $cfgDir  = "$env:USERPROFILE\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios"
@@ -75,8 +79,23 @@ if ($WithMO) {
     ))
 }
 
-$mods.Add("mlie.nwnrealfogofwar")
-$mods.Add("fr0.theshatteredcrown")
+if ($Standalone) {
+    # Refresh the installed copy from dist so the test always runs the
+    # latest build, then activate it INSTEAD of TSC.
+    $distMod = Join-Path (Split-Path -Parent $PSScriptRoot) "dist\TurnBasedCombat"
+    if (-not (Test-Path "$distMod\1.6\Assemblies\TurnBasedCombat.dll")) {
+        Write-Host "No standalone build found. Run: py scripts\build_standalone.py" -ForegroundColor Red
+        exit 1
+    }
+    $installed = Join-Path $gameDir "Mods\TurnBasedCombat"
+    if (Test-Path $installed) { Remove-Item $installed -Recurse -Force }
+    Copy-Item $distMod -Destination $installed -Recurse -Force
+    Write-Host "Installed standalone build to Mods\TurnBasedCombat" -ForegroundColor Cyan
+    $mods.Add("fr0.turnbasedcombat")
+} else {
+    $mods.Add("mlie.nwnrealfogofwar")
+    $mods.Add("fr0.theshatteredcrown")
+}
 
 if ($WithCE) {
     # AFTER us, always. See About.xml's loadBefore rule for why.

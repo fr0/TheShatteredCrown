@@ -10,3 +10,4 @@ tools/**/bin/
 dist/
 __pycache__
 .upload-junction-target.txt
+build/

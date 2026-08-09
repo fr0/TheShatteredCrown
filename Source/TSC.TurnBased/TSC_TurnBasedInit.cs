@@ -15,6 +15,19 @@ namespace TheShatteredCrown
     {
         static TSC_TurnBasedInit()
         {
+#if TBC_STANDALONE
+            // Standalone build only: The Shattered Crown ships its own copy
+            // of this engine, and two engines fighting over the pause state
+            // would double every patch. TSC's copy wins; this one goes
+            // inert (no patches applied, so nothing can ever activate the
+            // controller). The host id is concatenated so the standalone
+            // build's identifier rewrite cannot touch it.
+            if (ModsConfig.IsActive("fr0.theshattered" + "crown"))
+            {
+                Log.Message("[Turn-Based Combat] The Shattered Crown is loaded and carries its own turn engine; this mod is standing down.");
+                return;
+            }
+#endif
             Harmony harmony = new Harmony("fr0.theshatteredcrown.turnbased");
             harmony.PatchAll();
             TSC_Compat_RealFoW.TryPatch(harmony);

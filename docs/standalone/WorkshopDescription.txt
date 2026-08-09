@@ -1,0 +1,44 @@
+[h1]Turn-Based Combat[/h1]
+
+XCOM-style tactical combat for RimWorld. Toggle it on a drafted pawn.
+
+Recommended for smaller colonies.
+
+[h1]How it works[/h1]
+[list]
+[*][b]Approach freely.[/b] Arming turn-based mode does not freeze the map. Turns begin only when somebody actually engages, either because of proximity (configurable in the mod options) or because something or someone attacks.
+[*][b]Initiative based on combat skill.[/b] Everyone - your pawns and theirs - sorts into one turn order based on the higher of their melee or ranged skill.
+[*][b]Action points.[/b] Each pawn gets 8 AP per turn, and attack AP is based on weapon speed: warmup, cooldown, burst. Vanilla weapon balance carries over.
+[*][b]Path costs previewed.[/b] Moving previews AP cost before you move, and the path turns yellow when you won't have enough AP left over to attack.
+[*][b]The world keeps moving.[/b] At the end of each round, everything that is not fighting - fires, animals, undrafted pawns, fleeing enemies - gets its own phase, all at once. Turrets hold their fire during turns and act there too.
+[*][b]XCOM-style pod moves.[/b] Enemies consecutive in turn order that are only moving during their turn take their turns together to speed up combat.
+[/list]
+
+If you toggle turn-based combat [b]off[/b] during the middle of a round, that will take effect at the end of the round.
+If you toggle it [b]on[/b] mid-fight, recent real-time fighting (attacks and movement) costs AP off your first turn, and enemies act first for the opening round.
+
+Stagger reduces the AP available during your turn instead of slowing your movement speed.
+
+Each pawn can carry over up to 2 AP to their next turn.
+
+[h1]Mod options[/h1]
+[list]
+[*][b]Stealth[/b] (off by default): Enables a Sneak toggle for drafted pawns - sneaking pawns do not start fights by proximity, and notice range shrinks with gear, light, and terrain.
+[*][b]Turn-based damage multiplier[/b] (1.0 by default): Scale damage for both sides while turn-based combat is active. Combat XP scales with it too.
+[*][b]Engagement range[/b] (40 cells by default): Range at which turn-based fights begin, if an enemy has chosen one of your pawns as a target (they always begin once an attack is initiated, regardless of the range).
+[*][b]Point-blank range[/b] (6 cells by default): Range at which turn-based fights begin, even if no enemy has noticed your pawns
+[/list]
+
+[h1]Compatibility[/h1]
+[list]
+[*][b]Safe to add or remove mid-game.[/b]
+[*][b]Combat Extended[/b] compatible. Because CE has stricter rules for line-of-sight, you're informed when you can't attack and you won't be charged AP for it. The melee hit-chance preview is suppressed because CE resolves swings differently.
+[*]Modded weapons work automatically: AP costs are derived from each weapon's own stats.
+[*]Psycasts have AP costs: 6 AP for most abilities, and 2 AP for self buffs.
+[/list]
+
+[h1]Credits[/h1]
+
+Icon art by Lorc (game-icons.net, CC BY 3.0).
+
+Built as the combat engine of [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3772466661]The Shattered Crown[/url], a medieval fantasy party-based RPG. Released as a standalone mod due to popular demand.

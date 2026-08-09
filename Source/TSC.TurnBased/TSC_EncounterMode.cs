@@ -6,6 +6,7 @@ using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using Verse.AI.Group;
 
 namespace TheShatteredCrown
 {
@@ -112,7 +113,9 @@ namespace TheShatteredCrown
             autoPause = false;
         }
         private const int ApproachRecheckTicks = 30; // approach mode: how often to look for engagement
-        private const float EngageRadius = 40f;     // beyond this: no engagement (dormant wake AND target-intent both capped)
+        // Beyond this: no engagement (dormant wake, target-intent, and the
+        // turret clauses all capped). Settings-configurable via the hook.
+        private static float EngageRadius => TurnBasedHooks.EngageRadius();
         // Proximity alone is NOT notice. The old rule started turn-based the
         // moment a colonist crossed EngageRadius with line of sight - and the
         // enemy, whose AI had noticed nothing, spent his opening turn standing
@@ -120,7 +123,7 @@ namespace TheShatteredCrown
         // IN the fight (a target on the party, or an attack, theirs or ours);
         // raw proximity only counts at conversation distance, where "he has
         // not noticed six armed riders" is not a story anyone believes.
-        private const float PointBlankEngageRadius = 6f;
+        private static float PointBlankEngageRadius => TurnBasedHooks.PointBlankRadius();
 
         public static TSC_EncounterController Instance;
 
@@ -217,6 +220,30 @@ namespace TheShatteredCrown
         public bool ApproachMode => approachMode;
         public bool ExitRequested => exitRequested;
         public bool ActiveOn(Map m) => active && m != null && m == map;
+
+        /// <summary>
+        /// The engine's definition of "the player's side of the fight":
+        /// colonists, and drafted player mechanoids (Biotech mechanitor
+        /// mechs carry a drafter once controllable). Everything that used
+        /// to test IsColonistPlayerControlled - initiative membership, whose
+        /// turn pauses for orders, AP charging, HUD - runs through this, so
+        /// a drafted mech gets a real turn instead of being treated as an
+        /// enemy (or worse, acting free outside the order).
+        /// </summary>
+        public static bool PlayerControlled(Pawn p)
+        {
+            if (p == null)
+            {
+                return false;
+            }
+            if (p.IsColonistPlayerControlled)
+            {
+                return true;
+            }
+            return p.Faction == Faction.OfPlayer
+                && p.RaceProps != null && p.RaceProps.IsMechanoid
+                && p.drafter != null;
+        }
 
         /// <summary>
         /// Turrets are not combatants: no initiative slot, no AP. While turns
@@ -554,7 +581,7 @@ namespace TheShatteredCrown
                 exitRequested = true;
                 Messages.Message("Turn-based mode ends once the enemy has acted.",
                     MessageTypeDefOf.SilentInput, historical: false);
-                if (phase == EncounterPhase.Turn && activePawn != null && activePawn.IsColonistPlayerControlled)
+                if (phase == EncounterPhase.Turn && activePawn != null && TSC_EncounterController.PlayerControlled(activePawn))
                 {
                     AdvanceTurn(); // skip logic hands the rest of the cycle to the enemies
                 }
@@ -825,7 +852,7 @@ namespace TheShatteredCrown
                     return true;
                 }
             }
-            return AnyHostileTurretEngaged(m);
+            return AnyHostileTurretEngaged(m) || AnyFriendlyTurretFight(m);
         }
 
         /// <summary>
@@ -856,7 +883,68 @@ namespace TheShatteredCrown
             return false;
         }
 
-        /// <summary>Drafted colonists + every ENGAGED hostile, sorted by combat-skill initiative. No engaged hostiles = empty (approach mode: nobody frozen).</summary>
+        /// <summary>
+        /// The mirror case: a turret on OUR side opening up is the fight
+        /// starting just as surely as one firing at us. A friendly turret
+        /// (the player's, or an allied garrison's) with a live hostile
+        /// target, with a colonist close enough to be in the battle,
+        /// engages turn-based mode - and its victims are collected so they
+        /// count as engaged hostiles, which pulls their whole lord into the
+        /// turn order. A turret defending an empty camp far from everybody
+        /// engages nothing.
+        /// </summary>
+        private static void CollectFriendlyTurretTargets(Map m, HashSet<Pawn> targets)
+        {
+            void Scan(List<Building> buildings)
+            {
+                for (int i = 0; i < buildings.Count; i++)
+                {
+                    if (buildings[i] is Building_TurretGun turret
+                        && !turret.Destroyed
+                        && turret.Faction != null && !turret.Faction.HostileTo(Faction.OfPlayer)
+                        && turret.CurrentTarget.Thing is Pawn victim
+                        && !victim.Dead && victim.HostileTo(Faction.OfPlayer)
+                        && AnyColonistNear(m, turret.Position, EngageRadius))
+                    {
+                        targets.Add(victim);
+                    }
+                }
+            }
+            Scan(m.listerBuildings.allBuildingsColonist);
+            Scan(m.listerBuildings.allBuildingsNonColonist);
+        }
+
+        private static bool AnyFriendlyTurretFight(Map m)
+        {
+            HashSet<Pawn> targets = new HashSet<Pawn>();
+            CollectFriendlyTurretTargets(m, targets);
+            return targets.Count > 0;
+        }
+
+        /// <summary>
+        /// Engaged personally, or engaged by association: a hostile joins the
+        /// turn order when their LORD has anybody in the fight. Sleepers,
+        /// dormants, and pawns who already quit still sit out - a turn where
+        /// nothing can happen costs the player patience for free - and
+        /// lordless hostiles (manhunter animals, scattered singles) keep
+        /// engaging individually, which is right for things that do not
+        /// coordinate.
+        /// </summary>
+        private bool HostileJoinsInitiative(Pawn p, HashSet<Lord> engagedLords, HashSet<Pawn> turretTargets)
+        {
+            if (IsAsleepOrDormant(p) || IsFleeing(p))
+            {
+                return false;
+            }
+            if (HostileEngaged(p) || turretTargets.Contains(p))
+            {
+                return true;
+            }
+            Lord lord = p.GetLord();
+            return lord != null && engagedLords != null && engagedLords.Contains(lord);
+        }
+
+        /// <summary>Drafted colonists + every ENGAGED hostile (plus their whole lord), sorted by combat-skill initiative. No engaged hostiles = empty (approach mode: nobody frozen).</summary>
         private void BuildInitiative()
         {
             initiative.Clear();
@@ -864,6 +952,16 @@ namespace TheShatteredCrown
             activeGroup.Clear();
             groupEndIndex = -1;
             engagedHostiles = false;
+            // A fight is a group affair: once ANY member of a lord is engaged,
+            // the whole lord fights in the turn order. Without this, a
+            // raider's compatriots stayed out of initiative and acted in the
+            // environment phase - moving and shooting in real time while the
+            // player was budgeting AP one pawn at a time.
+            HashSet<Lord> engagedLords = null;
+            // Hostiles under fire from friendly turrets count as engaged even
+            // if they have not noticed anybody yet - being shot at IS the fight.
+            HashSet<Pawn> turretTargets = new HashSet<Pawn>();
+            CollectFriendlyTurretTargets(map, turretTargets);
             IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
             for (int i = 0; i < pawns.Count; i++)
             {
@@ -872,9 +970,14 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                if (HostileEngaged(p))
+                if (HostileEngaged(p) || turretTargets.Contains(p))
                 {
                     engagedHostiles = true;
+                    Lord lord = p.GetLord();
+                    if (lord != null)
+                    {
+                        (engagedLords ?? (engagedLords = new HashSet<Lord>())).Add(lord);
+                    }
                 }
             }
             // A turret opening up starts the fight even with every hostile
@@ -896,11 +999,12 @@ namespace TheShatteredCrown
                 {
                     continue;
                 }
-                if (p.IsColonistPlayerControlled && p.Drafted)
+                if (TSC_EncounterController.PlayerControlled(p) && p.Drafted)
                 {
                     friendlies.Add(p);
                 }
-                else if (p.Faction != Faction.OfPlayer && p.HostileTo(Faction.OfPlayer) && HostileEngaged(p))
+                else if (p.Faction != Faction.OfPlayer && p.HostileTo(Faction.OfPlayer)
+                    && HostileJoinsInitiative(p, engagedLords, turretTargets))
                 {
                     hostiles.Add(p);
                 }
@@ -954,8 +1058,8 @@ namespace TheShatteredCrown
             {
                 return byScore;
             }
-            bool aPlayer = a.IsColonistPlayerControlled;
-            bool bPlayer = b.IsColonistPlayerControlled;
+            bool aPlayer = TSC_EncounterController.PlayerControlled(a);
+            bool bPlayer = TSC_EncounterController.PlayerControlled(b);
             if (aPlayer != bPlayer)
             {
                 return aPlayer ? -1 : 1;
@@ -980,13 +1084,13 @@ namespace TheShatteredCrown
                 Pawn candidate = initiative[index];
                 bool valid = candidate != null && !candidate.Dead && !candidate.Downed && candidate.Spawned && candidate.Map == map;
                 // Undrafted colonists have left the fight: no turn for them.
-                if (valid && candidate.IsColonistPlayerControlled && !candidate.Drafted)
+                if (valid && TSC_EncounterController.PlayerControlled(candidate) && !candidate.Drafted)
                 {
                     valid = false;
                 }
                 // Exit pending: player turns are skipped, but the enemies you
                 // owe still get theirs - leaving is never a way to dodge them.
-                if (valid && exitRequested && candidate.IsColonistPlayerControlled)
+                if (valid && exitRequested && TSC_EncounterController.PlayerControlled(candidate))
                 {
                     valid = false;
                 }
@@ -1001,7 +1105,7 @@ namespace TheShatteredCrown
                 // during selection, so the pod-move batching below never sees
                 // one either. They keep their initiative slot and act the moment
                 // something rouses them.
-                if (valid && !candidate.IsColonistPlayerControlled && IsAsleepOrDormant(candidate))
+                if (valid && !TSC_EncounterController.PlayerControlled(candidate) && IsAsleepOrDormant(candidate))
                 {
                     valid = false;
                 }
@@ -1020,14 +1124,14 @@ namespace TheShatteredCrown
             // where they stand), batch every CONSECUTIVE such hostile into one
             // simultaneous movement phase.
             Pawn first = initiative[index];
-            if (!first.IsColonistPlayerControlled && IsPureMover(first))
+            if (!TSC_EncounterController.PlayerControlled(first) && IsPureMover(first))
             {
                 int last = index;
                 while (last + 1 < initiative.Count)
                 {
                     Pawn next = initiative[last + 1];
                     bool qualifies = next != null && !next.Dead && !next.Downed && next.Spawned && next.Map == map
-                        && !next.IsColonistPlayerControlled && !IsAsleepOrDormant(next) && IsPureMover(next);
+                        && !TSC_EncounterController.PlayerControlled(next) && !IsAsleepOrDormant(next) && IsPureMover(next);
                     if (!qualifies)
                     {
                         break;
@@ -1059,7 +1163,7 @@ namespace TheShatteredCrown
             {
                 DrainStun(activePawn, RoundStunTicks);
                 AddLog($"--- {activePawn.LabelShortCap} is stunned: turn lost ---",
-                    activePawn.IsColonistPlayerControlled ? LogPlayerColor : LogHostileColor);
+                    TSC_EncounterController.PlayerControlled(activePawn) ? LogPlayerColor : LogHostileColor);
                 Messages.Message($"{activePawn.LabelShortCap} is stunned and loses the turn.",
                     activePawn, MessageTypeDefOf.SilentInput, historical: false);
                 StartTurn(index + 1);
@@ -1079,7 +1183,7 @@ namespace TheShatteredCrown
                 ap[activePawn] = BaseAp + carry;
                 AddLog($"{activePawn.LabelShortCap} carries {carry:0.#} unspent AP ({ApOf(activePawn):0.#} this turn).", LogWorldColor);
             }
-            if (activePawn.IsColonistPlayerControlled)
+            if (TSC_EncounterController.PlayerControlled(activePawn))
             {
                 float hangover = TakeHangover(activePawn);
                 if (hangover > 0.05f)
@@ -1092,11 +1196,11 @@ namespace TheShatteredCrown
             }
             CollectStaggerDebt(activePawn);
             AdvanceAbilityCooldowns(activePawn, RoundTicks);
-            AddLog(activePawn.IsColonistPlayerControlled
+            AddLog(TSC_EncounterController.PlayerControlled(activePawn)
                     ? $"--- {activePawn.LabelShortCap}'s turn ---"
                     : $"--- enemy turn: {activePawn.LabelShortCap} ---",
-                activePawn.IsColonistPlayerControlled ? LogPlayerColor : LogHostileColor);
-            if (activePawn.IsColonistPlayerControlled)
+                TSC_EncounterController.PlayerControlled(activePawn) ? LogPlayerColor : LogHostileColor);
+            if (TSC_EncounterController.PlayerControlled(activePawn))
             {
                 // Clean slate: stale queued orders (or a leftover move/attack from
                 // last turn or real time) must not auto-resume - and must not
@@ -1328,7 +1432,7 @@ namespace TheShatteredCrown
         /// <summary>Real-time attacks accrue exertion at the same weapon-scaled price.</summary>
         public void NoteRealtimeAttack(Pawn caster, float cost)
         {
-            if (caster == null || !caster.IsColonistPlayerControlled || !caster.Drafted)
+            if (caster == null || !TSC_EncounterController.PlayerControlled(caster) || !caster.Drafted)
             {
                 return;
             }
@@ -1528,7 +1632,7 @@ namespace TheShatteredCrown
             }
             ap[p] = Mathf.Max(0f, ApOf(p) - debt);
             AddLog($"{p.LabelShortCap} opens the turn reeling ({ApOf(p):0.#} AP).", LogWorldColor);
-            if (p.IsColonistPlayerControlled)
+            if (TSC_EncounterController.PlayerControlled(p))
             {
                 Messages.Message($"{p.LabelShortCap} took a beating last round: {ApOf(p):0.#} AP this turn.",
                     p, MessageTypeDefOf.SilentInput, historical: false);
@@ -2242,14 +2346,14 @@ namespace TheShatteredCrown
             // their attack costs, standing still with nothing to spend it on.
             // They used to wait out the weapon cooldown plus the idle grace;
             // now they pass as soon as the swing resolves.
-            bool enemySpent = !p.IsColonistPlayerControlled && !dry
+            bool enemySpent = !TSC_EncounterController.PlayerControlled(p) && !dry
                 && ApOf(p) < AttackApCostFor(p)
                 && (p.pather == null || !p.pather.MovingNow)
                 && (p.jobs?.jobQueue == null || p.jobs.jobQueue.Count == 0);
             // Mod setting: with auto-end off, PLAYER turns never end on their
             // own - not dry, not timed out. The re-pause below still hands
             // control back; End turn is always manual. Enemies are unaffected.
-            bool autoEnd = !p.IsColonistPlayerControlled || (TurnBasedHooks.AutoEndTurn());
+            bool autoEnd = !TSC_EncounterController.PlayerControlled(p) || (TurnBasedHooks.AutoEndTurn());
             // Paying 2 AP for the extinguish roll can leave a pawn dry; the
             // roll still finishes THIS turn - ending mid-tumble would freeze
             // them (and their fire) half-done until next round.
@@ -2296,7 +2400,7 @@ namespace TheShatteredCrown
             if (attackBlockedTick >= 0 && !aiming && tm.TicksGame - attackBlockedTick >= DrySettleTicks)
             {
                 attackBlockedTick = -1;
-                if (p.IsColonistPlayerControlled)
+                if (TSC_EncounterController.PlayerControlled(p))
                 {
                     AddLog($"{p.LabelShortCap} holds: not enough AP for the attack.", LogWorldColor);
                     if (p.CurJob != null && !IsMoveJob(p.CurJob.def))
@@ -2316,7 +2420,7 @@ namespace TheShatteredCrown
             // that a frozen battlefield will never change. Say WHY out loud
             // (this was "I ordered a shot, the line appeared, nothing
             // happened, the turn timed out"), cancel the order, keep the AP.
-            if (p.IsColonistPlayerControlled && p.CurJob != null && !aiming
+            if (TSC_EncounterController.PlayerControlled(p) && p.CurJob != null && !aiming
                 && (p.CurJob.def == JobDefOf.AttackStatic || p.CurJob.def == JobDefOf.AttackMelee)
                 && !HasAttackedInJob(p) && p.pather?.MovingNow != true)
             {
@@ -2379,7 +2483,7 @@ namespace TheShatteredCrown
             // fire strictly better against AI than against players. Priced
             // and started exactly like the player gizmo (forced start:
             // vanilla refuses orders while HasAttachment(Fire)).
-            if (!p.IsColonistPlayerControlled && !midSwing && !aiming
+            if (!TSC_EncounterController.PlayerControlled(p) && !midSwing && !aiming
                 && p.CurJobDef != TSC_TurnBasedDefOf.TSC_BeatFlames
                 && p.HasAttachment(ThingDefOf.Fire) && ApOf(p) >= 2f)
             {
@@ -2394,7 +2498,7 @@ namespace TheShatteredCrown
                     return; // the roll IS this slice of the turn
                 }
             }
-            if (!p.IsColonistPlayerControlled && !midSwing && !aiming
+            if (!TSC_EncounterController.PlayerControlled(p) && !midSwing && !aiming
                 && p.pather != null && p.pather.Moving)
             {
                 // Stagger is not stuckness: a bullet-staggered pawn outlasts
@@ -2433,7 +2537,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            if (p.IsColonistPlayerControlled)
+            if (TSC_EncounterController.PlayerControlled(p))
             {
                 // XCOM loop: an idle player pawn with AP left goes BACK TO ORDERS,
                 // not to the next combatant. End turn (or running dry) passes.
@@ -2461,7 +2565,7 @@ namespace TheShatteredCrown
         /// </summary>
         private void EndTurnWithBeat(Pawn p)
         {
-            if (p != null && !p.IsColonistPlayerControlled && EnemyBeatTicks > 0)
+            if (p != null && !TSC_EncounterController.PlayerControlled(p) && EnemyBeatTicks > 0)
             {
                 enemyOutroEndTick = Find.TickManager.TicksGame + EnemyBeatTicks;
                 return;
@@ -2897,7 +3001,7 @@ namespace TheShatteredCrown
         private void UpdatePathPreview(TSC_EncounterController ctrl)
         {
             Pawn pawn = ctrl.ActivePawn;
-            bool eligible = pawn != null && pawn.IsColonistPlayerControlled && pawn.Spawned
+            bool eligible = pawn != null && TSC_EncounterController.PlayerControlled(pawn) && pawn.Spawned
                 && Find.TickManager.Paused && !Mouse.IsInputBlockedNow;
             if (!eligible)
             {
@@ -3065,7 +3169,7 @@ namespace TheShatteredCrown
         {
             Pawn shooter = ctrl.ActivePawn;
             Verb verb = shooter?.equipment?.PrimaryEq?.PrimaryVerb;
-            if (shooter == null || !shooter.IsColonistPlayerControlled
+            if (shooter == null || !TSC_EncounterController.PlayerControlled(shooter)
                 || verb == null || verb.verbProps.IsMeleeAttack)
             {
                 targetabilityPawn = null;
@@ -3148,7 +3252,7 @@ namespace TheShatteredCrown
 
         private void DrawHighlightFor(Pawn p, TSC_EncounterController ctrl)
         {
-            bool player = p.IsColonistPlayerControlled;
+            bool player = TSC_EncounterController.PlayerControlled(p);
             // The at-a-glance attack budget: blue = another attack fits the
             // remaining AP, amber = movement money only.
             bool canAttack = !player
@@ -3292,7 +3396,7 @@ namespace TheShatteredCrown
                 return;
             }
             Pawn active = ctrl.ActivePawn;
-            if (active == null || !active.IsColonistPlayerControlled || !active.Spawned)
+            if (active == null || !TSC_EncounterController.PlayerControlled(active) || !active.Spawned)
             {
                 return;
             }
@@ -3670,7 +3774,7 @@ namespace TheShatteredCrown
             // player turns only - enemy turns resolve on their own.
             if (TSC_KeyBindingDefOf.TSC_EndTurn.KeyDownEvent
                 && ctrl.Phase == TSC_EncounterController.EncounterPhase.Turn
-                && ctrl.ActivePawn != null && ctrl.ActivePawn.IsColonistPlayerControlled)
+                && ctrl.ActivePawn != null && TSC_EncounterController.PlayerControlled(ctrl.ActivePawn))
             {
                 Event.current.Use();
                 ctrl.AdvanceTurn();
@@ -3693,7 +3797,7 @@ namespace TheShatteredCrown
             {
                 Pawn turnPawn = ctrl.ActivePawn;
                 string who = turnPawn?.LabelShortCap ?? "?";
-                bool player = turnPawn != null && turnPawn.IsColonistPlayerControlled;
+                bool player = turnPawn != null && TSC_EncounterController.PlayerControlled(turnPawn);
                 text = player
                     ? (paused ? $"TURN-BASED, cycle {ctrl.Cycle}: {who}'s turn. Right-click to move or attack; End turn to pass."
                               : $"TURN-BASED, cycle {ctrl.Cycle}: {who} acts...")
@@ -3751,7 +3855,7 @@ namespace TheShatteredCrown
             bool userPaused = paused && !ctrl.AutoPause;
             bool playerTurn = ctrl.Phase == TSC_EncounterController.EncounterPhase.Turn
                 && ctrl.GroupCount == 0
-                && ctrl.ActivePawn != null && ctrl.ActivePawn.IsColonistPlayerControlled;
+                && ctrl.ActivePawn != null && TSC_EncounterController.PlayerControlled(ctrl.ActivePawn);
             if (userPaused || playerTurn)
             {
                 Rect callout = new Rect(UI.screenWidth / 2f - 160f, banner.yMax + 6f, 320f, 36f);
@@ -3776,7 +3880,7 @@ namespace TheShatteredCrown
             // player pawn's turn - no selection needed (the gizmo requires
             // the active pawn selected; this does not).
             if (ctrl.Phase == TSC_EncounterController.EncounterPhase.Turn
-                && ctrl.ActivePawn != null && ctrl.ActivePawn.IsColonistPlayerControlled)
+                && ctrl.ActivePawn != null && TSC_EncounterController.PlayerControlled(ctrl.ActivePawn))
             {
                 Rect endTurn = new Rect(banner.xMax + 8f, banner.y, 130f, banner.height);
                 if (Widgets.ButtonText(endTurn, $"End turn ({TSC_KeyBindingDefOf.TSC_EndTurn.MainKeyLabel})"))
@@ -3922,7 +4026,7 @@ namespace TheShatteredCrown
             // anything is noise, so the button goes away entirely.
             TSC_EncounterController hideCtrl = TSC_EncounterController.Current;
             bool hideFireAtWill = hideCtrl != null && hideCtrl.Active && !hideCtrl.ApproachMode
-                && __instance.IsColonistPlayerControlled && hideCtrl.ActiveOn(__instance.Map);
+                && TSC_EncounterController.PlayerControlled(__instance) && hideCtrl.ActiveOn(__instance.Map);
             foreach (Gizmo gizmo in gizmos)
             {
                 if (hideFireAtWill && gizmo is Command_Toggle toggle && toggle.icon == TexCommand.FireAtWill)
@@ -3933,12 +4037,16 @@ namespace TheShatteredCrown
             }
             // Deliberately NOT scenario-gated (user decision): turn-based combat
             // is a general feature of the mod, usable in any save.
-            if (!__instance.IsColonistPlayerControlled || __instance.Map == null)
+            if (!TSC_EncounterController.PlayerControlled(__instance) || __instance.Map == null)
             {
                 yield break;
             }
             TSC_StealthTracker stealth = TSC_StealthTracker.Current;
-            if (stealth != null && __instance.Drafted)
+            // Sneak stays humanlike-only: a drafted mech gets turn gizmos
+            // through PlayerControlled, but a sneaking centipede is not a
+            // fiction this mod is prepared to defend.
+            if (stealth != null && __instance.Drafted && __instance.RaceProps.Humanlike
+                && TurnBasedHooks.StealthAllowed())
             {
                 bool sneaking = stealth.Sneaking(__instance);
                 // Once the fight is properly joined (turn-based engaged, not
@@ -3971,7 +4079,7 @@ namespace TheShatteredCrown
                         bool target = !sneaking;
                         foreach (object obj in Find.Selector.SelectedObjectsListForReading)
                         {
-                            if (obj is Pawn selected && selected.IsColonistPlayerControlled)
+                            if (obj is Pawn selected && TSC_EncounterController.PlayerControlled(selected))
                             {
                                 stealth.Set(selected, target);
                             }
@@ -4209,7 +4317,7 @@ namespace TheShatteredCrown
             }
             TSC_EncounterController ctrl = TSC_EncounterController.Instance;
             if (ctrl == null || !ctrl.Active || pawn?.Map == null
-                || !pawn.IsColonistPlayerControlled || !ctrl.ActiveOn(pawn.Map))
+                || !TSC_EncounterController.PlayerControlled(pawn) || !ctrl.ActiveOn(pawn.Map))
             {
                 return;
             }
@@ -4481,7 +4589,7 @@ namespace TheShatteredCrown
             }
             TSC_EncounterController ctrl = TSC_EncounterController.Instance;
             if (ctrl == null || !ctrl.Active || ctrl.ApproachMode || pawn == null
-                || !ctrl.ActiveOn(pawn.Map) || !pawn.IsColonistPlayerControlled
+                || !ctrl.ActiveOn(pawn.Map) || !TSC_EncounterController.PlayerControlled(pawn)
                 || ctrl.ActivePawn != pawn)
             {
                 return;
@@ -4598,7 +4706,7 @@ namespace TheShatteredCrown
                 return true;
             }
             Pawn pawn = __instance.pawn;
-            return pawn == null || !ctrl.ActiveOn(pawn.Map) || !pawn.IsColonistPlayerControlled;
+            return pawn == null || !ctrl.ActiveOn(pawn.Map) || !TSC_EncounterController.PlayerControlled(pawn);
         }
     }
 
@@ -4663,7 +4771,7 @@ namespace TheShatteredCrown
                 return; // refused for a real reason, not the fire
             }
             TSC_EncounterController ctrl = TSC_EncounterController.Current;
-            if (ctrl == null || !ctrl.ActiveOn(___pawn.Map) || !___pawn.IsColonistPlayerControlled)
+            if (ctrl == null || !ctrl.ActiveOn(___pawn.Map) || !TSC_EncounterController.PlayerControlled(___pawn))
             {
                 return;
             }
@@ -4678,7 +4786,7 @@ namespace TheShatteredCrown
         {
             TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || pawn == null || !ctrl.ActiveOn(pawn.Map)
-                || ctrl.ApproachMode || !pawn.IsColonistPlayerControlled)
+                || ctrl.ApproachMode || !TSC_EncounterController.PlayerControlled(pawn))
             {
                 return true;
             }
@@ -4706,7 +4814,7 @@ namespace TheShatteredCrown
                 return;
             }
             TSC_EncounterController ctrl = TSC_EncounterController.Current;
-            if (ctrl == null || !ctrl.ActiveOn(___pawn.Map) || !___pawn.IsColonistPlayerControlled)
+            if (ctrl == null || !ctrl.ActiveOn(___pawn.Map) || !TSC_EncounterController.PlayerControlled(___pawn))
             {
                 return;
             }
@@ -4740,7 +4848,7 @@ namespace TheShatteredCrown
             // Pooled-Job hygiene: this order must not inherit a recycled
             // object's "already attacked" flags.
             ctrl.NoteFreshOrder(___pawn, job);
-            if (___pawn == ctrl.ActivePawn && ___pawn.IsColonistPlayerControlled && Find.TickManager.Paused)
+            if (___pawn == ctrl.ActivePawn && TSC_EncounterController.PlayerControlled(___pawn) && Find.TickManager.Paused)
             {
                 Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
             }
@@ -5295,7 +5403,7 @@ namespace TheShatteredCrown
             // inside its driver's tick). Leftover AP stays with the player.
             // A committed FULL attack is the sanctioned exception: the repeat
             // is the point, and the AP check below is what ends it.
-            if (caster.IsColonistPlayerControlled && ctrl.HasAttackedInJob(caster)
+            if (TSC_EncounterController.PlayerControlled(caster) && ctrl.HasAttackedInJob(caster)
                 && !ctrl.FullAttackContinues(caster))
             {
                 ctrl.RequestAttackJobStop(caster);
@@ -5347,7 +5455,7 @@ namespace TheShatteredCrown
                 // announcement. Pairs with the proximity trigger shrinking
                 // to point-blank - notice, attack, or breath distance are
                 // the three ways a fight starts, and nothing else is.
-                if (ctrl.ApproachMode && __state.caster.IsColonistPlayerControlled
+                if (ctrl.ApproachMode && TSC_EncounterController.PlayerControlled(__state.caster)
                     && __instance.CurrentTarget.Thing is Pawn struck
                     && struck.HostileTo(Faction.OfPlayer))
                 {
@@ -5361,7 +5469,7 @@ namespace TheShatteredCrown
                 // so the offset cannot be lost to a turn boundary while the
                 // ability is still warming up.
                 ctrl.GrantAp(__state.caster, TurnBasedHooks.ApRefundFor(__instance));
-                if (__state.caster.IsColonistPlayerControlled)
+                if (TSC_EncounterController.PlayerControlled(__state.caster))
                 {
                     ctrl.NoteAttackCharged(__state.caster);
                 }
@@ -5395,7 +5503,7 @@ namespace TheShatteredCrown
             string weapon = caster.equipment?.Primary?.LabelShortCap ?? "weapon";
             ctrl.AddLog($"{caster.LabelShortCap} has nothing to load: the {weapon} is empty.",
                 TSC_EncounterController.LogWorldColor);
-            if (caster.IsColonistPlayerControlled)
+            if (TSC_EncounterController.PlayerControlled(caster))
             {
                 Messages.Message($"{caster.LabelShortCap} is out of ammunition for the {weapon}.",
                     caster, MessageTypeDefOf.RejectInput, historical: false);

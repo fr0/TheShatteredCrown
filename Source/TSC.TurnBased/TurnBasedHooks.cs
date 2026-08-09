@@ -49,5 +49,14 @@ namespace TheShatteredCrown
 
         /// <summary>Is this pawn's weapon out of ammo (CE-style systems)? Drives the dry-weapon callout.</summary>
         public static Func<Pawn, bool> OutOfAmmo = pawn => false;
+
+        /// <summary>Is the sneak system offered at all? Gates the Sneak gizmo; a pawn already sneaking may always stop.</summary>
+        public static Func<bool> StealthAllowed = () => true;
+
+        /// <summary>Range (cells) within which an enemy with intent - or a firing turret - engages turn-based mode. Intent from across the map is not a fight yet.</summary>
+        public static Func<float> EngageRadius = () => 40f;
+
+        /// <summary>Conversation distance: raw proximity plus line of sight engages here even before any attack.</summary>
+        public static Func<float> PointBlankRadius = () => 6f;
     }
 }

@@ -17,6 +17,12 @@ namespace TheShatteredCrown
         /// <summary>When false, a player pawn's turn NEVER ends automatically - not on 0 AP, not on the turn timer. End turn is always manual.</summary>
         public bool autoEndTurn = true;
 
+        /// <summary>Range within which an enemy intending to fight (or a turret) engages turn-based mode.</summary>
+        public float tbEngageRadius = 40f;
+
+        /// <summary>Conversation distance: proximity + line of sight engages even before any attack.</summary>
+        public float tbPointBlankRadius = 6f;
+
         /// <summary>Seconds of held stillness before and after each enemy turn (at 1x speed). 0 = no beats, back to instant enemy turns.</summary>
         public float enemyBeatSeconds = 0.5f;
 
@@ -53,6 +59,8 @@ namespace TheShatteredCrown
             base.ExposeData();
             Scribe_Values.Look(ref tbDamageFactor, "tbDamageFactor", 1.5f);
             Scribe_Values.Look(ref autoEndTurn, "autoEndTurn", defaultValue: true);
+            Scribe_Values.Look(ref tbEngageRadius, "tbEngageRadius", 40f);
+            Scribe_Values.Look(ref tbPointBlankRadius, "tbPointBlankRadius", 6f);
             Scribe_Values.Look(ref enemyBeatSeconds, "enemyBeatSeconds", 0.5f);
             Scribe_Values.Look(ref reformIgnoresHiddenEnemies, "reformIgnoresHiddenEnemies", defaultValue: true);
             Scribe_Values.Look(ref autoFormCamp, "autoFormCamp", defaultValue: true);
@@ -100,6 +108,20 @@ namespace TheShatteredCrown
 
             listing.CheckboxLabeled("Auto-end turn", ref Settings.autoEndTurn,
                 "When ON, a player pawn's turn ends by itself once their action points run dry (and on the safety timer). When OFF, turns only end when you press End turn - a pawn with 0 AP simply waits for the order.");
+            listing.Gap();
+
+            listing.Label($"Engagement range: {Settings.tbEngageRadius:0} cells");
+            GUI.color = Color.gray;
+            listing.Label("An enemy who intends to fight (or a turret opening up) starts turn-based combat within this range of the party. Beyond it, they close in real time first. Lower = fights start closer and later; higher = earlier.");
+            GUI.color = Color.white;
+            Settings.tbEngageRadius = Mathf.Round(listing.Slider(Settings.tbEngageRadius, 10f, 80f));
+            listing.Gap();
+
+            listing.Label($"Point-blank engagement range: {Settings.tbPointBlankRadius:0} cells");
+            GUI.color = Color.gray;
+            listing.Label("Conversation distance: an awake enemy this close, with line of sight, starts turns even before anyone attacks. Sneaking pawns are exempt.");
+            GUI.color = Color.white;
+            Settings.tbPointBlankRadius = Mathf.Round(listing.Slider(Settings.tbPointBlankRadius, 2f, 15f));
             listing.Gap();
 
             listing.Label($"Enemy turn pacing beat: {Settings.enemyBeatSeconds:0.0}s");
