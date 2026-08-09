@@ -195,8 +195,15 @@ namespace TheShatteredCrown
         public static IEnumerable<FloatMenuOption> Postfix(IEnumerable<FloatMenuOption> options,
             Settlement __instance, Caravan caravan)
         {
+            bool replacing = TSC_RpgMode.Active
+                && CaravanArrivalAction_TSC_Visit.CanVisit(caravan, __instance).Accepted;
+            string visitLabel = $"Visit {__instance.Label}";
             foreach (FloatMenuOption option in options)
             {
+                if (replacing && option.Label != null && option.Label.StartsWith(visitLabel))
+                {
+                    continue; // vanilla's Visit (and its Dev variant)
+                }
                 yield return option;
             }
             if (!TSC_RpgMode.Active)
