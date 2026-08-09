@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -108,7 +109,7 @@ namespace TheShatteredCrown
             IntVec3 cell = StampGuildHouse();
             if (!cell.IsValid)
             {
-                cell = CellFinder.StandableCellNear(map.Center, map, 12f);
+                cell = CellFinder.StandableCellNear(TownAnchor(), map, 12f);
             }
             if (!cell.IsValid)
             {
@@ -142,7 +143,7 @@ namespace TheShatteredCrown
             IntVec3 cell = StampBuilding("TSC_Stables", "TSC_StablesBanner");
             if (!cell.IsValid)
             {
-                cell = CellFinder.StandableCellNear(map.Center, map, 26f);
+                cell = CellFinder.StandableCellNear(TownAnchor(), map, 26f);
             }
             if (!cell.IsValid)
             {
@@ -167,7 +168,7 @@ namespace TheShatteredCrown
             IntVec3 cell = StampBuilding("TSC_Tavern", "TSC_TavernBanner");
             if (!cell.IsValid)
             {
-                cell = CellFinder.StandableCellNear(map.Center, map, 24f);
+                cell = CellFinder.StandableCellNear(TownAnchor(), map, 24f);
             }
             if (!cell.IsValid)
             {
@@ -192,7 +193,7 @@ namespace TheShatteredCrown
             IntVec3 cell = StampBuilding("TSC_MageGuild", "TSC_MageBanner");
             if (!cell.IsValid)
             {
-                cell = CellFinder.StandableCellNear(map.Center, map, 22f);
+                cell = CellFinder.StandableCellNear(TownAnchor(), map, 22f);
             }
             if (!cell.IsValid)
             {
@@ -217,7 +218,7 @@ namespace TheShatteredCrown
             IntVec3 cell = StampBuilding("TSC_TrainingHall", "TSC_TrainingBanner");
             if (!cell.IsValid)
             {
-                cell = CellFinder.StandableCellNear(map.Center, map, 20f);
+                cell = CellFinder.StandableCellNear(TownAnchor(), map, 20f);
             }
             if (!cell.IsValid)
             {
@@ -318,7 +319,7 @@ namespace TheShatteredCrown
             IntVec3 cell = StampBuilding("TSC_Temple", "TSC_TempleBanner");
             if (!cell.IsValid)
             {
-                cell = CellFinder.StandableCellNear(map.Center, map, 18f);
+                cell = CellFinder.StandableCellNear(TownAnchor(), map, 18f);
             }
             if (!cell.IsValid)
             {
@@ -349,7 +350,7 @@ namespace TheShatteredCrown
             IntVec3 cell = StampBuilding("TSC_TownSmithy", "TSC_SmithBanner");
             if (!cell.IsValid)
             {
-                cell = CellFinder.StandableCellNear(map.Center, map, 16f);
+                cell = CellFinder.StandableCellNear(TownAnchor(), map, 16f);
             }
             if (!cell.IsValid)
             {
@@ -388,13 +389,28 @@ namespace TheShatteredCrown
             {
                 return IntVec3.Invalid;
             }
+            // Two passes. Dense towns (Large Faction Bases) have no fully
+            // clear ground near the center; first try inside the walls,
+            // and then anywhere there is space available
+            IntVec3 anchor = TownAnchor();
             IntVec3 spot = IntVec3.Invalid;
-            foreach (IntVec3 candidate in GenRadial.RadialCellsAround(map.Center, 34f, useCenter: true))
+            foreach (IntVec3 candidate in GenRadial.RadialCellsAround(anchor, 55f, useCenter: true))
             {
-                if (FootprintClear(candidate, house))
+                if (FootprintClear(candidate, house) && InsideTown(candidate, house))
                 {
                     spot = candidate;
                     break;
+                }
+            }
+            if (!spot.IsValid)
+            {
+                foreach (IntVec3 candidate in GenRadial.RadialCellsAround(anchor, 34f, useCenter: true))
+                {
+                    if (FootprintClear(candidate, house))
+                    {
+                        spot = candidate;
+                        break;
+                    }
                 }
             }
             if (!spot.IsValid)
@@ -423,7 +439,36 @@ namespace TheShatteredCrown
                     }
                 }
             }
+            // Make sure no pawns are standing where a wall is about to be: a villager in the
+            // footprint at the stamp instant costs the shop a wall segment
+            // Move them aside.
+            CellRect ring = rect.ExpandedBy(1);
+            foreach (IntVec3 cellP in ring)
+            {
+                if (!cellP.InBounds(map))
+                {
+                    continue;
+                }
+                List<Thing> standing = cellP.GetThingList(map);
+                for (int i = standing.Count - 1; i >= 0; i--)
+                {
+                    if (standing[i] is Pawn bystander)
+                    {
+                        IntVec3 refuge;
+                        if (CellFinder.TryFindRandomCellNear(spot, map,
+                            Mathf.Max(house.size.x, house.size.z) + 4,
+                            c => c.Standable(map) && !ring.Contains(c), out refuge))
+                        {
+                            bystander.Position = refuge;
+                            bystander.Notify_Teleported(endCurrentJob: true, resetTweenedPos: true);
+                        }
+                    }
+                }
+            }
             PrefabUtility.SpawnPrefab(house, map, spot, Rot4.North);
+            // Self-heal: whatever the spawn could not place despite the
+            // sweep (another mod's leftovers, an unnoticed blocker)
+            HealMissingShell(house, rect);
             // Prefabs come unroofed; the interior gets a constructed roof.
             foreach (IntVec3 cell in rect.ContractedBy(1))
             {
@@ -444,6 +489,121 @@ namespace TheShatteredCrown
             return spot; // the desk cell: prefab centre, east of the table
         }
 
+        /// <summary>
+        /// Re-spawn declared-but-missing shell pieces of a freshly stamped
+        /// prefab
+        /// </summary>
+        // PrefabDef.things is non-public
+        private static readonly AccessTools.FieldRef<PrefabDef, List<PrefabThingData>> PrefabThings =
+            AccessTools.FieldRefAccess<PrefabDef, List<PrefabThingData>>("things");
+
+        private void HealMissingShell(PrefabDef house, CellRect rect)
+        {
+            List<PrefabThingData> things = PrefabThings(house);
+            if (things == null)
+            {
+                return;
+            }
+            foreach (PrefabThingData data in things)
+            {
+                if (data.def == null || data.chance < 1f
+                    || data.def.building == null || !data.def.building.isEdifice)
+                {
+                    continue;
+                }
+                foreach (IntVec3 local in ShellCells(data))
+                {
+                    IntVec3 abs = new IntVec3(rect.minX + local.x, 0, rect.minZ + local.z);
+                    if (!abs.InBounds(map) || abs.GetEdifice(map) != null)
+                    {
+                        continue;
+                    }
+                    Thing piece = ThingMaker.MakeThing(data.def, data.stuff);
+                    GenSpawn.Spawn(piece, abs, map, WipeMode.VanishOrMoveAside);
+                }
+            }
+        }
+
+        private static IEnumerable<IntVec3> ShellCells(PrefabThingData data)
+        {
+            bool any = false;
+            if (data.rects != null)
+            {
+                foreach (CellRect r in data.rects)
+                {
+                    foreach (IntVec3 c in r)
+                    {
+                        any = true;
+                        yield return c;
+                    }
+                }
+            }
+            if (data.positions != null)
+            {
+                foreach (IntVec3 p in data.positions)
+                {
+                    any = true;
+                    yield return p;
+                }
+            }
+            if (!any)
+            {
+                yield return data.position;
+            }
+        }
+
+        /// <summary>
+        /// The centroid of the settlement's own constructed buildings: where
+        /// the town actually IS, as opposed to where the map's center is.
+        /// </summary>
+        private IntVec3 TownAnchor()
+        {
+            List<Building> buildings = map.listerBuildings.allBuildingsNonColonist;
+            long x = 0, z = 0;
+            int n = 0;
+            for (int i = 0; i < buildings.Count; i++)
+            {
+                Building b = buildings[i];
+                if (b.def.building != null && !b.def.building.isNaturalRock)
+                {
+                    x += b.Position.x;
+                    z += b.Position.z;
+                    n++;
+                }
+            }
+            return n > 0 ? new IntVec3((int)(x / n), 0, (int)(z / n)) : map.Center;
+        }
+
+        /// <summary>
+        /// Is this footprint part of the town rather than outside its wall?
+        /// </summary>
+        private bool InsideTown(IntVec3 center, PrefabDef house)
+        {
+            CellRect rect = CellRect.CenteredOn(center, house.size.x, house.size.z);
+            int sides = 0;
+            foreach (Rot4 dir in Rot4.AllRotations)
+            {
+                IntVec3 step = dir.FacingCell;
+                // start just outside the footprint on this side
+                IntVec3 cell = center + step * (Mathf.Max(house.size.x, house.size.z) / 2 + 1);
+                for (int i = 0; i < 25; i++, cell += step)
+                {
+                    if (!cell.InBounds(map))
+                    {
+                        break;
+                    }
+                    Building edifice = cell.GetEdifice(map);
+                    if (edifice != null && edifice.def.building != null
+                        && !edifice.def.building.isNaturalRock)
+                    {
+                        sides++;
+                        break;
+                    }
+                }
+            }
+            return sides >= 3;
+        }
+
         private bool FootprintClear(IntVec3 center, PrefabDef house)
         {
             CellRect rect = CellRect.CenteredOn(center, house.size.x, house.size.z).ExpandedBy(1);
@@ -458,10 +618,14 @@ namespace TheShatteredCrown
                 {
                     return false;
                 }
-                Building edifice = cell.GetEdifice(map);
-                if (edifice != null && (edifice.def.building == null || !edifice.def.building.isNaturalRock))
+                List<Thing> things = cell.GetThingList(map);
+                for (int i = 0; i < things.Count; i++)
                 {
-                    return false; // somebody's architecture: not ours to flatten
+                    if (things[i].def.category == ThingCategory.Building
+                        && (things[i].def.building == null || !things[i].def.building.isNaturalRock))
+                    {
+                        return false;
+                    }
                 }
             }
             return true;
