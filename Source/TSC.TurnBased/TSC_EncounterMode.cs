@@ -3782,6 +3782,12 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            // Mod setting: an always-armed player does not need a permanent
+            // banner saying so.
+            if (ctrl.ApproachMode && !TurnBasedHooks.ShowArmedBanner())
+            {
+                return;
+            }
 
             // End-turn hotkey (default Enter): works whatever is selected,
             // player turns only - enemy turns resolve on their own.

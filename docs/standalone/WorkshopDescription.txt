@@ -27,6 +27,7 @@ Each pawn can carry over up to 2 AP to their next turn.
 [*][b]Turn-based damage multiplier[/b] (1.0 by default): Scale damage for both sides while turn-based combat is active. Combat XP scales with it too.
 [*][b]Engagement range[/b] (40 cells by default): Range at which turn-based fights begin, if an enemy has chosen one of your pawns as a target (they always begin once an attack is initiated, regardless of the range).
 [*][b]Point-blank range[/b] (6 cells by default): Range at which turn-based fights begin, even if no enemy has noticed your pawns
+[*][b]Hide turn-based banner when not in a fight.[b]
 [/list]
 
 [h1]Compatibility[/h1]

@@ -22,6 +22,7 @@ namespace TheShatteredCrown
             TurnBasedHooks.DamageFactor = () => TSC_Mod.Settings?.tbDamageFactor ?? 1f;
             TurnBasedHooks.EngageRadius = () => TSC_Mod.Settings?.tbEngageRadius ?? 40f;
             TurnBasedHooks.PointBlankRadius = () => TSC_Mod.Settings?.tbPointBlankRadius ?? 6f;
+            TurnBasedHooks.ShowArmedBanner = () => TSC_Mod.Settings?.tbShowArmedBanner ?? true;
             TurnBasedHooks.ArmedPreference = () => TSC_Mod.Settings?.tbArmedPreference ?? false;
             TurnBasedHooks.SetArmedPreference = value =>
             {

@@ -30,6 +30,9 @@ namespace TheShatteredCrown
         /// </summary>
         public bool tbArmedPreference;
 
+        /// <summary>Draw the persistent "armed" banner while turn-based mode waits for a fight.</summary>
+        public bool tbShowArmedBanner = true;
+
         /// <summary>Seconds of held stillness before and after each enemy turn (at 1x speed). 0 = no beats, back to instant enemy turns.</summary>
         public float enemyBeatSeconds = 0.5f;
 
@@ -69,6 +72,7 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref tbEngageRadius, "tbEngageRadius", 40f);
             Scribe_Values.Look(ref tbPointBlankRadius, "tbPointBlankRadius", 6f);
             Scribe_Values.Look(ref tbArmedPreference, "tbArmedPreference", false);
+            Scribe_Values.Look(ref tbShowArmedBanner, "tbShowArmedBanner", defaultValue: true);
             Scribe_Values.Look(ref enemyBeatSeconds, "enemyBeatSeconds", 0.5f);
             Scribe_Values.Look(ref reformIgnoresHiddenEnemies, "reformIgnoresHiddenEnemies", defaultValue: true);
             Scribe_Values.Look(ref autoFormCamp, "autoFormCamp", defaultValue: true);
@@ -130,6 +134,10 @@ namespace TheShatteredCrown
             listing.Label("Conversation distance: an awake enemy this close, with line of sight, starts turns even before anyone attacks. Sneaking pawns are exempt.");
             GUI.color = Color.white;
             Settings.tbPointBlankRadius = Mathf.Round(listing.Slider(Settings.tbPointBlankRadius, 2f, 15f));
+            listing.Gap();
+
+            listing.CheckboxLabeled("Show the 'armed' banner", ref Settings.tbShowArmedBanner,
+                "When turn-based mode is on but no fight has started, a banner says so at the top of the screen. Turn this off to hide it until turns actually begin.");
             listing.Gap();
 
             listing.Label($"Enemy turn pacing beat: {Settings.enemyBeatSeconds:0.0}s");

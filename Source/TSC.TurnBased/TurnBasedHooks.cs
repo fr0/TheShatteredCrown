@@ -66,5 +66,8 @@ namespace TheShatteredCrown
         /// </summary>
         public static Func<bool> ArmedPreference = () => false;
         public static Action<bool> SetArmedPreference = value => { };
+
+        /// <summary>Draw the "TURN-BASED armed" banner while armed but not yet fighting? The fight banner is unaffected.</summary>
+        public static Func<bool> ShowArmedBanner = () => true;
     }
 }

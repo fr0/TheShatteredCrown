@@ -28,6 +28,9 @@ namespace TheShatteredCrown
         /// <summary>Remembered armed state, written by the toggle itself (no options UI).</summary>
         public bool armedPreference;
 
+        /// <summary>Draw the persistent "armed" banner while the mode waits for a fight.</summary>
+        public bool showArmedBanner = true;
+
         public override void ExposeData()
         {
             base.ExposeData();
@@ -36,6 +39,7 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref engageRadius, "engageRadius", 40f);
             Scribe_Values.Look(ref pointBlankRadius, "pointBlankRadius", 6f);
             Scribe_Values.Look(ref armedPreference, "armedPreference", false);
+            Scribe_Values.Look(ref showArmedBanner, "showArmedBanner", defaultValue: true);
         }
     }
 
@@ -59,6 +63,7 @@ namespace TheShatteredCrown
             TurnBasedHooks.DamageFactor = () => Settings.tbDamageFactor;
             TurnBasedHooks.EngageRadius = () => Settings.engageRadius;
             TurnBasedHooks.PointBlankRadius = () => Settings.pointBlankRadius;
+            TurnBasedHooks.ShowArmedBanner = () => Settings.showArmedBanner;
             TurnBasedHooks.ArmedPreference = () => Settings.armedPreference;
             TurnBasedHooks.SetArmedPreference = value =>
             {
@@ -91,6 +96,9 @@ namespace TheShatteredCrown
             list.Label($"Point-blank engagement range: {Settings.pointBlankRadius:0} cells",
                 tooltip: "Conversation distance: an awake enemy this close, with line of sight, starts turns even before anyone attacks. Sneaking pawns are exempt.");
             Settings.pointBlankRadius = Mathf.Round(list.Slider(Settings.pointBlankRadius, 2f, 15f));
+            list.Gap();
+            list.CheckboxLabeled("Show the 'armed' banner", ref Settings.showArmedBanner,
+                "When turn-based mode is on but no fight has started, a banner says so at the top of the screen. Turn this off to hide it until turns actually begin.");
             list.End();
         }
     }
