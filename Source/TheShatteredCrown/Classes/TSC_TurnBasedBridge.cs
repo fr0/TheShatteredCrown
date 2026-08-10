@@ -22,6 +22,15 @@ namespace TheShatteredCrown
             TurnBasedHooks.DamageFactor = () => TSC_Mod.Settings?.tbDamageFactor ?? 1f;
             TurnBasedHooks.EngageRadius = () => TSC_Mod.Settings?.tbEngageRadius ?? 40f;
             TurnBasedHooks.PointBlankRadius = () => TSC_Mod.Settings?.tbPointBlankRadius ?? 6f;
+            TurnBasedHooks.ArmedPreference = () => TSC_Mod.Settings?.tbArmedPreference ?? false;
+            TurnBasedHooks.SetArmedPreference = value =>
+            {
+                if (TSC_Mod.Settings != null && TSC_Mod.Settings.tbArmedPreference != value)
+                {
+                    TSC_Mod.Settings.tbArmedPreference = value;
+                    TSC_Mod.Settings.Write();
+                }
+            };
 
             // Running Start: a monk who has already moved this turn attacks
             // for 1 AP less. Registered here so every preview, label, and

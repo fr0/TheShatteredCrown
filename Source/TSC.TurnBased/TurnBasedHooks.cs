@@ -58,5 +58,13 @@ namespace TheShatteredCrown
 
         /// <summary>Conversation distance: raw proximity plus line of sight engages here even before any attack.</summary>
         public static Func<float> PointBlankRadius = () => 6f;
+
+        /// <summary>
+        /// The remembered armed preference. Lives in the mod SETTINGS file,
+        /// never the save: it survives across saves and sessions, and leaves
+        /// no trace in a save if the mod is removed.
+        /// </summary>
+        public static Func<bool> ArmedPreference = () => false;
+        public static Action<bool> SetArmedPreference = value => { };
     }
 }

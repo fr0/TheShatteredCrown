@@ -23,6 +23,13 @@ namespace TheShatteredCrown
         /// <summary>Conversation distance: proximity + line of sight engages even before any attack.</summary>
         public float tbPointBlankRadius = 6f;
 
+        /// <summary>
+        /// Remembered turn-based armed state. Written by the in-game toggle
+        /// itself, not shown in the options UI (the gizmo IS its UI); lives
+        /// here so it holds across saves without touching any save file.
+        /// </summary>
+        public bool tbArmedPreference;
+
         /// <summary>Seconds of held stillness before and after each enemy turn (at 1x speed). 0 = no beats, back to instant enemy turns.</summary>
         public float enemyBeatSeconds = 0.5f;
 
@@ -61,6 +68,7 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref autoEndTurn, "autoEndTurn", defaultValue: true);
             Scribe_Values.Look(ref tbEngageRadius, "tbEngageRadius", 40f);
             Scribe_Values.Look(ref tbPointBlankRadius, "tbPointBlankRadius", 6f);
+            Scribe_Values.Look(ref tbArmedPreference, "tbArmedPreference", false);
             Scribe_Values.Look(ref enemyBeatSeconds, "enemyBeatSeconds", 0.5f);
             Scribe_Values.Look(ref reformIgnoresHiddenEnemies, "reformIgnoresHiddenEnemies", defaultValue: true);
             Scribe_Values.Look(ref autoFormCamp, "autoFormCamp", defaultValue: true);

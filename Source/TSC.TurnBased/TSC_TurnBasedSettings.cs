@@ -25,6 +25,9 @@ namespace TheShatteredCrown
         /// <summary>Conversation distance: proximity + line of sight engages even before any attack.</summary>
         public float pointBlankRadius = 6f;
 
+        /// <summary>Remembered armed state, written by the toggle itself (no options UI).</summary>
+        public bool armedPreference;
+
         public override void ExposeData()
         {
             base.ExposeData();
@@ -32,6 +35,7 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref tbDamageFactor, "tbDamageFactor", 1f);
             Scribe_Values.Look(ref engageRadius, "engageRadius", 40f);
             Scribe_Values.Look(ref pointBlankRadius, "pointBlankRadius", 6f);
+            Scribe_Values.Look(ref armedPreference, "armedPreference", false);
         }
     }
 
@@ -55,6 +59,15 @@ namespace TheShatteredCrown
             TurnBasedHooks.DamageFactor = () => Settings.tbDamageFactor;
             TurnBasedHooks.EngageRadius = () => Settings.engageRadius;
             TurnBasedHooks.PointBlankRadius = () => Settings.pointBlankRadius;
+            TurnBasedHooks.ArmedPreference = () => Settings.armedPreference;
+            TurnBasedHooks.SetArmedPreference = value =>
+            {
+                if (Settings.armedPreference != value)
+                {
+                    Settings.armedPreference = value;
+                    Settings.Write();
+                }
+            };
         }
 
         public override string SettingsCategory() => "Turn-Based Combat";

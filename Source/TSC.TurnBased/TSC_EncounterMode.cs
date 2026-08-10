@@ -569,15 +569,18 @@ namespace TheShatteredCrown
             {
                 if (approachMode || !engagedHostiles)
                 {
+                    TurnBasedHooks.SetArmedPreference(false);
                     Deactivate("Turn-based mode off.");
                     return;
                 }
                 if (exitRequested)
                 {
                     exitRequested = false;
+                    TurnBasedHooks.SetArmedPreference(true);
                     Messages.Message("Staying in turn-based mode.", MessageTypeDefOf.SilentInput, historical: false);
                     return;
                 }
+                TurnBasedHooks.SetArmedPreference(false);
                 exitRequested = true;
                 Messages.Message("Turn-based mode ends once the enemy has acted.",
                     MessageTypeDefOf.SilentInput, historical: false);
@@ -588,6 +591,7 @@ namespace TheShatteredCrown
                 return;
             }
             active = true;
+            TurnBasedHooks.SetArmedPreference(true);
             map = m;
             cycle = 1;
             exitRequested = false;
@@ -2130,6 +2134,15 @@ namespace TheShatteredCrown
         public override void WorldComponentTick()
         {
             base.WorldComponentTick();
+            if (!active && Find.TickManager.TicksGame % 250 == 0
+                && TurnBasedHooks.ArmedPreference())
+            {
+                Map cur = Find.CurrentMap;
+                if (cur != null && cur.mapPawns.FreeColonistsSpawned.Count > 0)
+                {
+                    Toggle(cur);
+                }
+            }
             if (!active)
             {
                 // Let go of a battlefield that no longer exists. The check
