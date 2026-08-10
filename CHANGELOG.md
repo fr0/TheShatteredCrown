@@ -2,6 +2,14 @@
 
 Player-facing changes to The Shattered Crown, newest first.
 
+## [1.0.3] - 2026-08-10
+
+### Fixed
+* Turn-based toggle setting will now be remembered
+
+### Added
+* Added an option to hide the turn-based banner when not in a fight
+
 ## [1.0.2] - 2026-08-09
 
 ### Fixed

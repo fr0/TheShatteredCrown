@@ -3,9 +3,9 @@
   <PropertyGroup>
     <!-- Kept in step with the main csproj by hand for now; the assembly is
          internal to this mod (stage one of the turn-engine split). -->
-    <Version>1.0.2</Version>
-    <AssemblyVersion>1.0.2.0</AssemblyVersion>
-    <FileVersion>1.0.2.0</FileVersion>
+    <Version>1.0.3</Version>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <FileVersion>1.0.3.0</FileVersion>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>latest</LangVersion>
     <!-- SAME root namespace as the main assembly, on purpose: Scribe and
