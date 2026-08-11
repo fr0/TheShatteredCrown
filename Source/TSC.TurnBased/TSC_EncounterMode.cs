@@ -3771,6 +3771,31 @@ namespace TheShatteredCrown
             GUI.color = Color.white;
         }
 
+        private static readonly float[] PaceSteps = { 1f, 2f, 4f };
+
+        /// <summary>One pace row: a tiny label and three exclusive speed buttons.</summary>
+        private static void DrawPaceRow(Rect row, string label, float current,
+            System.Action<float> set, string tip)
+        {
+            Text.Font = GameFont.Tiny;
+            GUI.color = new Color(1f, 1f, 1f, 0.75f);
+            Widgets.Label(new Rect(row.x, row.y + 2f, 30f, row.height), label);
+            GUI.color = Color.white;
+            for (int i = 0; i < PaceSteps.Length; i++)
+            {
+                Rect button = new Rect(row.x + 32f + i * 34f, row.y, 32f, row.height);
+                bool selected = Mathf.Abs(current - PaceSteps[i]) < 0.01f;
+                GUI.color = selected ? new Color(1f, 0.85f, 0.4f) : new Color(1f, 1f, 1f, 0.8f);
+                if (Widgets.ButtonText(button, $"{PaceSteps[i]:0}x") && !selected)
+                {
+                    set(PaceSteps[i]);
+                }
+            }
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+            TooltipHandler.TipRegion(new Rect(row.x, row.y, 134f, row.height), tip);
+        }
+
         public override void MapComponentOnGUI()
         {
             if (Find.CurrentMap != map)
@@ -3918,9 +3943,20 @@ namespace TheShatteredCrown
                     CameraJumper.TryJumpAndSelect(ctrl.ActivePawn, CameraJumper.MovementMode.Pan);
                 }
             }
+            // Pace controls: wall-clock speed of each side's turns, adjustable mid-fight
+            if (!ctrl.ApproachMode)
+            {
+                DrawPaceRow(new Rect(banner.x - 138f, banner.yMax + 6f, 130f, 22f),
+                    "You", TurnBasedHooks.ColonistPace(), TurnBasedHooks.SetColonistPace,
+                    "Speed of your pawns' turns. Action points, aim, and outcomes are unaffected.");
+                DrawPaceRow(new Rect(banner.x - 138f, banner.yMax + 32f, 130f, 22f),
+                    "Foe", TurnBasedHooks.EnemyPace(), TurnBasedHooks.SetEnemyPace,
+                    "Speed of enemy turns (and their group moves). Outcomes are unaffected.");
+            }
 
             DrawTurnOrder(ctrl);
             DrawCombatLog(ctrl);
+            Text.Font = GameFont.Small;
             UpdatePathPreview(ctrl);
             DrawPathPreviewLabel(ctrl);
             DrawHitChanceLabel(ctrl);
@@ -3985,6 +4021,33 @@ namespace TheShatteredCrown
     /// stack traces). Positions get sorted out by the players' own orders
     /// when their turns come; the reflex can wait for the fight to end.
     /// </summary>
+    /// <summary>
+    /// Turn pace: scale the game's tick rate while a turn is running, by
+    /// whose turn it is (group moves count as enemy turns - a null active
+    /// pawn with the group phase live is the AI marching). Pausing
+    /// (multiplier 0) is never overridden.
+    /// </summary>
+    [HarmonyPatch(typeof(TickManager), nameof(TickManager.TickRateMultiplier), MethodType.Getter)]
+    public static class Patch_TickRate_TurnPace
+    {
+        public static void Postfix(ref float __result)
+        {
+            if (__result <= 0f)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.Active || ctrl.ApproachMode
+                || ctrl.Phase != TSC_EncounterController.EncounterPhase.Turn)
+            {
+                return;
+            }
+            Pawn active = ctrl.ActivePawn;
+            bool player = active != null && TSC_EncounterController.PlayerControlled(active);
+            __result *= player ? TurnBasedHooks.ColonistPace() : TurnBasedHooks.EnemyPace();
+        }
+    }
+
     /// <summary>
     /// Turrets hold fire during pawn turns (see TurretMustHoldFire). Gating
     /// the burst STARTER rather than the tick keeps the turret alive as a

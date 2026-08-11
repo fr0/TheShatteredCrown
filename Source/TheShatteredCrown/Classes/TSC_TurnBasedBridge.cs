@@ -23,6 +23,24 @@ namespace TheShatteredCrown
             TurnBasedHooks.EngageRadius = () => TSC_Mod.Settings?.tbEngageRadius ?? 40f;
             TurnBasedHooks.PointBlankRadius = () => TSC_Mod.Settings?.tbPointBlankRadius ?? 6f;
             TurnBasedHooks.ShowArmedBanner = () => TSC_Mod.Settings?.tbShowArmedBanner ?? true;
+            TurnBasedHooks.ColonistPace = () => TSC_Mod.Settings?.tbColonistPace ?? 1f;
+            TurnBasedHooks.EnemyPace = () => TSC_Mod.Settings?.tbEnemyPace ?? 1f;
+            TurnBasedHooks.SetColonistPace = value =>
+            {
+                if (TSC_Mod.Settings != null)
+                {
+                    TSC_Mod.Settings.tbColonistPace = value;
+                    TSC_Mod.Settings.Write();
+                }
+            };
+            TurnBasedHooks.SetEnemyPace = value =>
+            {
+                if (TSC_Mod.Settings != null)
+                {
+                    TSC_Mod.Settings.tbEnemyPace = value;
+                    TSC_Mod.Settings.Write();
+                }
+            };
             TurnBasedHooks.ArmedPreference = () => TSC_Mod.Settings?.tbArmedPreference ?? false;
             TurnBasedHooks.SetArmedPreference = value =>
             {

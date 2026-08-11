@@ -33,6 +33,10 @@ namespace TheShatteredCrown
         /// <summary>Draw the persistent "armed" banner while turn-based mode waits for a fight.</summary>
         public bool tbShowArmedBanner = true;
 
+        /// <summary>Turn pace (1/2/4x wall clock), set by the in-combat buttons - no options UI.</summary>
+        public float tbColonistPace = 1f;
+        public float tbEnemyPace = 1f;
+
         /// <summary>Seconds of held stillness before and after each enemy turn (at 1x speed). 0 = no beats, back to instant enemy turns.</summary>
         public float enemyBeatSeconds = 0.5f;
 
@@ -73,6 +77,8 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref tbPointBlankRadius, "tbPointBlankRadius", 6f);
             Scribe_Values.Look(ref tbArmedPreference, "tbArmedPreference", false);
             Scribe_Values.Look(ref tbShowArmedBanner, "tbShowArmedBanner", defaultValue: true);
+            Scribe_Values.Look(ref tbColonistPace, "tbColonistPace", 1f);
+            Scribe_Values.Look(ref tbEnemyPace, "tbEnemyPace", 1f);
             Scribe_Values.Look(ref enemyBeatSeconds, "enemyBeatSeconds", 0.5f);
             Scribe_Values.Look(ref reformIgnoresHiddenEnemies, "reformIgnoresHiddenEnemies", defaultValue: true);
             Scribe_Values.Look(ref autoFormCamp, "autoFormCamp", defaultValue: true);

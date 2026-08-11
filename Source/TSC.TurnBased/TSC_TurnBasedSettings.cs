@@ -31,6 +31,10 @@ namespace TheShatteredCrown
         /// <summary>Draw the persistent "armed" banner while the mode waits for a fight.</summary>
         public bool showArmedBanner = true;
 
+        /// <summary>Turn pace (1/2/4x wall clock), set by the in-combat buttons - no options UI.</summary>
+        public float colonistPace = 1f;
+        public float enemyPace = 1f;
+
         public override void ExposeData()
         {
             base.ExposeData();
@@ -40,6 +44,8 @@ namespace TheShatteredCrown
             Scribe_Values.Look(ref pointBlankRadius, "pointBlankRadius", 6f);
             Scribe_Values.Look(ref armedPreference, "armedPreference", false);
             Scribe_Values.Look(ref showArmedBanner, "showArmedBanner", defaultValue: true);
+            Scribe_Values.Look(ref colonistPace, "colonistPace", 1f);
+            Scribe_Values.Look(ref enemyPace, "enemyPace", 1f);
         }
     }
 
@@ -64,6 +70,18 @@ namespace TheShatteredCrown
             TurnBasedHooks.EngageRadius = () => Settings.engageRadius;
             TurnBasedHooks.PointBlankRadius = () => Settings.pointBlankRadius;
             TurnBasedHooks.ShowArmedBanner = () => Settings.showArmedBanner;
+            TurnBasedHooks.ColonistPace = () => Settings.colonistPace;
+            TurnBasedHooks.EnemyPace = () => Settings.enemyPace;
+            TurnBasedHooks.SetColonistPace = value =>
+            {
+                Settings.colonistPace = value;
+                Settings.Write();
+            };
+            TurnBasedHooks.SetEnemyPace = value =>
+            {
+                Settings.enemyPace = value;
+                Settings.Write();
+            };
             TurnBasedHooks.ArmedPreference = () => Settings.armedPreference;
             TurnBasedHooks.SetArmedPreference = value =>
             {

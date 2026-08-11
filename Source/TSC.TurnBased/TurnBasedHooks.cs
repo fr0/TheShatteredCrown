@@ -69,5 +69,15 @@ namespace TheShatteredCrown
 
         /// <summary>Draw the "TURN-BASED armed" banner while armed but not yet fighting? The fight banner is unaffected.</summary>
         public static Func<bool> ShowArmedBanner = () => true;
+
+        /// <summary>
+        /// Wall-clock pace of turns (1/2/4x), separately for the player's
+        /// turns and the AI's.
+        /// </summary>
+        public static Func<float> ColonistPace = () => 1f;
+        public static Func<float> EnemyPace = () => 1f;
+        /// <summary>Written by the in-combat pace buttons; persisted in the settings file like the armed preference.</summary>
+        public static Action<float> SetColonistPace = value => { };
+        public static Action<float> SetEnemyPace = value => { };
     }
 }
