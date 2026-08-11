@@ -2,6 +2,11 @@
 
 Player-facing changes to The Shattered Crown, newest first.
 
+## [1.0.4] - 2026-08-10
+
+### Added
+* Turn-based speed controls added
+
 ## [1.0.3] - 2026-08-10
 
 ### Fixed
