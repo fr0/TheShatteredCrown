@@ -2,6 +2,11 @@
 
 Player-facing changes to The Shattered Crown, newest first.
 
+## [1.0.5] - 2026-08-11
+
+### Fixed
+* Fixed a potential crash when a melee attacker destroys its target with a one-shot
+
 ## [1.0.4] - 2026-08-10
 
 ### Added
