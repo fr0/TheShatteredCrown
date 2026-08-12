@@ -1,6 +1,11 @@
 # Changelog
 
-Player-facing changes to The Shattered Crown, newest first.
+## [Unreleased]
+
+### Fixed
+* Reduced the frequency of exertion tracking during realtime mode (performance improvement)
+* Don't rebuild pace label text every UI draw (performance)
+* Don't rebuild AP label text every UI draw (performance)
 
 ## [1.0.5] - 2026-08-11
 

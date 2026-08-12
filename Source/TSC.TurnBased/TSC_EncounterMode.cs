@@ -918,11 +918,14 @@ namespace TheShatteredCrown
             Scan(m.listerBuildings.allBuildingsNonColonist);
         }
 
+        // Reused between armed-mode rechecks (every 30 ticks); cleared before use.
+        private static readonly HashSet<Pawn> tmpTurretVictims = new HashSet<Pawn>();
+
         private static bool AnyFriendlyTurretFight(Map m)
         {
-            HashSet<Pawn> targets = new HashSet<Pawn>();
-            CollectFriendlyTurretTargets(m, targets);
-            return targets.Count > 0;
+            tmpTurretVictims.Clear();
+            CollectFriendlyTurretTargets(m, tmpTurretVictims);
+            return tmpTurretVictims.Count > 0;
         }
 
         /// <summary>
@@ -1489,9 +1492,18 @@ namespace TheShatteredCrown
             return false;
         }
 
+        /// <summary>
+        /// Exertion sampling cadence (every N ticks).
+        /// </summary>
+        private const int ExertionIntervalTicks = 6;
+
         /// <summary>Rolling real-time exertion: movement accrues, calm decays. Runs while the mode is off or in approach.</summary>
         private void TrackRealtimeExertion()
         {
+            if (Find.TickManager.TicksGame % ExertionIntervalTicks != 0)
+            {
+                return;
+            }
             tmpAccrued.Clear();
             foreach (Map m in Find.Maps)
             {
@@ -1520,7 +1532,8 @@ namespace TheShatteredCrown
                         && !(p.stances?.stagger != null && p.stances.stagger.Staggered))
                     {
                         recentExertion[p] = Mathf.Min(MaxHangoverAp,
-                            (recentExertion.TryGetValue(p, out float v) ? v : 0f) + ApPerMoveTick);
+                            (recentExertion.TryGetValue(p, out float v) ? v : 0f)
+                            + ApPerMoveTick * ExertionIntervalTicks);
                         tmpAccrued.Add(p);
                     }
                 }
@@ -1537,7 +1550,7 @@ namespace TheShatteredCrown
                 {
                     continue; // resting decays; exertion does not decay itself
                 }
-                float value = recentExertion[p] - HangoverDecayPerTick;
+                float value = recentExertion[p] - HangoverDecayPerTick * ExertionIntervalTicks;
                 if (value <= 0f)
                 {
                     recentExertion.Remove(p);
@@ -3581,6 +3594,16 @@ namespace TheShatteredCrown
         }
 
         /// <summary>Vertical initiative panel: portrait + name per row; active highlighted, acted dimmed; click jumps; drag the header to move.</summary>
+        private readonly List<(Pawn pawn, int index)> tmpTurnOrderEntries = new List<(Pawn, int)>();
+
+        // Cache for the over-pawn AP label: rebuilt only when a value changes.
+        private float apLabelCur = float.MinValue;
+        private float apLabelAtk;
+        private float apLabelMelee;
+        private float apLabelPlanned;
+        private bool apLabelRanged;
+        private string apLabelText = "";
+
         private void DrawTurnOrder(TSC_EncounterController ctrl)
         {
             IReadOnlyList<Pawn> order = ctrl.InitiativeOrder;
@@ -3588,7 +3611,10 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            List<(Pawn pawn, int index)> entries = new List<(Pawn, int)>();
+            // Reused: this runs every frame of every fight, and a fresh list
+            // per frame was steady GC churn exactly when the player watches.
+            List<(Pawn pawn, int index)> entries = tmpTurnOrderEntries;
+            entries.Clear();
             for (int i = 0; i < order.Count; i++)
             {
                 Pawn p = order[i];
@@ -3772,6 +3798,7 @@ namespace TheShatteredCrown
         }
 
         private static readonly float[] PaceSteps = { 1f, 2f, 4f };
+        private static readonly string[] PaceLabels = { "1x", "2x", "4x" };
 
         /// <summary>One pace row: a tiny label and three exclusive speed buttons.</summary>
         private static void DrawPaceRow(Rect row, string label, float current,
@@ -3786,7 +3813,7 @@ namespace TheShatteredCrown
                 Rect button = new Rect(row.x + 32f + i * 34f, row.y, 32f, row.height);
                 bool selected = Mathf.Abs(current - PaceSteps[i]) < 0.01f;
                 GUI.color = selected ? new Color(1f, 0.85f, 0.4f) : new Color(1f, 1f, 1f, 0.8f);
-                if (Widgets.ButtonText(button, $"{PaceSteps[i]:0}x") && !selected)
+                if (Widgets.ButtonText(button, PaceLabels[i]) && !selected)
                 {
                     set(PaceSteps[i]);
                 }
@@ -3975,29 +4002,39 @@ namespace TheShatteredCrown
             bool rangedHeld = active.equipment?.Primary?.def?.IsRangedWeapon ?? false;
             float meleeCost = rangedHeld ? TSC_EncounterController.MeleeApCostFor(active) : attackCost;
             float cheapest = Mathf.Min(attackCost, meleeCost);
-            string atkPart = rangedHeld
-                ? $"shoot {attackCost:0.#} / melee {meleeCost:0.#}"
-                : $"atk {attackCost:0.#}";
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleCenter;
             Vector2 pos = GenMapUI.LabelDrawPosFor(active, -1.5f);
-            string label;
             float planned = paused ? PlannedApCost(active) : 0f;
+            // The label re-builds only when a value in it changes; between
+            // changes the cached string is reused (this draws every frame)
+            if (current != apLabelCur || attackCost != apLabelAtk || meleeCost != apLabelMelee
+                || planned != apLabelPlanned || rangedHeld != apLabelRanged)
+            {
+                apLabelCur = current;
+                apLabelAtk = attackCost;
+                apLabelMelee = meleeCost;
+                apLabelPlanned = planned;
+                apLabelRanged = rangedHeld;
+                string atkPart = rangedHeld
+                    ? $"shoot {attackCost:0.#} / melee {meleeCost:0.#}"
+                    : $"atk {attackCost:0.#}";
+                apLabelText = planned > 0.01f
+                    ? $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} to ~{current - planned:0.#}"
+                    : current < cheapest
+                        ? $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} (needs {cheapest:0.#} to attack)"
+                        : $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} ({atkPart})";
+            }
+            string label = apLabelText;
             if (paused && planned > 0.01f)
             {
                 float remaining = current - planned;
-                label = $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} to ~{remaining:0.#}";
                 GUI.color = remaining < -0.01f ? OverColor
                     : remaining < cheapest ? WarnColor
                     : AvailableColor;
             }
             else
             {
-                // Spell out the attack budget: seeing "needs X" beats doing
-                // the arithmetic mid-fight.
-                label = current < cheapest
-                    ? $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} (needs {cheapest:0.#} to attack)"
-                    : $"AP {current:0.#}/{TSC_EncounterController.BaseAp:0} ({atkPart})";
                 GUI.color = current <= 0f ? SpentColor
                     : current < cheapest ? WarnColor
                     : AvailableColor;
