@@ -2774,7 +2774,7 @@ namespace TheShatteredCrown
             }
             float hit = attacker.GetStatValue(StatDefOf.MeleeHitChance);
             float dodge = victim.GetStatValue(StatDefOf.MeleeDodgeChance);
-            if (ModsConfig.IdeologyActive)
+            if (ModsConfig.IdeologyActive && victim.Spawned)
             {
                 if (DarknessCombatUtility.IsOutdoorsAndLit(victim))
                 {
