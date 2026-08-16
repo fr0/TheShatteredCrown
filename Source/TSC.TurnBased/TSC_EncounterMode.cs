@@ -91,6 +91,7 @@ namespace TheShatteredCrown
         private const int DrySettleTicks = 15;      // AP dry + not mid-swing = turn over
         private const int RePauseGraceTicks = 10;   // player pawn idle this long = back to orders
         private const int StuckGraceTicks = 45;     // ENEMY turns: pathing but not advancing = turn over
+        private const int SettleHoldMaxTicks = 30;  // longest a turn end waits for sprites/poses to land
 
         // Progress watchdog for the active enemy's movement (transient, per turn).
         private IntVec3 lastActivePos = IntVec3.Invalid;
@@ -147,6 +148,18 @@ namespace TheShatteredCrown
         private int enemyOutroEndTick = -1;
         private int phaseEndTick;
         private int attackBlockedTick = -1;
+        // When the active pawn became spent
+        private int drySinceTick = -1;
+        // Caps for the visual settle holds: an unconverging sprite must not
+        // stall the battle.
+        private int settleHoldCapTick = -1;
+        private int groupSettleCapTick = -1;
+        // When the re-pause first found the pawn idle.
+        private int repauseSettleTick = -1;
+        // Pawns finishing their last step on credit after going dry mid-cell
+        private readonly Dictionary<Pawn, (IntVec3 cell, int tick)> dryFinish =
+            new Dictionary<Pawn, (IntVec3 cell, int tick)>();
+        private const int DryFinishMaxTicks = 150; // blocked path: don't walk in place all turn
 
         // The attack that never starts: job standing, no aim, no movement,
         // nothing charged. Under CE this is usually CanHitTarget refusing
@@ -209,7 +222,27 @@ namespace TheShatteredCrown
             Instance = this;
         }
 
-        public static TSC_EncounterController Current => Instance;
+        /// <summary>
+        /// The controller as seen by Harmony patches: null unless the game
+        /// is playing and this instance belongs to the current world.
+        /// </summary>
+        public static TSC_EncounterController Current
+        {
+            get
+            {
+                if (Verse.Current.ProgramState != ProgramState.Playing)
+                {
+                    return null;
+                }
+                TSC_EncounterController inst = Instance;
+                World world = Verse.Current.Game?.World;
+                if (inst == null || world == null || inst.world != world)
+                {
+                    return null;
+                }
+                return inst;
+            }
+        }
 
         public bool Active => active;
         public int Cycle => cycle;
@@ -275,7 +308,11 @@ namespace TheShatteredCrown
             {
                 if (apMessaged.Add(p) && p.Faction == Faction.OfPlayer)
                 {
-                    Messages.Message($"{p.LabelShortCap} is out of action points; their turn is ending.",
+                    // A failed move tick means the pool is empty; a failed
+                    // action charge usually leaves AP behind - say which
+                    Messages.Message(cost <= ApPerMoveTick + 0.001f
+                            ? $"{p.LabelShortCap} is out of action points."
+                            : $"{p.LabelShortCap}: not enough AP ({ApOf(p):0.#} of {cost:0.#} needed).",
                         p, MessageTypeDefOf.RejectInput, historical: false);
                 }
                 return false;
@@ -636,6 +673,11 @@ namespace TheShatteredCrown
             groupEndIndex = -1;
             turnStartTick = -1;
             attackBlockedTick = -1;
+            drySinceTick = -1;
+            settleHoldCapTick = -1;
+            groupSettleCapTick = -1;
+            repauseSettleTick = -1;
+            dryFinish.Clear();
             enemyIntroEndTick = -1;
             enemyOutroEndTick = -1;
             pendingAdvance = false;
@@ -713,15 +755,20 @@ namespace TheShatteredCrown
 
         private static bool HostileEngaged(Map m, Pawn p)
         {
-            // Not awake, not fighting. A dormant cluster two rooms away is not
-            // an engagement, and treating it as one started turn-based combat
-            // before the party had seen anything.
-            if (IsAsleepOrDormant(p))
+            // Already quit: they belong to the world phase now. Checked
+            // first so shooting at a routed enemy stays a real-time chase.
+            if (IsFleeing(p))
             {
                 return false;
             }
-            // Already quit: they belong to the world phase now.
-            if (IsFleeing(p))
+            // The party opening fire IS the fight starting - even on a
+            // hostile whose own AI has not reacted yet
+            if (ColonistAttacking(m, p))
+            {
+                return true;
+            }
+            // Not awake, not fighting. A dormant cluster two rooms away is not an engagement
+            if (IsAsleepOrDormant(p))
             {
                 return false;
             }
@@ -778,6 +825,35 @@ namespace TheShatteredCrown
             return p.stances?.curStance is Stance_Busy busy
                 && busy.focusTarg.HasThing
                 && busy.focusTarg.Thing.Faction == Faction.OfPlayer;
+        }
+
+        /// <summary>
+        /// A drafted colonist mid-attack on this hostile.
+        /// </summary>
+        private static bool ColonistAttacking(Map m, Pawn p)
+        {
+            List<Pawn> colonists = m.mapPawns.FreeColonistsSpawned;
+            for (int i = 0; i < colonists.Count; i++)
+            {
+                Pawn c = colonists[i];
+                if (!c.Drafted)
+                {
+                    continue;
+                }
+                if (c.stances?.curStance is Stance_Busy busy
+                    && busy.focusTarg.HasThing && busy.focusTarg.Thing == p)
+                {
+                    return true;
+                }
+                Job job = c.CurJob;
+                if (job != null
+                    && (job.def == JobDefOf.AttackStatic || job.def == JobDefOf.AttackMelee)
+                    && job.targetA.Thing == p)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static bool AnyColonistNear(Map m, IntVec3 pos, float radius)
@@ -1084,6 +1160,11 @@ namespace TheShatteredCrown
             enemyOutroEndTick = -1;
             pendingAdvance = false;
             projectileHoldCapTick = -1;
+            settleHoldCapTick = -1;
+            groupSettleCapTick = -1;
+            drySinceTick = -1;
+            repauseSettleTick = -1;
+            dryFinish.Clear();
             // A committed full attack belongs to the turn that ordered it.
             ClearFullAttack();
             while (index < initiative.Count)
@@ -1222,6 +1303,10 @@ namespace TheShatteredCrown
                     // the pause + camera jump) or it visibly jumps back the
                     // moment they start their move.
                     SettleSprite(activePawn);
+                    // Drop the cancelled order's destination reservation too:
+                    // vanilla keeps it alive after the job ends, and the
+                    // ghost diverts other pawns' clicks near that cell.
+                    activePawn.Map?.pawnDestinationReservationManager?.ObsoleteAllClaimedBy(activePawn);
                 }
                 Find.TickManager.Pause();
                 autoPause = true;
@@ -1245,7 +1330,7 @@ namespace TheShatteredCrown
                 CameraJumper.TryJump(activePawn, CameraJumper.MovementMode.Pan);
                 if (EnemyBeatTicks > 0)
                 {
-                    enemyIntroEndTick = Find.TickManager.TicksGame + EnemyBeatTicks;
+                    enemyIntroEndTick = Find.TickManager.TicksGame + PacedWindow(EnemyBeatTicks, activePawn);
                 }
                 Messages.Message($"Enemy turn: {activePawn.LabelShortCap}.",
                     activePawn, MessageTypeDefOf.SilentInput, historical: false);
@@ -1300,6 +1385,9 @@ namespace TheShatteredCrown
             phase = EncounterPhase.Turn;
             turnStartTick = -1;
             attackBlockedTick = -1;
+            drySinceTick = -1;
+            groupSettleCapTick = -1;
+            dryFinish.Clear();
             activeGroup.Clear();
             for (int i = firstIndex; i <= lastIndex; i++)
             {
@@ -1360,9 +1448,12 @@ namespace TheShatteredCrown
                     continue;
                 }
                 MeterMovement(p);
-                if (ApOf(p) < DryThresholdAp)
+                // A dry pawn finishing its last step keeps its slot until
+                // the boundary (see dryFinish).
+                if (ApOf(p) < DryThresholdAp && !dryFinish.ContainsKey(p))
                 {
-                    SettleSprite(p);
+                    // No sprite snap: the phase keeps running, the tween glides in.
+                    FaceThreat(p);
                     activeGroup.Remove(p);
                     continue;
                 }
@@ -1376,25 +1467,39 @@ namespace TheShatteredCrown
                 groupLastMoveTick = tm.TicksGame;
             }
             int elapsed = tm.TicksGame - turnStartTick;
-            if (activeGroup.Count == 0 || elapsed >= MaxTurnTicks
-                || tm.TicksGame - groupLastMoveTick >= IdleGraceTicks)
+            bool phaseOver = activeGroup.Count == 0 || elapsed >= MaxTurnTicks
+                || tm.TicksGame - groupLastMoveTick >= IdleGraceTicks;
+            if (!phaseOver)
             {
-                // A volley the group loosed belongs to the group's phase. The
-                // next turn may pause for player orders, which would hang the
-                // arrows mid-air until the next unpause.
-                if (HoldForShots())
-                {
-                    return;
-                }
-                foreach (Pawn p in activeGroup)
-                {
-                    SettleSprite(p);
-                }
-                activeGroup.Clear();
-                int resume = groupEndIndex + 1;
-                groupEndIndex = -1;
-                StartTurn(resume);
+                groupSettleCapTick = -1;
+                return;
             }
+            // A volley the group loosed belongs to the group's phase. The
+            // next turn may pause for player orders, which would hang the
+            // arrows mid-air until the next unpause.
+            if (HoldForShots())
+            {
+                return;
+            }
+            // Let the sprites glide in before a possible pause freezes them
+            // short (the settle snap below would read as a teleport).
+            if (groupSettleCapTick < 0)
+            {
+                groupSettleCapTick = tm.TicksGame + SettleHoldMaxTicks;
+            }
+            if (tm.TicksGame < groupSettleCapTick && AnyVisualsSettling(tmpGroupMembers))
+            {
+                return;
+            }
+            groupSettleCapTick = -1;
+            foreach (Pawn p in activeGroup)
+            {
+                SettleSprite(p); // whatever remains is sub-epsilon (or capped out)
+            }
+            activeGroup.Clear();
+            int resume = groupEndIndex + 1;
+            groupEndIndex = -1;
+            StartTurn(resume);
         }
 
         private void StartEnvironmentPhase()
@@ -1528,7 +1633,10 @@ namespace TheShatteredCrown
                 for (int i = 0; i < colonists.Count; i++)
                 {
                     Pawn p = colonists[i];
-                    if (p.Drafted && p.pather != null && p.pather.MovingNow && AnyHostileNear(p)
+                    // MovedRecently: MovingNow stays true while standing at a
+                    // door or waiting on the pathfinder (see MeterMovement).
+                    if (p.Drafted && p.pather != null && p.pather.MovingNow
+                        && p.pather.MovedRecently(ExertionIntervalTicks) && AnyHostileNear(p)
                         && !(p.stances?.stagger != null && p.stances.stagger.Staggered))
                     {
                         recentExertion[p] = Mathf.Min(MaxHangoverAp,
@@ -1932,6 +2040,75 @@ namespace TheShatteredCrown
             }
         }
 
+        // Private in 1.6: jitterer drives the melee lunge offset;
+        // TweenedPosRoot() is the sprite's true target position.
+        private static readonly AccessTools.FieldRef<Pawn_DrawTracker, JitterHandler> JittererOf =
+            AccessTools.FieldRefAccess<Pawn_DrawTracker, JitterHandler>("jitterer");
+        private static readonly System.Func<PawnTweener, Vector3> TweenedPosRootOf =
+            AccessTools.MethodDelegate<System.Func<PawnTweener, Vector3>>(
+                AccessTools.Method(typeof(PawnTweener), "TweenedPosRoot"));
+
+        /// <summary>The melee lunge: a short draw-offset burst that decays on the pawn's own ticks.</summary>
+        private static bool LungePlaying(Pawn p)
+        {
+            JitterHandler jitter = p.Drawer != null ? JittererOf(p.Drawer) : null;
+            return jitter != null && jitter.CurrentOffset.sqrMagnitude > 0.0001f;
+        }
+
+        /// <summary>
+        /// The pawn still LOOKS mid-action: lunge playing, or sprite short of
+        /// its real cell. Freezing now would park the shortfall (the later
+        /// snap reads as a teleport), so turn ends wait for this to clear.
+        /// Excludes walkers (the tween chases a moving root forever) and
+        /// off-screen pawns (never drawn, so never glide; the snap is invisible).
+        /// </summary>
+        private static bool VisualsSettling(Pawn p)
+        {
+            if (p == null || !p.Spawned || p.Dead
+                || (p.pather != null && p.pather.MovingNow)
+                || !Find.CameraDriver.CurrentViewRect.Contains(p.Position))
+            {
+                return false;
+            }
+            if (LungePlaying(p))
+            {
+                return true;
+            }
+            PawnTweener tween = p.Drawer?.tweener;
+            return tween != null
+                && (tween.TweenedPos - TweenedPosRootOf(tween)).MagnitudeHorizontalSquared() > 0.01f;
+        }
+
+        private bool ActivePawnSettling()
+        {
+            return VisualsSettling(activePawn);
+        }
+
+        private static bool AnyVisualsSettling(List<Pawn> pawns)
+        {
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                if (VisualsSettling(pawns[i]))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Beats and settle pauses scale with the actor's pace so they stay
+        /// constant in wall-clock time (at 4x a 30-tick beat reads as none).
+        /// Watchdog windows stay in tick space: pawns need ticks, not seconds.
+        /// </summary>
+        private static int PacedWindow(int ticks, Pawn actor)
+        {
+            float pace = actor != null && TSC_EncounterController.PlayerControlled(actor)
+                ? TurnBasedHooks.ColonistPace()
+                : TurnBasedHooks.EnemyPace();
+            return pace > 1f ? Mathf.RoundToInt(ticks * pace) : ticks;
+        }
+
         /// <summary>
         /// Frozen combatants should look like fighters, not statues: idle
         /// standing pawns get rotated to face SOUTH (the camera) by vanilla,
@@ -2134,8 +2311,29 @@ namespace TheShatteredCrown
                 // outlives its target, a mod's odd flight path). Advance rather
                 // than hold the battle hostage.
             }
+            // Let the actor's visuals land before freezing (the settle snap
+            // below would read as a teleport). The actor still ticks through
+            // the hold, so the lunge decays.
+            else if (ActivePawnSettling())
+            {
+                if (settleHoldCapTick < 0)
+                {
+                    settleHoldCapTick = tm.TicksGame + SettleHoldMaxTicks;
+                }
+                if (tm.TicksGame < settleHoldCapTick)
+                {
+                    pendingAdvance = true;
+                    if (tm.Paused)
+                    {
+                        tm.CurTimeSpeed = TimeSpeed.Normal;
+                        autoPause = false;
+                    }
+                    return;
+                }
+            }
             pendingAdvance = false;
             projectileHoldCapTick = -1;
+            settleHoldCapTick = -1;
             SettleSprite(activePawn);
             StartTurn(turnIndex + 1);
         }
@@ -2384,7 +2582,21 @@ namespace TheShatteredCrown
             // roll still finishes THIS turn - ending mid-tumble would freeze
             // them (and their fire) half-done until next round.
             bool rolling = p.CurJobDef == TSC_TurnBasedDefOf.TSC_BeatFlames;
-            if (autoEnd && !rolling && (elapsed >= MaxTurnTicks || ((dry || enemySpent) && !aiming && elapsed >= DrySettleTicks)))
+            // Anchor the settle window on becoming spent, not turn start
+            // (late-dry pawns were cut off instantly). A final step still
+            // in motion postpones it.
+            bool spent = (dry || enemySpent) && !aiming
+                && (p.pather == null || !p.pather.MovingNow);
+            if (!spent)
+            {
+                drySinceTick = -1;
+            }
+            else if (drySinceTick < 0)
+            {
+                drySinceTick = tm.TicksGame;
+            }
+            if (autoEnd && !rolling && (elapsed >= MaxTurnTicks
+                || (spent && tm.TicksGame - drySinceTick >= PacedWindow(DrySettleTicks, p))))
             {
                 if (dry)
                 {
@@ -2423,7 +2635,7 @@ namespace TheShatteredCrown
             // A blocked (unaffordable) attack must not become a standing-still
             // loop: enemies pass the turn; players get the job cancelled so the
             // re-pause hands control back for whatever their remaining AP buys.
-            if (attackBlockedTick >= 0 && !aiming && tm.TicksGame - attackBlockedTick >= DrySettleTicks)
+            if (attackBlockedTick >= 0 && !aiming && tm.TicksGame - attackBlockedTick >= PacedWindow(DrySettleTicks, p))
             {
                 attackBlockedTick = -1;
                 if (TSC_EncounterController.PlayerControlled(p))
@@ -2569,13 +2781,31 @@ namespace TheShatteredCrown
                 // not to the next combatant. End turn (or running dry) passes.
                 // But not with a shot still flying: a long-range arrow outlives
                 // the cooldown stance, and pausing here hangs it mid-air.
+                // And not while the pawn still LOOKS mid-action: pausing on
+                // the arrival tick froze the sprite most of a cell short of
+                // the click. Hold until it lands, capped from going IDLE
+                // (turn elapsed already spans the whole walk).
                 if (elapsed >= RePauseGraceTicks && !HoldForShots())
                 {
-                    turnStartTick = -1; // re-anchor on next resume
-                    tm.Pause();
-                    autoPause = true;
-                    Messages.Message($"{p.LabelShortCap}: {ApOf(p):0.#} AP left.",
-                        p, MessageTypeDefOf.SilentInput, historical: false);
+                    if (repauseSettleTick < 0)
+                    {
+                        repauseSettleTick = tm.TicksGame;
+                    }
+                    if (!VisualsSettling(p) || tm.TicksGame - repauseSettleTick >= SettleHoldMaxTicks)
+                    {
+                        repauseSettleTick = -1;
+                        // Cap expired (off-screen pawns never glide): snap, don't strand.
+                        SettleSprite(p);
+                        turnStartTick = -1; // re-anchor on next resume
+                        tm.Pause();
+                        autoPause = true;
+                        Messages.Message($"{p.LabelShortCap}: {ApOf(p):0.#} AP left.",
+                            p, MessageTypeDefOf.SilentInput, historical: false);
+                    }
+                }
+                else
+                {
+                    repauseSettleTick = -1;
                 }
             }
             else if (elapsed >= IdleGraceTicks)
@@ -2593,7 +2823,7 @@ namespace TheShatteredCrown
         {
             if (p != null && !TSC_EncounterController.PlayerControlled(p) && EnemyBeatTicks > 0)
             {
-                enemyOutroEndTick = Find.TickManager.TicksGame + EnemyBeatTicks;
+                enemyOutroEndTick = Find.TickManager.TicksGame + PacedWindow(EnemyBeatTicks, p);
                 return;
             }
             AdvanceTurn();
@@ -2603,6 +2833,7 @@ namespace TheShatteredCrown
         {
             if (p.pather == null || !p.pather.MovingNow)
             {
+                dryFinish.Remove(p);
                 return;
             }
             // Backstop: staggers during turns are normally converted to an
@@ -2615,14 +2846,48 @@ namespace TheShatteredCrown
             {
                 return;
             }
+            // Dry mid-cell: the step in motion finishes on credit and stops
+            // at the boundary, where the render root is continuous (StopDead
+            // between cells yanks the sprite back a full cell).
+            if (dryFinish.TryGetValue(p, out (IntVec3 cell, int tick) credit))
+            {
+                bool crossed = p.Position != credit.cell;
+                // The tick cap: a blocked path must not walk in place all turn.
+                if (crossed || Find.TickManager.TicksGame - credit.tick >= DryFinishMaxTicks)
+                {
+                    dryFinish.Remove(p);
+                    p.pather.StopDead();
+                    if (p.CurJob != null)
+                    {
+                        p.jobs.EndCurrentJob(JobCondition.InterruptForced);
+                    }
+                }
+                return;
+            }
+            // Bill only ticks where the pather actually advanced: MovingNow
+            // stays true while standing at an opening door, in a post-attack
+            // cooldown, or waiting on the async pathfinder, and billing those
+            // made the preview's price a lie. 1-tick allowance for tick order.
+            if (Find.TickManager.TicksGame - p.pather.LastMovedTick > 1)
+            {
+                return;
+            }
             if (!TrySpendAp(p, ApPerMoveTick))
             {
-                p.pather.StopDead();
-                if (p.CurJob != null)
+                // Barely into the cell: stop here. Otherwise finish the step
+                // (a one-cell overdraft at most, free of charge).
+                if (p.pather.nextCellCostLeft >= p.pather.nextCellCostTotal - 1f)
                 {
-                    p.jobs.EndCurrentJob(JobCondition.InterruptForced);
+                    p.pather.StopDead();
+                    if (p.CurJob != null)
+                    {
+                        p.jobs.EndCurrentJob(JobCondition.InterruptForced);
+                    }
                 }
-                SettleSprite(p); // StopDead discards sub-cell progress: snap, don't slide back
+                else
+                {
+                    dryFinish[p] = (p.Position, Find.TickManager.TicksGame);
+                }
             }
             else
             {
@@ -2637,9 +2902,18 @@ namespace TheShatteredCrown
             {
                 // Cinematic hold: during an enemy intro/outro beat NOBODY
                 // moves, including the actor - that is what makes it a beat.
-                if (enemyIntroEndTick >= 0 || enemyOutroEndTick >= 0)
+                if (enemyIntroEndTick >= 0)
                 {
                     return false;
+                }
+                // Outro exception: the actor alone ticks while its lunge is
+                // still playing (jitter decays on its own ticks) - a standing
+                // pawn finishing a pose, never a free step or attack.
+                if (enemyOutroEndTick >= 0)
+                {
+                    return p == activePawn
+                        && (p.pather == null || !p.pather.MovingNow)
+                        && LungePlaying(p);
                 }
                 return p == activePawn || activeGroup.Contains(p);
             }
@@ -4106,7 +4380,7 @@ namespace TheShatteredCrown
     {
         public static bool Prefix(Pawn pawn, ref Verse.AI.Job __result)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl != null && ctrl.Active && !ctrl.ApproachMode
                 && pawn?.Map != null && ctrl.ActiveOn(pawn.Map))
             {
@@ -4114,6 +4388,95 @@ namespace TheShatteredCrown
                 return false;
             }
             return true;
+        }
+    }
+
+    /// <summary>
+    /// Frozen pawns must not be walls: vanilla's pather waits behind a
+    /// blocking pawn and eventually fails the move, but a frozen blocker
+    /// never steps aside and a corridor has nothing to repath around.
+    /// Movers walk THROUGH frozen non-hostile pawns, XCOM-style; hostile
+    /// statues stay solid (a shield-wall in a doorway is a tactic, not a bug).
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_PathFollower), "WillCollideWithPawnAt")]
+    public static class Patch_PassThroughFrozenPawns
+    {
+        public static void Postfix(Pawn ___pawn, IntVec3 c, ref bool __result)
+        {
+            if (!__result || ___pawn?.Map == null)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.Active || ctrl.ApproachMode || !ctrl.ActiveOn(___pawn.Map))
+            {
+                return;
+            }
+            // Statues only: a ticking pawn clears the way on its own.
+            Pawn blocker = PawnUtility.PawnBlockingPathAt(c, ___pawn, false, false, false, false);
+            if (blocker != null && blocker != ___pawn
+                && !ctrl.ShouldTickPawn(blocker)
+                && !blocker.HostileTo(___pawn))
+            {
+                __result = false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// The click is the order. Vanilla silently diverts an ordered
+    /// destination that another drafted pawn has reserved - and reservations
+    /// outlive their jobs, so the turn flow's held and cancelled orders
+    /// littered the field with ghosts that rewrote clicks. During a player's
+    /// turn the clicked cell wins unless a real obstacle (unstandable,
+    /// forbidden, occupied, unreachable) diverts it.
+    /// </summary>
+    [HarmonyPatch(typeof(RCellFinder), nameof(RCellFinder.BestOrderedGotoDestNear))]
+    public static class Patch_GotoDest_ExactClick
+    {
+        public static bool Prefix(IntVec3 root, Pawn searcher, ref IntVec3 __result)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.Active || ctrl.ApproachMode
+                || searcher == null || searcher.Map == null || !ctrl.ActiveOn(searcher.Map)
+                || searcher != ctrl.ActivePawn || !TSC_EncounterController.PlayerControlled(searcher))
+            {
+                return true;
+            }
+            Map map = searcher.Map;
+            Pawn stander = root.GetFirstPawn(map);
+            if (root.Standable(map) && !root.IsForbidden(searcher)
+                && (stander == null || stander == searcher)
+                && searcher.CanReach(root, PathEndMode.OnCell, Danger.Deadly))
+            {
+                __result = root;
+                return false;
+            }
+            return true; // genuinely bad cell: let vanilla pick a neighbor
+        }
+    }
+
+    /// <summary>
+    /// A move that dies mid-route used to stop silently, cells short of the
+    /// click. Report why. Active player turns only: enemies have the stuck
+    /// watchdog, and outside the encounter it is vanilla's business.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_PathFollower), "PatherFailed")]
+    public static class Patch_PatherFailed_SayWhy
+    {
+        public static void Prefix(Pawn ___pawn)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.Active || ctrl.ApproachMode
+                || ___pawn == null || ___pawn != ctrl.ActivePawn
+                || !TSC_EncounterController.PlayerControlled(___pawn))
+            {
+                return;
+            }
+            ctrl.AddLog($"{___pawn.LabelShortCap} can't get through to the ordered spot; the move ends here (AP kept).",
+                TSC_EncounterController.LogWorldColor);
+            Messages.Message($"{___pawn.LabelShortCap} can't get through; the move stops here.",
+                ___pawn, MessageTypeDefOf.RejectInput, historical: false);
         }
     }
 
@@ -4130,6 +4493,19 @@ namespace TheShatteredCrown
                 return;
             }
             IntVec3 dest = RCellFinder.BestOrderedGotoDestNear(cell, pawn);
+            // If the destination still had to move, say why: a silent divert
+            // reads as "my pawn stopped short for no reason".
+            if (dest != cell)
+            {
+                Map map = pawn.Map;
+                string why = !cell.Standable(map) ? "nothing can stand there"
+                    : cell.GetFirstPawn(map) is Pawn who && who != pawn ? $"{who.LabelShortCap} is standing there"
+                    : cell.IsForbidden(pawn) ? "the spot is off-limits"
+                    : !pawn.CanReach(cell, PathEndMode.OnCell, Danger.Deadly) ? "no route reaches it"
+                    : "the spot is spoken for";
+                Messages.Message($"{pawn.LabelShortCap}: destination adjusted, {why}.",
+                    new LookTargets(dest, map), MessageTypeDefOf.SilentInput, historical: false);
+            }
             Job job = JobMaker.MakeJob(JobDefOf.Goto, dest);
             job.playerForced = true;
             if (pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc))
@@ -4376,7 +4752,7 @@ namespace TheShatteredCrown
     {
         public static bool Prefix(Pawn __instance)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || !__instance.Spawned || !ctrl.ActiveOn(__instance.Map))
             {
                 return true;
@@ -4399,7 +4775,7 @@ namespace TheShatteredCrown
     {
         public static bool Prefix(Pawn __instance)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || !__instance.Spawned || !ctrl.ActiveOn(__instance.Map))
             {
                 return true;
@@ -4434,7 +4810,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || pawn?.Map == null
                 || !TSC_EncounterController.PlayerControlled(pawn) || !ctrl.ActiveOn(pawn.Map))
             {
@@ -4451,7 +4827,7 @@ namespace TheShatteredCrown
     {
         public static bool Prefix(Fire __instance)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || !__instance.Spawned || !ctrl.ActiveOn(__instance.Map))
             {
                 return true;
@@ -4465,7 +4841,7 @@ namespace TheShatteredCrown
     {
         public static bool Prefix(Fire __instance)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || !__instance.Spawned || !ctrl.ActiveOn(__instance.Map))
             {
                 return true;
@@ -4537,7 +4913,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             Pawn pawn = abilityCommand.Ability?.pawn;
             if (ctrl == null || !ctrl.Active || ctrl.ApproachMode || pawn == null || !ctrl.ActiveOn(pawn.Map))
             {
@@ -4585,7 +4961,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             bool turnBased = ctrl != null && ctrl.Active && !ctrl.ApproachMode && ctrl.ActiveOn(map);
             if (verb is Verb_CastAbility)
             {
@@ -4629,7 +5005,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl != null && ctrl.Active && !ctrl.ApproachMode && ctrl.ActiveOn(map)
                 && ticks > TurnBasedCooldownCapTicks)
             {
@@ -4706,7 +5082,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || ctrl.ApproachMode || pawn == null
                 || !ctrl.ActiveOn(pawn.Map) || !TSC_EncounterController.PlayerControlled(pawn)
                 || ctrl.ActivePawn != pawn)
@@ -4736,7 +5112,7 @@ namespace TheShatteredCrown
     {
         public static bool Prefix(Pawn ___pawn)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || ctrl.ApproachMode || ___pawn == null
                 || !ctrl.ActiveOn(___pawn.Map) || !ctrl.IsCombatant(___pawn))
             {
@@ -4772,7 +5148,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             Pawn pawn = __instance.pawn;
             if (ctrl == null || !ctrl.Active || ctrl.ApproachMode || pawn == null
                 || !ctrl.ActiveOn(pawn.Map) || !ctrl.IsCombatant(pawn))
@@ -4793,7 +5169,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             Pawn pawn = __instance.pawn;
             if (ctrl != null && pawn != null && ctrl.ActiveOn(pawn.Map))
             {
@@ -4819,7 +5195,7 @@ namespace TheShatteredCrown
     {
         public static bool Prefix(JobDriver_Wait __instance)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || ctrl.ApproachMode)
             {
                 return true;
@@ -4844,7 +5220,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || ctrl.ApproachMode)
             {
                 return;
@@ -5023,7 +5399,7 @@ namespace TheShatteredCrown
 
         public static void Postfix(Verb_MeleeAttack __instance, bool __result)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             Pawn caster = __instance.CasterPawn;
             if (ctrl == null || !ctrl.Active || caster == null || !ctrl.ActiveOn(caster.Map))
             {
@@ -5124,7 +5500,7 @@ namespace TheShatteredCrown
 
         public static void Postfix(Verb_MeleeAttack __instance, System.Func<ManeuverDef, RulePackDef> rulePackGetter)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             Pawn caster = __instance.CasterPawn;
             if (ctrl == null || !ctrl.Active || caster == null || !ctrl.ActiveOn(caster.Map))
             {
@@ -5168,7 +5544,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active)
             {
                 return;
@@ -5198,7 +5574,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             Pawn caster = __instance.CasterPawn;
             if (ctrl == null || !ctrl.Active || caster == null || !ctrl.ActiveOn(caster.Map))
             {
@@ -5221,7 +5597,7 @@ namespace TheShatteredCrown
     {
         public static void Postfix(Pawn pawn, float amount, float __result, ref bool deflectedByMetalArmor)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || pawn == null || !ctrl.ActiveOn(pawn.MapHeld))
             {
                 return;
@@ -5261,7 +5637,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || ctrl.ApproachMode)
             {
                 return;
@@ -5290,7 +5666,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || ctrl.ApproachMode
                 || !(__instance is Pawn victim) || !ctrl.ActiveOn(victim.MapHeld))
             {
@@ -5301,7 +5677,7 @@ namespace TheShatteredCrown
 
         public static void Postfix(Thing __instance, DamageInfo dinfo, DamageWorker.DamageResult __result)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || !(__instance is Pawn victim) || !ctrl.ActiveOn(victim.MapHeld))
             {
                 return;
@@ -5479,7 +5855,7 @@ namespace TheShatteredCrown
             {
                 return true; // inner base call of an already-charged shot
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             Pawn caster = __instance.CasterPawn;
             if (ctrl == null || caster == null)
             {
@@ -5562,7 +5938,7 @@ namespace TheShatteredCrown
             {
                 return;
             }
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null)
             {
                 return;
@@ -5607,7 +5983,7 @@ namespace TheShatteredCrown
         /// </summary>
         public static void ReportDryWeapon(Pawn caster)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (caster == null || ctrl == null || !ctrl.Active || !ctrl.ActiveOn(caster.Map)
                 || !TurnBasedHooks.OutOfAmmo(caster))
             {
@@ -5701,7 +6077,7 @@ namespace TheShatteredCrown
 
         public static void Postfix(StaggerHandler __instance)
         {
-            TSC_EncounterController ctrl = TSC_EncounterController.Instance;
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || PawnField == null)
             {
                 return;

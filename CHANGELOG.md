@@ -6,6 +6,17 @@
 * Reduced the frequency of exertion tracking during realtime mode (performance improvement)
 * Don't rebuild pace label text every UI draw (performance)
 * Don't rebuild AP label text every UI draw (performance)
+* Fixed an infinite loading screen when loading a save during turn-based combat
+* Fixed pawns appearing to stop short of a move order's destination
+* Pawns no longer teleport slightly when their turn ends
+* Enemies no longer freeze halfway through a melee swing
+* Enemy turn beats and settle pauses stay the same real-time length at 2x/4x turn pace (they used to shrink with the speed setting)
+* Time spent standing still mid-move (waiting for a door to open, finishing an attack cooldown, waiting on the pathfinder) is no longer billed as movement AP: the cost of a move now matches the path preview's quote
+* Move orders now go to the exact clicked cell
+* Pawns no longer give up mid-move when a frozen pawn blocks a corridor: moving pawns walk through frozen non-hostile pawns, XCOM-style (hostiles still block)
+* A move that genuinely can't reach its destination now says "can't get through" instead of silently stopping
+* The "out of action points; their turn is ending" message no longer appears for pawns that still have AP: it now distinguishes "out of action points" (empty pool) from "not enough AP for that action"
+* Turn-based combat now starts when your own pawns open fire: engagement used to wait for the enemy to react
 
 ## [1.0.5] - 2026-08-11
 
