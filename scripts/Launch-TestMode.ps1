@@ -22,6 +22,9 @@
 
 param([switch]$QuickTest, [switch]$AutoClose, [int]$AutoCloseSeconds = 90,
       [switch]$WithMO, [switch]$WithCE,
+      # Add Vehicle Framework + Vanilla Vehicles Expanded (loaded BEFORE
+      # this mod: framework and content first, our patches after).
+      [switch]$WithVehicles,
       # Test the STANDALONE Turn-Based Combat build (dist\TurnBasedCombat)
       # WITHOUT The Shattered Crown: installs the dist copy into Mods and
       # activates it in place of TSC (no RFoW either - minimal surface).
@@ -79,6 +82,21 @@ if ($WithMO) {
     ))
 }
 
+if ($WithVehicles) {
+    # VVE needs Vanilla Expanded Framework (VEF.* types); -WithMO adds the
+    # same framework, so only add it once.
+    if (-not $mods.Contains("oskarpotocki.vanillafactionsexpanded.core")) {
+        $mods.Add("oskarpotocki.vanillafactionsexpanded.core")
+    }
+    $mods.AddRange([string[]]@(
+        "smashphil.vehicleframework",
+        "oskarpotocki.vanillavehiclesexpanded",
+        # Deployable Turret: backpack apparel that deploys a Building_TurretGun
+        # (covered by the building-turret hold; good comp/turret test surface).
+        "pal5k.deployableturret"
+    ))
+}
+
 if ($Standalone) {
     # Refresh the installed copy from dist so the test always runs the
     # latest build, then activate it INSTEAD of TSC.
@@ -128,6 +146,7 @@ $modsConfig | Out-File $cfg -Encoding utf8
 $extras = @()
 if ($WithMO) { $extras += "Medieval Overhaul" }
 if ($WithCE) { $extras += "Combat Extended" }
+if ($WithVehicles) { $extras += "Vehicle Framework + Vanilla Vehicles Expanded + Deployable Turret" }
 if ($extras.Count -gt 0) {
     Write-Host ("Test list includes: " + ($extras -join ", ")) -ForegroundColor Cyan
 }

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+* Backpack and implant turrets now fire during their owner's turn
+* Vehicle Framework support: drafted vehicles join the turn order with AP-metered driving, and vehicle turrets fire on their own vehicle's turn (costing one attack's worth of AP per salvo), holding fire on everyone else's turn
+
 ### Fixed
 * Reduced the frequency of exertion tracking during realtime mode (performance improvement)
 * Don't rebuild pace label text every UI draw (performance)

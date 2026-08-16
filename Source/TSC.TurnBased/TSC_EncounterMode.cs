@@ -273,6 +273,12 @@ namespace TheShatteredCrown
             {
                 return true;
             }
+            // Drafted VF vehicles take turns too (VF mirrors its ignition
+            // state into the vanilla drafter, so p.Drafted just works).
+            if (TSC_Compat_Vehicles.IsVehicle(p))
+            {
+                return p.Faction == Faction.OfPlayer && p.drafter != null;
+            }
             return p.Faction == Faction.OfPlayer
                 && p.RaceProps != null && p.RaceProps.IsMechanoid
                 && p.drafter != null;
@@ -795,7 +801,7 @@ namespace TheShatteredCrown
                     return true;
                 }
             }
-            List<Pawn> colonists = m.mapPawns.FreeColonistsSpawned;
+            List<Pawn> colonists = PlayerTargets(m); // point-blank next to a vehicle counts too
             for (int i = 0; i < colonists.Count; i++)
             {
                 // A sneaking pawn never trips the fight by proximity: the
@@ -832,7 +838,7 @@ namespace TheShatteredCrown
         /// </summary>
         private static bool ColonistAttacking(Map m, Pawn p)
         {
-            List<Pawn> colonists = m.mapPawns.FreeColonistsSpawned;
+            List<Pawn> colonists = PlayerTargets(m); // drafted mechs count too
             for (int i = 0; i < colonists.Count; i++)
             {
                 Pawn c = colonists[i];
@@ -858,10 +864,12 @@ namespace TheShatteredCrown
 
         private static bool AnyColonistNear(Map m, IntVec3 pos, float radius)
         {
-            List<Pawn> colonists = m.mapPawns.FreeColonistsSpawned;
-            for (int i = 0; i < colonists.Count; i++)
+            // "The fight is HERE" includes a drafted vehicle or mech being
+            // here - a vehicle-led assault must engage like a colonist one.
+            List<Pawn> targets = PlayerTargets(m);
+            for (int i = 0; i < targets.Count; i++)
             {
-                if (pos.InHorDistOf(colonists[i].Position, radius))
+                if (pos.InHorDistOf(targets[i].Position, radius))
                 {
                     return true;
                 }
@@ -1338,9 +1346,32 @@ namespace TheShatteredCrown
         }
 
         /// <summary>True when the hostile cannot hit ANY colonist from their current position - by weapon OR castable ability: their turn can only be movement.</summary>
+        /// <summary>
+        /// The player-side pawns a hostile can meaningfully fight: colonists,
+        /// plus drafted player mechs and vehicles. Judging "nobody hittable"
+        /// against colonists ALONE classified a swarm surrounding a vehicle
+        /// as movement-only every cycle - they shuffled in pod moves forever
+        /// and never got a shooting turn.
+        /// </summary>
+        private static readonly List<Pawn> tmpPlayerTargets = new List<Pawn>();
+        private static List<Pawn> PlayerTargets(Map m)
+        {
+            tmpPlayerTargets.Clear();
+            List<Pawn> pawns = m.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer);
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn p = pawns[i];
+                if (!p.Downed && (p.IsColonist || TSC_EncounterController.PlayerControlled(p)))
+                {
+                    tmpPlayerTargets.Add(p);
+                }
+            }
+            return tmpPlayerTargets;
+        }
+
         private bool IsPureMover(Pawn p)
         {
-            List<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
+            List<Pawn> colonists = PlayerTargets(map);
             Verb verb = p.TryGetAttackVerb(null);
             if (verb == null && (p.abilities == null || p.abilities.abilities.Count == 0))
             {
@@ -2064,7 +2095,9 @@ namespace TheShatteredCrown
         /// </summary>
         private static bool VisualsSettling(Pawn p)
         {
+            // Vehicles render on their own system, not the pawn tweener.
             if (p == null || !p.Spawned || p.Dead
+                || TSC_Compat_Vehicles.IsVehicle(p)
                 || (p.pather != null && p.pather.MovingNow)
                 || !Find.CameraDriver.CurrentViewRect.Contains(p.Position))
             {
@@ -2117,7 +2150,9 @@ namespace TheShatteredCrown
         /// </summary>
         private static void FaceThreat(Pawn p)
         {
-            if (p == null || !p.Spawned || p.Map == null || p.Dead || p.Downed)
+            // Vehicles keep their driving facing; the rotation tracker is not how they turn.
+            if (p == null || !p.Spawned || p.Map == null || p.Dead || p.Downed
+                || TSC_Compat_Vehicles.IsVehicle(p))
             {
                 return;
             }
@@ -2563,8 +2598,18 @@ namespace TheShatteredCrown
             // cannot buy another one is only performing patience. Turn-end
             // checks gate on aiming, not on the whole busy stance.
             bool aiming = p.stances?.curStance is Stance_Warmup;
+            // def.isIdle covers modded idle jobs too: a parked VF vehicle
+            // holds IdleVehicle (isIdle), and without this the re-pause
+            // never fired and its turn ran to the 900-tick cap.
             bool idle = p.CurJob == null
-                || ((p.CurJob.def == JobDefOf.Wait_Combat || p.CurJob.def == JobDefOf.Wait) && p.jobs.jobQueue.Count == 0);
+                || ((p.CurJob.def == JobDefOf.Wait_Combat || p.CurJob.def == JobDefOf.Wait
+                    || p.CurJob.def.isIdle) && p.jobs.jobQueue.Count == 0);
+            // A vehicle whose turret is rotating/warming/queued is WORKING,
+            // whatever its job says: re-pausing there froze the salvo mid-aim.
+            if (idle && TSC_Compat_Vehicles.IsVehicle(p) && TSC_Compat_Vehicles.VehicleTurretBusy(p))
+            {
+                idle = false;
+            }
             bool dry = ApOf(p) < DryThresholdAp;
             // The dead-air case: an enemy with SOME AP left, but less than
             // their attack costs, standing still with nothing to spend it on.
@@ -2572,7 +2617,7 @@ namespace TheShatteredCrown
             // now they pass as soon as the swing resolves.
             bool enemySpent = !TSC_EncounterController.PlayerControlled(p) && !dry
                 && ApOf(p) < AttackApCostFor(p)
-                && (p.pather == null || !p.pather.MovingNow)
+                && !MoverMovingNow(p)
                 && (p.jobs?.jobQueue == null || p.jobs.jobQueue.Count == 0);
             // Mod setting: with auto-end off, PLAYER turns never end on their
             // own - not dry, not timed out. The re-pause below still hands
@@ -2585,8 +2630,7 @@ namespace TheShatteredCrown
             // Anchor the settle window on becoming spent, not turn start
             // (late-dry pawns were cut off instantly). A final step still
             // in motion postpones it.
-            bool spent = (dry || enemySpent) && !aiming
-                && (p.pather == null || !p.pather.MovingNow);
+            bool spent = (dry || enemySpent) && !aiming && !MoverMovingNow(p);
             if (!spent)
             {
                 drySinceTick = -1;
@@ -2829,9 +2873,34 @@ namespace TheShatteredCrown
             AdvanceTurn();
         }
 
+        /// <summary>Moving right now, whichever pather this pawn drives on (vanilla or VF vehicle).</summary>
+        private static bool MoverMovingNow(Pawn p)
+        {
+            return TSC_Compat_Vehicles.IsVehicle(p)
+                ? TSC_Compat_Vehicles.VehicleMovingNow(p)
+                : p.pather != null && p.pather.MovingNow;
+        }
+
+        private static void StopMoverDead(Pawn p)
+        {
+            if (TSC_Compat_Vehicles.IsVehicle(p))
+            {
+                TSC_Compat_Vehicles.VehicleStopDead(p);
+            }
+            else
+            {
+                p.pather.StopDead();
+            }
+            if (p.CurJob != null)
+            {
+                p.jobs.EndCurrentJob(JobCondition.InterruptForced);
+            }
+        }
+
         private void MeterMovement(Pawn p)
         {
-            if (p.pather == null || !p.pather.MovingNow)
+            bool vehicle = TSC_Compat_Vehicles.IsVehicle(p);
+            if (!MoverMovingNow(p))
             {
                 dryFinish.Remove(p);
                 return;
@@ -2856,11 +2925,7 @@ namespace TheShatteredCrown
                 if (crossed || Find.TickManager.TicksGame - credit.tick >= DryFinishMaxTicks)
                 {
                     dryFinish.Remove(p);
-                    p.pather.StopDead();
-                    if (p.CurJob != null)
-                    {
-                        p.jobs.EndCurrentJob(JobCondition.InterruptForced);
-                    }
+                    StopMoverDead(p);
                 }
                 return;
             }
@@ -2868,21 +2933,21 @@ namespace TheShatteredCrown
             // stays true while standing at an opening door, in a post-attack
             // cooldown, or waiting on the async pathfinder, and billing those
             // made the preview's price a lie. 1-tick allowance for tick order.
-            if (Find.TickManager.TicksGame - p.pather.LastMovedTick > 1)
+            int lastMoved = vehicle
+                ? TSC_Compat_Vehicles.VehicleLastMovedTick(p)
+                : p.pather.LastMovedTick;
+            if (Find.TickManager.TicksGame - lastMoved > 1)
             {
                 return;
             }
             if (!TrySpendAp(p, ApPerMoveTick))
             {
                 // Barely into the cell: stop here. Otherwise finish the step
-                // (a one-cell overdraft at most, free of charge).
-                if (p.pather.nextCellCostLeft >= p.pather.nextCellCostTotal - 1f)
+                // (a one-cell overdraft at most, free of charge). Vehicles
+                // always finish the step: their cost fields are their own.
+                if (!vehicle && p.pather.nextCellCostLeft >= p.pather.nextCellCostTotal - 1f)
                 {
-                    p.pather.StopDead();
-                    if (p.CurJob != null)
-                    {
-                        p.jobs.EndCurrentJob(JobCondition.InterruptForced);
-                    }
+                    StopMoverDead(p);
                 }
                 else
                 {
@@ -3301,7 +3366,10 @@ namespace TheShatteredCrown
         private void UpdatePathPreview(TSC_EncounterController ctrl)
         {
             Pawn pawn = ctrl.ActivePawn;
+            // No preview for vehicles: they path on their own grid, and the
+            // vanilla pathfinder's line and price would both be wrong.
             bool eligible = pawn != null && TSC_EncounterController.PlayerControlled(pawn) && pawn.Spawned
+                && !TSC_Compat_Vehicles.IsVehicle(pawn)
                 && Find.TickManager.Paused && !Mouse.IsInputBlockedNow;
             if (!eligible)
             {
@@ -4439,7 +4507,8 @@ namespace TheShatteredCrown
             TSC_EncounterController ctrl = TSC_EncounterController.Current;
             if (ctrl == null || !ctrl.Active || ctrl.ApproachMode
                 || searcher == null || searcher.Map == null || !ctrl.ActiveOn(searcher.Map)
-                || searcher != ctrl.ActivePawn || !TSC_EncounterController.PlayerControlled(searcher))
+                || searcher != ctrl.ActivePawn || !TSC_EncounterController.PlayerControlled(searcher)
+                || TSC_Compat_Vehicles.IsVehicle(searcher)) // multi-cell standability is VF's call
             {
                 return true;
             }
@@ -4615,6 +4684,12 @@ namespace TheShatteredCrown
             };
             if (ctrl.ActiveOn(m) && ctrl.ActivePawn == __instance)
             {
+                // Vehicles keep only End turn: they are ordered through VF's
+                // own right-click goto (our targeter and attack commitments
+                // assume vanilla pathing and pawn verbs).
+                bool vehicleActor = TSC_Compat_Vehicles.IsVehicle(__instance);
+                if (!vehicleActor)
+                {
                 // Explicit Move order: same result as right-clicking the map,
                 // but discoverable. The targeter highlights the hovered cell;
                 // the existing paused-turn hover preview draws the dashed
@@ -4688,6 +4763,7 @@ namespace TheShatteredCrown
                     targetingParams = fullAttackParams,
                     action = t => ctrl.BeginFullAttack(attacker, t.Thing, ranged: false),
                 };
+                }
                 yield return new Command_Action
                 {
                     defaultLabel = "End turn",
@@ -4699,7 +4775,7 @@ namespace TheShatteredCrown
                 // Explicit counterpart to the suppressed auto-extinguish:
                 // orders win while burning, so this IS the order. Vanilla
                 // beat-out-flames job, no AP cost.
-                if (__instance.HasAttachment(ThingDefOf.Fire))
+                if (!vehicleActor && __instance.HasAttachment(ThingDefOf.Fire))
                 {
                     const float extinguishAp = 2f;
                     Pawn burning = __instance;
@@ -5885,6 +5961,16 @@ namespace TheShatteredCrown
                 __result = false;
                 return false;
             }
+            // Autonomous hardware, not an action: a comp turret (backpack or
+            // implant gun fires on its own clock. Billing the owner
+            // for shots they never ordered drained turns. It fires free.
+            // Placed after the group-mover and ambush guards on purpose;
+            // pod movers stay quiet, and an enemy's turret opening up during
+            // the approach still counts as the engagement signal.
+            if (IsCompTurretVerb(__instance, caster))
+            {
+                return true;
+            }
             float cost = TSC_EncounterController.AttackApCost(__instance);
             if (!ctrl.Active || caster != ctrl.ActivePawn)
             {
@@ -5921,6 +6007,29 @@ namespace TheShatteredCrown
             }
             __state = new PendingCharge { caster = caster, cost = cost };
             return true;
+        }
+
+        /// <summary>
+        /// Does this verb belong to a comp turret on the caster? Vanilla
+        /// CompTurretGun (and subclasses - most modded backpack turrets)
+        /// keeps its gun as an unspawned Thing on the comp.
+        /// </summary>
+        private static bool IsCompTurretVerb(Verb verb, Pawn caster)
+        {
+            Thing source = verb.EquipmentSource;
+            if (source == null || caster.AllComps == null)
+            {
+                return false;
+            }
+            List<ThingComp> comps = caster.AllComps;
+            for (int i = 0; i < comps.Count; i++)
+            {
+                if (comps[i] is CompTurretGun turret && turret.gun == source)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>Last tick each pawn was told it was dry, so a held order does not flood the log.</summary>

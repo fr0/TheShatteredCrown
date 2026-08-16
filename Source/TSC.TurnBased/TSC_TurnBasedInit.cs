@@ -32,6 +32,7 @@ namespace TheShatteredCrown
             harmony.PatchAll();
             TSC_Compat_RealFoW.TryPatch(harmony);
             TSC_Compat_CE.Init();
+            TSC_Compat_Vehicles.Init(harmony);
         }
     }
 
