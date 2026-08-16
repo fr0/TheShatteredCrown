@@ -1021,6 +1021,66 @@ namespace TheShatteredCrown
         /// engaging individually, which is right for things that do not
         /// coordinate.
         /// </summary>
+        private int lastAbsorbTick = -1;
+        private const int AbsorbIntervalTicks = 30;
+        private static readonly HashSet<Pawn> noTurretTargets = new HashSet<Pawn>();
+
+        /// <summary>
+        /// Seat hostiles that arrived after the cycle's initiative was built:
+        /// appended to the end of the order (reinforcements act after everyone
+        /// already fighting) and added to combatants, so the freeze applies
+        /// from the moment they are seated.
+        /// </summary>
+        private void AbsorbNewHostiles(TickManager tm)
+        {
+            if (tm.TicksGame - lastAbsorbTick < AbsorbIntervalTicks)
+            {
+                return;
+            }
+            lastAbsorbTick = tm.TicksGame;
+            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
+            HashSet<Lord> fightingLords = null;
+            List<Pawn> arrivals = null;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn p = pawns[i];
+                if (p.Dead || p.Downed || p.Faction == Faction.OfPlayer
+                    || !p.HostileTo(Faction.OfPlayer) || combatants.Contains(p))
+                {
+                    continue;
+                }
+                if (fightingLords == null)
+                {
+                    fightingLords = new HashSet<Lord>();
+                    foreach (Pawn c in combatants)
+                    {
+                        Lord l = c != null && !TSC_EncounterController.PlayerControlled(c) ? c.GetLord() : null;
+                        if (l != null)
+                        {
+                            fightingLords.Add(l);
+                        }
+                    }
+                }
+                if (HostileJoinsInitiative(p, fightingLords, noTurretTargets))
+                {
+                    (arrivals ?? (arrivals = new List<Pawn>())).Add(p);
+                }
+            }
+            if (arrivals == null)
+            {
+                return;
+            }
+            arrivals.Sort(ByInitiative);
+            foreach (Pawn p in arrivals)
+            {
+                combatants.Add(p);
+                initiative.Add(p);
+            }
+            AddLog(arrivals.Count == 1
+                ? $"--- reinforcements: {arrivals[0].LabelShortCap} joins the fight ---"
+                : $"--- reinforcements join the fight ({arrivals.Count}) ---", LogHostileColor);
+        }
+
         private bool HostileJoinsInitiative(Pawn p, HashSet<Lord> engagedLords, HashSet<Pawn> turretTargets)
         {
             if (IsAsleepOrDormant(p) || IsFleeing(p))
@@ -2444,6 +2504,16 @@ namespace TheShatteredCrown
             if (!approachMode && tm.CurTimeSpeed > TimeSpeed.Normal)
             {
                 tm.CurTimeSpeed = TimeSpeed.Normal;
+            }
+
+            // Mid-fight arrivals (drop pods, reinforcement waves) are seated
+            // as soon as they land: the world phase only freezes COMBATANTS,
+            // so an unseated drop got a free realtime window until the next
+            // cycle rebuild. The attack-refusal guard covers the ticks
+            // between landing and this scan.
+            if (!approachMode && engagedHostiles)
+            {
+                AbsorbNewHostiles(tm);
             }
 
             // Loaded mid-encounter: transient turn state is gone, restart the cycle.
@@ -5961,6 +6031,11 @@ namespace TheShatteredCrown
                 __result = false;
                 return false;
             }
+            // Add mid-fight arrivals (drop pods, reinforcement waves) to the turn order.
+            // Third-party brawls (their target is not the player) stay untouched.
+            bool looseHostile = ctrl.Active && !ctrl.ApproachMode && ctrl.ActiveOn(caster.Map)
+                && caster.Faction != Faction.OfPlayer && caster.HostileTo(Faction.OfPlayer)
+                && !ctrl.IsCombatant(caster);
             // Autonomous hardware, not an action: a comp turret (backpack or
             // implant gun fires on its own clock. Billing the owner
             // for shots they never ordered drained turns. It fires free.
@@ -5969,7 +6044,17 @@ namespace TheShatteredCrown
             // the approach still counts as the engagement signal.
             if (IsCompTurretVerb(__instance, caster))
             {
+                if (looseHostile)
+                {
+                    __result = false;
+                    return false; // a comp turret's target is the party by definition
+                }
                 return true;
+            }
+            if (looseHostile && TargetsPlayer(caster))
+            {
+                __result = false;
+                return false;
             }
             float cost = TSC_EncounterController.AttackApCost(__instance);
             if (!ctrl.Active || caster != ctrl.ActivePawn)
@@ -6007,6 +6092,19 @@ namespace TheShatteredCrown
             }
             __state = new PendingCharge { caster = caster, cost = cost };
             return true;
+        }
+
+        /// <summary>Is this hostile's current aggression aimed at the player's side?</summary>
+        private static bool TargetsPlayer(Pawn caster)
+        {
+            Thing t = caster.mindState?.enemyTarget;
+            if (t != null && t.Faction == Faction.OfPlayer)
+            {
+                return true;
+            }
+            Job job = caster.CurJob;
+            return job != null && job.targetA.HasThing
+                && job.targetA.Thing.Faction == Faction.OfPlayer;
         }
 
         /// <summary>

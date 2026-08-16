@@ -3,13 +3,17 @@
 ## [Unreleased]
 
 ### Added
-* Backpack and implant turrets now fire during their owner's turn
-* Vehicle Framework support: drafted vehicles join the turn order with AP-metered driving, and vehicle turrets fire on their own vehicle's turn (costing one attack's worth of AP per salvo), holding fire on everyone else's turn
+* Backpack and implant turrets now fire during their owner's turn in turn-based mode
+* Vehicle Framework support in turn-based mode: drafted vehicles join the turn order with AP-metered driving, and vehicle turrets fire on their own vehicle's turn (costing one attack's worth of AP per salvo), holding fire on everyone else's turn
 
 ### Fixed
-* Reduced the frequency of exertion tracking during realtime mode (performance improvement)
-* Don't rebuild pace label text every UI draw (performance)
-* Don't rebuild AP label text every UI draw (performance)
+Performance improvements:
+* Reduced the frequency of exertion tracking during realtime mode
+* Don't rebuild pace label text every UI draw
+* Don't rebuild AP label text every UI draw
+
+Turn-based mode fixes:
+* Mid-fight reinforcements (drop pods, airdrops) can no longer attack the party during the world phase before joining the turn order
 * Fixed an infinite loading screen when loading a save during turn-based combat
 * Fixed pawns appearing to stop short of a move order's destination
 * Pawns no longer teleport slightly when their turn ends
