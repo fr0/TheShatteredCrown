@@ -14,6 +14,7 @@ Performance improvements:
 
 Turn-based mode fixes:
 * Utility actions (stripping a body, force-equipping, reloading, tending) are no longer free during turns: they cost AP based on the time they would take at the same rate as movement.
+* Kidnappers no longer drop their victim at the end of every turn
 * Mid-fight reinforcements (drop pods, airdrops) can no longer attack the party during the world phase before joining the turn order
 * Fixed an infinite loading screen when loading a save during turn-based combat
 * Fixed pawns appearing to stop short of a move order's destination

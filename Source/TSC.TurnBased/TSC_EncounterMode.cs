@@ -2715,7 +2715,11 @@ namespace TheShatteredCrown
             // Anchor the settle window on becoming spent, not turn start
             // (late-dry pawns were cut off instantly). A final step still
             // in motion postpones it.
-            bool spent = (dry || enemySpent) && !aiming && !MoverMovingNow(p);
+            // A dry CARRIER ends its turn while still mid-stride: stopping
+            // them would drop the passenger, so the freeze cuts them in
+            // motion instead and they resume next turn.
+            bool spent = (dry || enemySpent) && !aiming
+                && (!MoverMovingNow(p) || CarryingPawn(p));
             if (!spent)
             {
                 drySinceTick = -1;
@@ -2957,6 +2961,16 @@ namespace TheShatteredCrown
             AdvanceTurn();
         }
 
+        /// <summary>
+        /// Carrying a pawn (kidnappers, rescuers): ending their move job
+        /// drops the passenger (vanilla drops carried things on interrupt),
+        /// so the dry stop must never kill it.
+        /// </summary>
+        private static bool CarryingPawn(Pawn p)
+        {
+            return p.carryTracker?.CarriedThing is Pawn;
+        }
+
         /// <summary>Moving right now, whichever pather this pawn drives on (vanilla or VF vehicle).</summary>
         private static bool MoverMovingNow(Pawn p)
         {
@@ -3088,6 +3102,12 @@ namespace TheShatteredCrown
             }
             if (!TrySpendAp(p, ApPerMoveTick))
             {
+                // A carrier is never stopped dead (see CarryingPawn): the
+                // turn ends around them and they freeze mid-stride.
+                if (CarryingPawn(p))
+                {
+                    return;
+                }
                 // Barely into the cell: stop here. Otherwise finish the step
                 // (a one-cell overdraft at most, free of charge). Vehicles
                 // always finish the step: their cost fields are their own.
