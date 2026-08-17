@@ -1,10 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.6] - 2026-08-16
 
 ### Added
 * Backpack and implant turrets now fire during their owner's turn in turn-based mode
-* Vehicle Framework support in turn-based mode: drafted vehicles join the turn order with AP-metered driving, and vehicle turrets fire on their own vehicle's turn (costing one attack's worth of AP per salvo), holding fire on everyone else's turn
+* Vehicle Framework support in turn-based mode: drafted vehicles join the turn order with AP-metered driving, and vehicle turrets fire on their own vehicle's turn
 
 ### Fixed
 Performance improvements:
