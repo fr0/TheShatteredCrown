@@ -692,6 +692,7 @@ namespace TheShatteredCrown
             exitRequested = false;
             enemiesFirstNextCycle = false;
             recentExertion.Clear();
+            laborBills.Clear();
             if (!message.NullOrEmpty())
             {
                 Messages.Message(message, MessageTypeDefOf.SilentInput, historical: false);
@@ -1376,8 +1377,22 @@ namespace TheShatteredCrown
                     // ghost diverts other pawns' clicks near that cell.
                     activePawn.Map?.pawnDestinationReservationManager?.ObsoleteAllClaimedBy(activePawn);
                 }
-                Find.TickManager.Pause();
-                autoPause = true;
+                // A held half-done task (a long reload spanning turns)
+                // resumes instead of pausing for orders
+                Job held = activePawn.CurJob;
+                if (held != null && IsLaborJob(held.def))
+                {
+                    if (Find.TickManager.Paused)
+                    {
+                        Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+                    }
+                    autoPause = false;
+                }
+                else
+                {
+                    Find.TickManager.Pause();
+                    autoPause = true;
+                }
                 CameraJumper.TryJumpAndSelect(activePawn, CameraJumper.MovementMode.Pan);
                 Messages.Message($"{activePawn.LabelShortCap}'s turn.",
                     activePawn, MessageTypeDefOf.SilentInput, historical: false);
@@ -2737,10 +2752,9 @@ namespace TheShatteredCrown
                     Job doomed = pendingJobStopJob;
                     pendingJobStop = null;
                     pendingJobStopJob = null;
-                    // Only the job that DELIVERED the attack ends here. If the
-                    // player already replaced it with a fresh order, that
-                    // order stands.
-                    if (doomed != null && p.CurJob == doomed && !IsMoveJob(doomed.def))
+                    // Only the job that delivered the attack ends here - and
+                    // only while it still is an attack job
+                    if (doomed != null && p.CurJob == doomed && IsActionJob(doomed.def))
                     {
                         p.jobs.EndCurrentJob(JobCondition.Succeeded);
                     }
@@ -2967,12 +2981,74 @@ namespace TheShatteredCrown
             }
         }
 
+        /// <summary>
+        /// Is this job labor the turn clock should bill? Time is the AP
+        /// currency: stripping a body, force-equipping a weapon, reloading,
+        /// tending. Excluded: moves (the pather meter bills those),
+        /// attacks and casts (priced per cast), waits and idle jobs
+        /// (free), and the extinguish roll (flat-priced).
+        /// </summary>
+        private static bool IsLaborJob(JobDef def)
+        {
+            return def != null
+                && !IsMoveJob(def) && !IsActionJob(def)
+                && def != JobDefOf.Wait && def != JobDefOf.Wait_Combat && !def.isIdle
+                && def != TSC_TurnBasedDefOf.TSC_BeatFlames;
+        }
+
+        // Total billed per labor task, so no single action can cost more
+        // than one full pool. Keyed per pawn; job identity is checked by
+        // reference AND def (pooled Job objects get recycled).
+        private struct LaborBill
+        {
+            public Job job;
+            public JobDef def;
+            public float billed;
+        }
+        private readonly Dictionary<Pawn, LaborBill> laborBills = new Dictionary<Pawn, LaborBill>();
+
+        private void MeterLabor(Pawn p)
+        {
+            Job job = p.CurJob;
+            if (job == null || !IsLaborJob(job.def))
+            {
+                return;
+            }
+            // An attack stance mid-job-change belongs to the priced attack,
+            // not to the labor clock.
+            if (p.stances?.curStance is Stance_Busy)
+            {
+                return;
+            }
+            laborBills.TryGetValue(p, out LaborBill bill);
+            if (bill.job != job || bill.def != job.def)
+            {
+                bill = new LaborBill { job = job, def = job.def, billed = 0f };
+            }
+            // One task never costs more than one full pool: a long CE reload
+            // is 8 AP, not 8 per turn it happens to span.
+            if (bill.billed >= BaseAp)
+            {
+                laborBills[p] = bill;
+                return;
+            }
+            // Dry mid-task: the job survives. Long labor (a CE revolver
+            // reload outlasts a whole 8 AP pool) must span turns, not be
+            // impossible.
+            if (TrySpendAp(p, ApPerMoveTick))
+            {
+                bill.billed += ApPerMoveTick;
+            }
+            laborBills[p] = bill;
+        }
+
         private void MeterMovement(Pawn p)
         {
             bool vehicle = TSC_Compat_Vehicles.IsVehicle(p);
             if (!MoverMovingNow(p))
             {
                 dryFinish.Remove(p);
+                MeterLabor(p);
                 return;
             }
             // Backstop: staggers during turns are normally converted to an
@@ -4451,7 +4527,13 @@ namespace TheShatteredCrown
                     : current < cheapest ? WarnColor
                     : AvailableColor;
             }
-            Widgets.Label(new Rect(pos.x - 100f, pos.y - 8f, 200f, 16f), label);
+            Rect labelRect = new Rect(pos.x - 100f, pos.y - 8f, 200f, 16f);
+            Widgets.Label(labelRect, label);
+            // Teach the currency where the player already looks at it.
+            TooltipHandler.TipRegion(labelRect,
+                "Action points this turn. Movement and other work (stripping, equipping, tending) "
+                + "drain AP by the time they take - 1 AP is about half a second of effort. Attacks "
+                + "have the fixed prices shown here; the dotted line prices a move before you order it.");
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
@@ -4600,6 +4682,123 @@ namespace TheShatteredCrown
     /// click. Report why. Active player turns only: enemies have the stuck
     /// watchdog, and outside the encounter it is vanilla's business.
     /// </summary>
+    /// <summary>
+    /// Quote the labor price on the order itself: "Strip (~1.6 AP)". Labor
+    /// is billed by time.
+    /// </summary>
+    [HarmonyPatch]
+    public static class Patch_FloatMenu_LaborCost
+    {
+        public static IEnumerable<MethodBase> TargetMethods()
+        {
+            // Not Equip: vanilla weapon pickup is instant
+            System.Type[] providers =
+            {
+                typeof(FloatMenuOptionProvider_Strip),
+                typeof(FloatMenuOptionProvider_Wear),
+            };
+            foreach (System.Type type in providers)
+            {
+                foreach (MethodInfo m in type.GetMethods(AccessTools.all))
+                {
+                    if (m.Name == "GetSingleOptionFor" && m.DeclaringType == type
+                        && typeof(FloatMenuOption).IsAssignableFrom(m.ReturnType))
+                    {
+                        yield return m;
+                    }
+                }
+            }
+        }
+
+        public static void Postfix(FloatMenuOption __result, object[] __args, MethodBase __originalMethod)
+        {
+            if (__result == null || __result.Disabled)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.Active || ctrl.ApproachMode
+                || ctrl.Phase != TSC_EncounterController.EncounterPhase.Turn)
+            {
+                return;
+            }
+            Thing clicked = null;
+            FloatMenuContext context = null;
+            for (int i = 0; i < __args.Length; i++)
+            {
+                if (clicked == null && __args[i] is Thing t)
+                {
+                    clicked = t;
+                }
+                if (context == null && __args[i] is FloatMenuContext c)
+                {
+                    context = c;
+                }
+            }
+            if (context == null || context.FirstSelectedPawn != ctrl.ActivePawn)
+            {
+                return;
+            }
+            float ticks = __originalMethod.DeclaringType == typeof(FloatMenuOptionProvider_Strip)
+                ? 60f // JobDriver_Strip's flat wait
+                : Mathf.Max(30f, (clicked?.GetStatValue(StatDefOf.EquipDelay) ?? 0.5f) * 60f);
+            __result.Label += $" (~{ticks * TSC_EncounterController.ApPerMoveTick:0.#} AP)";
+        }
+    }
+
+    /// <summary>
+    /// AP is charged when the cast starts, but a ranged cast can die on its
+    /// first shot without firing anything - CE's signature case is pulling
+    /// the trigger on an empty magazine, which ends the cast and starts a
+    /// reload. Refund a charged cast whose first shot never left the barrel.
+    /// </summary>
+    [HarmonyPatch]
+    public static class Patch_RangedMisfire_Refund
+    {
+        private static readonly AccessTools.FieldRef<Verb, int> BurstShotsLeft =
+            AccessTools.FieldRefAccess<Verb, int>("burstShotsLeft");
+
+        public static IEnumerable<MethodBase> TargetMethods()
+        {
+            yield return AccessTools.DeclaredMethod(typeof(Verb_LaunchProjectile), "TryCastShot");
+            System.Type ce = AccessTools.TypeByName("CombatExtended.Verb_LaunchProjectileCE");
+            MethodInfo ceCast = ce != null ? AccessTools.DeclaredMethod(ce, "TryCastShot") : null;
+            if (ceCast != null)
+            {
+                yield return ceCast; // no base call: exactly one of these runs per shot
+            }
+        }
+
+        public static void Postfix(Verb __instance, bool __result)
+        {
+            if (__result)
+            {
+                return;
+            }
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            Pawn caster = __instance.CasterPawn;
+            if (ctrl == null || !ctrl.Active || caster == null
+                || caster != ctrl.ActivePawn || !ctrl.ActiveOn(caster.Map))
+            {
+                return;
+            }
+            // Mid-burst failures keep their charge: shots were delivered.
+            if (BurstShotsLeft(__instance) != __instance.verbProps.burstShotCount)
+            {
+                return;
+            }
+            // Comp turret shots were never charged; nothing to give back.
+            if (Patch_Verb_TryStartCastOn_ApCost.IsCompTurretVerb(__instance, caster))
+            {
+                return;
+            }
+            float cost = TSC_EncounterController.AttackApCost(__instance);
+            ctrl.SpendAp(caster, -cost); // credit without GrantAp's "surges" log line
+            ctrl.AddLog($"{caster.LabelShortCap}'s shot never fired: {cost:0.#} AP refunded.",
+                TSC_EncounterController.LogWorldColor);
+        }
+    }
+
     [HarmonyPatch(typeof(Pawn_PathFollower), "PatherFailed")]
     public static class Patch_PatherFailed_SayWhy
     {
@@ -5475,6 +5674,19 @@ namespace TheShatteredCrown
         /// unpauses the game by itself - right-click to move or attack, watch it
         /// happen, control returns on idle. The pause is invisible plumbing.
         /// </summary>
+        public static void UnpauseForActivePawnOrder(Pawn pawn)
+        {
+            TSC_EncounterController ctrl = TSC_EncounterController.Current;
+            if (ctrl == null || !ctrl.Active)
+            {
+                return;
+            }
+            if (pawn == ctrl.ActivePawn && TSC_EncounterController.PlayerControlled(pawn)
+                && Find.TickManager.Paused)
+            {
+                Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+            }
+        }
         public static void Postfix(bool __result, Job job, Pawn ___pawn)
         {
             if (!__result || ___pawn == null || Verse.Current.Game == null)
@@ -5489,9 +5701,23 @@ namespace TheShatteredCrown
             // Pooled-Job hygiene: this order must not inherit a recycled
             // object's "already attacked" flags.
             ctrl.NoteFreshOrder(___pawn, job);
-            if (___pawn == ctrl.ActivePawn && TSC_EncounterController.PlayerControlled(___pawn) && Find.TickManager.Paused)
+            UnpauseForActivePawnOrder(___pawn);
+        }
+    }
+
+    /// <summary>
+    /// The same auto-unpause for jobs started without TryTakeOrderedJob:
+    /// gizmos may call StartJob directly (CE's Reload does).
+    /// While paused, only UI clicks can start a job, so any job landing on the active pawn is an order.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_JobTracker), "StartJob")]
+    public static class Patch_StartJob_UnpauseActivePawn
+    {
+        public static void Postfix(Pawn ___pawn)
+        {
+            if (___pawn != null && Verse.Current.Game != null)
             {
-                Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
+                Patch_TryTakeOrderedJob_EncounterQueueing.UnpauseForActivePawnOrder(___pawn);
             }
         }
     }
@@ -6112,7 +6338,7 @@ namespace TheShatteredCrown
         /// CompTurretGun (and subclasses - most modded backpack turrets)
         /// keeps its gun as an unspawned Thing on the comp.
         /// </summary>
-        private static bool IsCompTurretVerb(Verb verb, Pawn caster)
+        internal static bool IsCompTurretVerb(Verb verb, Pawn caster)
         {
             Thing source = verb.EquipmentSource;
             if (source == null || caster.AllComps == null)
