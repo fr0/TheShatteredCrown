@@ -4823,6 +4823,47 @@ namespace TheShatteredCrown
         }
     }
 
+    /// <summary>
+    /// Quicktest maps exist to test combat: reroll starting pawns that are
+    /// incapable of violence (a pacifist starter cannot even be draft-
+    /// tested). Only active under the -quicktest command line flag; normal
+    /// game starts are untouched.
+    /// </summary>
+    [HarmonyPatch(typeof(StartingPawnUtility), nameof(StartingPawnUtility.NewGeneratedStartingPawn))]
+    public static class Patch_QuickTest_CombatCapableStarters
+    {
+        private static bool? quickTest;
+        private static bool rerolling;
+
+        public static void Postfix(ref Pawn __result, int index)
+        {
+            if (rerolling || __result == null)
+            {
+                return;
+            }
+            if (quickTest == null)
+            {
+                quickTest = GenCommandLine.CommandLineArgPassed("quicktest");
+            }
+            if (!quickTest.Value)
+            {
+                return;
+            }
+            rerolling = true;
+            try
+            {
+                for (int i = 0; i < 20 && __result.WorkTagIsDisabled(WorkTags.Violent); i++)
+                {
+                    __result = StartingPawnUtility.NewGeneratedStartingPawn(index);
+                }
+            }
+            finally
+            {
+                rerolling = false;
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(Pawn_PathFollower), "PatherFailed")]
     public static class Patch_PatherFailed_SayWhy
     {
