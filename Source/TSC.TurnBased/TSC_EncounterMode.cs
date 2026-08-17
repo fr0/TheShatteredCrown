@@ -2888,9 +2888,11 @@ namespace TheShatteredCrown
                 }
                 else if (lastMoveProgressTick >= 0)
                 {
+                    // Allowance from the actual cell being crossed, terrain included.
                     float speed = p.GetStatValue(StatDefOf.MoveSpeed);
-                    int perCell = speed > 0.01f ? Mathf.CeilToInt(60f / speed) : 60;
-                    if (tm.TicksGame - lastMoveProgressTick >= Mathf.Max(StuckGraceTicks, perCell * 3))
+                    float perCell = speed > 0.01f ? 60f / speed : 60f;
+                    perCell = Mathf.Max(perCell, p.pather.nextCellCostTotal);
+                    if (tm.TicksGame - lastMoveProgressTick >= Mathf.Max(StuckGraceTicks, Mathf.CeilToInt(perCell * 3f)))
                     {
                         AddLog($"{p.LabelShortCap} can't get through; turn ends.", LogWorldColor);
                         EndTurnWithBeat(p);
