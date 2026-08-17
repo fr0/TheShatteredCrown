@@ -25,6 +25,10 @@ param([switch]$QuickTest, [switch]$AutoClose, [int]$AutoCloseSeconds = 90,
       # Add Vehicle Framework + Vanilla Vehicles Expanded (loaded BEFORE
       # this mod: framework and content first, our patches after).
       [switch]$WithVehicles,
+      # Any additional packageIds to activate (comma-separated), loaded
+      # before our mods. For one-off compat tests:
+      #   -ExtraMods "el.invmech"
+      [string]$ExtraMods,
       # Test the STANDALONE Turn-Based Combat build (dist\TurnBasedCombat)
       # WITHOUT The Shattered Crown: installs the dist copy into Mods and
       # activates it in place of TSC (no RFoW either - minimal surface).
@@ -95,6 +99,13 @@ if ($WithVehicles) {
         # (covered by the building-turret hold; good comp/turret test surface).
         "pal5k.deployableturret"
     ))
+}
+
+if ($ExtraMods) {
+    foreach ($id in ($ExtraMods -split ',')) {
+        $trimmed = $id.Trim().ToLowerInvariant()
+        if ($trimmed -and -not $mods.Contains($trimmed)) { $mods.Add($trimmed) }
+    }
 }
 
 if ($Standalone) {
