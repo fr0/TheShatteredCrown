@@ -693,6 +693,7 @@ namespace TheShatteredCrown
             enemiesFirstNextCycle = false;
             recentExertion.Clear();
             laborBills.Clear();
+            pendingStunTicks.Clear();
             if (!message.NullOrEmpty())
             {
                 Messages.Message(message, MessageTypeDefOf.SilentInput, historical: false);
@@ -1316,9 +1317,23 @@ namespace TheShatteredCrown
             // outlive several rounds. Instead the turn is forfeit and one
             // round's worth of stun burns off: "stunned 3 seconds" reads as
             // "loses about two turns".
-            if (activePawn.stances?.stunner != null && activePawn.stances.stunner.Stunned)
+            bool liveStun = activePawn.stances?.stunner != null && activePawn.stances.stunner.Stunned;
+            pendingStunTicks.TryGetValue(activePawn, out int rememberedStun);
+            if (liveStun || rememberedStun > 0)
             {
-                DrainStun(activePawn, RoundStunTicks);
+                if (liveStun)
+                {
+                    DrainStun(activePawn, RoundStunTicks);
+                    pendingStunTicks.Remove(activePawn); // never charge twice for one stun
+                }
+                else if (rememberedStun > RoundStunTicks)
+                {
+                    pendingStunTicks[activePawn] = rememberedStun - RoundStunTicks;
+                }
+                else
+                {
+                    pendingStunTicks.Remove(activePawn);
+                }
                 AddLog($"--- {activePawn.LabelShortCap} is stunned: turn lost ---",
                     TSC_EncounterController.PlayerControlled(activePawn) ? LogPlayerColor : LogHostileColor);
                 Messages.Message($"{activePawn.LabelShortCap} is stunned and loses the turn.",
@@ -2037,6 +2052,25 @@ namespace TheShatteredCrown
         // if the field ever vanishes in an update, ExpireStun clears it
         // outright rather than leaving a pawn stunlocked forever.
         private const int RoundStunTicks = 150;
+
+        /// <summary>
+        /// Stun ticks owed by frozen combatants whose stun stance expired
+        /// before their turn arrived (time compression eats short stuns).
+        /// </summary>
+        private readonly Dictionary<Pawn, int> pendingStunTicks = new Dictionary<Pawn, int>();
+
+        /// <summary>A frozen combatant was stunned: remember it so the stun still costs turns.</summary>
+        public void NoteStunApplied(Pawn victim, int ticks)
+        {
+            if (!active || approachMode || victim == null || ticks <= 0
+                || !ActiveOn(victim.Map) || !combatants.Contains(victim)
+                || ShouldTickPawn(victim))
+            {
+                return; // a ticking pawn's stun runs live; only statues need the memo
+            }
+            pendingStunTicks.TryGetValue(victim, out int existing);
+            pendingStunTicks[victim] = Mathf.Max(existing, ticks);
+        }
         private static readonly System.Reflection.FieldInfo StunTicksLeftField =
             AccessTools.Field(typeof(StunHandler), "stunTicksLeft");
 
@@ -4860,6 +4894,23 @@ namespace TheShatteredCrown
             finally
             {
                 rerolling = false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Route every stun through the controller's memory: a stun landing on
+    /// a frozen combatant would otherwise tick away in compressed time and
+    /// cost nothing by the victim's turn.
+    /// </summary>
+    [HarmonyPatch(typeof(StunHandler), nameof(StunHandler.StunFor))]
+    public static class Patch_StunFor_RememberForTurn
+    {
+        public static void Postfix(Thing ___parent, int ticks)
+        {
+            if (___parent is Pawn victim)
+            {
+                TSC_EncounterController.Current?.NoteStunApplied(victim, ticks);
             }
         }
     }

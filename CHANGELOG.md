@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+* Stuns now cost turns even when their real-time duration elapses while the victim is frozen
+
 ## [1.0.6] - 2026-08-16
 
 ### Added
