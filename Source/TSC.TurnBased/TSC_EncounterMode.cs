@@ -2702,7 +2702,9 @@ namespace TheShatteredCrown
             // now they pass as soon as the swing resolves.
             bool enemySpent = !TSC_EncounterController.PlayerControlled(p) && !dry
                 && ApOf(p) < AttackApCostFor(p)
-                && !MoverMovingNow(p)
+                && !(TSC_Compat_Vehicles.IsVehicle(p)
+                    ? TSC_Compat_Vehicles.VehicleMovingNow(p)
+                    : p.pather != null && p.pather.Moving)
                 && (p.jobs?.jobQueue == null || p.jobs.jobQueue.Count == 0);
             // Mod setting: with auto-end off, PLAYER turns never end on their
             // own - not dry, not timed out. The re-pause below still hands
